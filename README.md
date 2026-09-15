@@ -34,65 +34,52 @@ the `ArithmeticHeights` roadmap"), sorry-free.
 
 ## Tau Ceti principles this repo follows
 
-From `~/math/TauCeti/AGENTS.md`, its `lakefile.toml`, and its CI. The first three are enforced
-mechanically here — by `warningAsError`, `lake exe axioms` and `lake exe module-system`; the rest
-are honoured by hand until the corresponding machinery is adapted (see *Still to settle*).
+From `~/math/TauCeti/AGENTS.md`, its `lakefile.toml`, and its CI. Everything marked ✅ is enforced
+mechanically by `scripts/check.sh`, not by good intentions; the last three are judgement calls that
+no script can make.
 
-- **No `sorry`, and no axioms beyond `propext`, `Classical.choice`, `Quot.sound`** — hence no
+- ✅ **No `sorry`, and no axioms beyond `propext`, `Classical.choice`, `Quot.sound`** — hence no
   `native_decide` — in any file that is meant to become Tau Ceti code. `Roadmap/Suggested.lean`
   is exempt: it is a human-owned target file, not library code, and not a default build target.
-- **No `set_option`** in library source: it is an escape hatch for `maxHeartbeats`, linters and
+- ✅ **No `set_option`** in library source: it is an escape hatch for `maxHeartbeats`, linters and
   `maxRecDepth`.
-- **Mathlib's standard linter set with `warningAsError`**, file length ≤ 1500 lines (≤ 1000 for a
-  newly added file).
-- **Every file opts into the Lean module system**: a leading `module`, `public import` for imports
-  whose contents appear in the file's public API, plain `import` otherwise, and a `public section`.
-- **Copyright header** in Mathlib's format (`Copyright (c) 2026 … Released under Apache 2.0 license
-  as described in the file LICENSE. / Authors: …`).
-- **Fine-grained Mathlib imports, never `import Mathlib`.**
+- ✅ **Mathlib's standard linter set with `warningAsError`** and a 1500-line file ceiling, plus the
+  text-based and environment linters. (Upstream also holds a *newly added* file to 1000 lines, in a
+  CI step that needs a diff; that one is not reproduced here.)
+- ✅ **Every file opts into the Lean module system**: a leading `module`, `public import` for
+  imports whose contents appear in the file's public API, plain `import` otherwise, and a
+  `public section`.
+- ✅ **Copyright header** in Mathlib's format (`Copyright (c) 2026 … Released under Apache 2.0
+  license as described in the file LICENSE. / Authors: …`).
+- ✅ **Fine-grained Mathlib imports, never `import Mathlib`.** And declarations go into
+  Mathlib's root namespaces, never inside a `namespace ArithmeticHeights`.
 - **Defer to Mathlib's design decisions**; consume Mathlib by name and rebuild nothing it already
   has. Track Mathlib `master`; bumps are forward-only.
 - **No backwards-compatibility surface**: no aliases, forwarding modules, or deprecated shims. When
   something is renamed or superseded, update every use and delete the old name in the same change.
 - **Improving existing code is always in scope**; adding *new* mathematics is gated by the roadmap.
 
-## Tau Ceti files copied to this repo root
+## The gates, and the Tau Ceti machinery behind them
 
-Verbatim copies now sit in two **gitignored** directories, taken from `~/math/TauCeti` at commit
+Seven gates run over the library — the build itself plus six scripts — nearly all adapted from Tau
+Ceti and living in `scripts/`. `scripts/check.sh` runs the lot in one round; `--quick` skips the
+four that need a build. What each catches, what was changed in adapting it, and what was
+deliberately **not** ported (upstream's 900-line `lint-env.sh`, its dot-notation lint, the
+mathlib-shim expiry check) is recorded in [`scripts/PROVENANCE.md`](scripts/PROVENANCE.md).
+
+Beside them sit two local, **gitignored** reference copies, taken from `~/math/TauCeti` at commit
 `37ae92f8170796e94b66279ea66f8635d9ca2aa0` on 2026-09-15:
 
-- **`scripts/`** — the governance machinery: the header audit, the source-discovery and lint
-  entry points with their baselines, and the mathlib-shim expiry check. Ignored, **except**
-  `Axioms.lean` and `ModuleSystem.lean`, which are adapted, tracked and wired (below). See
-  `scripts/PROVENANCE.md`.
+- the part of `scripts/` not yet adapted — `lean_source.py`, `lint-dot-notation.py` and its
+  baseline, `lint-baseline.txt`, `lint-nolints-allowlist.txt`, `check-expired-mathlib-shims.py`
+  (`.gitignore` names them one by one, so anything else added to `scripts/` is tracked by default);
 - **`TauCeti/`** — the contract and configuration, for reading only: `AGENTS.md`, `lakefile.toml`,
   `formalization.yaml`, `mathlib-shims.json`, `.github/workflows/ci.yml`, `docbuild/`, at their
   upstream paths. See `TauCeti/PROVENANCE.md`.
 
-Apart from those two audits, both directories are local references, so **nothing tracked may point
-into them** — a fresh clone does not have them. Adopting a file means adapting it, un-ignoring it,
-and committing the result. Every one of them hard-codes the library root `TauCeti`, which is
-`ArithmeticHeights` here. The table records what each buys and what adoption costs.
-
-| Source (in `~/math/TauCeti/`) | What it gives us | Adaptation |
-| --- | --- | --- |
-| `scripts/Axioms.lean` | `lake exe axioms`: kernel-level audit that every declaration uses only the three allowlisted axioms — catches `sorry`/`sorryAx`, `native_decide`, home-rolled axioms | point `auditedRoot` at `ArithmeticHeights` |
-| `scripts/ModuleSystem.lean` | `lake exe module-system`: reads `ModuleData.isModule` out of each built `.olean`, so every file really opted into `module` | same root change |
-| `scripts/HeaderStyle.lean` | copyright/`Authors:` audit via Mathlib's `copyrightHeaderChecks`, which the command linter skips for files absent from the library root | none beyond the file list it is handed |
-| `scripts/source-modules.sh` | fail-closed discovery of library sources (rejects symlinks and non-module paths); shared by the two lint entry points so they cannot drift | rename the `TauCeti` path regex and the function name |
-| `scripts/lint-style.sh` | runs the header audit plus Mathlib's `lint-style` text linters over the whole library by generating a temporary import-all root | root name; we *have* a real root, so the empty-root workaround can be simplified |
-| `scripts/lint-env.sh`, `scripts/lint-baseline.txt` | environment lint: default linters plus a docstring scan against a grandfathered baseline | baseline starts empty here |
-| `scripts/lint-dot-notation.py` + `scripts/lean_source.py`, `scripts/lint-dot-notation-baseline.txt` | keeps Mathlib type namespaces at the root (relevant: `Polynomial.mulHeight`, `Matrix.mulHeight`, `Submodule.mulHeight` are exactly such names) | baseline starts empty here |
-| `lakefile.toml` (the two `lean_exe` blocks) | wiring for `lake exe axioms` and `lake exe module-system` | the `leanOptions` are **already ported** into our `lakefile.lean`; only the executables are left, and they need the two scripts above |
-| `AGENTS.md` (+ `.claude/CLAUDE.md` symlink to it) | the contributor contract itself — the rules above in their authoritative wording | drop the PR/review/roadmap-repo sections; there is no PR pipeline here |
-| `formalization.yaml` | repo-root metadata (v0.2) for formalization projects: sources, automation, sorry/axiom status | rewrite for this repo: source = Bombieri–Gubler + the roadmap, single human author |
-| `docbuild/` | `doc-gen4` setup for generated API documentation | optional; only if we want docs |
-| `.github/workflows/ci.yml` | the gates in one place: import-boundary and no-`set_option` textual guards, build, axiom audit, module-system audit, env lint, dot-notation lint, style lint | heavy; the two textual guards are three lines each and worth lifting even without the workflow |
-| `TauCeti/mathlib-shims.json` + `scripts/check-expired-mathlib-shims.py` | tracks declarations vendored from open Mathlib PRs so they are removed once upstream lands | directly relevant: Layer 0.3 shadows [mathlib4#41606](https://github.com/leanprover-community/mathlib4/pull/41606) and Layer 6.5 [mathlib4#40791](https://github.com/leanprover-community/mathlib4/pull/40791) |
-
-Not relevant here: `COORDINATION.md` (the multi-agent claim/lease contract — one repo, one author),
-`.github/CODEOWNERS` and everything under `.github/workflows/` to do with review, auto-merge, Zulip
-and the Lake cache, and `scripts/` tooling for PR statistics and toolchain tags.
+A fresh clone has neither, so **nothing tracked may point into them**. Adopting a file means
+adapting it — each hard-codes the library root `TauCeti`, which is `ArithmeticHeights` here —
+un-ignoring it, and committing the result with a header saying what it came from.
 
 ## Layout and building
 
@@ -102,50 +89,52 @@ ArithmeticHeights/   the library: sorry-free Lean, Tau Ceti rules, the default b
   README.md          the roadmap (prose)
 Roadmap/
   Suggested.lean     the roadmap's target signatures: sorry-allowed, NOT a default target
-scripts/             [gitignored, except:] Tau Ceti's lints, verbatim, to be adapted
-  Axioms.lean        tracked: `lake exe axioms`, the axiom allowlist gate
-  ModuleSystem.lean  tracked: `lake exe module-system`, the `module` opt-in gate
+scripts/             the gates (see scripts/PROVENANCE.md); a few ignored reference copies
 TauCeti/             [gitignored] Tau Ceti's contract and configuration, verbatim, to read
 *.pdf                [gitignored] literature (Bombieri–Gubler)
 ```
 
 ```bash
-lake exe cache get        # Mathlib oleans
-lake build                # the library only
-lake exe axioms           # audit: only propext / Classical.choice / Quot.sound
-lake exe module-system    # audit: every library file opted into `module`
-lake build Roadmap        # optional: check the target signatures still elaborate
+lake exe cache get          # Mathlib oleans
+scripts/check.sh            # every gate, in one round
+scripts/check.sh --quick    # only the gates that need no build
+lake build Roadmap          # optional: check the target signatures still elaborate
 ```
 
-`lake build` never touches `Roadmap/`: that library is declared without `@[default_target]`
-precisely so its 69 `sorry`s stay out of the library's build and out of any audit. The library
-target carries Tau Ceti's lean options, so `warningAsError` turns "declaration uses `sorry`" into
-a build error there.
+`check.sh` runs, cheapest first: the four textual **guards**; **`lint-style.sh`** (copyright
+headers + Mathlib's text-based linters); the **build**, which is itself a gate, since the library
+target sets `warningAsError` over Mathlib's syntax linter set; **`lake exe axioms`**;
+**`lake exe module-system`**; and **`lint-env.sh`** (`#lint`). A failing gate does not stop the
+run, so one round shows everything that is wrong.
 
-All three gates are live, and each was tested against a violation and not only against a clean
-tree: a `sorry` fails the build; a home-rolled `axiom` builds but makes `lake exe axioms` exit `1`
-naming the declaration; a file without `module` builds but makes `lake exe module-system` exit `1`
-naming the module. On the tree as it stands: 70 declarations audited, all within the allowlist, and
-every module opted in. Both audits read the *built* library, so `lake build` comes first.
+`lake build` never touches `Roadmap/`: that library is declared without `@[default_target]`
+precisely so its 69 `sorry`s stay out of the library's build and out of every gate.
+
+Every gate was tested against a violation, not only against a clean tree — a `sorry`, a 101-column
+line, trailing whitespace, a wrong licence line, an undocumented `def`, a home-rolled `axiom`, a
+file without `module`, each caught by exactly one gate. On the tree as it stands: 1 library file,
+70 declarations audited and all within the allowlist, 59 judged by 15 environment linters with no
+violations, headers and text linters clean.
 
 ## Still to settle
 
 1. **Copyright attribution in the Lean files.** `ArithmeticHeights/Arakelov.lean` is authored as
-   "The Tau Ceti contributors"; the lakefile now says "Ralf Stephan". Pick one and make the
-   headers agree. (The Apache-2.0 header format is Tau Ceti's and stays either way.)
-2. **The lints are not wired.** The two audits are done; the copyright-header audit
-   (`HeaderStyle.lean` + `lint-style.sh` + `source-modules.sh`), the environment lint
-   (`lint-env.sh`) and the dot-notation lint (`lint-dot-notation.py` + `lean_source.py`) are still
-   ignored reference copies, so Mathlib's text linters and the `Authors:` contract are honoured by
-   hand. They need the `TauCeti` root repointed and empty baselines. Neither guard from
-   `ci.yml` — no `set_option`, no import across a boundary — is wired either; each is three lines
-   of `grep`.
-3. **Pins.** Toolchain `v4.34.0`, Mathlib `1e043bcd5646` on `master` — ahead of Tau Ceti's
+   "The Tau Ceti contributors"; `lakefile.lean` and the scripts we wrote say "Ralf Stephan". Pick
+   one and make the headers agree — the header audit checks the *shape* of the block, not the name,
+   so it will not catch a wrong one. (The Apache-2.0 format is Tau Ceti's and stays either way.)
+2. **No `formalization.yaml`.** Tau Ceti's is copied in `TauCeti/` as the model; ours would say:
+   source = Bombieri–Gubler plus the roadmap, single human author, `sorry_count: 0`, the three
+   allowlisted axioms — all of it now machine-checked by the gates rather than asserted.
+3. **The shim ledger, when Layer 0.3 or 6.5 lands.** Both deliberately shadow an open Mathlib PR
+   (mathlib4#41606, mathlib4#40791), which is exactly what `mathlib-shims.json` and
+   `check-expired-mathlib-shims.py` exist to track, so that the vendored copy is deleted when
+   upstream lands rather than quietly diverging.
+4. **Pins.** Toolchain `v4.34.0`, Mathlib `1e043bcd5646` on `master` — ahead of Tau Ceti's
    `v4.34.0-rc1` / `653c36f019ec`, which is the allowed direction. Bumps stay forward-only.
 
-Settled on 2026-09-15: the Tau Ceti reference copies are in place (gitignored `scripts/` and
-`TauCeti/`, alongside the gitignored Bombieri–Gubler PDF); the axiom and module-system audits are
-adapted, tracked and wired into the lakefile; the repo `LICENSE` is Apache-2.0, matching the Lean
-file headers and the destination library; `Suggested.lean` moved out of the library glob into
-`Roadmap/`; the lakefile carries Tau Ceti's lean options and the package is named
-`SubspaceTheorems`; the Mathlib require pins `inputRev` to `master`.
+Settled on 2026-09-15: every gate is wired and tested (`scripts/check.sh`); the Tau Ceti reference
+copies are in place (`TauCeti/` and the unadapted part of `scripts/`, gitignored alongside the
+Bombieri–Gubler PDF); the repo `LICENSE` is Apache-2.0, matching the Lean file headers and the
+destination library; `Suggested.lean` moved out of the library glob into `Roadmap/`; the lakefile
+carries Tau Ceti's lean options and the package is named `SubspaceTheorems`; the Mathlib require
+pins `inputRev` to `master`.

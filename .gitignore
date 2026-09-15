@@ -1,12 +1,15 @@
 # cache and other artifacts produced by Lean's Lake build tool
 .lake/
 
-# scripts/ is Tau Ceti's governance machinery, copied verbatim as a local reference and ignored
-# — except the two audits we have adapted and wired into the lakefile, which are ours and tracked.
-# See scripts/PROVENANCE.md.
-/scripts/*
-!/scripts/Axioms.lean
-!/scripts/ModuleSystem.lean
+# scripts/ is this repository's own gate machinery, adapted from Tau Ceti and tracked. What stays
+# ignored is the part of the verbatim copy we have not adapted — local reference only, not
+# committed, and nothing tracked may point at it. See scripts/PROVENANCE.md.
+/scripts/lean_source.py
+/scripts/lint-dot-notation.py
+/scripts/lint-dot-notation-baseline.txt
+/scripts/lint-baseline.txt
+/scripts/lint-nolints-allowlist.txt
+/scripts/check-expired-mathlib-shims.py
 
 # TauCeti/ is Tau Ceti's contract and configuration, copied verbatim at its upstream paths, for
 # reading only. Nothing tracked may point into it. See TauCeti/PROVENANCE.md.
