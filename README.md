@@ -85,7 +85,9 @@ un-ignoring it, and committing the result with a header saying what it came from
 
 ```
 ArithmeticHeights/   the library: sorry-free Lean, Tau Ceti rules, the default build target
-  Arakelov.lean      Layer 0.1
+  Absolute.lean      Layer 0.4
+  Arakelov.lean      Layers 0.1 and 0.2
+  Extension.lean     Layer 0.3
   README.md          the roadmap (prose)
 Roadmap/
   Suggested.lean     the roadmap's target signatures: sorry-allowed, NOT a default target
@@ -112,8 +114,8 @@ precisely so its 69 `sorry`s stay out of the library's build and out of every ga
 
 Every gate was tested against a violation, not only against a clean tree — a `sorry`, a 101-column
 line, trailing whitespace, a wrong licence line, an undocumented `def`, a home-rolled `axiom`, a
-file without `module`, each caught by exactly one gate. On the tree as it stands: 1 library file,
-70 declarations audited and all within the allowlist, 59 judged by 15 environment linters with no
+file without `module`, each caught by exactly one gate. On the tree as it stands: 3 library files,
+167 declarations audited and all within the allowlist, 133 judged by 15 environment linters with no
 violations, headers and text linters clean.
 
 ## Still to settle

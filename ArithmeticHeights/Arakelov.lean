@@ -1,7 +1,7 @@
 /-
-Copyright (c) 2026 The Tau Ceti contributors. All rights reserved.
+Copyright (c) 2026 Ralf Stephan. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: The Tau Ceti contributors
+Authors: Ralf Stephan
 -/
 module
 
@@ -18,8 +18,11 @@ theory one instead uses the **ℓ² norm at the archimedean places** — the Fub
 `O(1)` — and keeps the sup norm at the finite places. The resulting height is the one in which
 the constants of the Siegel-lemma literature (Bombieri–Vaaler, Schmidt) are stated.
 
-This file defines that normalization over a number field `K` and proves the basic API that
-`Mathlib.NumberTheory.Height.Basic` proves for `Height.mulHeight`.
+This file defines that normalization over a number field `K` and proves its basic API — scaling
+invariance and the descent to projective space, `1 ≤ H_Ar`, invariance under reindexing, and the
+affine case — together with the two-sided comparison with `Height.mulHeight`, which is what lets
+a bound stated in either normalization be read in the other. Not all of
+`Mathlib.NumberTheory.Height.Basic` transfers here — see the implementation notes.
 
 ## Main definitions
 
@@ -42,6 +45,12 @@ This file defines that normalization over a number field `K` and proves the basi
   where the sup-norm height is `1` — the two normalizations genuinely differ.
 * `NumberField.arakelovLogHeight₁_eq`: the local formula for the affine logarithmic height,
   with `log⁺ (v x)` at the finite places.
+* `NumberField.mulHeight_le_arakelovMulHeight` and `NumberField.arakelovMulHeight_le_mulHeight`:
+  the two comparisons with Mathlib's sup-norm height, the second with the constant
+  `#ι ^ (totalWeight K / 2)`. These are what transport a constant stated for one normalization
+  into the other, and the second is sharp: it is an equality at the all-ones tuple.
+* `NumberField.arakelovMulHeight₁_le_mulHeight₁`: the affine case of the same, with constant
+  `2 ^ (totalWeight K / 2)` — there is no equality `arakelovMulHeight₁ = mulHeight₁`.
 
 ## Implementation notes
 
@@ -59,6 +68,14 @@ transformation law of the finite part is *extracted* from Mathlib's
 `Height.mulHeight_smul_eq_mulHeight`, which is the only place where the two normalizations
 interact here.
 
+Not every lemma of `Mathlib.NumberTheory.Height.Basic` has an Arakelov analogue, and the two that
+fail are not edge cases. `Height.mulHeight_pow` is **false** here — the ℓ² norm is not
+multiplicative under coordinatewise powers — and with it `mulHeight₁_pow` and `mulHeight₁_zpow`.
+`Height.mulHeight_comp_le` is **false** for a non-injective reindexing, since repeating a
+coordinate raises the ℓ² norm at the archimedean places while no sup norm can see the repetition;
+it is the injective case that its consumers use. Both are refuted among the examples at the end of
+this file.
+
 ## References
 
 E. Bombieri and W. Gubler, *Heights in Diophantine Geometry*, Cambridge University Press
@@ -67,7 +84,8 @@ resulting height on projective space. Their `h_Ar` is the *absolute* height — 
 exponent is `[F_w : ℚ_p] / [F : ℚ]` — whereas `arakelovMulHeight` here is *relative* to `K`,
 matching Mathlib's `Height.mulHeight`; the two differ by the exponent `[K : ℚ]`.
 
-This is Layer 0.1 of the `ArithmeticHeights` roadmap.
+This is Layers 0.1 and 0.2 of the `ArithmeticHeights` roadmap: the normalization and its
+comparison with `Height.mulHeight`.
 -/
 
 public section
@@ -112,6 +130,15 @@ lemma arakelovLogHeight_eq_log_arakelovMulHeight (x : ι → K) :
 @[simp]
 lemma arakelovLogHeight_zero : arakelovLogHeight (0 : ι → K) = 0 := by
   simp [arakelovLogHeight_eq_log_arakelovMulHeight]
+
+/-- The rewriting the archimedean local factor always needs: its exponent `mult v / 2` is real
+while the sup-norm factor carries the natural power `mult v`, and `(a ^ 2) ^ (n / 2) = a ^ n`
+moves between them. -/
+private lemma sq_rpow_div_two {a : ℝ} (ha : 0 ≤ a) (n : ℕ) : (a ^ 2) ^ ((n : ℝ) / 2) = a ^ n := by
+  rw [← Real.rpow_natCast a n, ← Real.rpow_natCast a 2, ← Real.rpow_mul ha]
+  congr 1
+  push_cast
+  ring
 
 /-!
 ### Scaling invariance
@@ -161,13 +188,8 @@ lemma arakelovMulHeight_smul_eq (x : ι → K) {c : K} (hc : c ≠ 0) :
     have hsum : ∑ i, v ((c • x) i) ^ 2 = v c ^ 2 * ∑ i, v (x i) ^ 2 := by
       rw [mul_sum]
       exact sum_congr rfl fun i _ ↦ by simp [mul_pow]
-    have hpow : ((v c) ^ 2) ^ (v.mult / 2 : ℝ) = v c ^ v.mult := by
-      rw [← Real.rpow_natCast (v c) v.mult, ← Real.rpow_natCast (v c) 2,
-        ← Real.rpow_mul (apply_nonneg v c)]
-      congr 1
-      push_cast
-      ring
-    rw [hsum, Real.mul_rpow (by positivity) (by positivity), hpow]
+    rw [hsum, Real.mul_rpow (by positivity) (by positivity),
+      sq_rpow_div_two (apply_nonneg v c) v.mult]
   rw [arakelovMulHeight_eq hcx, arakelovMulHeight_eq hx]
   simp only [harch, prod_mul_distrib]
   rw [mul_right_comm, prod_infinitePlace_mul_finprod_iSup_smul hx hc, mul_comm]
@@ -295,6 +317,151 @@ lemma arakelovLogHeight_eq_zero_of_subsingleton [Subsingleton ι] (x : ι → K)
   simp [arakelovLogHeight_eq_log_arakelovMulHeight]
 
 /-!
+### The comparison with the sup-norm height
+
+`‖·‖_∞ ≤ ‖·‖_2 ≤ √(#ι) · ‖·‖_∞` at each archimedean place, raised to the weight `mult v` and
+multiplied over the places; the finite parts of the two heights are the same number and factor
+out. This is Layer 0.2 of the roadmap: the pair of lemmas that transports a constant stated for
+the Arakelov height into Mathlib's normalization and back, and so the reason a bound in either
+normalization is a bound in the other.
+
+The constant of the upper comparison cannot be improved: at the all-ones tuple it is an equality,
+by `arakelovMulHeight_one` against `Height.mulHeight_one`.
+-/
+
+section Comparison
+
+omit [NumberField K] in
+/-- The sup norm is at most the ℓ² norm, at one place. -/
+private lemma iSup_pow_two_le_sum_pow_two [Nonempty ι] (v : InfinitePlace K) (x : ι → K) :
+    (⨆ i, v (x i)) ^ 2 ≤ ∑ i, v (x i) ^ 2 := by
+  obtain ⟨i, hi⟩ : ∃ i, v (x i) = ⨆ j, v (x j) := exists_eq_ciSup_of_finite
+  rw [← hi]
+  exact single_le_sum (f := fun j ↦ v (x j) ^ 2) (fun j _ ↦ by positivity) (mem_univ i)
+
+omit [NumberField K] in
+/-- The ℓ² norm is at most `√(#ι)` times the sup norm, at one place. -/
+private lemma sum_pow_two_le_card_mul (v : InfinitePlace K) (x : ι → K) :
+    ∑ i, v (x i) ^ 2 ≤ (Fintype.card ι : ℝ) * (⨆ i, v (x i)) ^ 2 := by
+  rcases isEmpty_or_nonempty ι with _ | _
+  · simp
+  rw [← card_univ, ← nsmul_eq_mul]
+  refine sum_le_card_nsmul _ _ _ fun i _ ↦ ?_
+  gcongr
+  exact Finite.le_ciSup_of_le i le_rfl
+
+omit [NumberField K] in
+private lemma iSup_pow_mult_le_sum_rpow [Nonempty ι] (v : InfinitePlace K) (x : ι → K) :
+    (⨆ i, v (x i)) ^ v.mult ≤ (∑ i, v (x i) ^ 2) ^ (v.mult / 2 : ℝ) := by
+  have h0 : (0 : ℝ) ≤ ⨆ i, v (x i) := Real.iSup_nonneg fun i ↦ apply_nonneg v (x i)
+  rw [← sq_rpow_div_two h0 v.mult]
+  exact Real.rpow_le_rpow (by positivity) (iSup_pow_two_le_sum_pow_two v x) (by positivity)
+
+omit [NumberField K] in
+private lemma sum_rpow_le_card_rpow_mul (v : InfinitePlace K) (x : ι → K) :
+    (∑ i, v (x i) ^ 2) ^ (v.mult / 2 : ℝ) ≤
+      ((Fintype.card ι : ℝ) ^ ((1 : ℝ) / 2)) ^ v.mult * (⨆ i, v (x i)) ^ v.mult := by
+  have h0 : (0 : ℝ) ≤ ⨆ i, v (x i) := Real.iSup_nonneg fun i ↦ apply_nonneg v (x i)
+  have hc : ((Fintype.card ι : ℝ) ^ ((1 : ℝ) / 2)) ^ v.mult
+      = (Fintype.card ι : ℝ) ^ (v.mult / 2 : ℝ) := by
+    rw [← Real.rpow_natCast ((Fintype.card ι : ℝ) ^ ((1 : ℝ) / 2)) v.mult,
+      ← Real.rpow_mul (by positivity)]
+    congr 1
+    ring
+  calc (∑ i, v (x i) ^ 2) ^ (v.mult / 2 : ℝ)
+      ≤ ((Fintype.card ι : ℝ) * (⨆ i, v (x i)) ^ 2) ^ (v.mult / 2 : ℝ) :=
+        Real.rpow_le_rpow (sum_nonneg fun i _ ↦ by positivity) (sum_pow_two_le_card_mul v x)
+          (by positivity)
+    _ = (Fintype.card ι : ℝ) ^ (v.mult / 2 : ℝ) * ((⨆ i, v (x i)) ^ 2) ^ (v.mult / 2 : ℝ) :=
+        Real.mul_rpow (by positivity) (by positivity)
+    _ = ((Fintype.card ι : ℝ) ^ ((1 : ℝ) / 2)) ^ v.mult * (⨆ i, v (x i)) ^ v.mult := by
+        rw [hc, sq_rpow_div_two h0 v.mult]
+
+private lemma prod_iSup_pow_mult_le [Nonempty ι] (x : ι → K) :
+    ∏ v : InfinitePlace K, (⨆ i, v (x i)) ^ v.mult ≤
+      ∏ v : InfinitePlace K, (∑ i, v (x i) ^ 2) ^ (v.mult / 2 : ℝ) :=
+  Finset.prod_le_prod₀ (fun v _ ↦ pow_nonneg (Real.iSup_nonneg fun i ↦ apply_nonneg v (x i)) _)
+    fun v _ ↦ iSup_pow_mult_le_sum_rpow v x
+
+/-- The archimedean half of the upper comparison. The exponent is collected with
+`InfinitePlace.sum_mult_eq` and `totalWeight_eq_finrank`, exactly as in
+`arakelovMulHeight_one`, which is the case of equality. -/
+private lemma prod_sum_rpow_le (x : ι → K) :
+    ∏ v : InfinitePlace K, (∑ i, v (x i) ^ 2) ^ (v.mult / 2 : ℝ) ≤
+      (Fintype.card ι : ℝ) ^ ((totalWeight K : ℝ) / 2) *
+        ∏ v : InfinitePlace K, (⨆ i, v (x i)) ^ v.mult := by
+  calc ∏ v : InfinitePlace K, (∑ i, v (x i) ^ 2) ^ (v.mult / 2 : ℝ)
+      ≤ ∏ v : InfinitePlace K,
+          ((Fintype.card ι : ℝ) ^ ((1 : ℝ) / 2)) ^ v.mult * (⨆ i, v (x i)) ^ v.mult :=
+        Finset.prod_le_prod₀ (fun v _ ↦ by positivity) fun v _ ↦ sum_rpow_le_card_rpow_mul v x
+    _ = (∏ v : InfinitePlace K, ((Fintype.card ι : ℝ) ^ ((1 : ℝ) / 2)) ^ v.mult) *
+          ∏ v : InfinitePlace K, (⨆ i, v (x i)) ^ v.mult := prod_mul_distrib
+    _ = (Fintype.card ι : ℝ) ^ ((totalWeight K : ℝ) / 2) *
+          ∏ v : InfinitePlace K, (⨆ i, v (x i)) ^ v.mult := by
+        congr 1
+        rw [prod_pow_eq_pow_sum, InfinitePlace.sum_mult_eq,
+          ← Real.rpow_natCast ((Fintype.card ι : ℝ) ^ ((1 : ℝ) / 2)) (Module.finrank ℚ K),
+          ← Real.rpow_mul (by positivity), totalWeight_eq_finrank]
+        congr 1
+        ring
+
+omit [Fintype ι] in
+private lemma finprod_finitePlace_nonneg (x : ι → K) :
+    (0 : ℝ) ≤ ∏ᶠ v : FinitePlace K, ⨆ i, v (x i) :=
+  finprod_nonneg fun v ↦ Real.iSup_nonneg fun i ↦ apply_nonneg v (x i)
+
+/-- **The sup-norm height is at most the Arakelov height.** The finite parts agree and the
+archimedean ones compare place by place, since `‖·‖_∞ ≤ ‖·‖_2`. -/
+lemma mulHeight_le_arakelovMulHeight (x : ι → K) : Height.mulHeight x ≤ arakelovMulHeight x := by
+  rcases eq_or_ne x 0 with rfl | hx
+  · simp
+  have : Nonempty ι := (ne_iff.mp hx).nonempty
+  rw [NumberField.mulHeight_eq hx, arakelovMulHeight_eq hx]
+  exact mul_le_mul_of_nonneg_right (prod_iSup_pow_mult_le x) (finprod_finitePlace_nonneg x)
+
+/-- **The Arakelov height is at most `#ι ^ (totalWeight K / 2)` times the sup-norm height** —
+the lemma that carries the constants of the Siegel-lemma literature into Mathlib's
+normalization, from `‖·‖_2 ≤ √(#ι) · ‖·‖_∞` at each archimedean place.
+
+`ι` must be nonempty: on the empty index type both heights take the junk value `1` while the
+right-hand side is `0`. The constant is sharp — `arakelovMulHeight_one` is the case of
+equality. -/
+lemma arakelovMulHeight_le_mulHeight [Nonempty ι] (x : ι → K) :
+    arakelovMulHeight x ≤
+      (Fintype.card ι : ℝ) ^ ((totalWeight K : ℝ) / 2) * Height.mulHeight x := by
+  rcases eq_or_ne x 0 with rfl | hx
+  · rw [arakelovMulHeight_zero, Height.mulHeight_zero, mul_one]
+    exact Real.one_le_rpow (by exact_mod_cast Fintype.card_pos) (by positivity)
+  rw [NumberField.mulHeight_eq hx, arakelovMulHeight_eq hx, ← mul_assoc]
+  exact mul_le_mul_of_nonneg_right (prod_sum_rpow_le x) (finprod_finitePlace_nonneg x)
+
+/-- On a subsingleton index type the two normalizations agree: both are `1`, by the product
+formula. This is the only index type on which they agree unconditionally. -/
+lemma arakelovMulHeight_eq_mulHeight_of_subsingleton [Subsingleton ι] (x : ι → K) :
+    arakelovMulHeight x = Height.mulHeight x := by
+  rw [arakelovMulHeight_eq_one_of_subsingleton, Height.mulHeight_eq_one_of_subsingleton]
+
+lemma logHeight_le_arakelovLogHeight (x : ι → K) :
+    Height.logHeight x ≤ arakelovLogHeight x := by
+  rw [Height.logHeight_eq_log_mulHeight, arakelovLogHeight_eq_log_arakelovMulHeight]
+  exact Real.log_le_log (Height.mulHeight_pos x) (mulHeight_le_arakelovMulHeight x)
+
+lemma arakelovLogHeight_le_logHeight [Nonempty ι] (x : ι → K) :
+    arakelovLogHeight x ≤
+      (totalWeight K : ℝ) / 2 * log (Fintype.card ι) + Height.logHeight x := by
+  have hcard : (0 : ℝ) < Fintype.card ι := by exact_mod_cast Fintype.card_pos
+  rw [arakelovLogHeight_eq_log_arakelovMulHeight, Height.logHeight_eq_log_mulHeight,
+    ← Real.log_rpow hcard, ← Real.log_mul (by positivity) (Height.mulHeight_pos x).ne']
+  exact Real.log_le_log (arakelovMulHeight_pos x) (arakelovMulHeight_le_mulHeight x)
+
+lemma arakelovLogHeight_eq_logHeight_of_subsingleton [Subsingleton ι] (x : ι → K) :
+    arakelovLogHeight x = Height.logHeight x := by
+  rw [arakelovLogHeight_eq_log_arakelovMulHeight, Height.logHeight_eq_log_mulHeight,
+    arakelovMulHeight_eq_mulHeight_of_subsingleton]
+
+end Comparison
+
+/-!
 ### The one-variable case
 
 `arakelovMulHeight₁ x` is the Arakelov height of the point `(x : 1)` of the projective line.
@@ -411,6 +578,30 @@ lemma arakelovMulHeight₁_inv (x : K) : arakelovMulHeight₁ x⁻¹ = arakelovM
 
 lemma arakelovLogHeight₁_inv (x : K) : arakelovLogHeight₁ x⁻¹ = arakelovLogHeight₁ x := by
   simp only [arakelovLogHeight₁_eq_log_arakelovMulHeight₁, arakelovMulHeight₁_inv]
+
+/-!
+The comparison of Layer 0.2, applied to `![x, 1]`. This is the only relation between the two
+one-variable heights: `arakelovMulHeight₁ = mulHeight₁` is false, already at `x = 1`.
+-/
+
+lemma mulHeight₁_le_arakelovMulHeight₁ (x : K) : Height.mulHeight₁ x ≤ arakelovMulHeight₁ x := by
+  rw [Height.mulHeight₁_eq_mulHeight, arakelovMulHeight₁_eq_arakelovMulHeight]
+  exact mulHeight_le_arakelovMulHeight _
+
+lemma arakelovMulHeight₁_le_mulHeight₁ (x : K) :
+    arakelovMulHeight₁ x ≤ 2 ^ ((totalWeight K : ℝ) / 2) * Height.mulHeight₁ x := by
+  rw [Height.mulHeight₁_eq_mulHeight, arakelovMulHeight₁_eq_arakelovMulHeight]
+  simpa using arakelovMulHeight_le_mulHeight ![x, 1]
+
+lemma logHeight₁_le_arakelovLogHeight₁ (x : K) :
+    Height.logHeight₁ x ≤ arakelovLogHeight₁ x := by
+  rw [Height.logHeight₁_eq_logHeight, arakelovLogHeight₁_eq_arakelovLogHeight]
+  exact logHeight_le_arakelovLogHeight _
+
+lemma arakelovLogHeight₁_le_logHeight₁ (x : K) :
+    arakelovLogHeight₁ x ≤ (totalWeight K : ℝ) / 2 * log 2 + Height.logHeight₁ x := by
+  rw [Height.logHeight₁_eq_logHeight, arakelovLogHeight₁_eq_arakelovLogHeight]
+  simpa using arakelovLogHeight_le_logHeight ![x, 1]
 
 end NumberField
 
@@ -564,6 +755,11 @@ end Mathlib.Meta.Positivity
 Cheap checks that the definition means what it should. Over `ℚ` the two normalizations of the
 height of the point `(1 : 1)` genuinely differ, so the `√N` factors in the Siegel-lemma
 literature are not cosmetic and a proof that silently interchanges the two heights is wrong.
+
+The third shows that the constant of `arakelovMulHeight_le_mulHeight` is attained, so it cannot be
+improved. The last two are rejection tests: they refute the two lemmas of
+`Mathlib.NumberTheory.Height.Basic` that a reader would expect to carry over to this normalization
+and that do not.
 -/
 
 section Examples
@@ -592,6 +788,39 @@ example : arakelovMulHeight ![(1 : ℚ), 1] = Real.sqrt 2 := by
 example : Height.mulHeight ![(1 : ℚ), 1] = 1 := by
   rw [show ![(1 : ℚ), 1] = 1 from by ext i; fin_cases i <;> rfl]
   exact Height.mulHeight_one
+
+/-- The upper comparison is sharp: the all-ones tuple attains it, since its sup-norm height is
+`1` by the product formula while its Arakelov height is the constant itself. -/
+example {K : Type*} [Field K] [NumberField K] {ι : Type*} [Fintype ι] [Nonempty ι] :
+    arakelovMulHeight (1 : ι → K) =
+      (Fintype.card ι : ℝ) ^ ((totalWeight K : ℝ) / 2) * Height.mulHeight (1 : ι → K) := by
+  rw [arakelovMulHeight_one, Height.mulHeight_one, mul_one]
+
+/-- The same `√2` through `arakelovMulHeight_one` instead of through the definition, which
+cross-checks the two routes; the rejection tests below consume it as a value. -/
+private lemma arakelovMulHeight_one_fin_two_rat :
+    arakelovMulHeight (1 : Fin 2 → ℚ) = Real.sqrt 2 := by
+  rw [arakelovMulHeight_one, Fintype.card_fin, totalWeight_eq_finrank, Module.finrank_self,
+    Nat.cast_one, Real.sqrt_eq_rpow]
+  norm_num
+
+/-- **Rejection test.** `Height.mulHeight_pow` has no Arakelov analogue: coordinatewise squaring
+fixes the all-ones tuple over `ℚ`, so it cannot square the height — `√2` against `2`. -/
+example :
+    arakelovMulHeight ((1 : Fin 2 → ℚ) ^ 2) ≠ arakelovMulHeight (1 : Fin 2 → ℚ) ^ 2 := by
+  rw [one_pow, arakelovMulHeight_one_fin_two_rat, Real.sq_sqrt (by norm_num : (0 : ℝ) ≤ 2)]
+  intro h
+  nlinarith [Real.sq_sqrt (show (0 : ℝ) ≤ 2 by norm_num), Real.sqrt_nonneg 2, h]
+
+/-- **Rejection test.** `Height.mulHeight_comp_le` fails for a non-injective reindexing:
+duplicating the one coordinate of `(1)` raises the ℓ² norm at the real place from `1` to `√2`,
+while no sup norm can see a repetition. The injective case — the one its consumers use — is
+unaffected. -/
+example : ¬ arakelovMulHeight ((![1] : Fin 1 → ℚ) ∘ (fun _ : Fin 2 ↦ 0)) ≤
+    arakelovMulHeight (![1] : Fin 1 → ℚ) := by
+  have h : (![1] : Fin 1 → ℚ) ∘ (fun _ : Fin 2 ↦ 0) = 1 := by ext i; simp
+  rw [h, arakelovMulHeight_one_fin_two_rat, arakelovMulHeight_eq_one_of_subsingleton]
+  nlinarith [Real.sq_sqrt (show (0 : ℝ) ≤ 2 by norm_num), Real.sqrt_nonneg 2]
 
 end Examples
 

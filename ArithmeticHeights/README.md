@@ -155,6 +155,12 @@ anything. **Reuse these by name; do not rebuild them.**
   integral tuple with the absolute norm of the ideal it generates.
 - **The absolute height of an element.** `NumberField.absMulHeight₁`/`absLogHeight₁`, defined for
   any `[CharZero K]` through `ℚ⟮x⟯`, with the junk value `1` off the algebraic numbers.
+- **Adjoining algebraic numbers.** `IntermediateField.adjoin` with `subset_adjoin`,
+  `adjoin_le_iff`, `inclusion` and `equivOfEq`; `finiteDimensional_adjoin` (a finite set of
+  integral elements generates a finite extension) and `adjoin.finiteDimensional`; `adjoin_map` and
+  `IntermediateField.equivMap`, which say where an embedding sends a generated field; and
+  `isAlgebraic_algHom_iff` and `IsAlgebraic.inv`. This is the machinery Layer 0.4's definition and
+  its invariance under embeddings run on.
 - **Northcott.** The `Northcott` typeclass (`Mathlib/Order/Northcott.lean`, T. Browning) with
   `Northcott.exists_min_image` and `Northcott.comp_of_bddAbove`;
   `NumberField.finite_setOfPred_mulHeight₁_le` and the instances `Northcott (mulHeight₁ (K := K))`,
@@ -186,6 +192,13 @@ anything. **Reuse these by name; do not rebuild them.**
   uses these carriers and defines no `S`-object of its own; the `S`-unit *theorem* is not there.
 - **Places and the product formula.** `NumberField.InfinitePlace` with `mult`,
   `NumberField.FinitePlace`, `IsInfinitePlace`/`IsFinitePlace`, and `NumberField.prod_abs_eq_one`.
+- **Places above places, and the relative ideal norm.** `NumberField.InfinitePlace.comap`,
+  `InfinitePlace.LiesOver` with `LiesOver.comap_eq`, `placesOver`, `IsUnramified`/`IsRamified` and
+  `unramifedPlacesOver_ncard_add_eq_finrank` (`NumberField/InfinitePlace/Ramification.lean`);
+  `InfinitePlace.card_filter_mk_eq`, which trades the exponent `mult v` for the embeddings inducing
+  `v`, and `AlgHom.card`, which counts the extensions of one embedding; and `Ideal.relNorm` with
+  `Ideal.relNorm_algebraMap` and `Ideal.absNorm_relNorm`. The last two are what Layer 0.3 uses in
+  place of ramification and inertia.
 - **Exterior powers.** `⋀[R]^n M`, `exteriorPower.ιMulti`, `exteriorPower.map`, the pairing with the
   dual (`ExteriorPower/Pairing.lean`), and — the one Layer 3 is built on —
   `Module.Basis.exteriorPower : Basis (Set.powersetCard I n) R (⋀[R]^n M)` with its `basis_apply`,
@@ -239,12 +252,33 @@ one-variable heights are related only by the comparison above, applied to `![x, 
 **0.3 Extension invariance.** For `K ⊆ L` a finite extension of number fields:
 `mulHeight₁_pow_finrank`, `mulHeight₁ x ^ finrank K L = mulHeight₁ (algebraMap K L x)`; the tuple
 form `mulHeight_pow_finrank`; and the logarithmic forms `finrank_nsmul_logHeight₁` and
-`finrank_nsmul_logHeight`. The route is that each place of `K` is the restriction of the places of
-`L` above it, with `∑_{w | v} [L_w : K_v] = [L : K]`; the bridging lemma
-`NumberField.InfinitePlace.liesOver_iff_comap_eq` is itself part of mathlib4#41606, not of Mathlib,
-so build it here under that name as the first step. These are the statements of mathlib4#41606 and
-carry its names. The special case `K = ℚ`, `H_L(x) = H_ℚ(x)^{[L : ℚ]}`, needs no places above
-places and is the acceptance test for the general statement.
+`finrank_nsmul_logHeight`. These are the statements of mathlib4#41606 and carry its names, as does
+`absMulHeight₁_eq`, the one-variable form of the statement that the absolute height does not depend
+on the field of definition. The textbook route — each place of `K` is the restriction of the places
+of `L` above it, with `∑_{w | v} [L_w : K_v] = [L : K]` — is **not** the cheap one against current
+Mathlib, and neither half of the height needs places above places at all:
+
+- *Archimedean.* Turn the `mult`-weighted product over the infinite places into a product over the
+  complex embeddings, which is what `InfinitePlace.card_filter_mk_eq` does: `mult v` is the number
+  of embeddings inducing `v`. What remains is the count
+  `#{φ : L →+* ℂ | φ.comp (algebraMap K L) = ψ} = [L : K]`, which is `AlgHom.card` once `ℂ` carries
+  the `K`-algebra structure of `ψ`.
+- *Nonarchimedean.* No places at all. The finite factor of the height of an **integral** tuple is
+  the inverse of the absolute norm of the ideal its coordinates generate
+  (`NumberField.absNorm_mul_finprod_finitePlace_eq_one`), so what remains is
+  `Ideal.absNorm (I.map (algebraMap (𝓞 K) (𝓞 L))) = Ideal.absNorm I ^ [L : K]`, which is
+  `Ideal.relNorm_algebraMap` followed by `Ideal.absNorm_relNorm`. Ramification and inertia never
+  appear: they are already inside Mathlib's relative ideal norm.
+
+⚠ The nonarchimedean factor **alone is not invariant under scaling** — `∏ᶠ v, ⨆ i, v (c * x i)`
+picks up the finite part of the product formula for `c` — so the reduction from an arbitrary tuple
+to an integral one has to be made on the whole height, where `mulHeight_smul_eq_mulHeight` applies
+to both sides at once, and never factor by factor. ⚠ Do **not** build
+`NumberField.InfinitePlace.liesOver_iff_comap_eq`: Mathlib now carries the infinite-place
+ramification theory itself (see *[What Mathlib already has](#what-mathlib-already-has-consume)*),
+and the route above does not use it. The special case `K = ℚ`, `H_L(x) = H_ℚ(x)^{[L : ℚ]}`, needs
+no places above places and is the acceptance test for the general statement; on this route it is
+literally an instance of it.
 
 **0.4 The absolute height of a tuple.** `NumberField.absMulHeight (x : ι → K)` for `[CharZero K]`,
 defined as `mulHeight` computed over `IntermediateField.adjoin ℚ (Set.range x)` and normalized by
@@ -259,7 +293,14 @@ to `Projectivization K (ι → K)` over a field with `[Algebra.IsAlgebraic ℚ K
 a nonzero algebraic tuple, `c • x` has a transcendental coordinate and its absolute height is the
 junk value `1`, so `absMulHeight` is not constant on the line through `x` and does not descend to
 `Projectivization K (ι → K)`. The definition is made for `[CharZero K]`, as Mathlib's
-`absMulHeight₁` is; the projective theory is stated over algebraic fields.
+`absMulHeight₁` is; the projective theory is stated over algebraic fields. ⚠ `absMulHeight_eq` is
+stated over a number field and so says nothing inside `ℝ` or `ℂ`, where 1.2–1.5 live. The statement
+that does is invariance under an embedding — `absMulHeight_comp`: `absMulHeight (f ∘ x)
+= absMulHeight x` for `f : K →ₐ[ℚ] L` between fields of characteristic zero — and it is what
+carries a value computed over `ℚ` into `ℝ` or `ℂ`. Prove it here. It takes one ingredient beyond
+`absMulHeight_eq`, because an embedding carries `ℚ(x₀, x₁, …)` to the field generated by the
+*image* coordinates, isomorphic to it but not equal: the degree-one case of 0.3's
+`mulHeight_pow_finrank`, that an isomorphism of number fields preserves the relative height.
 
 ### Layer 1: Northcott, Kronecker, and the Mahler-measure bridge
 
@@ -880,7 +921,9 @@ roadmap to duplicate. Two open Mathlib pull requests do cover named milestones a
    `finrank_nsmul_logHeight`, `absMulHeight₁_eq` — and cite it in the Tau Ceti file that carries
    them. Whenever the working Mathlib dependency contains them, delete ours and import Mathlib's;
    because the names and shapes match, that is a deletion plus an import rather than a rewrite, and
-   Layer 0.4 and everything downstream are unaffected.
+   Layer 0.4 and everything downstream are unaffected. ⚠ The PR's own bridging lemma
+   `InfinitePlace.liesOver_iff_comap_eq` is deliberately **not** in that list: Mathlib has since
+   acquired the infinite-place ramification theory, and 0.3's route needs neither.
 2. **The S-unit theorem (Layer 6.5) is mathlib4#40791.** The same applies: follow its short-exact-
    sequence route, its carrier `Set (HeightOneSpectrum (𝓞 K))`, and its rank formula, and delete
    ours when Mathlib's lands. The `S`-regulator and the height characterization in 6.4 are not in
