@@ -1,2 +1,16 @@
 # cache and other artifacts produced by Lean's Lake build tool
 .lake/
+
+# scripts/ is Tau Ceti's governance machinery, copied verbatim as a local reference and ignored
+# — except the two audits we have adapted and wired into the lakefile, which are ours and tracked.
+# See scripts/PROVENANCE.md.
+/scripts/*
+!/scripts/Axioms.lean
+!/scripts/ModuleSystem.lean
+
+# TauCeti/ is Tau Ceti's contract and configuration, copied verbatim at its upstream paths, for
+# reading only. Nothing tracked may point into it. See TauCeti/PROVENANCE.md.
+/TauCeti/
+
+# Literature, kept locally rather than committed
+*.pdf
