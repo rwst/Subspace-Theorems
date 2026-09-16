@@ -142,9 +142,10 @@ anything. **Reuse these by name; do not rebuild them.**
   nonarchimedean absolute values, finite support, and the product formula), `Height.totalWeight`,
   `Height.mulHeight₁`/`logHeight₁` for a field element, `Height.mulHeight`/`logHeight` for a tuple,
   `Finsupp.mulHeight`, and the full basic API around them: scaling invariance
-  (`mulHeight_smul_eq_mulHeight`), `one_le_mulHeight`, behaviour under `Equiv` and under reindexing,
-  powers, inverses, products and sums (`mulHeight₁_mul_le`, `mulHeight₁_sum_le`), and `positivity`
-  extensions.
+  (`mulHeight_smul_eq_mulHeight`), `one_le_mulHeight`, behaviour under `Equiv` and under reindexing
+  (`mulHeight_comp_equiv`, and `mulHeight_comp_le` for an arbitrary map of index types, which is
+  what bounds the height of a sub-tuple by the height of the tuple), powers, inverses, products and
+  sums (`mulHeight₁_mul_le`, `mulHeight₁_sum_le`), and `positivity` extensions.
 - **The projective height.** `Projectivization.mulHeight`/`logHeight`, defined by `lift` from a
   representative tuple, with its own `positivity` extensions.
 - **The number-field instance.** `NumberField.instAdmissibleAbsValues`, built from
@@ -170,12 +171,22 @@ anything. **Reuse these by name; do not rebuild them.**
 - **Linear and polynomial maps.** `Height.mulHeight_linearMap_apply_le`, and the two-sided bounds
   `Height.mulHeight_eval_le`/`mulHeight_eval_ge` for a family of homogeneous polynomials of equal
   degree, with `Height.mulHeightBound` as the coefficient bound.
+- **The Gauss norm.** `Polynomial.gaussNorm v c` (the supremum of `v (coeff i) · cⁱ`) with
+  `Polynomial.gaussNorm_mul`, its multiplicativity at a nonarchimedean absolute value — this is
+  Gauss's lemma, and it is the whole arithmetic input to Layer 1.2 — together with
+  `isNonarchimedean_gaussNorm`, `le_gaussNorm`, `gaussNorm_C` and `gaussNorm_monomial`.
+- **Content, primitive part, and clearing denominators.** `Polynomial.IsPrimitive`,
+  `Polynomial.content`, `Polynomial.primPart` with `eq_C_content_mul_primPart` and
+  `isPrimitive_primPart`, and `IsLocalization.integerNormalization` with
+  `integerNormalization_spec`. Together they produce the primitive integer polynomial that Layers
+  1.2 and 1.3 quantify over; none of it is rebuilt.
 - **Mahler measure.** `Polynomial.mahlerMeasure`/`logMahlerMeasure` over `ℂ`
   (`Mathlib/Analysis/Polynomial/MahlerMeasure.lean`) with multiplicativity `mahlerMeasure_mul` and
   the Jensen formula `logMahlerMeasure_eq_log_leadingCoeff_add_sum_log_roots`; and over `ℤ`
   (`Mathlib/NumberTheory/MahlerMeasure.lean`, F. Barroero) Northcott for the Mahler measure
-  (`finite_mahlerMeasure_le`) and the Kronecker statement for polynomials
-  (`pow_eq_one_of_mahlerMeasure_eq_one`, `isPrimitiveRoot_of_mahlerMeasure_eq_one`).
+  (`finite_mahlerMeasure_le`), the Kronecker statement for polynomials
+  (`pow_eq_one_of_mahlerMeasure_eq_one`, `isPrimitiveRoot_of_mahlerMeasure_eq_one`) and
+  `cyclotomic_mahlerMeasure_eq_one`.
 - **Siegel's lemma over `ℤ`.** `Int.Matrix.exists_ne_zero_int_vec_norm_le` (F. Barroero, L. Capuano,
   A. Turchet): for a nonzero `m × n` integer matrix `A` with `m < n`, a nonzero integer solution of
   `A x = 0` with `‖x‖ ≤ (n · max 1 ‖A‖)^{m/(n−m)}` in the sup norm.
@@ -313,7 +324,23 @@ no `Northcott` instance for `Height.mulHeight` on `ι → K` itself, and none is
 `mulHeight_smul_eq_mulHeight` puts the whole line `Kˣ • x` at one height, so
 `{x : ι → K | mulHeight x ≤ B}` is infinite for every `B ≥ 1` and nonempty `ι`. Finiteness of
 tuples of bounded height needs a normalization — coordinates in `𝓞 K` with a fixed nonzero
-coordinate, say — and that is a lemma inside the proof, not an instance.
+coordinate, say — and that is a lemma inside the proof, not an instance. ⚠ The route named above
+is not the one to take, and the hypothesis named above is not the one to state. Normalizing a
+coordinate to `1` — every projective point has such a representative — bounds the height of each
+coordinate by the height of the point, so the instance follows from Mathlib's Northcott property
+for `mulHeight₁` and nothing else: no ring of integers, no ideal norm, no class group. The one new
+lemma is `Height.mulHeight₁_div_le_mulHeight`, that `mulHeight₁ (x i / x j) ≤ mulHeight x`, which
+is `Height.mulHeight_comp_le` applied to `![i, j]`. This is Hindry–Silverman's own proof of Theorem
+B.2.3 and Bombieri–Gubler's of the `ℙⁿ` case of Theorem 2.4.9. Two consequences. First, **state the
+instances over a field with `[Northcott (Height.mulHeight₁ (K := K))]`, not over a number field**:
+that is the hypothesis Mathlib's `Height/Northcott.lean` already carries for its `logHeight₁`
+instance, and it is the exact strength the statement needs — by Bombieri–Gubler's Remark 2.4.10 it
+cannot be weakened further, a general field with a product formula having Weil heights but no
+Northcott property. The number-field instances are then instance resolution. Second, the
+normalization deserves a name of its own and Mathlib has none:
+`Projectivization.exists_rep_apply_eq_one`, that a point of `Projectivization K (ι → K)` has a
+representative with a coordinate equal to `1`. It carries no arithmetic — it is the affine chart of
+a projective point — and 3.1 and 3.7 will want it again.
 
 **1.2 Height and Mahler measure** (Bombieri–Gubler, Proposition 1.6.6 and Lemma 1.6.7). For `x`
 algebraic over `ℚ` let `f ∈ ℤ[X]` be its **primitive integer minimal polynomial**: the primitive
@@ -329,7 +356,32 @@ cannot feed 1.3. Route: Jensen's formula
 (`Polynomial.logMahlerMeasure_eq_log_leadingCoeff_add_sum_log_roots`) computes `M(f)` as the leading
 coefficient times `∏ max(1, |root|)`, and the archimedean part of the height over the splitting
 field is the same product, while the finite part is the leading coefficient by Gauss's lemma. This
-identity is the workhorse of the rest of the layer.
+identity is the workhorse of the rest of the layer. ⚠ Jensen's formula is not what the proof
+wants. Over a number field `L` in which `f` splits as `C a * ∏ (X - αᵢ)`, read the identity **one
+place at a time**: at every place `v` of `L` the quantity `v a · ∏ᵢ max (v αᵢ) 1` is a *local
+Mahler measure* of `f`, and the two halves are the same computation twice. At a finite place it is
+the Gauss norm of `f`, hence `1` because `f` is primitive; at an infinite place it is `M(f)`
+itself. Multiplying over all places and cancelling `a` by the product formula leaves
+`M(f) ^ [L : ℚ]`. Both halves rest on a multiplicativity: `Polynomial.gaussNorm_mul` — which
+**Mathlib already has**, and which is Gauss's lemma — and `Polynomial.mahlerMeasure_mul`, which is
+what Mathlib proves Jensen's formula *from*. Only two Gauss-norm values are missing upstream, that
+of `X - C α` and that of a primitive integer polynomial; both belong in
+`Mathlib/RingTheory/Polynomial/GaussNorm.lean`. Three further consequences. First, a **splitting
+field suffices where Bombieri–Gubler take a Galois closure**: their display (1.10) is stated for
+the list `(σα)_{σ ∈ G}`, but over a splitting field it is just the Gauss norm of `f`, so no Galois
+group acts, no separability is used, and the roots need not be distinct. The only fact used about
+a root is that it is a root of `minpoly ℚ x` and therefore has the same absolute height as `x`,
+which is 0.4's `absMulHeight_comp` in its one-variable form. Second, the number-field statement
+that falls out is worth a name of its own and is the real content of the layer: for a primitive
+`f ∈ ℤ[X]` splitting over a number field `L`, `∏_{roots} mulHeight₁ = M(f) ^ [L : ℚ]`, with the
+*relative* height, roots counted with multiplicity and no minimal polynomial in sight. Third, the
+pinned statement widens for free — `x` may lie in any field of characteristic zero, not only `ℂ`,
+since the splitting field is built over `ℚ` and the ambient field never appears; `f ≠ 0` need not
+be assumed, `Polynomial.IsPrimitive.ne_zero` supplying it (which is also what forces `x`
+algebraic); and `c` is forced, being `f.leadingCoeff`. Two small prerequisites belong upstream of
+this in Layer 0 and are cheap there: `absMulHeight₁_pow_finrank`, the relative-to-absolute
+identity of 0.3 with a natural-number exponent, and `absMulHeight₁_comp`, the one-variable form of
+0.4's invariance under an embedding.
 
 **1.3 Northcott's theorem** (Bombieri–Gubler, Theorem 1.6.8; Hindry–Silverman, Theorem B.2.3, which
 states it projectively and with varying degree, in exactly the form wanted here). For `B : ℝ` and
@@ -339,6 +391,39 @@ Mathlib's fixed-field `finite_setOfPred_mulHeight₁_le` does not give. Route: 1
 measure of the primitive integer minimal polynomial, whose degree is at most `D`, hence (through
 Mathlib's `Polynomial.finite_mahlerMeasure_le`) leaves finitely many such polynomials, each with
 finitely many roots. State the projective version for `Projectivization ℚ̄ (ι → ℚ̄)` alongside it.
+⚠ Three things the route as stated leaves out. First, **1.2 as pinned cannot be applied**: it
+quantifies over a primitive `f` with `f.map ℚ = C c * minpoly ℚ x`, and nothing upstream says such
+an `f` exists. It does: `IsLocalization.integerNormalization` clears the denominators and
+`Polynomial.primPart` removes the content that clearing them introduced. That is
+`Polynomial.exists_isPrimitive_map_eq_C_mul`, a statement about `ℤ[X]` and `ℚ[X]` alone which
+belongs in `Mathlib/RingTheory/Polynomial/Content.lean`, and its height-bearing corollary
+`NumberField.exists_isPrimitive_absMulHeight₁_pow_natDegree`, which packages 1.2 together with
+`deg f = [ℚ(x) : ℚ]` and `f(x) = 0` — the three facts the proof reads off the polynomial. Both
+are Layer 1.2 material and are filed there. With them the route is exactly the one described and
+is short. Second, the **statement widens as 1.2's does**, to any field of characteristic
+zero. Three further small things are missing upstream and are cheap in Layer 0:
+`one_le_absMulHeight₁` (the bound `M(f) ≤ B^D` needs `1 ≤ B`, so `B` is replaced by `max B 1`),
+`absMulHeight_comp_le`, and `absMulHeight₁_le_absMulHeight`. Third, the hypothesis
+`IsIntegral ℚ x` is load-bearing **twice over**: beyond forcing the minimal polynomial to exist it
+excludes the transcendentals, which satisfy *both* bounds, the height being the junk value `1` and
+`finrank ℚ ℚ⟮x⟯` the junk value `0` because `ℚ⟮x⟯` is infinite-dimensional. Without it the
+set is infinite over `ℂ`.
+
+⚠ On the projective form, measuring the degree of a projective point by its **ratios** —
+`∀ i j, finrank ℚ ℚ⟮rep i / rep j⟯ ≤ D` — costs no new definition, does not depend on the
+representative, and is weaker than bounding the degree of the field the ratios generate, so the
+statement is stronger than the one Hindry–Silverman make and the field of definition of a
+projective point never has to be defined. The proof is 1.1's verbatim, with
+`absMulHeight₁_le_absMulHeight` where 1.1 has `mulHeight₁_div_le_mulHeight`; what it needs from 1.1
+is that the coordinates of the normalized representative *are* the ratios, so
+`Projectivization.exists_rep_apply_eq_one` was strengthened to say so. Two smaller notes. The
+statement is **not** a `Northcott` instance and none is to be stated: the set is cut out by two
+conditions of which only one is a height. And the names follow Mathlib's current convention
+`finite_setOfPred_…` (`finite_setOf_isRoot` was deprecated in favour of `finite_setOfPred_isRoot`
+on 2026-07-09), as 1.1 already does. Finally, **1.4's easy half comes free**: that every root of
+unity has absolute height `1` is 1.2 applied to `cyclotomic n ℤ` together with Mathlib's
+`Polynomial.cyclotomic_mahlerMeasure_eq_one`, and it is what refutes dropping the degree bound.
+What is left of 1.4 is the converse.
 
 **1.4 Kronecker's theorem** (Bombieri–Gubler, Theorem 1.5.9; Hindry–Silverman, Corollary B.2.3.1).
 For `x` algebraic over `ℚ`, `absMulHeight₁ x = 1 ↔ x = 0 ∨ ∃ n, 0 < n ∧ x ^ n = 1`, and the strict
@@ -350,10 +435,67 @@ alongside it, as Hindry–Silverman B.2.3.1 does: for `P ∈ ℙⁿ(ℚ̄)`, `mu
 every defined ratio `x j / x i` is zero or a root of unity. Record also the corollary that a nonzero
 algebraic **integer** all of whose conjugates lie in the closed unit disc is a root of unity.
 
+⚠ Three things the route as stated leaves out, and three it gets slightly wrong. First, the
+**statement widens** to any field of characteristic zero, as 1.2 and 1.3 do, and four small
+Layer-0 prerequisites are missing upstream and are cheap there: `absMulHeight_pow` for tuples,
+`absMulHeight₁_pow`, and — from the first of these, `0` and `1` being the idempotents of `K` and a
+real number at least `1` that is its own square being `1` — `absMulHeight₁_zero` and
+`absMulHeight₁_one`. Second, the **easy direction does not go through the cyclotomic polynomial**:
+`absMulHeight₁_pow` gives it in one line, `1 = H(x ^ n) = H(x) ^ n` with `H(x) ≥ 1`. The cyclotomic
+route is a second proof, and is where 1.3 gets the infinite family that refutes dropping its degree
+bound. Third, the hard direction needs a **complex** root while `x` lives in an arbitrary field:
+`ℚ⟮x⟯` is a number field, `IsAlgClosed.lift` embeds it in `ℂ`, and a field homomorphism is
+injective, so `(φ x) ^ n = 1` comes back as `x ^ n = 1`. Only a ring homomorphism is used — the
+`ℚ`-algebra structure of the embedding is not, the statement not being about conjugates — and the
+Mathlib lemma wanted is `pow_eq_one_of_mahlerMeasure_eq_one`, not
+`isPrimitiveRoot_of_mahlerMeasure_eq_one` as named above: primitivity of the order is not needed.
+
+⚠ On the **projective form**, the point is described by its ratios `rep i / rep j` as in 1.3, so
+no field of definition of a projective point has to be introduced, and the forward direction is
+1.3's proof verbatim. The converse is the work, and it is a statement about tuples rather than
+about projective space, so it is filed as one:
+`absMulHeight_eq_one_of_forall_eq_zero_or_pow_eq_one`, that a tuple each of whose coordinates is
+zero or a root of unity has absolute height `1`. Its proof is the idempotent trick again — the
+orders of the finitely many nonzero coordinates have a common multiple `N`, the coordinates of
+`x ^ N` are then all `0` or `1`, so `x ^ N` is its own square — which is what `absMulHeight_pow`
+on tuples is for. Because the pair `(i, j)` ranges over **all** coordinates, the normalization has
+to be available at a *chosen* nonvanishing one, so 1.1's `exists_rep_apply_eq_one` was split:
+`exists_rep_apply_eq_one_of_ne_zero` takes the index as an input and the old statement is derived
+from it. Two smaller notes. The corollary this milestone asks to record — a nonzero algebraic
+integer all of whose conjugates lie in the closed unit disc is a root of unity — is **already
+Mathlib's** `NumberField.Embeddings.pow_eq_one_of_norm_le_one`, and is one of the ingredients of
+the Mahler-measure statement consumed here; it is not restated. And the acceptance test that the
+two routes agree is worth having: the orbit proof through 1.3 is ten lines, mentions no complex
+number, and needs from Layer 0 only `absMulHeight₁_pow` and, from Mathlib,
+`IntermediateField.finrank_le_of_le_right` for `ℚ⟮x ^ n⟯ ≤ ℚ⟮x⟯`.
+
 **1.5 Lower bounds away from one.** `1 < absMulHeight₁ x` for `x` algebraic, nonzero, not a root of
 unity, and the effective consequence that for each `D` there is `c > 0` with `absLogHeight₁ x ≥ c`
 for every such `x` of degree at most `D` — an immediate corollary of 1.3 and 1.4, and the shape in
 which Diophantine arguments consume this layer.
+
+⚠ The milestone has a citation the list above omits: it is **Bombieri–Gubler 1.6.15**, which states
+it in exactly this form and derives it in exactly this way — finitely many polynomials of bounded
+degree and bounded size, then Kronecker's theorem 1.5.9 — and which is also where Lehmer's
+conjecture is stated. It needs nothing from Layer 0 beyond what 1.4 already added; the two
+statements and their `absMulHeight₁`/`absLogHeight₁` forms are about fifteen lines, and the file is
+mostly the examples. ⚠ The word **"effective" above is wrong**, and should be struck. The constant
+produced is the minimum of a finite set that Northcott's theorem only asserts to be finite, and
+nothing in the proof describes it. The effective statements are different theorems: Bombieri–Gubler
+record `h(α) ≥ (log 2)/d` for an `α` of degree `d` that is not an algebraic unit, in the same
+paragraph, and Dobrowolski's theorem is the effective bound in the general case. Neither is in
+scope here, and 1.5 should say `∃ c > 0` and claim nothing more.
+
+⚠ The **dependence of `c` on `D` is essential**, and it is worth making the milestone say so,
+because the statement that looks like the improvement is Lehmer's conjecture and is open. The
+`N`-th root of `2` is neither zero nor a root of unity and has `absLogHeight₁ = (log 2)/N`, since
+its `N`-th power is `2` and `absLogHeight₁_pow` of Layer 0 turns that into the height; so no single
+`c > 0` serves every degree. That is refuted among the examples, in the form "for every `c > 0`
+there is such an `x` with height below `c`". What Lehmer's conjecture asks is for a positive lower
+bound on `[ℚ(x) : ℚ] · h(x)`, which by 1.2 is `log M(x)`; the same example records that this family
+keeps that product at most `log 2` — its degree is at most `N` for free, `minpoly` dividing
+`X ^ N - 2` — so it says nothing about the conjecture. It is in fact sharp for Bombieri–Gubler's
+non-unit bound, `2 ^ (1/N)` having norm `±2`.
 
 ### Layer 2: heights of polynomials, linear forms, and matrices
 
@@ -368,6 +510,43 @@ the same height; behaviour under `Polynomial.map` along a field embedding; and t
 tuple height of the coefficient vector on `Fin (natDegree p + 1)`. ⚠ `mulHeight (C a) = mulHeight₁ a`
 is false (`a = 2` over `ℚ`: left side `1`, right side `2`); `mulHeight₁ a` is the height of the
 *two*-entry tuple `![a, 1]`.
+
+⚠ The definition no longer needs the detour the line above spells. Mathlib's `Polynomial.coeff`
+and `MvPolynomial.coeff` **are** the coefficient `Finsupp`, not a function on exponents, so both
+definitions read `Finsupp.mulHeight p.coeff` and `p.coeff.support = p.support` holds by `rfl`.
+⚠ What the milestone does not say is that **`Finsupp.mulHeight` has no API**: Mathlib declares it
+and `Finsupp.logHeight` and proves nothing about either, so the layer begins by building one, and
+every item on the list above is a corollary of a single lemma Mathlib lacks — the height of a
+`Finsupp` is the tuple height along any injective reindexing whose range covers the support
+(`Finsupp.mulHeight_eq_mulHeight_comp`). The `Fin (natDegree p + 1)` form, the value on monomials,
+`X - C a` and the behaviour under `map` all drop out of it. Two further items belong on the list,
+because they are free and are used later: `mulHeight (p * X ^ n) = mulHeight p`, the statement that
+the height sees the coefficients and not where they sit; and that the scaling hypothesis `c ≠ 0` is
+not removable, since at `c = 0` the left-hand side collapses to the junk value `1`.
+
+⚠ **`Finsupp.logHeight` is not the logarithm of `Finsupp.mulHeight`**, and that has to be repaired
+before the logarithmic height of a polynomial can be defined at all. Both are declared inside
+Mathlib's `namespace Height`, where the bare name `mulHeight` resolves to `Height.mulHeight`; so
+`Finsupp.logHeight x` unfolds to `log (Height.mulHeight ⇑x)` — the height of the coerced function
+on the *whole* index type — and the lemma named `Finsupp.logHeight_eq_log_mulHeight` does not
+mention `Finsupp.logHeight` at all. The two heights do agree, and that is proved here as
+`Finsupp.mulHeight_coe_eq`, but it is a theorem, and not one that
+`Height.mulHeight_eq_mulHeight_restrict_support` supplies: that lemma assumes a finite index type,
+and for polynomials the index type is `ℕ`. The local supremum has to be compared directly, using
+that an absolute value is nonnegative and vanishes off the support. This is an upstream defect and
+should be reported.
+
+⚠ On **`Polynomial.map`**: over a general field embedding there is no comparison of heights to be
+had, since Mathlib's height is relative to the field the coefficients are read in. What is true is
+only that the support does not change, so the height of the image is the tuple height of the mapped
+coefficients. The statement with content is the number-field one,
+`mulHeight (p.map (algebraMap K L)) = mulHeight p ^ [L : K]` — the polynomial form of Layer 0.3 —
+and the milestone should ask for it. ⚠ The ⚠ already on the list is confirmed, and has a companion
+worth stating here rather than in 2.3: the polynomial height is **not multiplicative**. `X + 1` has
+height `1` over `ℚ` — it is `X - C (-1)` — while `(X + 1) ^ 2` has coefficient vector `![1, 2, 1]`
+and height at least `2`. That is the whole reason 2.3 carries a factor `2 ^ (deg p + deg q)`, and
+the reason the Mahler measure, which *is* multiplicative, is the sharper tool; it is among the
+examples.
 
 **2.2 Gauss's lemma for heights** (Bombieri–Gubler, Lemma 1.6.3; Hindry–Silverman §B.7). At every
 nonarchimedean place `v`, the local factor is multiplicative:
@@ -968,7 +1147,11 @@ files as `example` s.
 - `absMulHeight₁ ζ = 1` for `ζ` a primitive fifth root of unity, and `absMulHeight₁ x = 1` for `x`
   transcendental — the second by the junk value, not by Kronecker. A statement of 1.4 without an
   algebraicity hypothesis is refuted by the second example; this is the rejection test for that
-  layer.
+  layer. ⚠ The second cannot be written as the pinned
+  `absMulHeight₁ (Real.pi : ℂ) = 1`: **Mathlib has no transcendence of `π`**, nor of `e`. Both 1.3
+  and 1.4 state the test in hypothesis form instead — a non-integral element has height `1`, and
+  is neither zero nor a root of unity — which refutes the same statement and exhibits no
+  transcendental number.
 - `Submodule.mulHeight (span ℚ {![1, 2, 3]}) = 3`, agreeing with the projective height of
   `[1 : 2 : 3]`, and `Submodule.mulHeight (⊤ : Submodule ℚ (Fin 3 → ℚ)) = 1`.
 - Non-monotonicity: in `Fin 2 → ℚ`, `Submodule.mulHeight ⊤ = 1` while

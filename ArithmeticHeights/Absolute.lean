@@ -40,8 +40,16 @@ coordinates computes the same number. It is the tuple analogue of Mathlib's
   zero — the absolute height belongs to the algebraic numbers themselves, not to any field
   holding them. It is what lets a value computed over `ℚ` be read off in `ℝ` or `ℂ`.
 * `NumberField.absMulHeight_eq_absMulHeight₁`: the absolute height of `![x, 1]` is Mathlib's
-  absolute height of `x`, so the tuple definition extends the one-variable one.
+  absolute height of `x`, so the tuple definition extends the one-variable one. With it,
+  `NumberField.absMulHeight₁_comp` transports Mathlib's `absMulHeight₁` along an embedding —
+  an algebraic number and each of its conjugates have the same absolute height.
 * `NumberField.absMulHeight_smul_eq`: scaling invariance, for an **algebraic** scalar.
+* `NumberField.absMulHeight_comp_le`: reindexing does not raise the height, and
+  `NumberField.absMulHeight₁_le_absMulHeight`, the bound on the coordinates of an affine chart
+  that Northcott's theorem on projective space runs on.
+* `NumberField.absMulHeight_pow` and `NumberField.absMulHeight₁_pow`: the height of a
+  coordinatewise power, together with `NumberField.absMulHeight₁_zero` and
+  `NumberField.absMulHeight₁_one`. Kronecker's theorem of Layer 1.4 runs on these.
 
 ## Implementation notes
 
@@ -315,6 +323,46 @@ lemma absMulHeight_ne_zero (x : ι → K) : absMulHeight x ≠ 0 :=
 lemma absLogHeight_nonneg (x : ι → K) : 0 ≤ absLogHeight x :=
   Real.log_nonneg <| one_le_absMulHeight x
 
+/-- **The absolute height does not increase under reindexing.** Dropping or repeating coordinates
+of an algebraic tuple cannot raise its height; this is `Height.mulHeight_comp_le` read in the
+field the coordinates generate.
+
+⚠ The algebraicity hypothesis is not decorative. Without it the statement is false: if some
+coordinate of `x` is transcendental then `absMulHeight x` is the junk value `1`, while `x ∘ f`
+may omit that coordinate and have a larger height. -/
+theorem absMulHeight_comp_le {ι' : Type*} [Finite ι'] (f : ι → ι') {x : ι' → K}
+    (hx : ∀ i, IsIntegral ℚ (x i)) : absMulHeight (x ∘ f) ≤ absMulHeight x := by
+  have := numberField_adjoin_range hx
+  have hmem : ∀ i, x i ∈ adjoin ℚ (Set.range x) := fun i ↦ subset_adjoin ℚ _ ⟨i, rfl⟩
+  rw [absMulHeight_eq_of_mem hmem, absMulHeight_eq_of_mem (x := x ∘ f) fun i ↦ hmem (f i)]
+  exact Real.rpow_le_rpow (Height.mulHeight_pos _).le
+    (Height.mulHeight_comp_le f fun i ↦ (⟨x i, hmem i⟩ : adjoin ℚ (Set.range x)))
+    (by positivity)
+
+/-- The logarithmic form of `NumberField.absMulHeight_comp_le`. -/
+theorem absLogHeight_comp_le {ι' : Type*} [Finite ι'] (f : ι → ι') {x : ι' → K}
+    (hx : ∀ i, IsIntegral ℚ (x i)) : absLogHeight (x ∘ f) ≤ absLogHeight x :=
+  Real.log_le_log (absMulHeight_pos _) (absMulHeight_comp_le f hx)
+
+/-- **The absolute height of a coordinatewise power.** Raising every coordinate of an algebraic
+tuple to the `n`-th power raises the height to the `n`-th power. This is `Height.mulHeight_pow`
+read in the field the coordinates generate, which the power does not enlarge, so the normalizing
+exponent is the same on both sides. -/
+theorem absMulHeight_pow {x : ι → K} (hx : ∀ i, IsIntegral ℚ (x i)) (n : ℕ) :
+    absMulHeight (x ^ n) = absMulHeight x ^ n := by
+  have hmem : ∀ i, x i ∈ adjoin ℚ (Set.range x) := fun i ↦ subset_adjoin ℚ _ ⟨i, rfl⟩
+  have hmem' : ∀ i, (x ^ n) i ∈ adjoin ℚ (Set.range x) := fun i ↦ pow_mem (hmem i) n
+  have := numberField_adjoin_range hx
+  rw [absMulHeight_eq_of_mem hmem, absMulHeight_eq_of_mem hmem',
+    show (fun i ↦ (⟨(x ^ n) i, hmem' i⟩ : adjoin ℚ (Set.range x)))
+      = (fun i ↦ (⟨x i, hmem i⟩ : adjoin ℚ (Set.range x))) ^ n from funext fun i ↦ Subtype.ext rfl,
+    Height.mulHeight_pow, Real.rpow_pow_comm (Height.mulHeight_pos _).le]
+
+/-- The logarithmic form of `NumberField.absMulHeight_pow`. -/
+theorem absLogHeight_pow {x : ι → K} (hx : ∀ i, IsIntegral ℚ (x i)) (n : ℕ) :
+    absLogHeight (x ^ n) = n * absLogHeight x := by
+  rw [absLogHeight, absMulHeight_pow hx, Real.log_pow, absLogHeight]
+
 open scoped Classical in
 /-- **The tuple definition extends Mathlib's one-variable one.** Both sides take the junk value
 `1` when `x` is not algebraic. -/
@@ -340,6 +388,85 @@ theorem absMulHeight_eq_absMulHeight₁ (x : K) : absMulHeight ![x, 1] = absMulH
 /-- The logarithmic form of `NumberField.absMulHeight_eq_absMulHeight₁`. -/
 theorem absLogHeight_eq_absLogHeight₁ (x : K) : absLogHeight ![x, 1] = absLogHeight₁ x :=
   congrArg Real.log (absMulHeight_eq_absMulHeight₁ x)
+
+/-- Mathlib's absolute height of an element is at least `1`, the junk value included. -/
+lemma one_le_absMulHeight₁ (x : K) : 1 ≤ absMulHeight₁ x :=
+  absMulHeight_eq_absMulHeight₁ x ▸ one_le_absMulHeight ![x, 1]
+
+/-- The logarithmic form of `NumberField.one_le_absMulHeight₁`. -/
+lemma absLogHeight₁_nonneg (x : K) : 0 ≤ absLogHeight₁ x :=
+  Real.log_nonneg (one_le_absMulHeight₁ x)
+
+/-- **Mathlib's absolute height of a power**: the one-variable form of
+`NumberField.absMulHeight_pow`. It is what makes the easy half of Kronecker's theorem immediate —
+a root of unity has a power of height `1`, hence height `1`. -/
+theorem absMulHeight₁_pow {x : K} (hx : IsIntegral ℚ x) (n : ℕ) :
+    absMulHeight₁ (x ^ n) = absMulHeight₁ x ^ n := by
+  rw [← absMulHeight_eq_absMulHeight₁, ← absMulHeight_eq_absMulHeight₁,
+    show (![x ^ n, 1] : Fin 2 → K) = ![x, 1] ^ n from by funext i; fin_cases i <;> simp,
+    absMulHeight_pow (fun i ↦ by fin_cases i; exacts [hx, isIntegral_one])]
+
+/-- The logarithmic form of `NumberField.absMulHeight₁_pow`. -/
+theorem absLogHeight₁_pow {x : K} (hx : IsIntegral ℚ x) (n : ℕ) :
+    absLogHeight₁ (x ^ n) = n * absLogHeight₁ x := by
+  rw [absLogHeight₁, absMulHeight₁_pow hx, Real.log_pow, absLogHeight₁]
+
+/-- **Zero has absolute height `1`**, the value Mathlib's `Height.mulHeight₁_zero` gives for the
+relative height. Both this and `NumberField.absMulHeight₁_one` come from `absMulHeight₁_pow`:
+`0` and `1` are the idempotents of `K`, and a real number at least `1` that is its own square
+is `1`. -/
+lemma absMulHeight₁_zero : absMulHeight₁ (0 : K) = 1 := by
+  have ha : (0 : ℝ) < absMulHeight₁ (0 : K) := zero_lt_one.trans_le (one_le_absMulHeight₁ _)
+  have h := absMulHeight₁_pow (isIntegral_zero (R := ℚ) (B := K)) 2
+  rw [zero_pow two_ne_zero, pow_two] at h
+  exact (mul_left_cancel₀ ha.ne' ((mul_one _).trans h)).symm
+
+/-- The logarithmic form of `NumberField.absMulHeight₁_zero`. -/
+lemma absLogHeight₁_zero : absLogHeight₁ (0 : K) = 0 := by
+  rw [absLogHeight₁, absMulHeight₁_zero, Real.log_one]
+
+/-- **One has absolute height `1`**; see `NumberField.absMulHeight₁_zero`. -/
+lemma absMulHeight₁_one : absMulHeight₁ (1 : K) = 1 := by
+  have ha : (0 : ℝ) < absMulHeight₁ (1 : K) := zero_lt_one.trans_le (one_le_absMulHeight₁ _)
+  have h := absMulHeight₁_pow (isIntegral_one (R := ℚ) (B := K)) 2
+  rw [one_pow, pow_two] at h
+  exact (mul_left_cancel₀ ha.ne' ((mul_one _).trans h)).symm
+
+/-- The logarithmic form of `NumberField.absMulHeight₁_one`. -/
+lemma absLogHeight₁_one : absLogHeight₁ (1 : K) = 0 := by
+  rw [absLogHeight₁, absMulHeight₁_one, Real.log_one]
+
+/-- **In an affine chart, every coordinate has absolute height at most that of the tuple.** A
+tuple with a coordinate equal to `1` is the affine normalization of the projective point it
+represents, and this is the bound its coordinates then satisfy.
+
+It is the absolute counterpart of `Height.mulHeight₁_div_le_mulHeight`, and the one arithmetic
+step in Northcott's theorem on projective space. -/
+theorem absMulHeight₁_le_absMulHeight {x : ι → K} (hx : ∀ i, IsIntegral ℚ (x i)) {j : ι}
+    (hj : x j = 1) (i : ι) : absMulHeight₁ (x i) ≤ absMulHeight x := by
+  rw [← absMulHeight_eq_absMulHeight₁, show ![x i, 1] = x ∘ ![i, j] from by
+    funext k; fin_cases k <;> simp [hj]]
+  exact absMulHeight_comp_le _ hx
+
+/-- The logarithmic form of `NumberField.absMulHeight₁_le_absMulHeight`. -/
+theorem absLogHeight₁_le_absLogHeight {x : ι → K} (hx : ∀ i, IsIntegral ℚ (x i)) {j : ι}
+    (hj : x j = 1) (i : ι) : absLogHeight₁ (x i) ≤ absLogHeight x :=
+  Real.log_le_log (zero_lt_one.trans_le (one_le_absMulHeight₁ (x i)))
+    (absMulHeight₁_le_absMulHeight hx hj i)
+
+/-- **Mathlib's absolute height of an element is invariant under an embedding.** This is the
+one-variable form of `NumberField.absMulHeight_comp`, obtained from it through
+`absMulHeight_eq_absMulHeight₁`; it is the statement that an algebraic number and each of its
+conjugates have the same absolute height. -/
+theorem absMulHeight₁_comp {L : Type*} [Field L] [CharZero L] (f : K →ₐ[ℚ] L) (x : K) :
+    absMulHeight₁ (f x) = absMulHeight₁ x := by
+  rw [← absMulHeight_eq_absMulHeight₁, ← absMulHeight_eq_absMulHeight₁,
+    show ![f x, 1] = ⇑f ∘ ![x, 1] from by funext i; fin_cases i <;> simp, absMulHeight_comp]
+
+/-- The logarithmic form of `NumberField.absMulHeight₁_comp`. -/
+theorem absLogHeight₁_comp {L : Type*} [Field L] [CharZero L] (f : K →ₐ[ℚ] L) (x : K) :
+    absLogHeight₁ (f x) = absLogHeight₁ x :=
+  congrArg Real.log (absMulHeight₁_comp f x)
 
 /-- **Scaling invariance, for an algebraic scalar.** ⚠ The algebraicity hypothesis is not
 decorative: for `c` transcendental and `x` a nonzero algebraic tuple, `c • x` has a transcendental

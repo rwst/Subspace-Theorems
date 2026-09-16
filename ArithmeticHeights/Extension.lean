@@ -29,7 +29,8 @@ element as `NumberField.absMulHeight₁_eq`.
   logarithmic forms, where the power becomes an `nsmul`.
 * `NumberField.absMulHeight₁_eq`: over *any* number field `K` containing it, the absolute height
   of `x` is `mulHeight₁ x ^ (finrank ℚ K : ℝ)⁻¹`. This is the classical statement that the
-  absolute height does not depend on the field of definition.
+  absolute height does not depend on the field of definition, and
+  `NumberField.absMulHeight₁_pow_finrank` is the same identity with a natural-number exponent.
 
 ## Implementation notes
 
@@ -264,6 +265,14 @@ theorem absMulHeight₁_eq (x : K) :
     exact_mod_cast (Module.finrank_pos (R := ℚ⟮x⟯) (M := K)).ne'
   push_cast
   field_simp
+
+/-- The relative height is the `[K : ℚ]`-th power of the absolute one: `absMulHeight₁_eq` read
+backwards, in the form that carries a natural-number exponent rather than a real one. -/
+theorem absMulHeight₁_pow_finrank (x : K) :
+    absMulHeight₁ x ^ finrank ℚ K = Height.mulHeight₁ x := by
+  rw [absMulHeight₁_eq, ← Real.rpow_natCast _ (finrank ℚ K),
+    ← Real.rpow_mul (Height.mulHeight₁_nonneg x), inv_mul_cancel₀, Real.rpow_one]
+  exact Nat.cast_ne_zero.mpr (Module.finrank_pos (R := ℚ) (M := K)).ne'
 
 /-!
 ### Worked examples

@@ -84,16 +84,22 @@ un-ignoring it, and committing the result with a header saying what it came from
 ## Layout and building
 
 ```
-ArithmeticHeights/   the library: sorry-free Lean, Tau Ceti rules, the default build target
-  Absolute.lean      Layer 0.4
-  Arakelov.lean      Layers 0.1 and 0.2
-  Extension.lean     Layer 0.3
-  README.md          the roadmap (prose)
+ArithmeticHeights/      the library: sorry-free Lean, Tau Ceti rules, the default build target
+  Absolute.lean         Layer 0.4
+  Arakelov.lean         Layers 0.1 and 0.2
+  Extension.lean        Layer 0.3
+  Kronecker.lean        Layer 1.4
+  LowerBound.lean       Layer 1.5
+  MahlerMeasure.lean    Layer 1.2
+  Northcott.lean        Layer 1.1
+  NorthcottTheorem.lean Layer 1.3
+  Polynomial.lean       Layer 2.1
+  README.md             the roadmap (prose)
 Roadmap/
-  Suggested.lean     the roadmap's target signatures: sorry-allowed, NOT a default target
-scripts/             the gates (see scripts/PROVENANCE.md); a few ignored reference copies
-TauCeti/             [gitignored] Tau Ceti's contract and configuration, verbatim, to read
-*.pdf                [gitignored] literature (Bombieri–Gubler)
+  Suggested.lean        the roadmap's target signatures: sorry-allowed, NOT a default target
+scripts/                the gates (see scripts/PROVENANCE.md); a few ignored reference copies
+TauCeti/                [gitignored] Tau Ceti's contract and configuration, verbatim, to read
+*.pdf                   [gitignored] literature (Bombieri–Gubler)
 ```
 
 ```bash
@@ -114,25 +120,24 @@ precisely so its 69 `sorry`s stay out of the library's build and out of every ga
 
 Every gate was tested against a violation, not only against a clean tree — a `sorry`, a 101-column
 line, trailing whitespace, a wrong licence line, an undocumented `def`, a home-rolled `axiom`, a
-file without `module`, each caught by exactly one gate. On the tree as it stands: 3 library files,
-167 declarations audited and all within the allowlist, 133 judged by 15 environment linters with no
+file without `module`, each caught by exactly one gate. On the tree as it stands: 9 library files,
+311 declarations audited and all within the allowlist, 267 judged by 15 environment linters with no
 violations, headers and text linters clean.
 
 ## Still to settle
 
-1. **Copyright attribution in the Lean files.** `ArithmeticHeights/Arakelov.lean` is authored as
-   "The Tau Ceti contributors"; `lakefile.lean` and the scripts we wrote say "Ralf Stephan". Pick
-   one and make the headers agree — the header audit checks the *shape* of the block, not the name,
-   so it will not catch a wrong one. (The Apache-2.0 format is Tau Ceti's and stays either way.)
-2. **No `formalization.yaml`.** Tau Ceti's is copied in `TauCeti/` as the model; ours would say:
+1. **No `formalization.yaml`.** Tau Ceti's is copied in `TauCeti/` as the model; ours would say:
    source = Bombieri–Gubler plus the roadmap, single human author, `sorry_count: 0`, the three
    allowlisted axioms — all of it now machine-checked by the gates rather than asserted.
-3. **The shim ledger, when Layer 0.3 or 6.5 lands.** Both deliberately shadow an open Mathlib PR
-   (mathlib4#41606, mathlib4#40791), which is exactly what `mathlib-shims.json` and
-   `check-expired-mathlib-shims.py` exist to track, so that the vendored copy is deleted when
+2. **The shim ledger, now that Layer 0.3 has landed.** Layers 0.3 and 6.5 both deliberately shadow
+   an open Mathlib PR (mathlib4#41606, mathlib4#40791), which is exactly what `mathlib-shims.json`
+   and `check-expired-mathlib-shims.py` exist to track, so that the vendored copy is deleted when
    upstream lands rather than quietly diverging.
-4. **Pins.** Toolchain `v4.34.0`, Mathlib `1e043bcd5646` on `master` — ahead of Tau Ceti's
+3. **Pins.** Toolchain `v4.34.0`, Mathlib `1e043bcd5646` on `master` — ahead of Tau Ceti's
    `v4.34.0-rc1` / `653c36f019ec`, which is the allowed direction. Bumps stay forward-only.
+
+Settled since: the Lean file headers all name "Ralf Stephan", `Arakelov.lean` included, so the
+attribution question is closed.
 
 Settled on 2026-09-15: every gate is wired and tested (`scripts/check.sh`); the Tau Ceti reference
 copies are in place (`TauCeti/` and the unadapted part of `scripts/`, gitignored alongside the
