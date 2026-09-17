@@ -668,6 +668,19 @@ lemma arakelovMulHeight_ne_zero (x : Projectivization K (ι → K)) : arakelovMu
 lemma arakelovLogHeight_nonneg (x : Projectivization K (ι → K)) : 0 ≤ arakelovLogHeight x := by
   rw [arakelovLogHeight_eq_log_arakelovMulHeight]
   exact log_nonneg x.one_le_arakelovMulHeight
+/-- On a subsingleton index type every point of projective space has Arakelov height `1`;
+the projective form of `NumberField.arakelovMulHeight_eq_one_of_subsingleton`, and the degenerate
+case in which the Arakelov and sup-norm normalizations agree. -/
+@[simp]
+lemma arakelovMulHeight_eq_one_of_subsingleton [Subsingleton ι]
+    (x : Projectivization K (ι → K)) : arakelovMulHeight x = 1 := by
+  rw [← x.mk_rep, arakelovMulHeight_mk]
+  exact NumberField.arakelovMulHeight_eq_one_of_subsingleton _
+
+@[simp]
+lemma arakelovLogHeight_eq_zero_of_subsingleton [Subsingleton ι]
+    (x : Projectivization K (ι → K)) : arakelovLogHeight x = 0 := by
+  simp [arakelovLogHeight_eq_log_arakelovMulHeight]
 
 end Projectivization
 

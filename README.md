@@ -4,7 +4,9 @@ A working repository for the **`ArithmeticHeights` roadmap** — arithmetic heig
 matrices and linear subspaces, Northcott and Kronecker, successive minima, Siegel's lemma and
 Bombieri–Vaaler. The roadmap itself is [`ArithmeticHeights/README.md`](ArithmeticHeights/README.md);
 the suggested Lean signatures for the milestones most likely to drift are
-[`Roadmap/Suggested.lean`](Roadmap/Suggested.lean).
+[`Roadmap/Suggested.lean`](Roadmap/Suggested.lean), which also indexes the milestones already
+landed — each stated in its delivered form and discharged by the library declaration that carries
+it.
 
 The work is being done **here rather than in [Tau Ceti](https://github.com/TauCetiProject/TauCeti),
 ahead of it, because nothing proceeds there.** The intent is nevertheless that what lands here is
@@ -22,8 +24,11 @@ the `ArithmeticHeights` roadmap"), sorry-free.
 - Milestone **names and shapes may still change**, including ones already implemented here.
   `Suggested.lean` says so itself: it "is not the roadmap and is not exhaustive", and exists
   precisely for the statements whose shapes are most likely to drift.
-- Do not treat a signature in `Suggested.lean` as settled API. It elaborates against the pinned
-  Mathlib and is stated with `sorry`; the sorry-free version is what has to be right.
+- Do not treat a signature in `Suggested.lean` as settled API. The open milestones there are
+  stated with `sorry` and elaborate against the pinned Mathlib; the sorry-free version is what has
+  to be right. The landed ones are `example`s proved by the library, so they record what is true
+  today rather than what will stay true: a rename upstream in this repo breaks them, which is the
+  point.
 - Expect re-shaping when review lands — especially in the layers that depend on choices review is
   most likely to touch: the Arakelov vs. sup-norm normalisation and the relative/absolute split
   (Layer 0), the Plücker indexing and the `Module.Grassmannian` question (Layer 3), and the
@@ -86,17 +91,29 @@ un-ignoring it, and committing the result with a header saying what it came from
 ```
 ArithmeticHeights/      the library: sorry-free Lean, Tau Ceti rules, the default build target
   Absolute.lean         Layer 0.4
+  Affine.lean           Layer 0.5
   Arakelov.lean         Layers 0.1 and 0.2
+  CauchyBinet.lean      Layer 3.4
+  Duality.lean          Layer 3.5
   Extension.lean        Layer 0.3
+  GaussLemma.lean       Layer 2.2
+  Gelfond.lean          Layer 2.3
+  Hadamard.lean         Layer 3.4
   Kronecker.lean        Layer 1.4
+  LinearForm.lean       Layer 2.4
   LowerBound.lean       Layer 1.5
   MahlerMeasure.lean    Layer 1.2
+  Matrix.lean           Layer 2.5
   Northcott.lean        Layer 1.1
   NorthcottTheorem.lean Layer 1.3
+  Plucker.lean          Layer 3.1
   Polynomial.lean       Layer 2.1
+  RowSpace.lean         Layer 3.3
+  Subspace.lean         Layer 3.2
   README.md             the roadmap (prose)
 Roadmap/
-  Suggested.lean        the roadmap's target signatures: sorry-allowed, NOT a default target
+  Suggested.lean        the roadmap's target signatures: sorry-allowed, NOT a default target;
+                        imports the library, so the landed milestones are checked against it
 scripts/                the gates (see scripts/PROVENANCE.md); a few ignored reference copies
 TauCeti/                [gitignored] Tau Ceti's contract and configuration, verbatim, to read
 *.pdf                   [gitignored] literature (Bombieri–Gubler)
@@ -106,7 +123,8 @@ TauCeti/                [gitignored] Tau Ceti's contract and configuration, verb
 lake exe cache get          # Mathlib oleans
 scripts/check.sh            # every gate, in one round
 scripts/check.sh --quick    # only the gates that need no build
-lake build Roadmap          # optional: check the target signatures still elaborate
+lake build Roadmap          # optional: check the target signatures still elaborate, and that
+                            # the landed milestones still match the library
 ```
 
 `check.sh` runs, cheapest first: the four textual **guards**; **`lint-style.sh`** (copyright
@@ -116,12 +134,14 @@ target sets `warningAsError` over Mathlib's syntax linter set; **`lake exe axiom
 run, so one round shows everything that is wrong.
 
 `lake build` never touches `Roadmap/`: that library is declared without `@[default_target]`
-precisely so its 69 `sorry`s stay out of the library's build and out of every gate.
+precisely so its 26 `sorry`s — the milestones not yet built — stay out of the library's build
+and out of every gate. The dependency runs one way only, `Roadmap` on `ArithmeticHeights`, and
+`guards.sh` fails the build if the library ever imports the roadmap.
 
 Every gate was tested against a violation, not only against a clean tree — a `sorry`, a 101-column
 line, trailing whitespace, a wrong licence line, an undocumented `def`, a home-rolled `axiom`, a
-file without `module`, each caught by exactly one gate. On the tree as it stands: 9 library files,
-311 declarations audited and all within the allowlist, 267 judged by 15 environment linters with no
+file without `module`, each caught by exactly one gate. On the tree as it stands: 20 library files,
+698 declarations audited and all within the allowlist, 598 judged by 15 environment linters with no
 violations, headers and text linters clean.
 
 ## Still to settle

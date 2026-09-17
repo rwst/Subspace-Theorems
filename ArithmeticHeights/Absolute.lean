@@ -322,6 +322,19 @@ lemma absMulHeight_ne_zero (x : ι → K) : absMulHeight x ≠ 0 :=
 
 lemma absLogHeight_nonneg (x : ι → K) : 0 ≤ absLogHeight x :=
   Real.log_nonneg <| one_le_absMulHeight x
+/-- On a subsingleton index type every tuple has absolute height `1`: the height is computed in
+the field the single coordinate generates, where `Height.mulHeight_eq_one_of_subsingleton` is the
+product formula. -/
+@[simp]
+lemma absMulHeight_eq_one_of_subsingleton [Subsingleton ι] (x : ι → K) : absMulHeight x = 1 := by
+  by_cases hx : ∀ i, IsIntegral ℚ (x i)
+  · have := numberField_adjoin_range hx
+    rw [absMulHeight_def hx, Height.mulHeight_eq_one_of_subsingleton, Real.one_rpow]
+  · rw [absMulHeight_eq_one_of_not_isIntegral hx]
+
+@[simp]
+lemma absLogHeight_eq_zero_of_subsingleton [Subsingleton ι] (x : ι → K) : absLogHeight x = 0 := by
+  simp [absLogHeight_eq_log_absMulHeight]
 
 /-- **The absolute height does not increase under reindexing.** Dropping or repeating coordinates
 of an algebraic tuple cannot raise its height; this is `Height.mulHeight_comp_le` read in the
@@ -343,6 +356,25 @@ theorem absMulHeight_comp_le {ι' : Type*} [Finite ι'] (f : ι → ι') {x : ι
 theorem absLogHeight_comp_le {ι' : Type*} [Finite ι'] (f : ι → ι') {x : ι' → K}
     (hx : ∀ i, IsIntegral ℚ (x i)) : absLogHeight (x ∘ f) ≤ absLogHeight x :=
   Real.log_le_log (absMulHeight_pos _) (absMulHeight_comp_le f hx)
+/-- **The absolute height is invariant under re-indexing.** Unlike
+`NumberField.absMulHeight_comp_le`, of which it is the two-sided form, this needs no algebraicity
+hypothesis: an equivalence permutes the transcendental coordinates rather than dropping them, so
+the two sides take the junk value together. -/
+theorem absMulHeight_comp_equiv {ι' : Type*} [Finite ι'] (e : ι ≃ ι') (x : ι' → K) :
+    absMulHeight (x ∘ e) = absMulHeight x := by
+  by_cases hx : ∀ i, IsIntegral ℚ (x i)
+  · refine le_antisymm (absMulHeight_comp_le e hx) ?_
+    have hcomp : (x ∘ e) ∘ e.symm = x := by
+      funext i
+      simp
+    simpa [hcomp] using absMulHeight_comp_le e.symm (x := x ∘ e) fun i ↦ hx (e i)
+  · rw [absMulHeight_eq_one_of_not_isIntegral hx,
+      absMulHeight_eq_one_of_not_isIntegral fun h ↦ hx fun i ↦ by simpa using h (e.symm i)]
+
+/-- The logarithmic form of `NumberField.absMulHeight_comp_equiv`. -/
+theorem absLogHeight_comp_equiv {ι' : Type*} [Finite ι'] (e : ι ≃ ι') (x : ι' → K) :
+    absLogHeight (x ∘ e) = absLogHeight x :=
+  congrArg Real.log (absMulHeight_comp_equiv e x)
 
 /-- **The absolute height of a coordinatewise power.** Raising every coordinate of an algebraic
 tuple to the `n`-th power raises the height to the `n`-th power. This is `Height.mulHeight_pow`
@@ -574,6 +606,18 @@ lemma absMulHeight_ne_zero (x : Projectivization K (ι → K)) : absMulHeight x 
 lemma absLogHeight_nonneg (x : Projectivization K (ι → K)) : 0 ≤ absLogHeight x := by
   rw [absLogHeight_eq_log_absMulHeight]
   exact log_nonneg x.one_le_absMulHeight
+/-- On a subsingleton index type every point of projective space has absolute height `1`;
+the projective form of `NumberField.absMulHeight_eq_one_of_subsingleton`. -/
+@[simp]
+lemma absMulHeight_eq_one_of_subsingleton [Subsingleton ι] (x : Projectivization K (ι → K)) :
+    absMulHeight x = 1 := by
+  rw [← x.mk_rep, absMulHeight_mk]
+  exact NumberField.absMulHeight_eq_one_of_subsingleton _
+
+@[simp]
+lemma absLogHeight_eq_zero_of_subsingleton [Subsingleton ι] (x : Projectivization K (ι → K)) :
+    absLogHeight x = 0 := by
+  simp [absLogHeight_eq_log_absMulHeight]
 
 /-- Over a number field the projective absolute height is the projective relative height
 normalized by the degree, as it is for tuples. -/

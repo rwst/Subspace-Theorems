@@ -34,6 +34,9 @@ support. Every statement about polynomials in this file is a corollary of that l
 * `Finsupp.mulHeight_eq_mulHeight_comp` and `Finsupp.mulHeight_eq_mulHeight_subtype`: the height
   of a finitely supported function is the height of the tuple it induces on any index set that
   covers its support.
+* `Finsupp.bddAbove_range_apply` and `Finsupp.iSup_apply_eq_iSup_support`: the local factor
+  `⨆ i, v (x i)` of the height is bounded and is the supremum over the support, for an index type
+  that is not assumed finite. Layer 2.2 uses both.
 * `Finsupp.mulHeight_coe_eq`: the height of a `Finsupp` is the height of the *function* it
   coerces to, over the whole — possibly infinite — index type. This is what makes
   `Finsupp.logHeight` the logarithm of `Finsupp.mulHeight`; see the implementation notes.
@@ -94,7 +97,9 @@ section is the missing API.
 -/
 
 omit [AdmissibleAbsValues K] in
-private lemma bddAbove_range_apply (x : α →₀ K) (v : AbsoluteValue K ℝ) :
+/-- The values of an absolute value on a finitely supported function are bounded: off the
+support they are `0`, and the support is finite. -/
+lemma bddAbove_range_apply (x : α →₀ K) (v : AbsoluteValue K ℝ) :
     BddAbove (Set.range fun i : α ↦ v (x i)) := by
   classical
   refine (Set.Finite.subset (Finset.finite_toSet
@@ -106,11 +111,11 @@ private lemma bddAbove_range_apply (x : α →₀ K) (v : AbsoluteValue K ℝ) :
       (Finset.mem_image_of_mem _ (Finsupp.mem_support_iff.mpr h)))
 
 omit [AdmissibleAbsValues K] in
-private lemma iSup_apply_eq {x : α →₀ K} (hx : x ≠ 0) (v : AbsoluteValue K ℝ) :
+/-- The supremum of an absolute value over the whole index type is the supremum over the
+support. The index type is not assumed finite, and `x` is not assumed nonzero: at `x = 0` both
+sides are `0`, since an absolute value vanishes only at `0`. -/
+lemma iSup_apply_eq_iSup_support (x : α →₀ K) (v : AbsoluteValue K ℝ) :
     (⨆ i : α, v (x i)) = ⨆ i : x.support, v (x i.val) := by
-  have hne : Nonempty x.support := by
-    obtain ⟨i, hi⟩ := Finsupp.support_nonempty_iff.mpr hx
-    exact ⟨⟨i, hi⟩⟩
   refine le_antisymm (Real.iSup_le (fun i ↦ ?_) (Real.iSup_nonneg fun _ ↦ v.nonneg _))
     (Real.iSup_le (fun i ↦ le_ciSup (bddAbove_range_apply x v) i.val)
       (Real.iSup_nonneg fun _ ↦ v.nonneg _))
@@ -137,8 +142,8 @@ theorem mulHeight_coe_eq (x : α →₀ K) : Height.mulHeight ⇑x = x.mulHeight
   congr 1
   · congr 2
     ext1 v
-    exact iSup_apply_eq hx v
-  · exact finprod_congr fun v ↦ iSup_apply_eq hx v.val
+    exact iSup_apply_eq_iSup_support x v
+  · exact finprod_congr fun v ↦ iSup_apply_eq_iSup_support x v.val
 
 /-- The logarithmic form of `Finsupp.mulHeight_coe_eq`. -/
 theorem logHeight_coe_eq (x : α →₀ K) : Height.logHeight ⇑x = x.logHeight := rfl
@@ -173,10 +178,7 @@ theorem mulHeight_eq_mulHeight_subtype {s : Finset α} (x : α →₀ K) (hx : x
 
 @[simp]
 theorem mulHeight_zero : (0 : α →₀ K).mulHeight = 1 := by
-  have : IsEmpty ((0 : α →₀ K).support : Type _) := by
-    simp only [Finsupp.support_zero]; infer_instance
-  rw [Finsupp.mulHeight]
-  exact Height.mulHeight_eq_one_of_subsingleton _
+  rw [← mulHeight_coe_eq, Finsupp.coe_zero, Height.mulHeight_zero]
 
 @[simp]
 theorem logHeight_zero : (0 : α →₀ K).logHeight = 0 := by
