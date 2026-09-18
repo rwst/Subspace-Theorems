@@ -90,27 +90,37 @@ un-ignoring it, and committing the result with a header saying what it came from
 
 ```
 ArithmeticHeights/      the library: sorry-free Lean, Tau Ceti rules, the default build target
-  Absolute.lean         Layer 0.4
-  Affine.lean           Layer 0.5
-  Arakelov.lean         Layers 0.1 and 0.2
-  CauchyBinet.lean      Layer 3.4
-  Duality.lean          Layer 3.5
-  Extension.lean        Layer 0.3
-  GaussLemma.lean       Layer 2.2
-  Gelfond.lean          Layer 2.3
-  Hadamard.lean         Layer 3.4
-  Kronecker.lean        Layer 1.4
-  LinearForm.lean       Layer 2.4
-  LowerBound.lean       Layer 1.5
-  MahlerMeasure.lean    Layer 1.2
-  Matrix.lean           Layer 2.5
-  Northcott.lean        Layer 1.1
-  NorthcottTheorem.lean Layer 1.3
-  Plucker.lean          Layer 3.1
-  Polynomial.lean       Layer 2.1
-  RowSpace.lean         Layer 3.3
-  Subspace.lean         Layer 3.2
-  README.md             the roadmap (prose)
+  Absolute.lean          Layer 0.4
+  AdaptedBasis.lean      Layer 4.2 (infrastructure)
+  Affine.lean            Layer 0.5
+  Arakelov.lean          Layers 0.1 and 0.2
+  CauchyBinet.lean       Layer 3.4
+  Duality.lean           Layer 3.5
+  Extension.lean         Layer 0.3
+  GaussLemma.lean        Layer 2.2
+  Gelfond.lean           Layer 2.3
+  GramCovolume.lean      Layer 4.3 (infrastructure)
+  Hadamard.lean          Layer 3.4
+  Kronecker.lean         Layer 1.4
+  Laplace.lean           Layer 3.6
+  LinearForm.lean        Layer 2.4
+  LowerBound.lean        Layer 1.5
+  MahlerMeasure.lean     Layer 1.2
+  Matrix.lean            Layer 2.5
+  MinkowskiSecond.lean   Layer 4.2
+  Nonarchimedean.lean    Layer 3.6
+  Northcott.lean         Layer 1.1
+  NorthcottSubspace.lean Layer 3.7
+  NorthcottTheorem.lean  Layer 1.3
+  Plucker.lean           Layer 3.1
+  Polynomial.lean        Layer 2.1
+  QuotientFubini.lean    Layer 4.2 (infrastructure)
+  RationalLattice.lean   Layer 4.3 (over `ℚ`)
+  RowSpace.lean          Layer 3.3
+  Submodular.lean        Layer 3.6
+  Subspace.lean          Layer 3.2
+  SuccessiveMinima.lean  Layer 4.1
+  README.md              the roadmap (prose)
 Roadmap/
   Suggested.lean        the roadmap's target signatures: sorry-allowed, NOT a default target;
                         imports the library, so the landed milestones are checked against it
@@ -134,15 +144,15 @@ target sets `warningAsError` over Mathlib's syntax linter set; **`lake exe axiom
 run, so one round shows everything that is wrong.
 
 `lake build` never touches `Roadmap/`: that library is declared without `@[default_target]`
-precisely so its 26 `sorry`s — the milestones not yet built — stay out of the library's build
+precisely so its 19 `sorry`s — the milestones not yet built — stay out of the library's build
 and out of every gate. The dependency runs one way only, `Roadmap` on `ArithmeticHeights`, and
 `guards.sh` fails the build if the library ever imports the roadmap.
 
 Every gate was tested against a violation, not only against a clean tree — a `sorry`, a 101-column
 line, trailing whitespace, a wrong licence line, an undocumented `def`, a home-rolled `axiom`, a
-file without `module`, each caught by exactly one gate. On the tree as it stands: 20 library files,
-698 declarations audited and all within the allowlist, 598 judged by 15 environment linters with no
-violations, headers and text linters clean.
+file without `module`, each caught by exactly one gate. On the tree as it stands: 30 library files,
+1005 declarations audited and all within the allowlist, 777 judged by 15 environment linters with
+no violations, headers and text linters clean.
 
 ## Still to settle
 

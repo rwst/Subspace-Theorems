@@ -46,6 +46,8 @@ point that spans it.
   the rank of `V` is `k`. Every proof enters through this rather than through the definition.
 * `Submodule.absMulHeight_eq`: over a number field the absolute height of a subspace is the
   relative one normalized by the degree, as it is for tuples and for projective points.
+* `Submodule.mulHeight_le_arakelovMulHeight`: the height of a subspace is at most its Arakelov
+  height, the comparison of Layer 0.2 read at the Plücker point.
 
 `Set.powersetCard.subsingleton_iff` and `Projectivization.mulHeight_eq_one_of_subsingleton` are
 stated here because Mathlib has neither, although both are about Mathlib's own objects — the first
@@ -349,13 +351,33 @@ theorem arakelovLogHeight_span_range {v : Fin k → (ι → K)} (hv : LinearInde
   rw [arakelovLogHeight_eq_log_arakelovMulHeight, arakelovMulHeight_span_range hv,
     NumberField.arakelovLogHeight_eq_log_arakelovMulHeight]
 
+/-- **The height of a subspace is at most its Arakelov height**, with no constant: the two
+normalizations differ only at the archimedean places, where `‖·‖_∞ ≤ ‖·‖_2`. This is
+`Projectivization.mulHeight_le_arakelovMulHeight` at the Plücker point, and it is what carries
+Northcott for subspaces (3.7) from one normalization to the other.
+
+The reverse bound is not stated: it carries the constant
+`(Fintype.card ι).choose (finrank K V) ^ (Height.totalWeight K / 2)`, the number of Plücker
+coordinates rather than the dimension of the ambient space, and nothing below needs it. -/
+theorem mulHeight_le_arakelovMulHeight (V : Submodule K (ι → K)) :
+    V.mulHeight ≤ V.arakelovMulHeight := by
+  rw [mulHeight_eq_mulHeight_pluckerPoint (k := finrank K V) rfl,
+    arakelovMulHeight_eq_arakelovMulHeight_pluckerPoint (k := finrank K V) rfl]
+  exact Projectivization.mulHeight_le_arakelovMulHeight _
+
+/-- The logarithmic form of `Submodule.mulHeight_le_arakelovMulHeight`. -/
+theorem logHeight_le_arakelovLogHeight (V : Submodule K (ι → K)) :
+    V.logHeight ≤ V.arakelovLogHeight := by
+  rw [logHeight_eq_log_mulHeight, arakelovLogHeight_eq_log_arakelovMulHeight]
+  exact Real.log_le_log (mulHeight_pos V) (mulHeight_le_arakelovMulHeight V)
+
 end Arakelov
 
 /-!
 ### The absolute height of a subspace
 
 The variant that does not depend on the field the subspace is written over; it is the one the
-literature's `h(V)` is, and the one Northcott for subspaces (3.7) will be stated in.
+literature's `h(V)` is, and one of the six Northcott statements of 3.7.
 -/
 
 section Absolute

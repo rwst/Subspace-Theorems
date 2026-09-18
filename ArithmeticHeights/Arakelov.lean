@@ -51,6 +51,11 @@ a bound stated in either normalization be read in the other. Not all of
   into the other, and the second is sharp: it is an equality at the all-ones tuple.
 * `NumberField.arakelovMulHeight₁_le_mulHeight₁`: the affine case of the same, with constant
   `2 ^ (totalWeight K / 2)` — there is no equality `arakelovMulHeight₁ = mulHeight₁`.
+* `Projectivization.mulHeight_le_arakelovMulHeight` and
+  `Projectivization.arakelovMulHeight_le_mulHeight`: the same two comparisons on projective space,
+  where the heights of Layer 3 live. The first is what makes the Northcott property of Layer 1.1
+  carry over to the Arakelov normalization, since it bounds the sup-norm height by the Arakelov
+  one with no constant at all.
 
 ## Implementation notes
 
@@ -668,6 +673,7 @@ lemma arakelovMulHeight_ne_zero (x : Projectivization K (ι → K)) : arakelovMu
 lemma arakelovLogHeight_nonneg (x : Projectivization K (ι → K)) : 0 ≤ arakelovLogHeight x := by
   rw [arakelovLogHeight_eq_log_arakelovMulHeight]
   exact log_nonneg x.one_le_arakelovMulHeight
+
 /-- On a subsingleton index type every point of projective space has Arakelov height `1`;
 the projective form of `NumberField.arakelovMulHeight_eq_one_of_subsingleton`, and the degenerate
 case in which the Arakelov and sup-norm normalizations agree. -/
@@ -681,6 +687,38 @@ lemma arakelovMulHeight_eq_one_of_subsingleton [Subsingleton ι]
 lemma arakelovLogHeight_eq_zero_of_subsingleton [Subsingleton ι]
     (x : Projectivization K (ι → K)) : arakelovLogHeight x = 0 := by
   simp [arakelovLogHeight_eq_log_arakelovMulHeight]
+
+/-!
+#### Comparison of the two normalizations on projective space
+
+`NumberField.mulHeight_le_arakelovMulHeight` and `NumberField.arakelovMulHeight_le_mulHeight` read
+on `Projectivization K (ι → K)`. Both sides are computed on any representative, so the comparisons
+descend to projective space with the same constant.
+-/
+
+/-- **The projective sup-norm height is at most the projective Arakelov height.** -/
+lemma mulHeight_le_arakelovMulHeight (x : Projectivization K (ι → K)) :
+    mulHeight x ≤ arakelovMulHeight x := by
+  rw [← x.mk_rep, mulHeight_mk, arakelovMulHeight_mk]
+  exact NumberField.mulHeight_le_arakelovMulHeight _
+
+/-- **The projective Arakelov height is at most `#ι ^ (totalWeight K / 2)` times the projective
+sup-norm height**, with the constant — sharp — of `NumberField.arakelovMulHeight_le_mulHeight`. -/
+lemma arakelovMulHeight_le_mulHeight [Nonempty ι] (x : Projectivization K (ι → K)) :
+    arakelovMulHeight x ≤
+      (Fintype.card ι : ℝ) ^ ((Height.totalWeight K : ℝ) / 2) * mulHeight x := by
+  rw [← x.mk_rep, mulHeight_mk, arakelovMulHeight_mk]
+  exact NumberField.arakelovMulHeight_le_mulHeight _
+
+lemma logHeight_le_arakelovLogHeight (x : Projectivization K (ι → K)) :
+    logHeight x ≤ arakelovLogHeight x := by
+  rw [← x.mk_rep, logHeight_mk, arakelovLogHeight_mk]
+  exact NumberField.logHeight_le_arakelovLogHeight _
+
+lemma arakelovLogHeight_le_logHeight [Nonempty ι] (x : Projectivization K (ι → K)) :
+    arakelovLogHeight x ≤ (Height.totalWeight K : ℝ) / 2 * log (Fintype.card ι) + logHeight x := by
+  rw [← x.mk_rep, logHeight_mk, arakelovLogHeight_mk]
+  exact NumberField.arakelovLogHeight_le_logHeight _
 
 end Projectivization
 

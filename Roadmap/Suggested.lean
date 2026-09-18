@@ -22,6 +22,15 @@ import ArithmeticHeights.RowSpace        -- Layer 3.3
 import ArithmeticHeights.CauchyBinet     -- Layer 3.4
 import ArithmeticHeights.Hadamard        -- Layer 3.4
 import ArithmeticHeights.Duality         -- Layer 3.5
+import ArithmeticHeights.Laplace         -- Layer 3.6
+import ArithmeticHeights.Nonarchimedean  -- Layer 3.6
+import ArithmeticHeights.Submodular      -- Layer 3.6
+import ArithmeticHeights.NorthcottSubspace -- Layer 3.7
+import ArithmeticHeights.SuccessiveMinima -- Layer 4.1
+import ArithmeticHeights.MinkowskiSecond -- Layer 4.2
+import ArithmeticHeights.QuotientFubini  -- Layer 4.2
+import ArithmeticHeights.GramCovolume    -- Layer 4.3
+import ArithmeticHeights.RationalLattice -- Layer 4.3
 
 /-!
 # Arithmetic heights and Siegel's lemma: target signatures
@@ -48,9 +57,10 @@ characterizes them, since several of them deliberately leave their bodies unexpo
 
 **Open milestones remain `sorry`s**, stated in the vocabulary the finished layers actually
 deliver. Their names are unqualified inside `TauCetiRoadmap.ArithmeticHeights` so that the
-prototype does not occupy Mathlib's root namespaces: `successiveMinimum` is the roadmap's own name,
-`minorGcd` and `unitBallVolume` are local to this file, and the theorems about the height of a
-subspace belong in `Submodule` when they land. Every height is Mathlib's
+prototype does not occupy Mathlib's root namespaces: `minorGcd` and `unitBallVolume` are local
+to this file, and the theorems about the height of a subspace belong in `Submodule` when they
+land. The successive minima were such a name until 4.1 landed them as `ZLattice.successiveMinimum`
+in Mathlib's own namespace, beside `ZLattice.covolume`. Every height is Mathlib's
 **relative** height over the fixed field unless it carries the `abs` prefix; a constant
 transcribed from the literature is an absolute-height constant, and in the relative height it is
 raised to `Height.totalWeight K`, exactly as Mathlib's `mulHeight₁_sum_le` carries
@@ -75,6 +85,76 @@ milestones concerned.
   is the one statement Layers 5.3 and 5.4 consume, at either kind of infinite place.
 * **Gelfond's lower half needs hypotheses.** `p ≠ 0`, `q ≠ 0` and a number field — see the ⚠ under
   Layer 2.3 below.
+* **Submodularity is a statement about the Arakelov height.** `H(V + W) · H(V ∩ W) ≤ H(V) · H(W)`
+  is **false** for the sup-norm `Submodule.mulHeight`, and so are both of its corollaries: the
+  lines `ℚ · (1, 1, 1)` and `ℚ · (1, -1, 0)` in `ℚ³` have height `1` each, meet in `0`, and span a
+  plane of height `2`. The 3.6 statements below are therefore in `Submodule.arakelovMulHeight`,
+  which is the normalization Bombieri–Gubler's Theorem 2.8.13 is stated in; the refutation is
+  machine-checked in `ArithmeticHeights/Submodular.lean`, and so, now, is the theorem.
+* **A measure does enter Layer 4.1.** Not the definition of the successive minima, and not the
+  identification of the zeroth one as the least dilation containing a nonzero lattice point — but
+  the bound on it *is* Minkowski's first theorem, so `ZLattice.successiveMinimum_zero_le_one`
+  carries a `MeasureSpace`, a `BorelSpace` and `ZLattice.covolume`. And compactness of the body is
+  two hypotheses used in two places: boundedness for positivity and for attainment, closedness for
+  the gauge dictionary alone.
+* **Layer 4.2's citation is off by three theorems.** Minkowski's second theorem is Cassels'
+  Chapter VIII §4 **Theorem V**, whose kernel is his Theorem IV; Chapter VIII Theorem II is the
+  Rogers–Chabauty inequality for a general distance function, and Chapter VIII Theorem I is the
+  sphere case stated through the critical determinant `δ(F₀)`, not the volume, so it is not
+  contained in either. And it is the `λ 0 ^ n` bound, not the lower bound, that follows from the
+  first theorem applied to a scaled body; the lower bound is the cross-polytope computation.
+* **Cassels' Lemma 2 is his Chapter I, Theorem I.** The adapted `ℤ`-basis Cassels' proof of Layer
+  4.2 uses is not a fact about the minima at all: Cassels' Chapter VIII Lemma 2 is his Chapter I
+  Theorem I, part B — a basis of the lattice triangular against a given independent family —
+  applied to the family of Lemma 1. Mathlib has neither, and the second half of Lemma 1 itself,
+  that nothing of gauge below the `j`-th minimum lies outside the span of the first `j` vectors,
+  is the part Cassels calls obvious and needs a descent on `j`. All three have landed:
+  `ZLattice.exists_basis_adapted`, `ZLattice.mem_span_of_gauge_lt_successiveMinimum` and
+  `ZLattice.exists_basis_mem_span_int_of_gauge_lt`.
+* **The quotient measure of a convex set decomposes because the slab is a fundamental domain.**
+  The piece Layer 4.2's upper bound needed — Cassels' display (10), a Fubini decomposition of
+  the quotient measure over `span (v 0, …, v (J − 1))` — is `Measure.prod_apply_symm` once
+  `F ×ˢ univ` is known to be a fundamental domain for `Λ × 0`. The step with content is the other
+  one, that inside `t · B` congruence modulo `L` is congruence modulo `Λ`, which Cassels reads off
+  from coordinates and which coordinate-free needs a third fundamental domain,
+  `(𝓕_Λ ∩ (A + Λ)) ∪ (𝓕_L ∖ (A + L))`; that is the only place the finiteness of the covolume is
+  used. And the scaling step is not a change of variables: each slice is translated by its own
+  vector, so no map of the space realizes it. All of this is
+  `ArithmeticHeights/QuotientFubini.lean`, whose capstone
+  `ZLattice.pow_mul_measure_inter_add_le` is Cassels' Theorem IV in one step.
+* **Cassels' Lemma 2 is not on the path to Minkowski's second theorem.** Its adapted `ℤ`-basis is
+  how he sees, in coordinates, that the translation of the `J`-th step stays inside the
+  sublattice; coordinate-free the sublattice `L ∩ span (v 0, …, v (J − 1))` is at hand and the only
+  thing the estimate wants of it is its `ℤ`-rank, which is the `ℝ`-dimension of its span. So the
+  upper bound uses only the *first* of the two pieces Mathlib was missing, together with the
+  dependence half of Cassels' Lemma 1. The adapted basis is still a milestone — Layer 4.6 wants
+  it — but it is not a prerequisite of 4.2.
+* **The upper bound is proved on the open dilates, and that is what removes closedness.** For a
+  closed body `t · B` contains points of gauge exactly `t`, so congruence modulo `L` inside it is
+  congruence modulo the sublattice only for `2 t < λ J` strictly, and the chain needs it at
+  `2 t = λ J`. On `{gauge B < t}` — Cassels' own `t𝒴`, which is open — it holds there, and the
+  null-set comparison the roadmap flagged as the layer's last open question costs one line:
+  a convex set has null frontier, so `μ (interior B) = μ B`.
+* **The covolume identity of 4.3 is two computations of the same sum of squares.** With `y` a
+  saturated `ℤ`-basis of `V ∩ ℤⁿ` and `p` its tuple of maximal minors, the squared covolume is the
+  Gram determinant of `y`, which Cauchy–Binet turns into `∑ₛ pₛ²`; and the height is `√(∑ₛ pₛ²)`
+  because the finite places contribute `1`. The archimedean half of Schmidt's proof is therefore
+  `ZLattice.covolume_sq_eq_det_gram` plus Layer 3.4, and its finite half is the *primitivity* of
+  `p` — over `ℚ` there is no `N(𝔞)` to cancel, both occurrences of it being `1`.
+* **Saturation is what makes 4.3 true, and primitivity is where it is spent.** Against a
+  finite-index sublattice of `V ∩ ℤⁿ` the covolume grows by the index while the height does not
+  move, so the identity fails for an arbitrary `ℤ`-basis of an arbitrary full-rank sublattice.
+  `Submodule.gcd_plucker_eq_one` is the one statement that uses the hypothesis, and it needs no
+  adapted basis, no Smith normal form and no splitting of the quotient: a prime dividing every
+  maximal minor makes the reductions dependent over `ZMod q` — `exteriorPower.plucker_eq_zero_iff`
+  of Layer 3.1 over a finite field — and saturation then divides the coefficients of the resulting
+  relation by `q`.
+* **Mathlib already carries the ambient the number-field case of 4.3 needs.**
+  `NumberField.mixedEmbedding.euclidean.mixedSpace` is the mixed space as an inner product space,
+  measure-preservingly equivalent to the usual one, and `covolume_integerLattice` computes the
+  covolume of `𝓞 K` in it as `2⁻¹ ^ r₂ · √|discr K|` — the degenerate case of 4.3's display. So
+  the `K` statement has a setting and a pinned normalization before any of Schmidt's argument is
+  formalized; what is missing is his Lemma 4 and his Lemmas 5–6, not the objects.
 * **The annihilator has to be transported before it has a height.** `Submodule.mulHeight` is
   defined on subspaces of `ι → K`, and the annihilator lives in the dual, so
   `mulHeight V.dualAnnihilator` does not typecheck: the identification along the standard basis is
@@ -701,37 +781,146 @@ example {m : Type*} (A : Matrix m ι K) :
     (LinearMap.ker A.mulVecLin).mulHeight = (Submodule.span K (Set.range A.row)).mulHeight :=
   Matrix.mulHeight_ker_mulVecLin A
 
-/-- **Layer 3.6 — submodularity (Bombieri–Gubler, Theorem 2.8.13; Schmidt, Struppeck–Vaaler).**
-The height of a subspace is submodular in the subspace lattice. -/
-theorem mulHeight_sup_mul_mulHeight_inf_le (V W : Submodule K (ι → K)) :
-    (V ⊔ W).mulHeight * (V ⊓ W).mulHeight ≤ V.mulHeight * W.mulHeight :=
-  sorry
+end Duality
 
-/-- **Layer 3.6.** The corollary of submodularity and `1 ≤ H` for the intersection. ⚠ Subspace
-heights are **not** monotone under inclusion: in `ℚ²`, `H(⊤) = 1` while
+section Submodular
+
+variable {K : Type*} [Field K] [NumberField K] {ι : Type*} [Fintype ι] [LinearOrder ι]
+
+/-- **Layer 3.6 — submodularity (Bombieri–Gubler, Theorem 2.8.13; Schmidt, Struppeck–Vaaler),
+landed** as `Submodule.arakelovMulHeight_sup_mul_arakelovMulHeight_inf_le`. The height of a
+subspace is submodular in the subspace lattice.
+
+⚠ The milestone's sup-norm form is **false**, and so are both corollaries below in that form: the
+lines `ℚ · (1, 1, 1)` and `ℚ · (1, -1, 0)` in `ℚ³` have `Submodule.mulHeight` equal to `1` each,
+meet in `0`, and span a plane of `Submodule.mulHeight` `2`, so `2 · 1 > 1 · 1`; transporting the
+same pair through the duality theorem of 3.5 refutes the corollary for the intersection. Both are
+machine-checked in `ArithmeticHeights/Submodular.lean`. In the ℓ² normalization the same pair
+gives an equality: the two rows are orthogonal, so the Gram determinant is `6 = 3 · 2`. -/
+example (V W : Submodule K (ι → K)) :
+    (V ⊔ W).arakelovMulHeight * (V ⊓ W).arakelovMulHeight ≤
+      V.arakelovMulHeight * W.arakelovMulHeight :=
+  Submodule.arakelovMulHeight_sup_mul_arakelovMulHeight_inf_le V W
+
+/-- **Layer 3.6, landed.** The corollary of submodularity and `1 ≤ H` for the intersection.
+⚠ Subspace heights are **not** monotone under inclusion: in `ℚ²`, `H(⊤) = 1` while
 `H(span {![1, N]}) = N`. There is no statement bounding `H(W)` by `H(V)` for `W ≤ V`; these two
 product bounds are what submodularity gives. -/
-theorem mulHeight_inf_le_mul (V W : Submodule K (ι → K)) :
-    (V ⊓ W).mulHeight ≤ V.mulHeight * W.mulHeight :=
-  sorry
+example (V W : Submodule K (ι → K)) :
+    (V ⊓ W).arakelovMulHeight ≤ V.arakelovMulHeight * W.arakelovMulHeight :=
+  Submodule.arakelovMulHeight_inf_le_mul V W
 
-/-- **Layer 3.6.** The same for the sum. -/
-theorem mulHeight_sup_le_mul (V W : Submodule K (ι → K)) :
-    (V ⊔ W).mulHeight ≤ V.mulHeight * W.mulHeight :=
-  sorry
+/-- **Layer 3.6, landed.** The same for the sum. -/
+example (V W : Submodule K (ι → K)) :
+    (V ⊔ W).arakelovMulHeight ≤ V.arakelovMulHeight * W.arakelovMulHeight :=
+  Submodule.arakelovMulHeight_sup_le_mul V W
 
-end Duality
+/-- **Layer 3.6, landed.** The logarithmic form: `h_Ar` is a submodular function on the subspace
+lattice. -/
+example (V W : Submodule K (ι → K)) :
+    (V ⊔ W).arakelovLogHeight + (V ⊓ W).arakelovLogHeight ≤
+      V.arakelovLogHeight + W.arakelovLogHeight :=
+  Submodule.arakelovLogHeight_sup_add_arakelovLogHeight_inf_le V W
+
+/-- **Layer 3.6 — the archimedean half, landed** as
+`NumberField.InfinitePlace.sum_sq_plucker_append_mul_le`: the local factor `∑ₛ v(pₛ)²` of the
+tuple of Plücker coordinates is submodular at every infinite place. Underneath it is
+**Koteljanskii's inequality** for Gram determinants, `Matrix.det_mul_transpose_self_fromRows_mul_le`
+over an ordered field and `Matrix.det_mul_conjTranspose_self_fromRows_mul_le` over `ℝ` or `ℂ`,
+which is Layer 3.4's Fischer inequality with a common first block of rows. -/
+example (v : NumberField.InfinitePlace K) {p q r : ℕ} (a : Fin p → (ι → K))
+    (b : Fin q → (ι → K)) (c : Fin r → (ι → K)) :
+    (∑ s : Set.powersetCard ι (p + (q + r)),
+          v (exteriorPower.plucker (p + (q + r)) (Fin.append a (Fin.append b c)) s) ^ 2) *
+        (∑ s : Set.powersetCard ι p, v (exteriorPower.plucker p a s) ^ 2)
+      ≤ (∑ s : Set.powersetCard ι (p + q),
+            v (exteriorPower.plucker (p + q) (Fin.append a b) s) ^ 2) *
+          (∑ s : Set.powersetCard ι (p + r),
+            v (exteriorPower.plucker (p + r) (Fin.append a c) s) ^ 2) :=
+  NumberField.InfinitePlace.sum_sq_plucker_append_mul_le v a b c
+
+/-- **Layer 3.6 — the finite half, landed** as
+`NumberField.FinitePlace.iSup_plucker_append_mul_le`: the local factor `maxₛ v(pₛ)` of the tuple of
+Plücker coordinates is submodular at every finite place. It is proved in
+`ArithmeticHeights/Nonarchimedean.lean` by normalizing the common block to an integral basis of its
+saturated lattice `span A ∩ Oᵥⁿ`, after which the inequality collapses to the submultiplicativity
+`‖p(B;C)‖ᵥ ≤ ‖p(B)‖ᵥ ‖p(C)‖ᵥ` applied twice. -/
+example (v : NumberField.FinitePlace K) {p q r : ℕ} (a : Fin p → (ι → K))
+    (b : Fin q → (ι → K)) (c : Fin r → (ι → K)) :
+    (⨆ s : Set.powersetCard ι (p + (q + r)),
+          v (exteriorPower.plucker (p + (q + r)) (Fin.append a (Fin.append b c)) s)) *
+        (⨆ s : Set.powersetCard ι p, v (exteriorPower.plucker p a s))
+      ≤ (⨆ s : Set.powersetCard ι (p + q),
+            v (exteriorPower.plucker (p + q) (Fin.append a b) s)) *
+          ⨆ s : Set.powersetCard ι (p + r),
+            v (exteriorPower.plucker (p + r) (Fin.append a c) s) :=
+  NumberField.FinitePlace.iSup_plucker_append_mul_le v a b c
+
+/-- **Layer 3.6 — the Grassmann–Plücker comultiplication, landed** as
+`exteriorPower.plucker_append_eq_sum`: the Plücker coordinates of a stack are the bilinear
+combination of those of the two blocks, with the structure constants of the wedge product, which
+`exteriorPower.wedgeCoeff_eq_zero_or_eq_one_or_eq_neg_one` shows are signs. This is the Laplace
+expansion along a block of rows — `exteriorPower.det_append_eq_sum` states it for a determinant —
+and it is the second route to the finite-place inequality above. -/
+example {q r : ℕ} (B : Fin q → (ι → K)) (C : Fin r → (ι → K))
+    (s : Set.powersetCard ι (q + r)) :
+    exteriorPower.plucker (q + r) (Fin.append B C) s
+      = ∑ t : Set.powersetCard ι q, ∑ t' : Set.powersetCard ι r,
+          exteriorPower.wedgeCoeff t t' s *
+            (exteriorPower.plucker q B t * exteriorPower.plucker r C t') :=
+  exteriorPower.plucker_append_eq_sum B C s
+
+/-- **Layer 3.6 — the reduction, landed** as `Submodule.exists_append_span_eq`: one triple of
+families spans all four subspaces of the milestone, so that the four heights are the heights of
+four Plücker vectors built from the same three families. -/
+example (V W : Submodule K (ι → K)) :
+    ∃ (k m n : ℕ) (u : Fin k → (ι → K)) (b : Fin m → (ι → K)) (c : Fin n → (ι → K)),
+      LinearIndependent K (Fin.append u (Fin.append b c)) ∧
+        Submodule.span K (Set.range u) = V ⊓ W ∧
+        Submodule.span K (Set.range (Fin.append u b)) = V ∧
+        Submodule.span K (Set.range (Fin.append u c)) = W ∧
+        Submodule.span K (Set.range (Fin.append u (Fin.append b c))) = V ⊔ W := by
+  obtain ⟨k, m, n, u, b, c, _, _, _, hubc, hsu, hsub, hsuc, hsubc⟩ :=
+    Submodule.exists_append_span_eq V W
+  exact ⟨k, m, n, u, b, c, hubc, hsu, hsub, hsuc, hsubc⟩
+
+end Submodular
 
 section NorthcottSubspace
 
 variable {K : Type*} [Field K] [NumberField K] {ι : Type*} [Fintype ι] [LinearOrder ι]
 
-/-- **Layer 3.7.** Northcott for subspaces over a number field, immediate from injectivity of the
-Plücker map (3.1) and Northcott on projective space (1.1). The rank is a condition on `V` rather
-than a parameter of the height. -/
-theorem finite_setOf_mulHeight_le (k : ℕ) (B : ℝ) :
+/-- **Layer 3.7 — Northcott for subspaces, landed** as
+`Submodule.finite_setOf_finrank_eq_and_mulHeight_le` in
+`ArithmeticHeights/NorthcottSubspace.lean`: immediate from injectivity of the Plücker map (3.1)
+and Northcott on projective space (1.1). The rank is a condition on `V` rather than a parameter
+of the height. -/
+example (k : ℕ) (B : ℝ) :
     {V : Submodule K (ι → K) | finrank K V = k ∧ V.mulHeight ≤ B}.Finite :=
-  sorry
+  Submodule.finite_setOf_finrank_eq_and_mulHeight_le k B
+
+/-- **Layer 3.7 — the rank-free strengthening.** A subspace of `ι → K` has rank at most
+`Fintype.card ι`, so bounding the height alone already bounds the number of subspaces: the rank
+is not a second parameter that has to be fixed. This is what the `Northcott` instances below are
+stated in terms of. -/
+example (B : ℝ) : {V : Submodule K (ι → K) | V.mulHeight ≤ B}.Finite :=
+  Submodule.finite_setOf_mulHeight_le B
+
+/-- **Layer 3.7 — the `Northcott` instances**, one for each of the six subspace heights. The
+instance form, and not the finiteness statement, is what `Northcott.exists_min_image` consumes. -/
+example : Northcott (Submodule.mulHeight (K := K) (ι := ι)) ∧
+    Northcott (Submodule.logHeight (K := K) (ι := ι)) ∧
+      Northcott (Submodule.arakelovMulHeight (K := K) (ι := ι)) ∧
+        Northcott (Submodule.arakelovLogHeight (K := K) (ι := ι)) ∧
+          Northcott (Submodule.absMulHeight (K := K) (ι := ι)) ∧
+            Northcott (Submodule.absLogHeight (K := K) (ι := ι)) :=
+  ⟨inferInstance, inferInstance, inferInstance, inferInstance, inferInstance, inferInstance⟩
+
+/-- **Layer 3.7 — the minimum principle**, the consequence the instances exist for: a nonempty
+set of subspaces contains one of least height. -/
+example (s : Set (Submodule K (ι → K))) (hs : s.Nonempty) :
+    ∃ V ∈ s, ∀ W ∈ s, V.mulHeight ≤ W.mulHeight :=
+  Northcott.exists_min_image _ s hs
 
 end NorthcottSubspace
 
@@ -741,49 +930,149 @@ section SuccessiveMinima
 
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [FiniteDimensional ℝ E]
 
-/-- **Layer 4.1.** The `i`-th successive minimum of a convex body with respect to a lattice: the
-least dilation of the body containing `i + 1` linearly independent lattice points. The `i = 0`
-case is the quantity in Minkowski's convex-body theorem, which Mathlib has. For
-`i ≥ finrank ℝ E` no such family exists and the value is `sInf ∅ = 0`; every statement about
-the minima carries `i < finrank ℝ E`. No measure enters the definition or the statements of 4.1;
-the measure-space instances appear only on the two halves of 4.2. -/
-def successiveMinimum (L : Submodule ℤ E) (B : Set E) (i : ℕ) : ℝ :=
-  sInf {t : ℝ | 0 < t ∧ ∃ v : Fin (i + 1) → E,
-    (∀ j, v j ∈ (t • B) ∩ (L : Set E)) ∧ LinearIndependent ℝ v}
+/-- **Layer 4.1 — the definition, landed** as `ZLattice.successiveMinimum` in
+`ArithmeticHeights/SuccessiveMinima.lean`, with exactly the body the milestone pinned: the least
+dilation of `B` containing `i + 1` linearly independent points of `L`. The name gained the
+`ZLattice` namespace on landing, beside `ZLattice.covolume`; nothing else about the shape moved.
+For `i ≥ finrank ℝ E` no such family exists and the value is `sInf ∅ = 0`, so every statement
+about the minima carries `i < finrank ℝ E`. -/
+example (L : Submodule ℤ E) (B : Set E) (i : ℕ) :
+    ZLattice.successiveMinimum L B i = sInf {t : ℝ | 0 < t ∧ ∃ v : Fin (i + 1) → E,
+      (∀ j, v j ∈ (t • B) ∩ (L : Set E)) ∧ LinearIndependent ℝ v} :=
+  rfl
 
-/-- **Layer 4.1.** The successive minima of a bounded symmetric convex set with nonempty interior
-are positive: a bounded body meets the discrete lattice in finitely many points at each dilation.
-Attainment (Cassels' Lemma 1) additionally needs `IsClosed B`, and monotonicity in `i` and the
-scaling law in `B` belong to the same milestone. -/
-theorem successiveMinimum_pos (L : Submodule ℤ E) [DiscreteTopology L] [IsZLattice ℝ L]
+/-- **Layer 4.1 — the gauge dictionary, landed** as `gauge_le_iff_mem_smul`, the ⚠ the milestone
+asks for as its own lemma: Cassels' distance functions and the convex-body form are the same
+thing, and `IsClosed B` is exactly what the translation costs. Dilations of an open body are
+*not* the sublevel sets of its gauge, which is what the ⚠ under 4.1 in the roadmap records. -/
+example {B : Set E} (hB₀ : Convex ℝ B) (hB₄ : IsClosed B) (hB₁ : ∀ x ∈ B, -x ∈ B)
+    (hB₂ : (interior B).Nonempty) {t : ℝ} (ht : 0 < t) {x : E} :
+    gauge B x ≤ t ↔ x ∈ t • B :=
+  gauge_le_iff_mem_smul hB₀ hB₄ (hB₀.mem_nhds_zero_of_symmetric hB₁ hB₂) ht
+
+/-- **Layer 4.1 — positivity, landed** as `ZLattice.successiveMinimum_pos`: a bounded body meets
+the discrete lattice in finitely many points at each dilation, so no small dilation contains a
+nonzero lattice point. This is where boundedness of the body is used. -/
+example (L : Submodule ℤ E) [DiscreteTopology L] [IsZLattice ℝ L]
     {B : Set E} (hB₀ : Convex ℝ B) (hB₁ : ∀ x ∈ B, -x ∈ B) (hB₂ : (interior B).Nonempty)
     (hB₃ : Bornology.IsBounded B) {i : ℕ} (hi : i < Module.finrank ℝ E) :
-    0 < successiveMinimum L B i :=
-  sorry
+    0 < ZLattice.successiveMinimum L B i :=
+  ZLattice.successiveMinimum_pos L hB₀ hB₁ hB₂ hB₃ hi
 
-/-- **Layer 4.2 — Minkowski's second theorem, the easy half.** The measure is a Haar measure, the
-one `ZLattice.covolume` is taken against, as in Mathlib's
-`exists_ne_zero_mem_lattice_of_measure_mul_two_pow_le_measure`. -/
-theorem measure_mul_prod_successiveMinimum_le [MeasureTheory.MeasureSpace E] [BorelSpace E]
+/-- **Layer 4.1 — the junk value above the dimension, landed** as
+`ZLattice.successiveMinimum_eq_zero_of_le`. Together with positivity this is why every statement
+about the minima is restricted to `i < finrank ℝ E`: the minima are *not* a monotone function of
+the index on all of `ℕ`, and a product over indices above the dimension is zero. -/
+example (L : Submodule ℤ E) (B : Set E) {i : ℕ} (hi : Module.finrank ℝ E ≤ i) :
+    ZLattice.successiveMinimum L B i = 0 :=
+  ZLattice.successiveMinimum_eq_zero_of_le L B hi
+
+/-- **Layer 4.1 — monotone in the index and homogeneous of degree `-1` in the body, landed** as
+`ZLattice.successiveMinimum_le_of_le` and `ZLattice.successiveMinimum_smul`. The first carries
+`j < finrank ℝ E` for the reason above. -/
+example (L : Submodule ℤ E) [DiscreteTopology L] [IsZLattice ℝ L]
+    {B : Set E} (hB₀ : Convex ℝ B) (hB₁ : ∀ x ∈ B, -x ∈ B) (hB₂ : (interior B).Nonempty)
+    {i j : ℕ} (hij : i ≤ j) (hj : j < Module.finrank ℝ E) {c : ℝ} (hc : 0 < c) :
+    ZLattice.successiveMinimum L B i ≤ ZLattice.successiveMinimum L B j ∧
+      ZLattice.successiveMinimum L (c • B) i = c⁻¹ * ZLattice.successiveMinimum L B i :=
+  ⟨ZLattice.successiveMinimum_le_of_le hij hj hB₀ hB₁ hB₂,
+    ZLattice.successiveMinimum_smul L B i hc⟩
+
+/-- **Layer 4.1 — attainment, landed** as
+`ZLattice.exists_linearIndependent_gauge_eq_successiveMinimum`: Cassels' Lemma 1, one independent
+family of lattice vectors realizing *all* the minima at once, not one family for each index.
+
+⚠ The gauge form needs no closedness; it is the body form below that does. -/
+example (L : Submodule ℤ E) [DiscreteTopology L] [IsZLattice ℝ L]
+    {B : Set E} (hB₀ : Convex ℝ B) (hB₁ : ∀ x ∈ B, -x ∈ B) (hB₂ : (interior B).Nonempty)
+    (hB₃ : Bornology.IsBounded B) :
+    ∃ v : Fin (Module.finrank ℝ E) → E, (∀ j, v j ∈ (L : Set E)) ∧ LinearIndependent ℝ v ∧
+      ∀ j : Fin (Module.finrank ℝ E), gauge B (v j) = ZLattice.successiveMinimum L B j :=
+  ZLattice.exists_linearIndependent_gauge_eq_successiveMinimum L hB₀ hB₁ hB₂ hB₃
+
+/-- **Layer 4.1 — attainment in the body, landed** as
+`ZLattice.exists_linearIndependent_mem_smul_successiveMinimum`. This is the form 4.2 and 4.6
+consume, and `IsClosed B` is what it costs over the gauge form. -/
+example (L : Submodule ℤ E) [DiscreteTopology L] [IsZLattice ℝ L]
+    {B : Set E} (hB₀ : Convex ℝ B) (hB₁ : ∀ x ∈ B, -x ∈ B) (hB₂ : (interior B).Nonempty)
+    (hB₃ : Bornology.IsBounded B) (hB₄ : IsClosed B) :
+    ∃ v : Fin (Module.finrank ℝ E) → E, (∀ j, v j ∈ (L : Set E)) ∧ LinearIndependent ℝ v ∧
+      ∀ j : Fin (Module.finrank ℝ E),
+        v j ∈ (ZLattice.successiveMinimum L B j) • B :=
+  ZLattice.exists_linearIndependent_mem_smul_successiveMinimum L hB₀ hB₁ hB₂ hB₃ hB₄
+
+/-- **Layer 4.1 — Minkowski's first theorem as the case `i = 0`, landed** as
+`ZLattice.successiveMinimum_zero_eq` and `ZLattice.successiveMinimum_zero_le_one`. The first is
+measure-free — the zeroth minimum asks only for a nonzero lattice point — and the second is
+Mathlib's `exists_ne_zero_mem_lattice_of_measure_mul_two_pow_le_measure` read as that case.
+
+⚠ The docstring above claimed no measure enters 4.1. It does not enter the definition, and the
+identification of the zeroth minimum is measure-free, but the bound itself is a statement about
+`ZLattice.covolume` and is the one place in 4.1 a measure appears. -/
+example [MeasureTheory.MeasureSpace E] [BorelSpace E] [Nontrivial E]
+    [MeasureTheory.Measure.IsAddHaarMeasure (MeasureTheory.volume : MeasureTheory.Measure E)]
+    (L : Submodule ℤ E) [DiscreteTopology L] [IsZLattice ℝ L] {B : Set E} (hB₀ : Convex ℝ B)
+    (hB₁ : ∀ x ∈ B, -x ∈ B) (hB₅ : IsCompact B)
+    (h : 2 ^ Module.finrank ℝ E * ZLattice.covolume L ≤ (MeasureTheory.volume B).toReal) :
+    ZLattice.successiveMinimum L B 0 =
+        sInf {t : ℝ | 0 < t ∧ ∃ x ∈ (t • B) ∩ (L : Set E), x ≠ 0} ∧
+      ZLattice.successiveMinimum L B 0 ≤ 1 :=
+  ⟨ZLattice.successiveMinimum_zero_eq L B,
+    ZLattice.successiveMinimum_zero_le_one L MeasureTheory.volume hB₀ hB₁ hB₅ h⟩
+
+/-- **Layer 4.2 — Minkowski's second theorem, the lower bound, landed** as
+`ZLattice.covolume_le_prod_successiveMinimum_mul_measure`. The pinned shape survived; the
+hypotheses shrank, since the vectors realizing the minima are used through their gauges and the
+cross-polytope they span meets the body through the half of the gauge dictionary that holds for
+any body. Neither closedness nor compactness enters. -/
+example [MeasureTheory.MeasureSpace E] [BorelSpace E]
     [MeasureTheory.Measure.IsAddHaarMeasure (MeasureTheory.volume : MeasureTheory.Measure E)]
     (L : Submodule ℤ E) [DiscreteTopology L] [IsZLattice ℝ L] {B : Set E} (hB₀ : Convex ℝ B)
     (hB₁ : ∀ x ∈ B, -x ∈ B) (hB₂ : (interior B).Nonempty) (hB₃ : Bornology.IsBounded B) :
     (2 : ℝ) ^ Module.finrank ℝ E / (Nat.factorial (Module.finrank ℝ E)) *
         ZLattice.covolume L ≤
-      (∏ i ∈ Finset.range (Module.finrank ℝ E), successiveMinimum L B i) *
+      (∏ i ∈ Finset.range (Module.finrank ℝ E), ZLattice.successiveMinimum L B i) *
         (MeasureTheory.volume B).toReal :=
-  sorry
+  ZLattice.covolume_le_prod_successiveMinimum_mul_measure L MeasureTheory.volume hB₀ hB₁ hB₂ hB₃
 
-/-- **Layer 4.2 — Minkowski's second theorem, the substantial half.** This is the direction Layer
-5 and 6.3 consume; the proof is the compression argument along a basis realizing the minima. -/
-theorem prod_successiveMinimum_mul_measure_le [MeasureTheory.MeasureSpace E] [BorelSpace E]
+/-- **Layer 4.2 — the upper bound for the zeroth minimum, landed** as
+`ZLattice.pow_successiveMinimum_zero_mul_measure_le`: `λ 0 ^ n * vol B ≤ 2 ^ n * covolume L`, which
+is Minkowski's first theorem made homogeneous by applying it to a dilated body. It is the upper
+bound below with `∏ i < n, λ i` weakened to `λ 0 ^ n`, and it is everything the first theorem
+gives: the substantial half is a different argument. -/
+example [MeasureTheory.MeasureSpace E] [BorelSpace E] [Nontrivial E]
+    [MeasureTheory.Measure.IsAddHaarMeasure (MeasureTheory.volume : MeasureTheory.Measure E)]
+    (L : Submodule ℤ E) [DiscreteTopology L] [IsZLattice ℝ L] {B : Set E} (hB₀ : Convex ℝ B)
+    (hB₁ : ∀ x ∈ B, -x ∈ B) (hB₂ : (interior B).Nonempty) (hB₅ : IsCompact B) :
+    ZLattice.successiveMinimum L B 0 ^ Module.finrank ℝ E * (MeasureTheory.volume B).toReal ≤
+      (2 : ℝ) ^ Module.finrank ℝ E * ZLattice.covolume L :=
+  ZLattice.pow_successiveMinimum_zero_mul_measure_le L MeasureTheory.volume hB₀ hB₁ hB₂ hB₅
+
+/-- **Layer 4.2 — Minkowski's second theorem, the substantial half, landed** as
+`ZLattice.prod_successiveMinimum_mul_measure_le`. This is the direction Layer 5 and 6.3 consume.
+It is Cassels' Chapter VIII **Theorem V**, not Theorem II — Theorem II of that chapter is the
+Rogers–Chabauty bound `λ 1 ⋯ λ n ≤ 2 ^ ((n − 1) / 2) δ(F) d(Λ)` for a general distance function, a
+different theorem with a different constant — and Cassels says of it that the proof "remains
+difficult". The route is Weyl's, through Cassels' Theorem IV: the linear map that would make it a
+packing statement does not map the body into itself (machine-checked at the end of
+`ArithmeticHeights/MinkowskiSecond.lean`), so the set inclusion is replaced by a measure estimate
+for the image of `t • B` in `E ⧸ L`, scaled up from `t = λ 0 / 2` to `t = λ (n − 1) / 2` one
+minimum at a time. That estimate is `ZLattice.pow_mul_measure_inter_add_le` of
+`ArithmeticHeights/QuotientFubini.lean`, Cassels' Theorem IV in one step. ⚠ The chain runs on the
+*open* dilates `{gauge B < t}`, which is what lets the separation hypothesis hold at `2 t = λ J`
+rather than only below it, and it is why no closedness or compactness of the body appears; the
+body and its interior have the same measure because a convex set has null frontier. ⚠ Cassels'
+Lemma 2 turns out not to be needed: the adapted basis is his way of seeing in coordinates that a
+translation stays inside `L ∩ span (v 0, …, v (J − 1))`, and coordinate-free the only thing wanted
+of that sublattice is its rank. -/
+example [MeasureTheory.MeasureSpace E] [BorelSpace E]
     [MeasureTheory.Measure.IsAddHaarMeasure (MeasureTheory.volume : MeasureTheory.Measure E)]
     (L : Submodule ℤ E) [DiscreteTopology L] [IsZLattice ℝ L] {B : Set E} (hB₀ : Convex ℝ B)
     (hB₁ : ∀ x ∈ B, -x ∈ B) (hB₂ : (interior B).Nonempty) (hB₃ : Bornology.IsBounded B) :
-    (∏ i ∈ Finset.range (Module.finrank ℝ E), successiveMinimum L B i) *
+    (∏ i ∈ Finset.range (Module.finrank ℝ E), ZLattice.successiveMinimum L B i) *
         (MeasureTheory.volume B).toReal ≤
       (2 : ℝ) ^ Module.finrank ℝ E * ZLattice.covolume L :=
-  sorry
+  ZLattice.prod_successiveMinimum_mul_measure_le L MeasureTheory.volume hB₀ hB₁ hB₂ hB₃
 
 /-- **Layer 4.6 — a basis from any independent family**, the form the proof gives. For
 `ℝ`-independent lattice vectors `a 0, …, a (n − 1)` there is a `ℤ`-basis of `L` whose `j`-th member
@@ -806,10 +1095,71 @@ theorem exists_basis_mem_smul_successiveMinimum (L : Submodule ℤ E) [DiscreteT
     [IsZLattice ℝ L] {B : Set E} (hB₀ : Convex ℝ B) (hB₁ : ∀ x ∈ B, -x ∈ B)
     (hB₂ : (interior B).Nonempty) (hB₃ : Bornology.IsBounded B) (hB₄ : IsClosed B) :
     ∃ b : Module.Basis (Fin (Module.finrank ℝ E)) ℤ L, ∀ i : Fin (Module.finrank ℝ E),
-      (b i : E) ∈ (max 1 ((((i : ℕ) : ℝ) + 1) / 2) * successiveMinimum L B i) • B :=
+      (b i : E) ∈ (max 1 ((((i : ℕ) : ℝ) + 1) / 2) * ZLattice.successiveMinimum L B i) • B :=
   sorry
 
 end SuccessiveMinima
+
+section RationalLattice
+
+variable {ι : Type*} [Fintype ι] [LinearOrder ι]
+
+/-- **Layer 4.3 over `ℚ` — the covolume identity, landed** as `Submodule.covolume_intLattice` in
+`ArithmeticHeights/RationalLattice.lean`. This is W. M. Schmidt 1967, §3, Theorem 1 in the case
+`K = ℚ`, where the degree, the discriminant and the number of complex places are `1`, `1` and `0`,
+so that every constant of the general display `2 ^ (−r₂ k) · |discr K| ^ (k / 2) · H_Ar(V) ^ d`
+disappears and the identity is the bare statement that a covolume is an Arakelov height. The
+lattice is the integral points `V ∩ ℤⁿ` read inside `Submodule.realSpan`, the real span of `V` in
+`EuclideanSpace ℝ ι`: a sublattice of `ℤⁿ` of rank below `#ι` has no covolume in `ℝ^ι`, and a
+subspace of a real vector space carries a canonical measure only through an inner product, which
+is why the ambient is `EuclideanSpace` and not `ι → ℝ`. ⚠ The identity is **false** for an
+arbitrary full-rank sublattice of `V ∩ ℤⁿ`; saturation is the content. -/
+example (V : Submodule ℚ (ι → ℚ)) :
+    ZLattice.covolume V.intLattice = V.arakelovMulHeight :=
+  V.covolume_intLattice
+
+/-- **Layer 4.3 over `ℚ` — the rank-one case, landed** as
+`Submodule.covolume_intLattice_span_singleton`: the covolume of the lattice cut out by a line is
+the Arakelov height of any rational point spanning it, hence the euclidean norm of the primitive
+integer point on it. This is the acceptance check that the identity has the right normalization at
+`k = 1`. -/
+example {x : ι → ℚ} (hx : x ≠ 0) :
+    ZLattice.covolume (Submodule.span ℚ {x}).intLattice = NumberField.arakelovMulHeight x :=
+  Submodule.covolume_intLattice_span_singleton hx
+
+/-- **Layer 4.3 over `ℚ` — the primitivity of the Plücker point, landed** as
+`Submodule.gcd_plucker_eq_one`: the maximal minors of a saturated integral basis are coprime. This
+is what Schmidt's Lemmas 5 and 6 come to over `ℚ`, and it is the only place the saturation
+hypothesis enters. -/
+example {k : ℕ} {V : Submodule ℚ (ι → ℚ)} {y : Fin k → (ι → ℤ)}
+    (hy : LinearIndependent ℚ (fun i ↦ Rat.piIntCast ι (y i)))
+    (hspan : Submodule.span ℚ (Set.range fun i ↦ Rat.piIntCast ι (y i)) = V)
+    (hsat : Submodule.span ℤ (Set.range y) = V.intPoints) :
+    (Finset.univ : Finset (Set.powersetCard ι k)).gcd (exteriorPower.plucker k y) = 1 :=
+  V.gcd_plucker_eq_one hy hspan hsat
+
+/-- **Layer 4.3 — the covolume as a Gram determinant, landed** as
+`ZLattice.covolume_sq_eq_det_gram`, the infrastructure half. Mathlib's `ZLattice.covolume_eq_det`
+is the same computation in `ι → ℝ` against the Lebesgue measure, where the answer is the
+determinant of the basis matrix; in an inner product space there is no ambient basis to take a
+determinant against, and the Gram matrix replaces it. This is what makes the archimedean half of
+4.3 a one-liner, and it is stated for an arbitrary lattice, not only for a lattice of rational
+points. -/
+example {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E] [FiniteDimensional ℝ E]
+    [MeasurableSpace E] [BorelSpace E] (L : Submodule ℤ E) [DiscreteTopology L] [IsZLattice ℝ L]
+    {κ : Type*} [Fintype κ] [DecidableEq κ] (b : Module.Basis κ ℤ L) :
+    ZLattice.covolume L ^ 2 = (Matrix.of fun i j ↦ inner ℝ (b i : E) (b j : E)).det :=
+  ZLattice.covolume_sq_eq_det_gram L b
+
+/-- **Layer 4.3 over `ℚ` — the Arakelov height of a primitive integer tuple, landed** as
+`NumberField.arakelovMulHeight_intCast_of_gcd_eq_one`: over `ℚ` it is the euclidean norm. Mathlib's
+`Rat.mulHeight_eq_max_abs_of_gcd_eq_one` is the same statement for the sup norm; the finite-place
+half is shared and is Mathlib's, the archimedean half is the ℓ² normalization of Layer 0.1. -/
+example {κ : Type*} [Fintype κ] {x : κ → ℤ} (hx : (Finset.univ : Finset κ).gcd x = 1) :
+    NumberField.arakelovMulHeight (((↑) : ℤ → ℚ) ∘ x) = Real.sqrt (∑ i, ((x i : ℝ)) ^ 2) :=
+  NumberField.arakelovMulHeight_intCast_of_gcd_eq_one hx
+
+end RationalLattice
 
 section Extraction
 
