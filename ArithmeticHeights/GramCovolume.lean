@@ -6,6 +6,7 @@ Authors: Ralf Stephan
 module
 
 public import Mathlib.Algebra.Module.ZLattice.Covolume
+public import Mathlib.Analysis.InnerProductSpace.Adjoint
 
 /-!
 # The covolume of a lattice as a Gram determinant
@@ -99,6 +100,62 @@ theorem covolume_sq_eq_det_gram (b : Basis κ ℤ L) :
 theorem covolume_eq_sqrt_det_gram (b : Basis κ ℤ L) :
     covolume L = √((Matrix.of fun i j ↦ inner ℝ (b i : E) (b j : E)).det) := by
   rw [← covolume_sq_eq_det_gram L b, Real.sqrt_sq (covolume_pos L volume).le]
+
+section Comp
+
+omit [MeasurableSpace E] [BorelSpace E]
+
+variable {F : Type*} [NormedAddCommGroup F] [InnerProductSpace ℝ F] [FiniteDimensional ℝ F]
+
+omit [FiniteDimensional ℝ E] [FiniteDimensional ℝ F] in
+/-- **A linear map multiplies a Gram determinant by the determinant of its Gram operator.** If
+`A` satisfies `⟪f x, f y⟫ = ⟪A x, y⟫` — that is, `A = f* f` — then the Gram matrix of the image of
+a basis is `Mᵀ G`, with `G` the Gram matrix of the basis and `M` the matrix of `A`. This is the
+linear-algebra form of the statement that a linear map scales volume by `√(det (f* f))`, which is
+the factor by which it scales a covolume. -/
+theorem det_gram_of_inner (f : E →ₗ[ℝ] F) (A : E →ₗ[ℝ] E) (b : Basis κ ℝ E)
+    (h : ∀ x y, inner ℝ (f x) (f y) = inner ℝ (A x) y) :
+    (Matrix.of fun i j ↦ inner ℝ (f (b i)) (f (b j))).det
+      = A.det * (Matrix.of fun i j ↦ inner ℝ (b i) (b j)).det := by
+  classical
+  set M := LinearMap.toMatrix b b A with hM
+  have key : (Matrix.of fun i j ↦ inner ℝ (f (b i)) (f (b j)))
+      = Mᵀ * (Matrix.of fun i j ↦ inner ℝ (b i) (b j)) := by
+    ext i j
+    rw [Matrix.mul_apply]
+    simp only [Matrix.of_apply, Matrix.transpose_apply]
+    rw [h (b i) (b j), ← b.sum_repr (A (b i)), sum_inner]
+    exact Finset.sum_congr rfl fun l _ ↦ by
+      rw [real_inner_smul_left, hM, LinearMap.toMatrix_apply]
+  rw [key, Matrix.det_mul, Matrix.det_transpose, hM, LinearMap.det_toMatrix]
+
+/-- The adjoint form of `ZLattice.det_gram_of_inner`. -/
+theorem det_gram_comp (f : E →ₗ[ℝ] F) (b : Basis κ ℝ E) :
+    (Matrix.of fun i j ↦ inner ℝ (f (b i)) (f (b j))).det
+      = (LinearMap.adjoint f ∘ₗ f).det * (Matrix.of fun i j ↦ inner ℝ (b i) (b j)).det :=
+  det_gram_of_inner f _ b fun x y ↦ by simp [LinearMap.adjoint_inner_left]
+
+variable [MeasurableSpace F] [BorelSpace F]
+
+omit [FiniteDimensional ℝ E] in
+/-- **The covolume of the image of a lattice under a linear map.** If a `ℤ`-basis of a lattice
+sitting in a subspace `W` of `F` is the image under `f` of an `ℝ`-basis `b`, then its squared
+covolume is `det A` times the Gram determinant of `b`, for any `A` with `⟪f x, f y⟫ = ⟪A x, y⟫`.
+This is the form in which the archimedean half of a covolume identity is computed: the lattice is
+transported from a space where its covolume is known, and the transport factor is an operator
+determinant. -/
+theorem covolume_sq_eq_det_gram_comp {W : Submodule ℝ F} (L : Submodule ℤ ↥W)
+    [DiscreteTopology L] [IsZLattice ℝ L] (c : Basis κ ℤ L) (f : E →ₗ[ℝ] F) (A : E →ₗ[ℝ] E)
+    (b : Basis κ ℝ E) (h : ∀ x y, inner ℝ (f x) (f y) = inner ℝ (A x) y)
+    (hc : ∀ i, ((c i : ↥W) : F) = f (b i)) :
+    covolume L ^ 2 = A.det * (Matrix.of fun i j ↦ inner ℝ (b i) (b j)).det := by
+  rw [covolume_sq_eq_det_gram L c, ← det_gram_of_inner f A b h]
+  refine congrArg Matrix.det (Matrix.ext fun i j ↦ ?_)
+  simp only [Matrix.of_apply]
+  rw [← hc i, ← hc j]
+  exact rfl
+
+end Comp
 
 end ZLattice
 

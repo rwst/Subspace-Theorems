@@ -31,6 +31,19 @@ import ArithmeticHeights.MinkowskiSecond -- Layer 4.2
 import ArithmeticHeights.QuotientFubini  -- Layer 4.2
 import ArithmeticHeights.GramCovolume    -- Layer 4.3
 import ArithmeticHeights.RationalLattice -- Layer 4.3
+import ArithmeticHeights.NumberFieldLattice -- Layer 4.3
+import ArithmeticHeights.Extraction      -- Layer 4.4
+import ArithmeticHeights.PrekopaLeindler -- Layer 4.5 (infrastructure)
+import ArithmeticHeights.LogConcave      -- Layer 4.5 (infrastructure)
+import ArithmeticHeights.GaussMeasure    -- Layer 4.5 (infrastructure)
+import ArithmeticHeights.SliceBound      -- Layer 4.5 (infrastructure)
+import ArithmeticHeights.ProductOfBalls  -- Layer 4.5 (infrastructure)
+import ArithmeticHeights.CubeSlicing     -- Layer 4.5
+import ArithmeticHeights.MinimaBasis    -- Layer 4.6
+import ArithmeticHeights.Siegel          -- Layer 5.1
+import ArithmeticHeights.BombieriVaaler  -- Layer 5.2
+import ArithmeticHeights.MixedBall       -- Layer 5.3 (infrastructure)
+import ArithmeticHeights.BombieriVaalerField -- Layer 5.3
 
 /-!
 # Arithmetic heights and Siegel's lemma: target signatures
@@ -149,12 +162,138 @@ milestones concerned.
   maximal minor makes the reductions dependent over `ZMod q` — `exteriorPower.plucker_eq_zero_iff`
   of Layer 3.1 over a finite field — and saturation then divides the coefficients of the resulting
   relation by `q`.
-* **Mathlib already carries the ambient the number-field case of 4.3 needs.**
+* **Mathlib already carried the ambient the number-field case of 4.3 needs.**
   `NumberField.mixedEmbedding.euclidean.mixedSpace` is the mixed space as an inner product space,
   measure-preservingly equivalent to the usual one, and `covolume_integerLattice` computes the
   covolume of `𝓞 K` in it as `2⁻¹ ^ r₂ · √|discr K|` — the degenerate case of 4.3's display. So
-  the `K` statement has a setting and a pinned normalization before any of Schmidt's argument is
-  formalized; what is missing is his Lemma 4 and his Lemmas 5–6, not the objects.
+  the `K` statement had a setting and a pinned normalization before any of Schmidt's argument was
+  formalized, and the landed identity is stated with that covolume as its constant rather than
+  with `2^{−r₂ k} |discr K|^{k/2}`, which keeps the constant out of the proof entirely.
+* **Over `K` the Steinitz pseudo-basis is the route, and Schmidt's Lemmas 5–6 are never needed** —
+  the reverse of what the roadmap advised. Writing `V ∩ (𝓞 K)ⁱ = 𝔞₁ y₁ ⊕ ⋯ ⊕ 𝔞_k y_k` makes the
+  index `[σ(Λ) : Λ₀] = N(𝔞)` disappear before it is computed: the archimedean half runs on `y`
+  alone and the ideals leave the single factor `N(𝔞₁ ⋯ 𝔞_k)`, which the finite places of the
+  Plücker point give back. No ideal class is ever named, and `Submodule.exists_pseudoBasis` needs
+  only that a nonzero fractional ideal is invertible — an explicit dual basis `∑ aⱼ bⱼ = 1` — so
+  not even `Module.Projective` is invoked.
+* **Schmidt's Lemma 4 is one Cauchy–Binet over a commutative star ring.** The mixed space is one,
+  so `Matrix.det_mul_conjTranspose_self_eq_sum` of 3.4 applies to it verbatim,
+  `exteriorPower.plucker_map` identifies the resulting coordinates with the mixed embedding of the
+  Plücker point over `K`, and `Algebra.norm ℝ` descends the identity to `ℝ`. There is no
+  decomposition by place, no Lagrange expansion in blocks of `d` rows, and no `(Re, Im)` change of
+  variables — so the `2^{−r₂}` never appears in the archimedean half at all.
+* **The extraction lemma's third statement is the one with the induction, and it knows about one
+  field only.** `exists_linearIndependent_comp_of_lt_finrank_span` mentions neither the subfield
+  `F`, nor `E`, nor the map: give it index bounds `m` and the hypothesis that the vectors indexed
+  up to `m j` span more than `j` dimensions over `K`, and it selects. The two 4.4 statements the
+  roadmap pinned are that lemma with `m j = d · j`, their hypothesis discharged by the counting
+  half. So the milestone is two theorems about a tower and one about a vector space, and the bound
+  function need not be monotone.
+* **The counting half needs nothing of the map but `F`-linearity.** Not injectivity, not
+  finiteness of the source or the target, and no relation between `K` and `E` beyond both
+  containing `F`: `FiniteDimensional F K` is the file's only finiteness hypothesis. The mixed
+  embedding's injectivity — load-bearing in 4.3 — is not used in 4.4 at all, so the arbitrary-tower
+  statement is free rather than a generalisation bought with work.
+* **Prékopa–Leindler tensorizes, so 4.5's analytic ladder is an induction on a product and not
+  on coordinates.** `HasPrekopaLeindler.prod` — the inequality for `μ` and for `ν` gives it for
+  `μ.prod ν` — is Tonelli's theorem and nothing else, and it mentions neither `ℝ` nor any
+  dimension. With transport along a measure-preserving linear equivalence, the `n`-dimensional
+  inequality is then three lines off the one-dimensional one, which is why the file is written
+  around a predicate on a measure space rather than around `ℝ ^ n`. Bombieri–Gubler quote
+  Prékopa's theorem for `ℝⁿ` whole; only the case `n = 1` has to be proved.
+* **Stating 4.5's analytic rungs in `ℝ≥0∞` removes every side condition at once.** Taking the
+  majorant `h` as given, with `f x ^ a * g y ^ b ≤ h (a • x + b • y)` as a hypothesis, avoids the
+  sup-convolution whose Lebesgue-but-not-Borel measurability is the subject of Prékopa's erratum;
+  and because `∫⁻` is defined for every measurable `ℝ≥0∞`-valued function there is no
+  integrability hypothesis either. Bombieri–Gubler's C.3.4 says "if the integral is always
+  finite"; `LogConcave.setLIntegral_prod_right` has no such hypothesis, and none on the first
+  factor beyond its being a real vector space.
+* **A symmetric convex set has non-symmetric slices, so 4.5's induction on blocks needs its own
+  bound twice, once in each factor.** `A_y = {z | (y, z) ∈ A}` satisfies `A_{-y} = -A_y`, not
+  `A_y = -A_y`, and the slice bound is false for a non-symmetric convex set — a small ball far from
+  the origin has positive Gauss measure and empty intersection with the body. The remedy is to
+  upgrade the bound from sets to even log-concave functions by the layer cake
+  (`HasSliceBound.lintegral_le`) and apply it in each factor; that upgrade is also what lets the
+  hypothesis "closed" be dropped from the set the bound is applied to, which matters because in the
+  induction it is applied to superlevel sets of a marginal.
+* **A log-concave even function is largest at the origin, and that is all the `ε`-thickening of
+  C.3.8 needs.** Bombieri–Gubler take a limit of slice volumes and dominate it; but the slice
+  volume `z ↦ vol_V {y | y + z ∈ Q}` is log-concave by C.3.4 and even because `Q` is symmetric, so
+  `LogConcave.le_apply_zero` bounds it by its value at `0` — which is the number being estimated.
+  No dominated convergence appears in `CubeSlicing.lean`; the only limit left is
+  `exp (-π ε ^ 2) → 1`.
+* **Layer 4.6's two cases are `|c| = 1` and `|c| ≥ 2`, and that is where the `max 1 (·)` comes
+  from.** Cassels' Lemma 8 replaces the vector `y` that extends the basis across the `j`-th step of
+  the flag by a shorter one. `y` is determined only modulo the previous sublattice
+  (`ZLattice.extending_congr`), and `a j = c • y + w` with `c` a nonzero integer and `w` in that
+  sublattice. If `|c| = 1` then `c • a j` is itself an admissible choice and costs
+  `gauge B (a j)` exactly; if `|c| ≥ 2` then `y` has `a j`-coordinate `c⁻¹`, of modulus at most
+  `½`, and rounding its remaining coordinates into `[−½, ½]` costs `(∑_{i ≤ j} gauge B (a i)) / 2`.
+  Neither bound implies the other — at `j = 0` the sum bound `λ 0 / 2` is the *better* one, and
+  `|c| = 1` is exactly the case it is unavailable in — so the delivered statement is a maximum,
+  and the minima form inherits `max 1 ((i + 1) / 2)` rather than `(i + 1) / 2`.
+* **4.6 is 4.2's adapted basis with a choice made at each step, and none of 4.1's analysis
+  reappears.** The flag `ZLattice.flagPart` and the rank-one step `ZLattice.exists_extending` were
+  already the content of `ArithmeticHeights/AdaptedBasis.lean`; all 4.6 adds is *which* vector is
+  appended. So the general form carries no measure, no closedness and no boundedness of the body,
+  using it only through the subadditivity and absolute homogeneity of its gauge; closedness and
+  boundedness re-enter only in the minima corollary, the first for the gauge dictionary and the
+  second for positivity of the minima.
+* **Layer 5.1's height form is its sup-norm form, because the content can be divided out.** For
+  a nonzero integer tuple `gcd x * H(x) = max i, |x i|` (`Rat.gcd_mul_mulHeight_intCast`), so the
+  height is at most the sup norm and equals it exactly on primitive tuples — and the primitive
+  multiple of a kernel vector is again a kernel vector. The restatement therefore buys vocabulary
+  rather than strength; what it does *not* buy is invariance under `A ↦ U A`, and supplying that is
+  the whole reason 5.2 exists.
+* **5.1's exponent is sharp already at `N = M + 1`, and only the factor `N ^ (M / (N − M))` is
+  slack.** The equations `B xᵢ = xᵢ₊₁` have kernel the line through `(1, B, …, B ^ M)`, so every
+  nonzero integer solution has sup norm at least `B ^ M` against the bound `((M + 1) B) ^ M`;
+  `k` such blocks side by side realize the same exponent with `N − M = k`, so the sharpness is not
+  an artifact of a one-dimensional kernel. This is `Int.Matrix.exists_forall_pow_le_iSup_abs`.
+* **The number-field corollary is a change of normalization on the left and nothing else, and its
+  constant cannot be named.** Mathlib's `NumberField.house.exists_ne_zero_int_vec_house_le` bounds
+  the *house* of each coordinate; for a tuple of algebraic integers the finite local factors are at
+  most `1` and each infinite place is dominated by the house, and the weights `mult v` sum to
+  `[K : ℚ]`, which is exactly the root the absolute height takes — so
+  `NumberField.absMulHeight_le_iSup_house` transfers the bound with **no constant lost**. The
+  constant itself, `c₁ K`, is `private` in Mathlib, so the restatement quantifies over it
+  existentially, which is also the shape Bombieri–Gubler's Corollary 2.9.2 has.
+* **5.2 needs Layer 3.5, which its pricing does not name.** The roadmap prices it at "3.4, 4.2,
+  4.5 and the `ℚ`-case of 4.3", and 4.3 delivers the covolume of the solution lattice as the
+  Arakelov height of the *solution space*. Turning that into the minors of `A` is the duality
+  theorem `Matrix.arakelovMulHeight_ker_mulVecLin`, and nothing else will do: the Plücker
+  coordinates of the kernel are the complementary minors, which is exactly what duality says. The
+  `ℚ` spine is one rung longer than advertised, and every rung of it is landed.
+* **The constant of Bombieri–Vaaler Theorem 2 is `1` because two powers of two cancel.** Layer 4.2
+  bounds `(∏ λ i) · vol B` by `2 ^ n · covol L` and Layer 4.5 bounds `vol B` below by `2 ^ n` for
+  `B` the central slice of the unit cube, so the product of the minima is at most the covolume with
+  nothing left over (`ZLattice.prod_successiveMinimum_cubeSlice_le_covolume`). A body with a weaker
+  slice bound leaves a constant behind — which is what a complex place does in Layer 5.4.
+* **The absolute value in `√|det (A Aᵀ)|` is redundant, and so is `A ≠ 0`.** The Gram determinant
+  of the rows is a sum of squares of minors (3.4), positive under the rank hypothesis
+  (`Int.Matrix.det_pos`), and `Int.Matrix.minorGcd` is a normalized gcd of integers not all zero,
+  hence at least `1`. The rank hypothesis itself is `(A * Aᵀ).det ≠ 0`, a condition on the integer
+  matrix alone (`Int.Matrix.linearIndependent_row_map_rat_iff`), which subsumes `A ≠ 0`.
+* **The basis form needs no `M < N`, and is sharp at `M = N`.** With `N − M = 0` both sides are
+  `1`: the empty product on the left, and on the right the Arakelov height of the zero subspace.
+  Only the one-vector form needs `M < N`, and there the exponent `1 / (N − M)` makes it
+  unremovable.
+* **The height form of Theorem 2 is strictly weaker than the sup-norm form.** The vectors realizing
+  the successive minima need not be primitive, and by 5.1's `Rat.gcd_mul_mulHeight_intCast` the
+  height is the sup norm divided by the content. The height form is nevertheless what Layer 5.4
+  generalizes, and `Int.Matrix.exists_linearIndependent_mulVec_eq_zero_prod_mulHeight_le` is its
+  `K = ℚ` case, discriminant `1`.
+* **Layer 5.3 needs no rank hypothesis on `A`.** The duality theorem of 3.5 identifies the height
+  of the solution space with the height of the row space for an arbitrary matrix, and the
+  geometric half never looks at `A`; full row rank would only pin `k = N − M`.
+* **The two powers of two of Layer 5.2 do not cancel over a number field.** 4.2 contributes
+  `2^{d k}` and 4.3 contributes `2^{−r₂ k}`, leaving `2^{k(r₁ + r₂)}`, and the ℓ² unit balls
+  leave `ω_k^{r₁} ω_{2k}^{r₂}` under it. The residue `(2^k/ω_k)^{r₁} (2^k/ω_{2k})^{r₂}` is exactly
+  the ratio of a cube to a ball, and is what Layer 5.4 removes by slicing cubes instead.
+* **The slice bound of 5.3 is an isometry, not an inequality.** At each infinite place the body is
+  a euclidean ball, and the slice of a ball by a subspace is a ball of the smaller dimension, so
+  `NumberField.mixedEmbedding.volume_preimage_mixedBall_mixedSpan` is an *identity* obtained by
+  orthonormalizing a `K`-basis of `V` place by place. Layer 4.5 is not used at all.
 * **The annihilator has to be transported before it has a height.** `Submodule.mulHeight` is
   defined on subspaces of `ι → K`, and the annihilator lives in the dual, so
   `mulHeight V.dualAnnihilator` does not typecheck: the identification along the standard basis is
@@ -1074,29 +1213,33 @@ example [MeasureTheory.MeasureSpace E] [BorelSpace E]
       (2 : ℝ) ^ Module.finrank ℝ E * ZLattice.covolume L :=
   ZLattice.prod_successiveMinimum_mul_measure_le L MeasureTheory.volume hB₀ hB₁ hB₂ hB₃
 
-/-- **Layer 4.6 — a basis from any independent family**, the form the proof gives. For
-`ℝ`-independent lattice vectors `a 0, …, a (n − 1)` there is a `ℤ`-basis of `L` whose `j`-th member
-has gauge at most `max (gauge B (a j)) (½ ∑_{i ≤ j} gauge B (a i))`: extend a basis of
+/-- **Layer 4.6 — a basis from any independent family, landed** as
+`ZLattice.exists_basis_gauge_le`. For `ℝ`-independent lattice vectors `a 0, …, a (n − 1)` there is
+a `ℤ`-basis of `L` whose `j`-th member has gauge at most
+`max (gauge B (a j)) (½ ∑_{i ≤ j} gauge B (a i))`: extend a basis of
 `L ∩ span (a 0, …, a (j − 1))` by one vector and reduce its coefficients on the `a i` into
-`[−½, ½]`. No measure enters. -/
-theorem exists_basis_gauge_le (L : Submodule ℤ E) [DiscreteTopology L] [IsZLattice ℝ L]
+`[−½, ½]`. The pinned shape survived intact. No measure enters, and neither does closedness or
+boundedness of the body — the library form drops `IsZLattice ℝ L` too, since an independent
+family of `finrank ℝ E` lattice vectors already forces it. -/
+example (L : Submodule ℤ E) [DiscreteTopology L] [IsZLattice ℝ L]
     {B : Set E} (hB₀ : Convex ℝ B) (hB₁ : ∀ x ∈ B, -x ∈ B) (hB₂ : (interior B).Nonempty)
     (a : Fin (Module.finrank ℝ E) → L) (ha : LinearIndependent ℝ (fun i ↦ (a i : E))) :
     ∃ b : Module.Basis (Fin (Module.finrank ℝ E)) ℤ L, ∀ j,
       gauge B (b j : E) ≤
         max (gauge B (a j : E)) ((∑ i ∈ Finset.Iic j, gauge B (a i : E)) / 2) :=
-  sorry
+  ZLattice.exists_basis_gauge_le L hB₀ hB₁ hB₂ rfl (fun i ↦ (a i).2) ha
 
-/-- **Layer 4.6 — a basis from the minima** (Cassels, p. 135, Lemma 8, as Bugeaud–Győry cite it).
-The independent vectors realizing the minima need not be a basis of `L`; some basis has its `i`-th
-member (zero-indexed) in `max 1 ((i + 1) / 2) · λ i` times `B`, a total loss of `n! / 2 ^ (n − 1)`
-against 4.2. This is what 6.3 consumes. -/
-theorem exists_basis_mem_smul_successiveMinimum (L : Submodule ℤ E) [DiscreteTopology L]
+/-- **Layer 4.6 — a basis from the minima, landed** as
+`ZLattice.exists_basis_mem_smul_successiveMinimum` (Cassels, p. 135, Lemma 8, as Bugeaud–Győry
+cite it). The independent vectors realizing the minima need not be a basis of `L`; some basis has
+its `i`-th member (zero-indexed) in `max 1 ((i + 1) / 2) · λ i` times `B`, a total loss of
+`n! / 2 ^ (n − 1)` against 4.2. This is what 6.3 consumes. -/
+example (L : Submodule ℤ E) [DiscreteTopology L]
     [IsZLattice ℝ L] {B : Set E} (hB₀ : Convex ℝ B) (hB₁ : ∀ x ∈ B, -x ∈ B)
     (hB₂ : (interior B).Nonempty) (hB₃ : Bornology.IsBounded B) (hB₄ : IsClosed B) :
     ∃ b : Module.Basis (Fin (Module.finrank ℝ E)) ℤ L, ∀ i : Fin (Module.finrank ℝ E),
       (b i : E) ∈ (max 1 ((((i : ℕ) : ℝ) + 1) / 2) * ZLattice.successiveMinimum L B i) • B :=
-  sorry
+  ZLattice.exists_basis_mem_smul_successiveMinimum L hB₀ hB₁ hB₂ hB₃ hB₄
 
 end SuccessiveMinima
 
@@ -1161,6 +1304,87 @@ example {κ : Type*} [Fintype κ] {x : κ → ℤ} (hx : (Finset.univ : Finset �
 
 end RationalLattice
 
+section NumberFieldLattice
+
+open scoped nonZeroDivisors Matrix Classical
+
+variable {K : Type*} [Field K] [NumberField K] {ι : Type*} [Fintype ι] [LinearOrder ι]
+
+/-- **Layer 4.3 over a number field — the covolume identity, landed** as
+`Submodule.covolume_mixedLattice` in `ArithmeticHeights/NumberFieldLattice.lean`. This is
+W. M. Schmidt 1967, §3, Theorem 1: the lattice `V ∩ (𝓞 K)ⁱ`, read inside `Submodule.mixedSpan` —
+the real span of `V` in `PiLp 2 (fun _ : ι ↦ euclidean.mixedSpace K)` — has covolume the covolume
+of `𝓞 K` itself, `2⁻¹ ^ r₂ · √|discr K|`, raised to `dim V`, times the Arakelov height of `V`.
+The height is the one *relative* to `K`, so the absolute height of the roadmap's display enters
+with the exponent `d = [K : ℚ]`; and the constant is Mathlib's `covolume_integerLattice` rather
+than a recomputed `2^{−r₂ k} |discr K|^{k/2}`, which is what keeps it out of the proof. Over `ℚ`
+this is `Submodule.covolume_intLattice`, every factor being `1`. -/
+example (V : Submodule K (ι → K)) :
+    ZLattice.covolume V.mixedLattice
+      = ((2 : ℝ)⁻¹ ^ NumberField.InfinitePlace.nrComplexPlaces K
+          * Real.sqrt |NumberField.discr K|) ^ finrank K V * V.arakelovMulHeight :=
+  V.covolume_mixedLattice
+
+/-- **Layer 4.3 — the rank of the real carrier, landed** as `Submodule.finrank_mixedSpan`: the
+real span of a `k`-dimensional subspace of `Kⁱ` has dimension `d k`, which is what makes
+`Submodule.mixedLattice` a `ZLattice` of full rank in it. -/
+example (V : Submodule K (ι → K)) :
+    finrank ℝ V.mixedSpan = finrank ℚ K * finrank K V :=
+  V.finrank_mixedSpan
+
+/-- **Layer 4.3 — the pseudo-basis, landed** as `Submodule.exists_pseudoBasis_mem` in
+`ArithmeticHeights/PseudoBasis.lean`, over an arbitrary Dedekind domain: a finitely generated
+module of rank `k` in `ι → K` is `𝔞₁ y₁ ⊕ ⋯ ⊕ 𝔞_k y_k` with the `yᵢ` in the module itself. The
+normalization `yᵢ ∈ M` is what makes the Plücker coordinates integral, and the proof uses only
+that a nonzero fractional ideal is invertible — no `Module.Projective`, no structure theorem. -/
+example {A K : Type*} [CommRing A] [IsDedekindDomain A] [Field K] [Algebra A K]
+    [IsFractionRing A K] {ι : Type*} [Finite ι] (k : ℕ) (M : Submodule A (ι → K)) (hM : M.FG)
+    (hk : finrank K (Submodule.span K (M : Set (ι → K))) = k) :
+    ∃ (y : Fin k → (ι → K)) (𝔞 : Fin k → FractionalIdeal A⁰ K),
+      LinearIndependent K y ∧ (∀ i, 𝔞 i ≠ 0) ∧ (∀ i, y i ∈ M) ∧
+      (∀ x, x ∈ M ↔ ∃ c : Fin k → K, (∀ i, c i ∈ 𝔞 i) ∧ x = ∑ i, c i • y i) :=
+  Submodule.exists_pseudoBasis_mem k M hM hk
+
+/-- **Layer 4.3 — Schmidt's Lemma 4, landed** as `NumberField.mixedEmbedding.norm_det_gram`: the
+algebra norm over `ℝ` of the Gram determinant of the mixed embedding of a matrix over `K` is the
+archimedean local factor of the Arakelov height of its Plücker point. This is the whole
+archimedean half, and it is Cauchy–Binet (3.4) over the mixed space read as a commutative star
+ring — with no decomposition by place, and with no `2^{−r₂}` anywhere in it. -/
+example {m : ℕ} (Y : Matrix (Fin m) ι K) :
+    Algebra.norm ℝ ((Y.map (NumberField.mixedEmbedding K))
+        * (Y.map (NumberField.mixedEmbedding K))ᴴ).det
+      = ∏ w : NumberField.InfinitePlace K,
+          (∑ s : Set.powersetCard ι m, w (exteriorPower.plucker m Y.row s) ^ 2) ^ w.mult :=
+  NumberField.mixedEmbedding.norm_det_gram Y
+
+/-- **Layer 4.3 — primitivity over `𝓞 K`, landed** as `Submodule.prod_mul_plucker_eq_one`: for a
+pseudo-basis of `V ∩ (𝓞 K)ⁱ`, the product of the ideals times the ideal generated by the Plücker
+coordinates is the unit ideal. This replaces both of Schmidt's Lemmas 5 and 6, it is the exact
+analogue of `Submodule.gcd_plucker_eq_one` over `ℚ`, and it is the only place saturation is
+spent. -/
+example (V : Submodule K (ι → K)) {k : ℕ} {y : Fin k → (ι → K)}
+    {𝔞 : Fin k → FractionalIdeal (NumberField.RingOfIntegers K)⁰ K}
+    {p : Set.powersetCard ι k → NumberField.RingOfIntegers K}
+    (hy : LinearIndependent K y) (h𝔞 : ∀ i, 𝔞 i ≠ 0)
+    (hchar : ∀ x, x ∈ V.integerPoints ↔
+      ∃ c : Fin k → K, (∀ i, c i ∈ 𝔞 i) ∧ x = ∑ i, c i • y i)
+    (hp : ∀ s, (p s : K) = exteriorPower.plucker k y s) :
+    (∏ i, 𝔞 i)
+        * (Ideal.span (Set.range p) : FractionalIdeal (NumberField.RingOfIntegers K)⁰ K) = 1 :=
+  V.prod_mul_plucker_eq_one hy h𝔞 hchar hp
+
+/-- **Layer 4.3 — the finite places of a tuple of algebraic integers, landed** as
+`NumberField.FinitePlace.finprod_iSup_eq_inv_absNorm` in
+`ArithmeticHeights/FinitePlaceIdeal.lean`: the finite part of the height of a tuple is the inverse
+absolute norm of the ideal it generates. This is what turns the ideal identity above into a height
+identity, and it is the number-field replacement for "the finite places contribute `1`". -/
+example {σ : Type*} [Finite σ] {x : σ → NumberField.RingOfIntegers K} (hx : ∃ i, x i ≠ 0) :
+    ∏ᶠ v : NumberField.FinitePlace K, (⨆ i, v ((x i : K)))
+      = ((Ideal.absNorm (Ideal.span (Set.range x)) : ℝ))⁻¹ :=
+  NumberField.FinitePlace.finprod_iSup_eq_inv_absNorm hx
+
+end NumberFieldLattice
+
 section Extraction
 
 variable {F K E V W : Type*}
@@ -1169,79 +1393,128 @@ variable [Algebra F K] [Algebra F E] [FiniteDimensional F K]
 variable [AddCommGroup V] [Module F V] [Module K V] [IsScalarTower F K V]
 variable [AddCommGroup W] [Module F W] [Module E W] [IsScalarTower F E W]
 
-/-- **Layer 4.4 — the counting half of the extraction lemma.** A family of vectors of a
+/-- **Layer 4.4 — the counting half of the extraction lemma, landed** as
+`LinearIndependent.fintype_card_le_finrank_mul_finrank_span`. A family of vectors of a
 `K`-vector space whose image under an `F`-linear map is linearly independent over a field
 `E ⊇ F` has size at most `[K : F]` times the `K`-dimension of its span. With `F = ℚ`, `E = ℝ`
 and the mixed embedding as the map: `ℝ`-independent lattice vectors of a `K`-subspace span, over
 `K`, a subspace of dimension at least their number divided by the degree. -/
-theorem fintype_card_le_finrank_mul_finrank_span
+example
     (f : V →ₗ[F] W) {ι : Type*} [Fintype ι] {u : ι → V}
     (h : LinearIndependent E (f ∘ u)) :
     Fintype.card ι ≤ finrank F K * finrank K (Submodule.span K (Set.range u)) :=
-  sorry
+  h.fintype_card_le_finrank_mul_finrank_span (K := K) f
 
-/-- **Layer 4.4 — the selection half.** From `d · k` vectors with `E`-independent images, a
-`K`-linearly independent subfamily of size `k` whose `j`-th member (zero-indexed) is among the
-first `d · j + 1` — members of the family, never linear combinations, so each keeps the norm
-bound of the successive minimum it realizes. -/
-theorem exists_linearIndependent_comp_finrank_mul
+/-- **Layer 4.4 — the selection half, landed** as
+`LinearIndependent.exists_linearIndependent_comp_finrank_mul`. From `d · k` vectors with
+`E`-independent images, a `K`-linearly independent subfamily of size `k` whose `j`-th member
+(zero-indexed) is among the first `d · j + 1` — members of the family, never linear combinations,
+so each keeps the norm bound of the successive minimum it realizes. -/
+example
     (f : V →ₗ[F] W) {k : ℕ} {u : Fin (finrank F K * k) → V}
     (h : LinearIndependent E (f ∘ u)) :
     ∃ s : Fin k → Fin (finrank F K * k), LinearIndependent K (u ∘ s) ∧
       ∀ j : Fin k, (s j).val ≤ finrank F K * j.val :=
-  sorry
+  h.exists_linearIndependent_comp_finrank_mul (K := K) f
+
+/-- **Layer 4.4 — greedy selection under arbitrary index bounds, landed** as
+`exists_linearIndependent_comp_of_lt_finrank_span`. The third statement of the milestone, and the
+one carrying the induction: it mentions neither `F`, `E` nor `f`, and the bound function `m` need
+not be monotone. The two statements above are this one supplied with `m j = d · j`, its hypothesis
+discharged by the counting half. -/
+example {n : ℕ} (u : Fin n → V) {k : ℕ} (m : Fin k → ℕ)
+    (hm : ∀ j : Fin k, j.val < finrank K (Submodule.span K (u '' {i : Fin n | i.val ≤ m j}))) :
+    ∃ s : Fin k → Fin n, LinearIndependent K (u ∘ s) ∧ ∀ j : Fin k, (s j).val ≤ m j :=
+  exists_linearIndependent_comp_of_lt_finrank_span u m hm
 
 end Extraction
 
 section CubeSlicing
 
-/-- The volume `ω_n` of the unit ball of `ℝⁿ`: the archimedean slice volume of 5.3 and the
-normalizing constant of the product-of-balls body below. -/
-def unitBallVolume (n : ℕ) : ℝ :=
-  (MeasureTheory.volume (Metric.ball (0 : EuclideanSpace ℝ (Fin n)) 1)).toReal
+/-- **Layer 4.5 — the unit-ball volume `ω_n`, landed** as `unitBallVolume` in
+`ArithmeticHeights/CubeSlicing.lean`: the archimedean slice volume of 5.3 and the normalizing
+constant of the product-of-balls body below. -/
+example (n : ℕ) : unitBallVolume n
+    = (MeasureTheory.volume (Metric.ball (0 : EuclideanSpace ℝ (Fin n)) 1)).toReal := rfl
 
-/-- **Layer 4.5 — the product-of-balls theorem** (Bombieri–Gubler, Theorem C.3.8), the form
-`README.md` pins. Partition the `N` coordinates into blocks by `blk : Fin N → Fin r`, and let `Q`
-be the product over the blocks of the euclidean ball **of volume `1`** in the block's
+open MeasureTheory in
+/-- **Layer 4.5 — the Prékopa–Leindler inequality, landed** (Bombieri–Gubler, Lemma C.3.3, the one
+step of Appendix C.3 they import rather than prove) as `Real.prekopaLeindler` on `ℝ`, and through
+`HasPrekopaLeindler.prod` and `HasPrekopaLeindler.of_measurePreserving` as
+`hasPrekopaLeindler_euclideanSpace` on the space cube slicing is stated on. This is the reverse
+of Hölder's inequality; Mathlib has neither it nor Brunn–Minkowski, so
+`Real.volume_add_volume_le_volume_add` — the one-dimensional Brunn–Minkowski inequality — is
+landed with it. -/
+example (n : ℕ) (a b : ℝ) (ha : 0 < a) (hb : 0 < b) (hab : a + b = 1)
+    (f g h : EuclideanSpace ℝ (Fin n) → ENNReal)
+    (hf : Measurable f) (hg : Measurable g) (hh : Measurable h)
+    (key : ∀ x y, f x ^ a * g y ^ b ≤ h (a • x + b • y)) :
+    (∫⁻ x, f x) ^ a * (∫⁻ y, g y) ^ b ≤ ∫⁻ z, h z :=
+  hasPrekopaLeindler_euclideanSpace n a b ha hb hab f g h hf hg hh key
+
+open MeasureTheory in
+/-- **Layer 4.5 — log-concavity of a marginal, landed** (Bombieri–Gubler, Lemma C.3.4) as
+`LogConcave.setLIntegral_prod_right`. This is the only consumer of Prékopa–Leindler inside the
+roadmap, and the rung C.3.7's induction on the number of blocks stands on. -/
+example {n m : ℕ} (f : EuclideanSpace ℝ (Fin n) × EuclideanSpace ℝ (Fin m) → ENNReal)
+    (hf : Measurable f) (hlc : LogConcave f) {A : Set (EuclideanSpace ℝ (Fin m))}
+    (hA : MeasurableSet A) (hAc : Convex ℝ A) :
+    LogConcave fun x => ∫⁻ y in A, f (x, y) :=
+  hlc.setLIntegral_prod_right (hasPrekopaLeindler_euclideanSpace m) hf hA hAc
+
+open MeasureTheory in
+/-- **Layer 4.5 — the Gauss measure of a symmetric convex set is at most its volume inside a
+product of balls of volume one, landed** (Bombieri–Gubler, Lemma C.3.7) as
+`hasSliceBound_prodBall`. This is the inequality Theorem C.3.8 is extracted from; the induction is
+on the coordinates, with `HasSliceBound.prod` as the step and `hasSliceBound_unitVolumeBall` — a
+ray-by-ray comparison through polar decomposition — as the base case. -/
+example {N r : ℕ} (blk : Fin N → Fin r) (A : Set (EuclideanSpace ℝ (Fin N)))
+    (hA : MeasurableSet A) (hAc : Convex ℝ A) (hAs : ∀ x ∈ A, -x ∈ A) :
+    ∫⁻ x in A, gaussDensity x ≤ volume (A ∩ prodBall blk) :=
+  hasSliceBound_prodBall blk A hA hAc hAs
+
+/-- **Layer 4.5 — the product-of-balls theorem, landed** (Bombieri–Gubler, Theorem C.3.8) as
+`one_le_volume_inter_prodBall`. Partition the `N` coordinates into blocks by `blk : Fin N → Fin r`,
+and let `Q` be the product over the blocks of the euclidean ball **of volume `1`** in the block's
 coordinates, i.e. of radius `ω_m ^ (-1/m)` for a block of size `m`. Then every central slice of
 `Q` by a subspace `V` has volume at least `1`, the volume on `V` being the canonical one of its
 inner-product structure (Mathlib's `measureSpaceOfInnerProductSpace`). The blocks of size `1`
 give the cube case below; blocks of size `2` are the complex places of Layer 5. -/
-theorem one_le_volume_inter_prod_ball {N r : ℕ} (blk : Fin N → Fin r)
+example {N r : ℕ} (blk : Fin N → Fin r)
     (V : Submodule ℝ (EuclideanSpace ℝ (Fin N))) :
     1 ≤ MeasureTheory.volume {x : V | ∀ i : Fin r,
       ∑ j ∈ Finset.univ.filter (fun j ↦ blk j = i), (x : EuclideanSpace ℝ (Fin N)) j ^ 2 ≤
         unitBallVolume (Finset.univ.filter (fun j ↦ blk j = i)).card ^
           (-(2 / ((Finset.univ.filter (fun j ↦ blk j = i)).card : ℝ)))} :=
-  sorry
+  one_le_volume_inter_prodBall blk V
 
-/-- **Layer 4.5 — Vaaler's cube-slicing theorem** (Vaaler 1979), the case of blocks of size `1`,
-rescaled: every central slice of the cube `[−1, 1]ᴺ` by a `k`-dimensional subspace has
-`k`-volume at least `2 ^ k`. Coordinate subspaces give equality, so the bound is sharp. This is
-what the `ℚ` spine 5.2 consumes. -/
-theorem two_pow_finrank_le_volume_inter_cube {N : ℕ}
-    (V : Submodule ℝ (EuclideanSpace ℝ (Fin N))) :
+/-- **Layer 4.5 — Vaaler's cube-slicing theorem, landed** (Vaaler 1979) as
+`two_pow_finrank_le_volume_inter_cube`: the case of blocks of size `1`, rescaled, so that every
+central slice of the cube `[−1, 1]ᴺ` by a `k`-dimensional subspace has `k`-volume at least `2 ^ k`.
+Coordinate subspaces give equality, so the bound is sharp. This is what the `ℚ` spine 5.2
+consumes. -/
+example {N : ℕ} (V : Submodule ℝ (EuclideanSpace ℝ (Fin N))) :
     (2 : ENNReal) ^ finrank ℝ V ≤
       MeasureTheory.volume {x : V | ∀ i, |(x : EuclideanSpace ℝ (Fin N)) i| ≤ 1} :=
-  sorry
+  two_pow_finrank_le_volume_inter_cube V
 
-/-- **Layer 4.5 — the inscribed-cube bound at a complex place.** A `k`-dimensional complex
-subspace of `ℂⁿ`, viewed as a `2k`-dimensional real subspace of `ℝ^{2n}` with coordinates
-`(Re, Im)`, meets the unit polydisc in volume at least `2 ^ k`: the polydisc contains the cube of
-half-side `1 / √2`, of volume `(2/√2)^{2k} = 2^k` on the slice by the cube case. This is the
-lemma that gives the first bound of 5.4 from the cube case alone; the product-of-balls form
-gives `π ^ k` here and hence 5.4's sharper constant. Stated for a real subspace closed under the
-complex structure `J`, `J (x, y) = (-y, x)`, expressed coordinatewise. -/
-theorem two_pow_le_volume_inter_polydisc {n : ℕ}
-    (V : Submodule ℝ (EuclideanSpace ℝ (Fin n × Fin 2)))
-    (hJ : ∀ x ∈ V, ∃ y ∈ V, ∀ i : Fin n,
-      (y : EuclideanSpace ℝ (Fin n × Fin 2)) (i, 0) = -(x : EuclideanSpace ℝ (Fin n × Fin 2)) (i, 1) ∧
-      (y : EuclideanSpace ℝ (Fin n × Fin 2)) (i, 1) = (x : EuclideanSpace ℝ (Fin n × Fin 2)) (i, 0)) :
+/-- **Layer 4.5 — the inscribed-cube bound at a complex place, landed** as
+`two_pow_le_volume_inter_polydisc`. A `k`-dimensional complex subspace of `ℂⁿ`, viewed as a
+`2k`-dimensional real subspace of `ℝ^{2n}` with coordinates `(Re, Im)`, meets the unit polydisc in
+volume at least `2 ^ k`: the polydisc contains the cube of half-side `1 / √2`, of volume
+`(2/√2)^{2k} = 2^k` on the slice by the cube case. This is the lemma that gives the first bound of
+5.4 from the cube case alone; the product-of-balls form gives `π ^ k` here and hence 5.4's sharper
+constant. Stated for a real subspace closed under the complex structure `J`, `J (x, y) = (-y, x)`,
+expressed coordinatewise — **and that hypothesis is not needed**, so it is absent from the
+delivered form: the cube case gives `√2 ^ k` on the slice, and `2 ^ (k / 2) ≤ √2 ^ k` holds
+whether or not `k` is even. -/
+example {n : ℕ}
+    (V : Submodule ℝ (EuclideanSpace ℝ (Fin n × Fin 2))) :
     (2 : ENNReal) ^ (finrank ℝ V / 2) ≤
       MeasureTheory.volume {x : V | ∀ i : Fin n,
         (x : EuclideanSpace ℝ (Fin n × Fin 2)) (i, 0) ^ 2 +
           (x : EuclideanSpace ℝ (Fin n × Fin 2)) (i, 1) ^ 2 ≤ 1} :=
-  sorry
+  two_pow_le_volume_inter_polydisc V
 
 end CubeSlicing
 
@@ -1255,6 +1528,58 @@ coincide.
 The row space of `A` is `Submodule.span K (Set.range A.row)` and full row rank is
 `LinearIndependent K A.row`, both as Layer 3.3 delivers them; `Submodule.arakelovMulHeight` is
 Layer 3.2's `H_Ar`, which no longer takes a rank. -/
+
+/-! ### Layer 5.1 — classical Siegel, in height form
+
+Mathlib's `Int.Matrix.exists_ne_zero_int_vec_norm_le` in this roadmap's vocabulary: the
+translation it is read through, the statement itself, the sharpness of its exponent, and the
+number-field corollary, which is Mathlib's `house`-normalized version with the left-hand side
+changed. -/
+
+section SiegelClassical
+
+/-- **Layer 5.1 — the sup-norm-to-height translation, landed** as
+`Rat.gcd_mul_mulHeight_intCast`: the height of an integer tuple is its sup norm divided by the
+greatest common divisor of its entries. Mathlib's `Rat.mulHeight_eq_max_abs_of_gcd_eq_one` is the
+primitive case. -/
+example {ι : Type*} [Fintype ι] [Nonempty ι] {x : ι → ℤ} (hx : x ≠ 0) :
+    ((Finset.univ.gcd x : ℤ) : ℝ) * Height.mulHeight (((↑) : ℤ → ℚ) ∘ x) =
+      ((⨆ i, |x i| : ℤ) : ℝ) :=
+  Rat.gcd_mul_mulHeight_intCast hx
+
+/-- **Layer 5.1 — classical Siegel in height form, landed** (Bombieri–Gubler, Lemma 2.9.1;
+Hindry–Silverman, Lemma D.4.1) as `Int.Matrix.exists_ne_zero_mulVec_eq_zero_mulHeight_le`, with
+`Int.Matrix.exists_ne_zero_mulVec_eq_zero_iSup_abs_le` the sup-norm form it is read off. The
+hypothesis `1 ≤ B` is what removes the `max 1 ‖A‖` of Mathlib's statement, and costs nothing. -/
+example {m n : Type*} [Fintype m] [Fintype n] (A : Matrix m n ℤ) {B : ℤ} (hB : 1 ≤ B)
+    (hA : ∀ i j, |A i j| ≤ B) (hmn : Fintype.card m < Fintype.card n)
+    (hm : 0 < Fintype.card m) :
+    ∃ x : n → ℤ, x ≠ 0 ∧ A.mulVec x = 0 ∧
+      Height.mulHeight (((↑) : ℤ → ℚ) ∘ x) ≤ ((Fintype.card n : ℝ) * B) ^
+        ((Fintype.card m : ℝ) / ((Fintype.card n : ℝ) - Fintype.card m)) :=
+  Int.Matrix.exists_ne_zero_mulVec_eq_zero_mulHeight_le A hB hA hmn hm
+
+/-- **Layer 5.1 — the exponent `M / (N − M)` is sharp, landed** as
+`Int.Matrix.exists_forall_pow_le_iSup_abs`: the `M × (M + 1)` system `B xᵢ = xᵢ₊₁` has entries
+bounded by `B` and no nonzero solution of sup norm below `B ^ M`. -/
+example (M : ℕ) {B : ℤ} (hB : 1 ≤ B) :
+    ∃ A : Matrix (Fin M) (Fin (M + 1)) ℤ, (∀ i j, |A i j| ≤ B) ∧
+      ∀ x : Fin (M + 1) → ℤ, x ≠ 0 → A.mulVec x = 0 → B ^ M ≤ ⨆ j, |x j| :=
+  Int.Matrix.exists_forall_pow_le_iSup_abs M hB
+
+/-- **Layer 5.1 — the number-field corollary, landed** (Bombieri–Gubler, Corollary 2.9.2) as
+`NumberField.exists_forall_exists_ne_zero_mulVec_eq_zero_absMulHeight_le`. The constant is
+Mathlib's and is `private` there, so it is quantified over; the content on this side is
+`NumberField.absMulHeight_le_iSup_house`, which turns the house bound on each coordinate into a
+bound on the absolute height of the tuple without losing a constant. -/
+example (K : Type*) [Field K] [NumberField K] :
+    ∃ C : ℝ, ∀ (p q : ℕ) (a : Matrix (Fin p) (Fin q) (𝓞 K)) (A : ℝ), a ≠ 0 → 0 < p → p < q →
+      (∀ k l, house ((a k l : K)) ≤ A) →
+      ∃ ξ : Fin q → 𝓞 K, ξ ≠ 0 ∧ a.mulVec ξ = 0 ∧
+        absMulHeight (fun l ↦ ((ξ l : K))) ≤ C * ((C * q * A) ^ ((p : ℝ) / (q - p))) :=
+  NumberField.exists_forall_exists_ne_zero_mulVec_eq_zero_absMulHeight_le K
+
+end SiegelClassical
 
 section Siegel
 
@@ -1270,50 +1595,96 @@ under `hrank`. -/
 
 section SiegelInt
 
-variable {m n : Type*} [Fintype m] [Fintype n] [DecidableEq m] [DecidableEq n] [LinearOrder n]
+variable {ι : Type*} [Fintype ι] [LinearOrder ι] {m : ℕ}
 
-/-- The greatest common divisor of the maximal minors of `A` — the `D` of Bombieri–Vaaler. The
-minors are Layer 3.1's Plücker coordinates of the rows, after the row index is put in the `Fin`
-form they are stated in; there is no `minorDet`. -/
-def minorGcd (A : Matrix m n ℤ) : ℤ :=
-  (Finset.univ.image fun s : Set.powersetCard n (Fintype.card m) ↦
-    exteriorPower.plucker (Fintype.card m)
-      (A.submatrix (Fintype.equivFin m).symm id).row s).gcd id
+/-! Layer 5.2 is landed in `ArithmeticHeights/BombieriVaaler.lean`. Two shapes drifted on the way
+in, and both are visible below. The row index is `Fin m` rather than a general `Fintype`, which is
+what `exteriorPower.plucker` and the whole of Layer 3 are stated for, so `Int.Matrix.minorGcd`
+needs no `Fintype.equivFin` and no `Finset.image`. And the rank hypothesis is linear independence
+of the rows over `ℚ`, which `Int.Matrix.linearIndependent_row_map_rat_iff` identifies with
+`(A * A.transpose).det ≠ 0` — a condition on the integer matrix alone, and the one that makes `A ≠ 0`
+redundant. The absolute values around the determinant and the divisor are gone with it: the Gram
+determinant of the rows is a sum of squares, hence positive here, and `Int.Matrix.minorGcd` is a
+normalized greatest common divisor, hence at least `1`. -/
 
-/-- **Layer 5.2, Bombieri–Vaaler Theorem 1 — one small solution.** -/
-theorem exists_ne_zero_mulVec_eq_zero_norm_le (A : Matrix m n ℤ) (hA : A ≠ 0)
-    (hrank : A.rank = Fintype.card m) (hmn : Fintype.card m < Fintype.card n) :
-    ∃ x : n → ℤ, x ≠ 0 ∧ A.mulVec x = 0 ∧
-      (⨆ i, |(x i : ℝ)|) ≤
-        (Real.sqrt |((A * A.transpose).det : ℝ)| / |(minorGcd A : ℝ)|) ^
-          ((Fintype.card n - Fintype.card m : ℝ)⁻¹) :=
-  sorry
+/-- **Layer 5.2 — the hypothesis, landed** as `Int.Matrix.linearIndependent_row_map_rat_iff`: full
+row rank over `ℚ` is exactly non-vanishing of the Gram determinant over `ℤ`. This is Layer 3.4's
+Gram criterion, and it is what replaces `hA : A ≠ 0` together with `hrank`. -/
+example (A : Matrix (Fin m) ι ℤ) :
+    LinearIndependent ℚ (A.map ((↑) : ℤ → ℚ)).row ↔ (A * A.transpose).det ≠ 0 :=
+  Int.Matrix.linearIndependent_row_map_rat_iff A
 
-/-- **Layer 5.2, Bombieri–Vaaler Theorem 2 — a small basis.** The statement Layers 5.3 and 5.4
-generalize to a number field. Over `ℤ` the extraction 4.4 is vacuous — the minima vectors of 4.2
-are already the basis — and the constant is 3.4's Cauchy–Binet determinant with 4.5's slice bound;
-the adele-free assembly is written out in Aliev–Henk §6. -/
-theorem exists_linearIndependent_mulVec_eq_zero_prod_norm_le (A : Matrix m n ℤ) (hA : A ≠ 0)
-    (hrank : A.rank = Fintype.card m) (hmn : Fintype.card m < Fintype.card n) :
-    ∃ x : Fin (Fintype.card n - Fintype.card m) → (n → ℤ),
-      LinearIndependent ℤ x ∧ (∀ l, A.mulVec (x l) = 0) ∧
-      (∏ l, ⨆ i, |((x l i : ℤ) : ℝ)|) ≤
-        Real.sqrt |((A * A.transpose).det : ℝ)| / |(minorGcd A : ℝ)| :=
-  sorry
+/-- **Layer 5.2 — the identity the bound is, landed** as
+`Int.Matrix.minorGcd_mul_arakelovMulHeight_ker`: `D` times the Arakelov height of the solution
+space is `√(det (A A.transpose))`. Layer 3.5's duality carries the height of the solution space to the row
+space, Layer 3.3 reads that off the maximal minors, and Layer 3.4's Cauchy–Binet identity turns
+their euclidean norm into the Gram determinant. -/
+example (A : Matrix (Fin m) ι ℤ) (hA : LinearIndependent ℚ (A.map ((↑) : ℤ → ℚ)).row) :
+    ((Int.Matrix.minorGcd A : ℤ) : ℝ) *
+        (LinearMap.ker (A.map ((↑) : ℤ → ℚ)).mulVecLin).arakelovMulHeight
+      = Real.sqrt (((A * A.transpose).det : ℤ) : ℝ) :=
+  Int.Matrix.minorGcd_mul_arakelovMulHeight_ker A hA
+
+/-- **Layer 5.2, Bombieri–Vaaler Theorem 2 — a small basis, landed** as
+`Int.Matrix.exists_linearIndependent_mulVec_eq_zero_prod_iSup_abs_le`. The statement Layers 5.3 and
+5.4 generalize to a number field. Over `ℤ` the extraction 4.4 is vacuous — the minima vectors of
+4.2 are already the basis — and the constant is 3.4's Cauchy–Binet determinant with 4.5's slice
+bound; the adele-free assembly is written out in Aliev–Henk §6. No hypothesis `M < N` is needed. -/
+example (A : Matrix (Fin m) ι ℤ) (hA : LinearIndependent ℚ (A.map ((↑) : ℤ → ℚ)).row) :
+    ∃ x : Fin (Fintype.card ι - m) → (ι → ℤ), LinearIndependent ℤ x ∧ (∀ l, A.mulVec (x l) = 0) ∧
+      (∏ l, ((⨆ i, |x l i| : ℤ) : ℝ)) ≤
+        Real.sqrt (((A * A.transpose).det : ℤ) : ℝ) / ((Int.Matrix.minorGcd A : ℤ) : ℝ) :=
+  Int.Matrix.exists_linearIndependent_mulVec_eq_zero_prod_iSup_abs_le A hA
+
+/-- **Layer 5.2, Theorem 2 in height form, landed** as
+`Int.Matrix.exists_linearIndependent_mulVec_eq_zero_prod_mulHeight_le` — the `K = ℚ` case of Layer
+5.4, whose discriminant factor is `1` there. It is strictly weaker than the sup-norm form, by
+Layer 5.1's `Rat.gcd_mul_mulHeight_intCast`. -/
+example (A : Matrix (Fin m) ι ℤ) (hA : LinearIndependent ℚ (A.map ((↑) : ℤ → ℚ)).row) :
+    ∃ x : Fin (Fintype.card ι - m) → (ι → ℤ), LinearIndependent ℤ x ∧ (∀ l, A.mulVec (x l) = 0) ∧
+      (∏ l, Height.mulHeight (((↑) : ℤ → ℚ) ∘ x l)) ≤
+        Real.sqrt (((A * A.transpose).det : ℤ) : ℝ) / ((Int.Matrix.minorGcd A : ℤ) : ℝ) :=
+  Int.Matrix.exists_linearIndependent_mulVec_eq_zero_prod_mulHeight_le A hA
+
+/-- **Layer 5.2, Bombieri–Vaaler Theorem 1 — one small solution, landed** as
+`Int.Matrix.exists_ne_zero_mulVec_eq_zero_iSup_abs_le_det_rpow`. -/
+example (A : Matrix (Fin m) ι ℤ) (hA : LinearIndependent ℚ (A.map ((↑) : ℤ → ℚ)).row)
+    (hmn : m < Fintype.card ι) :
+    ∃ x : ι → ℤ, x ≠ 0 ∧ A.mulVec x = 0 ∧
+      ((⨆ i, |x i| : ℤ) : ℝ) ≤
+        (Real.sqrt (((A * A.transpose).det : ℤ) : ℝ) / ((Int.Matrix.minorGcd A : ℤ) : ℝ)) ^
+          (((Fintype.card ι : ℝ) - m)⁻¹) :=
+  Int.Matrix.exists_ne_zero_mulVec_eq_zero_iSup_abs_le_det_rpow A hA hmn
+
+/-- **Layer 5.2 — the invariance, landed** as `Int.Matrix.sqrt_det_div_minorGcd_unit_mul`
+(Bombieri–Vaaler (2.5)): the bound is a height on the Grassmannian, so a row operation of
+determinant `±1` does not move it. This is what Theorem 1 has over Layer 5.1. -/
+example {U : Matrix (Fin m) (Fin m) ℤ} (hU : IsUnit U.det) (A : Matrix (Fin m) ι ℤ) :
+    Real.sqrt ((((U * A) * (U * A).transpose).det : ℤ) : ℝ) / ((Int.Matrix.minorGcd (U * A) : ℤ) : ℝ)
+      = Real.sqrt (((A * A.transpose).det : ℤ) : ℝ) / ((Int.Matrix.minorGcd A : ℤ) : ℝ) :=
+  Int.Matrix.sqrt_det_div_minorGcd_unit_mul hU A
 
 end SiegelInt
 
-/-- **Layer 5.3 — Bombieri–Vaaler over a number field, Hermitian form** (Bombieri–Vaaler 1983;
-the inequality Vaaler 2003 quotes as (1.3)). For `A` an `M × N` matrix of rank `M` over a number
-field `K` of degree `d` with `r₁` real and `r₂` complex places, the solution space of `A x = 0`
-has a basis `x₁, …, x_{N−M}` with coordinates in `𝓞 K` and, for `k = N − M`,
+/-! Layer 5.3 is landed in `ArithmeticHeights/BombieriVaalerField.lean`, on the geometry of
+`ArithmeticHeights/MixedBall.lean`. One hypothesis drifted out: the milestone's `hA` — full row
+rank of `A` — is **not needed**. Layer 3.5's `Matrix.arakelovMulHeight_ker_mulVecLin` identifies
+the height of the solution space with the height of the row space for an arbitrary matrix, and
+the geometric half never looks at `A`; `hA` would only pin `k = N − M`. The landed statement takes
+`k` implicitly, from `hk`. -/
+
+/-- **Layer 5.3 — Bombieri–Vaaler over a number field, Hermitian form, landed** as
+`NumberField.exists_basis_ker_prod_arakelovMulHeight_rpow_le` (Bombieri–Vaaler 1983; the
+inequality Vaaler 2003 quotes as (1.3)). For `A` an `M × N` matrix over a number field `K` of
+degree `d` with `r₁` real and `r₂` complex places, the solution space of `A x = 0` has a basis
+`x₁, …, x_k` with coordinates in `𝓞 K` and
 
 `∏ l, H_Ar(x l) ≤ [(2^k / ω_k)^{r₁} (2^k / ω_{2k})^{r₂}]^{1/d} · |D_{K/ℚ}| ^ (k / (2 d)) · H_Ar(A)`,
 
 absolute Arakelov heights on both sides, `H_Ar(A)` the Arakelov height of the row space. This
-needs 4.1–4.4 and no cube slicing: the slices of the ℓ² balls are balls. -/
-theorem exists_basis_prod_arakelovMulHeight_le {m : ℕ} (A : Matrix (Fin m) ι K)
-    (hA : LinearIndependent K A.row)
+needs 4.1–4.4 and no cube slicing: the slices of the ℓ² balls are balls. The hypothesis `hA` is
+carried here only to record that the milestone asked for it; the proof does not use it. -/
+example {m : ℕ} (A : Matrix (Fin m) ι K) (_hA : LinearIndependent K A.row)
     (k : ℕ) (hk : finrank K (LinearMap.ker A.mulVecLin) = k) :
     ∃ b : Basis (Fin k) K (LinearMap.ker A.mulVecLin),
       (∀ l j, IsIntegral ℤ ((b l : ι → K) j)) ∧
@@ -1323,7 +1694,47 @@ theorem exists_basis_prod_arakelovMulHeight_le {m : ℕ} (A : Matrix (Fin m) ι 
               (finrank ℚ K : ℝ)⁻¹ *
           |(NumberField.discr K : ℝ)| ^ ((k : ℝ) / (2 * finrank ℚ K)) *
           (Submodule.span K (Set.range A.row)).arakelovMulHeight ^ (finrank ℚ K : ℝ)⁻¹ :=
-  sorry
+  NumberField.exists_basis_ker_prod_arakelovMulHeight_rpow_le A hk
+
+/-- **Layer 5.3 for a subspace, in relative heights, landed** as
+`NumberField.exists_basis_prod_arakelovMulHeight_le`. This is the form the proof produces: no
+roots are taken, and the basis vectors are exhibited as integral points of `V` rather than
+through a `Basis`. -/
+example (V : Submodule K (ι → K)) :
+    ∃ x : Fin (finrank K V) → (ι → K), LinearIndependent K x ∧
+      (∀ l, x l ∈ V.integerPoints) ∧
+      (∏ l, arakelovMulHeight (x l))
+        ≤ ((2 : ℝ) ^ finrank K V / unitBallVolume (finrank K V)) ^
+              NumberField.InfinitePlace.nrRealPlaces K
+            * ((2 : ℝ) ^ finrank K V / unitBallVolume (2 * finrank K V)) ^
+              NumberField.InfinitePlace.nrComplexPlaces K
+            * (Real.sqrt |(NumberField.discr K : ℝ)| ^ finrank K V * V.arakelovMulHeight) :=
+  NumberField.exists_basis_prod_arakelovMulHeight_le V
+
+/-- **Layer 5.3 — the slice bound, landed** as
+`NumberField.mixedEmbedding.volume_preimage_mixedBall_mixedSpan`. The body of the milestone is the
+product over the infinite places of the ℓ² unit balls, and its slice by the real span of a
+`K`-subspace of dimension `k` has volume `ω_k^{r₁} ω_{2k}^{r₂}` — the slice of a euclidean ball by
+a subspace is a euclidean ball, so Layer 4.5 is not used. -/
+example (V : Submodule K (ι → K)) :
+    MeasureTheory.volume ((Subtype.val : ↥V.mixedSpan → NumberField.mixedEmbedding.mixedPi K ι) ⁻¹'
+        NumberField.mixedEmbedding.mixedBall K ι)
+      = ENNReal.ofReal (unitBallVolume (finrank K V)) ^
+            NumberField.InfinitePlace.nrRealPlaces K
+          * ENNReal.ofReal (unitBallVolume (2 * finrank K V)) ^
+            NumberField.InfinitePlace.nrComplexPlaces K :=
+  NumberField.mixedEmbedding.volume_preimage_mixedBall_mixedSpan V
+
+/-- **Layer 5.3 — the height estimate, landed** as
+`NumberField.mixedEmbedding.arakelovMulHeight_le_of_mem_smul_mixedBall`. An integral tuple whose
+mixed embedding lies in `r · B` has Arakelov height at most `r ^ d`: the archimedean factors are
+weighted by `mult v` and `∑_v mult v = d`, and the finite factors of an integral tuple are at most
+one. This is what converts a successive minimum into a height. -/
+example {r : ℝ} (hr : 0 < r) {x : ι → K} (hx : x ≠ 0)
+    (hint : ∀ l, ∃ z : 𝓞 K, (z : K) = x l)
+    (hmem : mixedPiEmb K ι x ∈ r • NumberField.mixedEmbedding.mixedBall K ι) :
+    arakelovMulHeight x ≤ r ^ finrank ℚ K :=
+  NumberField.mixedEmbedding.arakelovMulHeight_le_of_mem_smul_mixedBall hr hx hint hmem
 
 /-- **Layer 5.4 — Bombieri–Vaaler over a number field: the summit** (Bombieri–Gubler, Theorem
 2.9.4; Bombieri–Vaaler 1983).

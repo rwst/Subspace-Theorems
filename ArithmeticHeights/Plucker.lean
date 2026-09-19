@@ -204,6 +204,18 @@ theorem plucker_eq_smul_iff (k : ℕ) (c : R) (v w : Fin k → (ι → R)) :
   rw [plucker, plucker, ← map_smul]
   exact (LinearEquiv.injective _).eq_iff
 
+/-- **Scaling the vectors scales the Plücker coordinates by the product of the scalars.** The
+Plücker coordinates are a multilinear function of the family, so rescaling each vector multiplies
+every coordinate by the product of the scalars — the statement that a determinant is multilinear
+in its rows, read on the maximal minors at once. -/
+theorem plucker_smul (k : ℕ) (c : Fin k → R) (v : Fin k → (ι → R))
+    (s : Set.powersetCard ι k) :
+    plucker k (fun i ↦ c i • v i) s = (∏ i, c i) * plucker k v s := by
+  rw [plucker, plucker,
+    show ((ιMulti R k) fun i ↦ c i • v i) = (∏ i, c i) • (ιMulti R k) v from
+      MultilinearMap.map_smul_univ (ιMulti R k).toMultilinearMap c v]
+  simp
+
 variable {K : Type*} [Field K] {k : ℕ} {v : Fin k → (ι → K)}
 
 /-- Over a field, the Plücker coordinates of a family vanish exactly when it is linearly

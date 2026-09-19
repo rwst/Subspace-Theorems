@@ -91,32 +91,49 @@ un-ignoring it, and committing the result with a header saying what it came from
 ```
 ArithmeticHeights/      the library: sorry-free Lean, Tau Ceti rules, the default build target
   Absolute.lean          Layer 0.4
-  AdaptedBasis.lean      Layer 4.2 (infrastructure)
+  AdaptedBasis.lean      Layers 4.2 and 4.6 (infrastructure)
   Affine.lean            Layer 0.5
   Arakelov.lean          Layers 0.1 and 0.2
+  BombieriVaaler.lean    Layer 5.2
+  BombieriVaalerField.lean Layer 5.3
   CauchyBinet.lean       Layer 3.4
+  CubeSlicing.lean       Layer 4.5
   Duality.lean           Layer 3.5
   Extension.lean         Layer 0.3
+  Extraction.lean        Layer 4.4
+  FinitePlaceIdeal.lean  Layer 4.3 (infrastructure)
   GaussLemma.lean        Layer 2.2
+  GaussMeasure.lean      Layer 4.5 (infrastructure)
   Gelfond.lean           Layer 2.3
   GramCovolume.lean      Layer 4.3 (infrastructure)
   Hadamard.lean          Layer 3.4
   Kronecker.lean         Layer 1.4
   Laplace.lean           Layer 3.6
   LinearForm.lean        Layer 2.4
+  LogConcave.lean        Layer 4.5 (infrastructure)
   LowerBound.lean        Layer 1.5
   MahlerMeasure.lean     Layer 1.2
   Matrix.lean            Layer 2.5
+  MinimaBasis.lean       Layer 4.6
   MinkowskiSecond.lean   Layer 4.2
+  MixedBall.lean         Layer 5.3 (infrastructure)
+  MixedLattice.lean      Layer 4.3 (infrastructure)
   Nonarchimedean.lean    Layer 3.6
+  NormProd.lean          Layer 4.3 (infrastructure)
   Northcott.lean         Layer 1.1
   NorthcottSubspace.lean Layer 3.7
   NorthcottTheorem.lean  Layer 1.3
+  NumberFieldLattice.lean Layer 4.3 (over a number field)
   Plucker.lean           Layer 3.1
   Polynomial.lean        Layer 2.1
+  PrekopaLeindler.lean   Layer 4.5 (infrastructure)
+  ProductOfBalls.lean    Layer 4.5 (infrastructure)
+  PseudoBasis.lean       Layer 4.3 (infrastructure)
   QuotientFubini.lean    Layer 4.2 (infrastructure)
   RationalLattice.lean   Layer 4.3 (over `ℚ`)
   RowSpace.lean          Layer 3.3
+  Siegel.lean            Layer 5.1
+  SliceBound.lean        Layer 4.5 (infrastructure)
   Submodular.lean        Layer 3.6
   Subspace.lean          Layer 3.2
   SuccessiveMinima.lean  Layer 4.1
@@ -144,14 +161,14 @@ target sets `warningAsError` over Mathlib's syntax linter set; **`lake exe axiom
 run, so one round shows everything that is wrong.
 
 `lake build` never touches `Roadmap/`: that library is declared without `@[default_target]`
-precisely so its 19 `sorry`s — the milestones not yet built — stay out of the library's build
+precisely so its 9 `sorry`s — the milestones not yet built — stay out of the library's build
 and out of every gate. The dependency runs one way only, `Roadmap` on `ArithmeticHeights`, and
 `guards.sh` fails the build if the library ever imports the roadmap.
 
 Every gate was tested against a violation, not only against a clean tree — a `sorry`, a 101-column
 line, trailing whitespace, a wrong licence line, an undocumented `def`, a home-rolled `axiom`, a
-file without `module`, each caught by exactly one gate. On the tree as it stands: 30 library files,
-1005 declarations audited and all within the allowlist, 777 judged by 15 environment linters with
+file without `module`, each caught by exactly one gate. On the tree as it stands: 47 library files,
+1459 declarations audited and all within the allowlist, 1069 judged by 15 environment linters with
 no violations, headers and text linters clean.
 
 ## Still to settle
