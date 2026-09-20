@@ -38,6 +38,9 @@ independent lattice vectors realizing all of them at once.
   is what every later proof consumes; its body form is
   `ZLattice.exists_linearIndependent_mem_smul_successiveMinimum`, which is where closedness of
   the body is used.
+* `Finset.prod_pow_le_prod_range`: the regrouping that turns a bound on the product of all `d * k`
+  minima into a bound on a product of `k` `d`-th powers — what Layers 5.3 and 5.4 spend to pass
+  from the minima of the lattice of a `k`-dimensional `K`-subspace to `k` heights.
 * `ZLattice.successiveMinimum_zero_eq`: the zeroth minimum is the least dilation containing a
   nonzero lattice point — the quantity Minkowski's convex-body theorem bounds — and
   `ZLattice.successiveMinimum_zero_le_one` is that theorem read as the case `i = 0`.
@@ -546,6 +549,37 @@ theorem successiveMinimum_zero_le_one [MeasurableSpace E] [BorelSpace E] [Nontri
   · exact x.2
 
 end ZLattice
+
+/-! ### Regrouping a product of minima -/
+
+section Regrouping
+
+/-- **Every `d`-th term, to the power `d`, against the whole product.** For a nonnegative sequence
+that is monotone below `N`, the product of `f (d * j) ^ d` over `j < k` is at most the product of
+`f i` over `i < d * k`. This is what turns Minkowski's second theorem — a bound on the product of
+all `d * k` successive minima — into a bound on a product of `k` heights, each of which costs a
+`d`-th power. -/
+theorem Finset.prod_pow_le_prod_range {f : ℕ → ℝ} {N : ℕ} (hf0 : ∀ i, 0 ≤ f i)
+    (hmono : ∀ i j, i ≤ j → j < N → f i ≤ f j) (d : ℕ) :
+    ∀ k, d * k ≤ N → ∏ j ∈ Finset.range k, f (d * j) ^ d ≤ ∏ i ∈ Finset.range (d * k), f i := by
+  intro k
+  induction k with
+  | zero => intro _; simp
+  | succ k ih =>
+    intro hle
+    have hk : d * k ≤ N := le_trans (Nat.mul_le_mul_left d (Nat.le_succ k)) hle
+    have hsplit : d * (k + 1) = d * k + d := by ring
+    rw [Finset.prod_range_succ, hsplit, Finset.prod_range_add]
+    refine mul_le_mul (ih hk) ?_ (pow_nonneg (hf0 _) _)
+      (Finset.prod_nonneg fun i _ ↦ hf0 i)
+    calc f (d * k) ^ d = ∏ _i ∈ Finset.range d, f (d * k) := by
+          rw [Finset.prod_const, Finset.card_range]
+      _ ≤ ∏ i ∈ Finset.range d, f (d * k + i) := by
+          refine Finset.prod_le_prod₀ (fun i _ ↦ hf0 _) fun i hi ↦ ?_
+          rw [Finset.mem_range] at hi
+          exact hmono _ _ (Nat.le_add_right _ _) (by omega)
+
+end Regrouping
 
 /-! ### Worked examples -/
 

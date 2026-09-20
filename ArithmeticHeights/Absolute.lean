@@ -300,6 +300,41 @@ theorem absLogHeight_comp (f : K →ₐ[ℚ] L) (x : ι → K) :
 end Comp
 
 /-!
+### The absolute Arakelov height is invariant under an embedding
+
+The Arakelov normalization has no absolute form of its own in this development — it is written
+`arakelovMulHeight x ^ (finrank ℚ K : ℝ)⁻¹` wherever it is needed — so the statement is that that
+expression does not change along a homomorphism of number fields. It is
+`NumberField.arakelovMulHeight_pow_finrank` of Layer 0.3 read through the degree, and it is what
+lets a conjugate of a tuple be compared with the tuple itself.
+-/
+
+section ArakelovComp
+
+variable {F L : Type*} [Field F] [NumberField F] [Field L] [NumberField L]
+variable {κ : Type*} [Fintype κ]
+
+/-- **The absolute Arakelov height is invariant under an embedding of number fields.** Every ring
+homomorphism between fields of characteristic zero is a `ℚ`-algebra map, so no compatibility
+hypothesis is needed; the degree of the extension it exhibits is exactly what the normalizing
+exponent divides out. -/
+theorem arakelovMulHeight_rpow_comp (f : F →+* L) (x : κ → F) :
+    arakelovMulHeight (f ∘ x) ^ ((finrank ℚ L : ℝ))⁻¹
+      = arakelovMulHeight x ^ ((finrank ℚ F : ℝ))⁻¹ := by
+  let : Algebra F L := f.toAlgebra
+  have : IsScalarTower ℚ F L :=
+    IsScalarTower.of_algebraMap_eq' (Subsingleton.elim _ _)
+  have : Module.Finite F L := Module.Finite.of_restrictScalars_finite ℚ F L
+  have hmul : finrank ℚ F * finrank F L = finrank ℚ L := Module.finrank_mul_finrank ℚ F L
+  have hkey : arakelovMulHeight x ^ finrank F L = arakelovMulHeight (f ∘ x) := by
+    simpa [RingHom.algebraMap_toAlgebra] using
+      arakelovMulHeight_pow_finrank (K := F) (L := L) x
+  rw [← hkey, ← hmul, rpow_inv_natCast_mul (arakelovMulHeight_pos x).le
+    (Module.finrank_pos (R := ℚ) (M := F)).ne' (Module.finrank_pos (R := F) (M := L)).ne']
+
+end ArakelovComp
+
+/-!
 ### Basic API, the affine case, and scaling
 -/
 

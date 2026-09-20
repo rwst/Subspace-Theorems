@@ -122,28 +122,6 @@ theorem sum_sq_le_of_mem_smul_mixedBall {r : ℝ} (hr : 0 < r) {x : ι → K}
     have h2 := sq_norm_complexPart_mixedPiEmb (K := K) ⟨w, h⟩ x
     nlinarith [norm_nonneg (complexPart K ι ⟨w, h⟩ (mixedPiEmb K ι x))]
 
-omit [Fintype ι] in
-open scoped Classical in
-theorem finprod_finitePlace_le_one [Finite ι] {x : ι → K} (hx : x ≠ 0)
-    (hint : ∀ l, ∃ z : 𝓞 K, (z : K) = x l) :
-    (∏ᶠ v : FinitePlace K, ⨆ i, v (x i)) ≤ 1 := by
-  choose z hz using hint
-  have hzne : ∃ i, z i ≠ 0 := by
-    by_contra hcon
-    push Not at hcon
-    exact hx (funext fun i ↦ by rw [← hz i, hcon i]; simp)
-  have heq : (∏ᶠ v : FinitePlace K, ⨆ i, v (x i))
-      = ∏ᶠ v : FinitePlace K, ⨆ i, v ((z i : K)) :=
-    finprod_congr fun v ↦ iSup_congr fun i ↦ by rw [hz i]
-  rw [heq, NumberField.FinitePlace.finprod_iSup_eq_inv_absNorm hzne]
-  have hI : Ideal.span (Set.range z) ≠ (⊥ : Ideal (𝓞 K)) := by
-    obtain ⟨i, hi⟩ := hzne
-    exact fun h ↦ hi ((Ideal.span_eq_bot.1 h) (z i) ⟨i, rfl⟩)
-  have h1 : (1 : ℝ) ≤ (Ideal.absNorm (Ideal.span (Set.range z)) : ℝ) := by
-    exact_mod_cast Nat.one_le_iff_ne_zero.2 (fun h ↦ hI (Ideal.absNorm_eq_zero_iff.1 h))
-  rw [inv_le_one_iff₀]
-  exact Or.inr h1
-
 open scoped Classical in
 /-- **The height of an integral tuple in a dilate of the body.** -/
 theorem arakelovMulHeight_le_of_mem_smul_mixedBall {r : ℝ} (hr : 0 < r) {x : ι → K}
@@ -270,41 +248,9 @@ theorem prod_successiveMinimum_mixedBall_le :
   exact key _ _ _ _ _ _ _ (unitBallVolume_pos (finrank K V)).ne'
     (unitBallVolume_pos (2 * finrank K V)).ne'
 
-omit [Fintype ι] [LinearOrder ι] in
-open scoped Classical in
-theorem mem_mixedLattice_iff {y : ↥V.mixedSpan} :
-    y ∈ V.mixedLattice ↔ ∃ z ∈ V.integerPoints, mixedPiEmb K ι z = (y : mixedPi K ι) := by
-  rw [Submodule.mixedLattice, Submodule.mem_comap, Submodule.mem_map]
-  simp
-
 end Span
 
 end NumberField.mixedEmbedding
-
-section Product
-
-open scoped Classical in
-private theorem prod_pow_le_prod_range {f : ℕ → ℝ} {N : ℕ} (hf0 : ∀ i, 0 ≤ f i)
-    (hmono : ∀ i j, i ≤ j → j < N → f i ≤ f j) (d : ℕ) :
-    ∀ k, d * k ≤ N → ∏ j ∈ Finset.range k, f (d * j) ^ d ≤ ∏ i ∈ Finset.range (d * k), f i := by
-  intro k
-  induction k with
-  | zero => intro _; simp
-  | succ k ih =>
-    intro hle
-    have hk : d * k ≤ N := le_trans (Nat.mul_le_mul_left d (Nat.le_succ k)) hle
-    have hsplit : d * (k + 1) = d * k + d := by ring
-    rw [Finset.prod_range_succ, hsplit, Finset.prod_range_add]
-    refine mul_le_mul (ih hk) ?_ (pow_nonneg (hf0 _) _)
-      (Finset.prod_nonneg fun i _ ↦ hf0 i)
-    calc f (d * k) ^ d = ∏ _i ∈ Finset.range d, f (d * k) := by
-          rw [Finset.prod_const, Finset.card_range]
-      _ ≤ ∏ i ∈ Finset.range d, f (d * k + i) := by
-          refine Finset.prod_le_prod₀ (fun i _ ↦ hf0 _) fun i hi ↦ ?_
-          rw [Finset.mem_range] at hi
-          exact hmono _ _ (Nat.le_add_right _ _) (by omega)
-
-end Product
 
 namespace NumberField
 
@@ -388,7 +334,7 @@ theorem exists_basis_prod_arakelovMulHeight_le :
     _ = ∏ j ∈ Finset.range (finrank K V), lam (finrank ℚ K * j) ^ finrank ℚ K :=
         Fin.prod_univ_eq_prod_range (fun i ↦ lam (finrank ℚ K * i) ^ finrank ℚ K) _
     _ ≤ ∏ i ∈ Finset.range (finrank ℚ K * finrank K V), lam i :=
-        prod_pow_le_prod_range hlamnn hlammono _ _ le_rfl
+        Finset.prod_pow_le_prod_range hlamnn hlammono _ _ le_rfl
     _ ≤ _ := prod_successiveMinimum_mixedBall_le V
 
 open scoped Classical in

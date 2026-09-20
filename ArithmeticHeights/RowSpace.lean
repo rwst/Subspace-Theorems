@@ -169,9 +169,11 @@ end Plucker
 section Span
 
 variable {R : Type*} [CommRing R] {ι : Type*} {m : ℕ}
+variable {n : Type*} [Fintype n] [DecidableEq n]
 
+omit [DecidableEq n] in
 /-- Every row of `U * A` lies in the row space of `A`. -/
-theorem span_range_row_mul_le (U : Matrix (Fin m) (Fin m) R) (A : Matrix (Fin m) ι R) :
+theorem span_range_row_mul_le (U : Matrix n n R) (A : Matrix n ι R) :
     span R (Set.range (U * A).row) ≤ span R (Set.range A.row) := by
   rw [← range_vecMulLinear A, Submodule.span_le]
   rintro _ ⟨i, rfl⟩
@@ -179,9 +181,10 @@ theorem span_range_row_mul_le (U : Matrix (Fin m) (Fin m) R) (A : Matrix (Fin m)
 
 /-- **A row operation does not change the row space.** Everything below about the height of a row
 space is this equality followed by a `congrArg`, the height of Layer 3.2 being a function of the
-subspace alone. -/
-theorem span_range_row_mul {U : Matrix (Fin m) (Fin m) R} (hU : IsUnit U.det)
-    (A : Matrix (Fin m) ι R) :
+subspace alone. The row index is an arbitrary finite type: Layer 5.6 multiplies by a
+block-diagonal matrix whose rows are indexed by a product. -/
+theorem span_range_row_mul {U : Matrix n n R} (hU : IsUnit U.det)
+    (A : Matrix n ι R) :
     span R (Set.range (U * A).row) = span R (Set.range A.row) := by
   refine le_antisymm (span_range_row_mul_le U A) ?_
   calc span R (Set.range A.row)
@@ -216,6 +219,42 @@ theorem linearIndependent_row_iff_rank_eq (A : Matrix (Fin m) ι K) :
   rw [rank_eq_finrank_span_row, linearIndependent_iff_card_eq_finrank_span, Fintype.card_fin,
     Set.finrank]
   exact eq_comm
+
+/-- **A matrix has a maximal independent family of rows, of size its rank**, spanning the same row
+space: `f` picks out `R = rank A` of the rows, the submatrix on them has independent rows, and its
+row space is that of `A`. This is what lets a bound in terms of the rows be paid `rank A` times
+rather than once per row. -/
+theorem exists_submatrix_row_linearIndependent (A : Matrix (Fin m) ι K) :
+    ∃ (R : ℕ) (f : Fin R → Fin m), A.rank = R ∧
+      LinearIndependent K (A.submatrix f id).row ∧
+      span K (Set.range (A.submatrix f id).row) = span K (Set.range A.row) := by
+  classical
+  obtain ⟨b, -, -, hsp, hind⟩ :=
+    exists_linearIndepOn_extension (K := K) (v := A.row) (linearIndepOn_empty K A.row)
+      (Set.empty_subset (Set.univ : Set (Fin m)))
+  set s : Finset (Fin m) := b.toFinset with hs
+  set R : ℕ := s.card with hR
+  set E : Fin R ≃ ↥b :=
+    (s.orderIsoOfFin hR.symm).toEquiv.trans (Equiv.subtypeEquivRight fun x ↦ Set.mem_toFinset)
+    with hE
+  have hindB : LinearIndependent K (A.submatrix (fun i ↦ (E i : Fin m)) id).row :=
+    hind.comp E E.injective
+  have hrange : Set.range (fun i : Fin R ↦ ((E i : Fin m))) = b := by
+    rw [show (fun i : Fin R ↦ ((E i : Fin m))) = Subtype.val ∘ E from rfl,
+      Set.range_comp, E.range_eq_univ, Set.image_univ, Subtype.range_coe]
+  have himg : Set.range (A.submatrix (fun i ↦ (E i : Fin m)) id).row = A.row '' b := by
+    rw [show (A.submatrix (fun i ↦ (E i : Fin m)) id).row
+        = A.row ∘ (fun i : Fin R ↦ ((E i : Fin m))) from rfl, Set.range_comp, hrange]
+  have hspanB : span K (Set.range (A.submatrix (fun i ↦ (E i : Fin m)) id).row)
+      = span K (Set.range A.row) := by
+    rw [himg]
+    refine le_antisymm (span_mono ?_) (span_le.2 ?_)
+    · rintro _ ⟨x, -, rfl⟩
+      exact ⟨x, rfl⟩
+    · rw [← Set.image_univ]
+      exact hsp
+  refine ⟨R, fun i ↦ (E i : Fin m), ?_, hindB, hspanB⟩
+  rw [rank_eq_finrank_span_row, ← hspanB, finrank_span_eq_card hindB, Fintype.card_fin]
 
 /-- **Full row rank, in minors**: a matrix has independent rows exactly when some maximal minor is
 nonzero. This is `exteriorPower.plucker_eq_zero_iff` of Layer 3.1, and it is what makes the height

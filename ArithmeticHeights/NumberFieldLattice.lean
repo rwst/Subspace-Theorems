@@ -981,6 +981,56 @@ theorem Submodule.covolume_mixedLattice (V : Submodule K (ι → K)) :
 
 end Assembly
 
+/-!
+### Two readings of integrality
+
+The finite half of the height of an integral tuple, and the membership test for the lattice of
+integral points. Both are consumed by the Bombieri–Vaaler milestones of Layer 5, which differ in
+their convex body but not in how they read integrality.
+-/
+
+namespace NumberField.mixedEmbedding
+
+open Module NumberField NumberField.InfinitePlace
+
+variable {K : Type*} [Field K] [NumberField K] {ι : Type*} [Finite ι]
+
+open scoped Classical in
+/-- **The finite places cost nothing for an integral tuple.** The product over the finite places
+of the sup norms is the inverse of the absolute norm of the ideal the coordinates generate, which
+is a positive integer. -/
+theorem finprod_finitePlace_le_one {x : ι → K} (hx : x ≠ 0)
+    (hint : ∀ l, ∃ z : 𝓞 K, (z : K) = x l) :
+    (∏ᶠ v : FinitePlace K, ⨆ i, v (x i)) ≤ 1 := by
+  choose z hz using hint
+  have hzne : ∃ i, z i ≠ 0 := by
+    by_contra hcon
+    push Not at hcon
+    exact hx (funext fun i ↦ by rw [← hz i, hcon i]; simp)
+  have heq : (∏ᶠ v : FinitePlace K, ⨆ i, v (x i))
+      = ∏ᶠ v : FinitePlace K, ⨆ i, v ((z i : K)) :=
+    finprod_congr fun v ↦ iSup_congr fun i ↦ by rw [hz i]
+  rw [heq, NumberField.FinitePlace.finprod_iSup_eq_inv_absNorm hzne]
+  have hI : Ideal.span (Set.range z) ≠ (⊥ : Ideal (𝓞 K)) := by
+    obtain ⟨i, hi⟩ := hzne
+    exact fun h ↦ hi ((Ideal.span_eq_bot.1 h) (z i) ⟨i, rfl⟩)
+  have h1 : (1 : ℝ) ≤ (Ideal.absNorm (Ideal.span (Set.range z)) : ℝ) := by
+    exact_mod_cast Nat.one_le_iff_ne_zero.2 (fun h ↦ hI (Ideal.absNorm_eq_zero_iff.1 h))
+  rw [inv_le_one_iff₀]
+  exact Or.inr h1
+
+omit [Finite ι] in
+open scoped Classical in
+/-- **Membership in the lattice of integral points**, read in `Kⁱ` rather than in the real
+span. -/
+theorem mem_mixedLattice_iff (V : Submodule K (ι → K)) {y : ↥V.mixedSpan} :
+    y ∈ V.mixedLattice ↔ ∃ z ∈ V.integerPoints, mixedPiEmb K ι z = (y : mixedPi K ι) := by
+  rw [Submodule.mixedLattice, Submodule.mem_comap, Submodule.mem_map]
+  simp
+
+end NumberField.mixedEmbedding
+
+
 end
 
 end

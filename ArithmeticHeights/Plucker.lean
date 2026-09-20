@@ -174,6 +174,15 @@ theorem plucker_apply (k : ℕ) (v : Fin k → (ι → R)) (s : Set.powersetCard
   rw [plucker, Basis.equivFun_apply, basis_repr_apply, ιMultiDual_apply_ιMulti]
   simp
 
+/-- **The Plücker coordinates commute with a ring homomorphism.** They are determinants, so this
+is `RingHom.map_det`; it is what carries the Plücker point of a subspace along a base change. -/
+theorem plucker_comp_ringHom {S : Type*} [CommRing S] (f : R →+* S) (k : ℕ)
+    (v : Fin k → (ι → R)) :
+    plucker k (fun l ↦ f ∘ v l) = f ∘ plucker k v := by
+  funext s
+  rw [Function.comp_apply, plucker_apply, plucker_apply, RingHom.map_det]
+  rfl
+
 /-- The empty wedge: in rank `0` there is one Plücker coordinate and it is `1`. -/
 @[simp] theorem plucker_zero (v : Fin 0 → (ι → R)) : plucker 0 v = 1 := by
   funext s

@@ -40,10 +40,15 @@ statements are about determinants, not about norms, and nothing analytic enters.
   rows are indexed by `Fin (p + q)`, cut at `p`.
 * `Matrix.det_mul_transpose_self_le_prod`: **Hadamard's inequality**, the fully split case
   `det (A Aᵀ) ≤ ∏ᵢ ‖Aᵢ‖²`, by induction on the number of rows.
+* `Matrix.abs_det_le_prod_sum_abs`: the square case, `|det M| ≤ ∏ᵢ ‖Mᵢ‖₁`, in the ℓ¹ norm rather
+  than the ℓ² one so that no square root and no analysis enter. This is the form Layer 6.3 applies
+  to the matrix of logarithmic embeddings of a system of units.
 * `Matrix.det_mul_transpose_self_le_det_add`: adding a Gram matrix to a Gram matrix does not
   decrease the determinant — Minkowski's monotonicity, in the only case needed.
 * `Matrix.det_mul_transpose_self_submatrix_le`: deleting columns does not increase the Gram
   determinant.
+* `Matrix.sum_sq_norm_plucker_row_le_prod`: **Hadamard's inequality at a complex place**, the
+  Hermitian form `∑ₛ ‖det Bₛ‖² ≤ ∏ᵢ ‖Bᵢ‖²`, deduced from the real one through `Matrix.realify`.
 
 ## Implementation notes
 
@@ -61,6 +66,21 @@ The doubled index is `ι ⊕ₗ ι`, the lexicographic sum: the plain `ι ⊕ ι
 componentwise order, which is not linear, and `exteriorPower.plucker` needs a linear order on the
 column type to say which minor a set of columns names. Only the order matters, never which order:
 the determinants in the statement do not see it.
+
+⚠ **The real inequality does not cover a complex place, and the fix is not to prove it again.**
+At a complex place of a number field the archimedean local factor of the Arakelov height is a
+Gram determinant `det (B Bᴴ)` with the *conjugate* transpose, and `ℂ` carries no order in which
+the two-block argument above can be run. What is done here instead is to *deduce* the Hermitian
+inequality from the real one, by realification: `Matrix.realify B` is the real `2m × 2n` matrix of
+the same linear map read on `ℂ ≅ ℝ²`, its `2m` rows come in pairs of the same length as the row of
+`B` they come from, and `Matrix.det_realify_mul_transpose` identifies its Gram determinant with
+`det (B Bᴴ) ^ 2`. Real Hadamard applied to it therefore gives the complex inequality squared, and
+both sides are nonnegative. The one computation is `Matrix.det_fromBlocks_neg_comm`, two unipotent
+block operations bringing `fromBlocks X Y (-Y) X` to block triangular form with diagonal blocks
+`X ∓ i Y`. ⚠ Realifying the *columns*
+alone — the real `m × 2n` matrix `[Re B | Im B]`, whose Gram matrix is the real part of `B Bᴴ` —
+does not work: it gives `det (Re (B Bᴴ)) ≤ ∏ᵢ ‖Bᵢ‖²`, and `det (B Bᴴ) ≤ det (Re (B Bᴴ))` is again
+a theorem of the same depth, with no term-by-term proof. The rows have to be doubled too.
 
 With that in hand the proof is the classical one. Project the second block orthogonally to the
 first — possible exactly when `det (A₁ A₁ᵀ) ≠ 0`, and when it is `0` both sides vanish, by the
@@ -289,6 +309,253 @@ theorem det_mul_transpose_self_le_prod {m : ℕ} (A : Matrix (Fin m) ι K) :
             rfl
 
 end Hadamard
+
+/-!
+### The square case, against the row norms
+
+For a square matrix `det (M Mᵀ) = (det M) ^ 2`, so Hadamard's inequality bounds the determinant
+itself. The form below is the **ℓ¹** one and not the familiar ℓ² one: extracting a square root of a
+sum of squares would need `Real.sqrt` and with it the analysis this file does without, while the
+ℓ¹ bound stays inside the ordered field, a sum of squares being already at most the square of the
+sum of absolute values. Layer 6.3 wants the ℓ¹ form in any case — the rows it feeds in are vectors
+of weighted logarithms whose ℓ¹ norm, not whose ℓ² norm, is twice a height.
+-/
+
+section Square
+
+variable {K : Type*} [Field K] [LinearOrder K] [IsStrictOrderedRing K] {n : ℕ}
+
+/-- **Hadamard's inequality for a square matrix, in the ℓ¹ form.** The absolute value of the
+determinant is at most the product of the ℓ¹ norms of the rows. Layer 6.3 applies this to the
+matrix of logarithmic embeddings of a system of units, whose rows have ℓ¹ norm at most
+`2 [K : ℚ] h(ε)` by Layer 6.1. -/
+theorem abs_det_le_prod_sum_abs (M : Matrix (Fin n) (Fin n) K) :
+    |M.det| ≤ ∏ i, ∑ j, |M i j| := by
+  have hrow : ∀ i : Fin n, M.row i ⬝ᵥ M.row i ≤ (∑ j, |M i j|) ^ 2 := fun i ↦ by
+    have hsum : M.row i ⬝ᵥ M.row i = ∑ j, |M i j| ^ 2 :=
+      Finset.sum_congr rfl fun j _ ↦ by rw [sq_abs, pow_two]; rfl
+    rw [hsum]
+    exact Finset.sum_sq_le_sq_sum_of_nonneg fun j _ ↦ abs_nonneg _
+  have hsq : |M.det| ^ 2 ≤ (∏ i, ∑ j, |M i j|) ^ 2 := by
+    rw [sq_abs, ← Finset.prod_pow]
+    calc M.det ^ 2 = (M * Mᵀ).det := by rw [Matrix.det_mul, Matrix.det_transpose, ← pow_two]
+      _ ≤ ∏ i, M.row i ⬝ᵥ M.row i := det_mul_transpose_self_le_prod M
+      _ ≤ ∏ i, (∑ j, |M i j|) ^ 2 :=
+          Finset.prod_le_prod₀ (fun i _ ↦ Finset.sum_nonneg fun j _ ↦ mul_self_nonneg _)
+            fun i _ ↦ hrow i
+  exact le_of_pow_le_pow_left₀ two_ne_zero
+    (Finset.prod_nonneg fun i _ ↦ Finset.sum_nonneg fun j _ ↦ abs_nonneg _) hsq
+
+end Square
+
+/-!
+### Hadamard's inequality at a complex place
+-/
+
+section Complex
+
+variable {ι : Type*} [Fintype ι] [LinearOrder ι] {m n : ℕ}
+
+/-- The real part of the Hermitian Gram matrix `B Bᴴ`, written out as a sum so that no
+`Complex.re` has to be pushed through one. -/
+def reGram (B : Matrix (Fin m) ι ℂ) : Matrix (Fin m) (Fin m) ℝ :=
+  Matrix.of fun a a' ↦ ∑ j, ((B a j).re * (B a' j).re + (B a j).im * (B a' j).im)
+
+/-- The imaginary part of the Hermitian Gram matrix `B Bᴴ`. -/
+def imGram (B : Matrix (Fin m) ι ℂ) : Matrix (Fin m) (Fin m) ℝ :=
+  Matrix.of fun a a' ↦ ∑ j, ((B a j).im * (B a' j).re - (B a j).re * (B a' j).im)
+
+/-- **The realification of a complex matrix**: the real `2m × 2n` matrix of the same linear map,
+read on `ℂ ≅ ℝ²`. Its rows come in pairs `(X ᵢ, Y ᵢ)` and `(−Y ᵢ, X ᵢ)` of equal length, and its
+Gram matrix is the realification of `B Bᴴ`, so the real Hadamard inequality applied to it is the
+complex one squared. -/
+def realify (B : Matrix (Fin m) ι ℂ) : Matrix (Fin m ⊕ Fin m) (ι ⊕ₗ ι) ℝ :=
+  Matrix.of fun i j ↦
+    Sum.elim (fun a ↦ Sum.elim (fun b ↦ (B a b).re) (fun b ↦ (B a b).im) (ofLex j))
+      (fun a ↦ Sum.elim (fun b ↦ -(B a b).im) (fun b ↦ (B a b).re) (ofLex j)) i
+
+omit [LinearOrder ι] in
+/-- A sum over the doubled column index splits, whichever linear order it carries. -/
+private theorem sum_lex_mul (f g f' g' : ι → ℝ) :
+    (∑ j : ι ⊕ₗ ι, Sum.elim f g (ofLex j) * Sum.elim f' g' (ofLex j))
+      = (∑ b, f b * f' b) + ∑ b, g b * g' b := by
+  rw [show (∑ j : ι ⊕ₗ ι, Sum.elim f g (ofLex j) * Sum.elim f' g' (ofLex j))
+      = ∑ c : ι ⊕ ι, Sum.elim f g c * Sum.elim f' g' c from
+    Fintype.sum_equiv (toLex (α := ι ⊕ ι)) _ _ fun c ↦ rfl, Fintype.sum_sum_type]
+  simp
+
+omit [LinearOrder ι] in
+/-- The Gram matrix of the realification is the realification of the Hermitian Gram matrix. -/
+theorem realify_mul_transpose (B : Matrix (Fin m) ι ℂ) :
+    realify B * (realify B)ᵀ =
+      Matrix.fromBlocks (reGram B) (imGram B) (-(imGram B)) (reGram B) := by
+  ext i k
+  rw [Matrix.mul_apply]
+  simp only [realify, Matrix.of_apply, Matrix.transpose_apply]
+  cases i with
+  | inl a => cases k with
+    | inl a' =>
+        simp only [Sum.elim_inl]
+        rw [sum_lex_mul, Matrix.fromBlocks_apply₁₁]
+        simp only [reGram, Matrix.of_apply]
+        rw [← Finset.sum_add_distrib]
+    | inr a' =>
+        simp only [Sum.elim_inl, Sum.elim_inr]
+        rw [sum_lex_mul, Matrix.fromBlocks_apply₁₂]
+        simp only [imGram, Matrix.of_apply]
+        rw [← Finset.sum_add_distrib]
+        exact Finset.sum_congr rfl fun j _ ↦ by ring
+  | inr a => cases k with
+    | inl a' =>
+        simp only [Sum.elim_inl, Sum.elim_inr]
+        rw [sum_lex_mul, Matrix.fromBlocks_apply₂₁]
+        simp only [imGram, Matrix.neg_apply, Matrix.of_apply]
+        rw [← Finset.sum_add_distrib, ← Finset.sum_neg_distrib]
+        exact Finset.sum_congr rfl fun j _ ↦ by ring
+    | inr a' =>
+        simp only [Sum.elim_inr]
+        rw [sum_lex_mul, Matrix.fromBlocks_apply₂₂]
+        simp only [reGram, Matrix.of_apply]
+        rw [← Finset.sum_add_distrib]
+        exact Finset.sum_congr rfl fun j _ ↦ by ring
+
+omit [LinearOrder ι] in
+private theorem mul_conj_eq (z w : ℂ) :
+    z * (starRingEnd ℂ) w
+      = ((z.re * w.re + z.im * w.im : ℝ) : ℂ)
+        + Complex.I * ((z.im * w.re - z.re * w.im : ℝ) : ℂ) := by
+  apply Complex.ext
+  · simp [Complex.mul_re]
+  · simp [Complex.mul_im]
+    ring
+
+omit [LinearOrder ι] in
+/-- The Hermitian Gram matrix in terms of its real and imaginary parts. -/
+theorem gram_eq_reGram_add (B : Matrix (Fin m) ι ℂ) :
+    B * Bᴴ = (reGram B).map (↑) + Complex.I • (imGram B).map (↑) := by
+  ext a a'
+  rw [Matrix.mul_apply, Matrix.add_apply, Matrix.map_apply, Matrix.smul_apply,
+    Matrix.map_apply, smul_eq_mul]
+  simp only [reGram, imGram, Matrix.of_apply, Complex.ofReal_sum, Finset.mul_sum,
+    ← Finset.sum_add_distrib]
+  exact Finset.sum_congr rfl fun j _ ↦ mul_conj_eq _ _
+
+omit [LinearOrder ι] in
+/-- The transpose of the Hermitian Gram matrix is its entrywise conjugate, so the sign of the
+imaginary part flips. -/
+theorem gram_transpose_eq_reGram_sub (B : Matrix (Fin m) ι ℂ) :
+    (B * Bᴴ)ᵀ = (reGram B).map (↑) - Complex.I • (imGram B).map (↑) := by
+  ext a a'
+  rw [Matrix.transpose_apply, Matrix.mul_apply, Matrix.sub_apply, Matrix.map_apply,
+    Matrix.smul_apply, Matrix.map_apply, smul_eq_mul]
+  simp only [reGram, imGram, Matrix.of_apply, Complex.ofReal_sum, Finset.mul_sum,
+    ← Finset.sum_sub_distrib]
+  refine Finset.sum_congr rfl fun j _ ↦ ?_
+  rw [show Bᴴ j a = (starRingEnd ℂ) (B a j) from rfl, mul_conj_eq]
+  push_cast
+  ring
+
+/-- **The determinant of a realified matrix factors.** Two unipotent block row and column
+operations bring `fromBlocks X Y (-Y) X` to block triangular form with diagonal blocks
+`X − i Y` and `X + i Y`. -/
+theorem det_fromBlocks_neg_comm (X Y : Matrix (Fin n) (Fin n) ℂ) :
+    (Matrix.fromBlocks X Y (-Y) X).det
+      = (X - Complex.I • Y).det * (X + Complex.I • Y).det := by
+  set L : Matrix (Fin n ⊕ Fin n) (Fin n ⊕ Fin n) ℂ :=
+    Matrix.fromBlocks 1 (Complex.I • (1 : Matrix (Fin n) (Fin n) ℂ)) 0 1 with hLdef
+  set R : Matrix (Fin n ⊕ Fin n) (Fin n ⊕ Fin n) ℂ :=
+    Matrix.fromBlocks 1 (-(Complex.I • (1 : Matrix (Fin n) (Fin n) ℂ))) 0 1 with hRdef
+  have hL : L.det = 1 := by rw [hLdef, Matrix.det_fromBlocks_zero₂₁]; simp
+  have hR : R.det = 1 := by rw [hRdef, Matrix.det_fromBlocks_zero₂₁]; simp
+  have hmul : L * Matrix.fromBlocks X Y (-Y) X * R
+      = Matrix.fromBlocks (X - Complex.I • Y) 0 (-Y) (X + Complex.I • Y) := by
+    rw [hLdef, hRdef, Matrix.fromBlocks_multiply, Matrix.fromBlocks_multiply]
+    congr 1 <;> simp [smul_smul, Complex.I_mul_I] <;> module
+  have h := congrArg Matrix.det hmul
+  rw [Matrix.det_mul, Matrix.det_mul, hL, hR, one_mul, mul_one,
+    Matrix.det_fromBlocks_zero₁₂] at h
+  exact h
+
+omit [LinearOrder ι] in
+private theorem map_fromBlocks_cast (P Q : Matrix (Fin m) (Fin m) ℝ) :
+    (Matrix.fromBlocks P Q (-Q) P).map ((↑) : ℝ → ℂ)
+      = Matrix.fromBlocks (P.map (↑)) (Q.map (↑)) (-(Q.map (↑))) (P.map (↑)) := by
+  ext i j
+  cases i <;> cases j <;> simp
+
+omit [LinearOrder ι] in
+/-- **The Gram determinant of the realification is the square of the Hermitian one.** The two
+diagonal blocks of the factorization are `B Bᴴ` and its transpose, which have equal
+determinants. -/
+theorem det_realify_mul_transpose (B : Matrix (Fin m) ι ℂ) :
+    (((realify B * (realify B)ᵀ).det : ℝ) : ℂ) = (B * Bᴴ).det ^ 2 := by
+  rw [show (((realify B * (realify B)ᵀ).det : ℝ) : ℂ)
+      = ((realify B * (realify B)ᵀ).map ((↑) : ℝ → ℂ)).det from
+    Complex.ofRealHom.map_det _, realify_mul_transpose, map_fromBlocks_cast,
+    det_fromBlocks_neg_comm, ← gram_transpose_eq_reGram_sub, ← gram_eq_reGram_add,
+    Matrix.det_transpose, sq]
+
+omit [LinearOrder ι] in
+private theorem norm_sq_eq (z : ℂ) : ‖z‖ ^ 2 = z.re * z.re + z.im * z.im := by
+  rw [Complex.norm_def, Real.sq_sqrt (Complex.normSq_nonneg z), Complex.normSq_apply]
+
+omit [LinearOrder ι] in
+/-- Both rows of the realification attached to a row of `B` have that row's length. -/
+theorem row_dotProduct_realify (B : Matrix (Fin m) ι ℂ) (i : Fin m ⊕ Fin m) :
+    (realify B).row i ⬝ᵥ (realify B).row i = ∑ j, ‖B (Sum.elim id id i) j‖ ^ 2 := by
+  cases i with
+  | inl a =>
+      change (∑ j : ι ⊕ₗ ι, _) = _
+      simp only [realify, Matrix.row, Matrix.of_apply, Sum.elim_inl, id_eq]
+      rw [sum_lex_mul, ← Finset.sum_add_distrib]
+      exact Finset.sum_congr rfl fun j _ ↦ (norm_sq_eq _).symm
+  | inr a =>
+      change (∑ j : ι ⊕ₗ ι, _) = _
+      simp only [realify, Matrix.row, Matrix.of_apply, Sum.elim_inr, id_eq]
+      rw [sum_lex_mul, ← Finset.sum_add_distrib]
+      refine Finset.sum_congr rfl fun j _ ↦ ?_
+      rw [norm_sq_eq]
+      ring
+
+/-- **Hadamard's inequality at a complex place.** The ℓ² norm of the tuple of maximal minors of a
+complex matrix is at most the product of the ℓ² norms of its rows — the statement Layer 5.5 needs
+at a complex place, where the Gram matrix is `B Bᴴ` and not `B Bᵀ`.
+
+It is deduced from the real inequality, not proved again: the realification has twice the rows,
+each of the same length as the row of `B` it comes from, and its Gram determinant is the square of
+the Hermitian one. Applied to the image of a matrix over a number field under the embedding of an
+infinite place, this covers the real places too, since there the embedding is real and the
+conjugate transpose is the transpose. -/
+theorem sum_sq_norm_plucker_row_le_prod (B : Matrix (Fin m) ι ℂ) :
+    ∑ s : Set.powersetCard ι m, ‖plucker m B.row s‖ ^ 2 ≤ ∏ i, ∑ j, ‖B i j‖ ^ 2 := by
+  set S : ℝ := ∑ s : Set.powersetCard ι m, ‖plucker m B.row s‖ ^ 2 with hS
+  set T : ℝ := ∏ i, ∑ j, ‖B i j‖ ^ 2 with hT
+  have hS0 : 0 ≤ S := Finset.sum_nonneg fun s _ ↦ by positivity
+  have hT0 : 0 ≤ T := Finset.prod_nonneg fun i _ ↦ Finset.sum_nonneg fun j _ ↦ by positivity
+  set D : Matrix (Fin (m + m)) (ι ⊕ₗ ι) ℝ :=
+    (realify B).submatrix ⇑finSumFinEquiv.symm id with hD
+  have hDD : D * Dᵀ = (realify B * (realify B)ᵀ).submatrix
+      ⇑finSumFinEquiv.symm ⇑finSumFinEquiv.symm := by
+    ext i k
+    simp [hD, Matrix.mul_apply]
+  have hdet : (D * Dᵀ).det = S ^ 2 := by
+    have h := det_realify_mul_transpose B
+    rw [Matrix.det_mul_conjTranspose_self_eq_sum_sq_norm] at h
+    rw [hDD, Matrix.det_submatrix_equiv_self, hS]
+    exact Complex.ofReal_inj.mp (by push_cast at h ⊢; exact h)
+  have hprod : ∏ i, D.row i ⬝ᵥ D.row i = T ^ 2 := by
+    rw [show (∏ i, D.row i ⬝ᵥ D.row i)
+        = ∏ i : Fin m ⊕ Fin m, (realify B).row i ⬝ᵥ (realify B).row i from
+      Fintype.prod_equiv finSumFinEquiv.symm _ _ fun i ↦ rfl, Fintype.prod_sum_type]
+    simp only [row_dotProduct_realify, Sum.elim_inl, Sum.elim_inr, id_eq]
+    rw [hT, sq]
+  have hle : S ^ 2 ≤ T ^ 2 := by
+    rw [← hdet, ← hprod]
+    exact Matrix.det_mul_transpose_self_le_prod D
+  nlinarith [hle, hS0, hT0]
+
+end Complex
+
 
 end Matrix
 

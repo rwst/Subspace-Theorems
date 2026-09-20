@@ -5,7 +5,7 @@ Authors: Ralf Stephan
 -/
 module
 
-public import Mathlib.NumberTheory.Height.NumberField
+public import ArithmeticHeights.Arakelov
 public import Mathlib.RingTheory.Ideal.Norm.RelNorm
 
 /-!
@@ -31,6 +31,8 @@ element as `NumberField.absMulHeight₁_eq`.
   of `x` is `mulHeight₁ x ^ (finrank ℚ K : ℝ)⁻¹`. This is the classical statement that the
   absolute height does not depend on the field of definition, and
   `NumberField.absMulHeight₁_pow_finrank` is the same identity with a natural-number exponent.
+  `NumberField.absLogHeight₁_eq` is its logarithmic form: the absolute logarithmic height is the
+  relative one divided by the degree.
 
 ## Implementation notes
 
@@ -115,13 +117,23 @@ private lemma prod_comp_eq_prod_pow (F : (K →+* ℂ) → ℝ) :
   rw [Finset.prod_congr rfl (fun φ hφ ↦ by rw [(Finset.mem_filter.mp hφ).2]),
     Finset.prod_const, card_filter_comp_eq]
 
+/-- **The archimedean half of every extension formula for a height.** A `mult`-weighted product
+over the infinite places of `L` of a local factor `g` that reads a place only through its
+restriction to `K` is the `[L : K]`-th power of the corresponding product over `K`. The two
+normalizations of Layer 0 differ in `g` and in nothing else, so both take this lemma as it
+stands. -/
+theorem prod_infinitePlace_pow_mult_eq (f : InfinitePlace K → ℝ) (g : InfinitePlace L → ℝ)
+    (h : ∀ φ : L →+* ℂ, g (InfinitePlace.mk φ) = f (InfinitePlace.mk (φ.comp (algebraMap K L)))) :
+    ∏ w : InfinitePlace L, g w ^ w.mult = (∏ v : InfinitePlace K, f v ^ v.mult) ^ finrank K L := by
+  rw [← prod_embeddings_eq (K := L) g, ← prod_embeddings_eq (K := K) f,
+    ← prod_comp_eq_prod_pow (fun ψ ↦ f (InfinitePlace.mk ψ))]
+  exact Finset.prod_congr rfl fun φ _ ↦ h φ
+
 omit [Finite ι] in
 private lemma prod_infinitePlace_algebraMap (x : ι → K) :
     ∏ w : InfinitePlace L, (⨆ i, w (algebraMap K L (x i))) ^ w.mult =
-      (∏ v : InfinitePlace K, (⨆ i, v (x i)) ^ v.mult) ^ finrank K L := by
-  rw [← prod_embeddings_eq (K := L) (fun w ↦ ⨆ i, w (algebraMap K L (x i))),
-    ← prod_embeddings_eq (K := K) (fun v ↦ ⨆ i, v (x i)), ← prod_comp_eq_prod_pow]
-  exact Finset.prod_congr rfl fun φ _ ↦ iSup_congr fun i ↦ by simp [InfinitePlace.apply]
+      (∏ v : InfinitePlace K, (⨆ i, v (x i)) ^ v.mult) ^ finrank K L :=
+  prod_infinitePlace_pow_mult_eq _ _ fun φ ↦ iSup_congr fun i ↦ by simp [InfinitePlace.apply]
 
 end Archimedean
 
@@ -273,6 +285,94 @@ theorem absMulHeight₁_pow_finrank (x : K) :
   rw [absMulHeight₁_eq, ← Real.rpow_natCast _ (finrank ℚ K),
     ← Real.rpow_mul (Height.mulHeight₁_nonneg x), inv_mul_cancel₀, Real.rpow_one]
   exact Nat.cast_ne_zero.mpr (Module.finrank_pos (R := ℚ) (M := K)).ne'
+
+/-- The logarithmic form of `NumberField.absMulHeight₁_eq`: the absolute logarithmic height is
+the relative one divided by the degree. -/
+theorem absLogHeight₁_eq (x : K) :
+    absLogHeight₁ x = Height.logHeight₁ x / finrank ℚ K := by
+  rw [absLogHeight₁, absMulHeight₁_eq, Real.log_rpow (Height.mulHeight₁_pos x),
+    Height.logHeight₁_eq_log_mulHeight₁, inv_mul_eq_div]
+
+/-!
+### The Arakelov normalization
+
+`NumberField.arakelovMulHeight` differs from `Height.mulHeight` only in the archimedean local
+factor, and that factor reads a place in exactly the same way, so the two counts above prove the
+extension formula for it too. The nonarchimedean factor is literally the same expression, and the
+reduction to an integral tuple is the same reduction.
+-/
+
+section Arakelov
+
+variable {κ : Type*} [Fintype κ]
+
+/-- `√S ^ n = S ^ (n / 2)`. The Arakelov local factor carries the real exponent `mult v / 2`
+while `prod_infinitePlace_pow_mult_eq` carries the natural power `mult v`; this moves between
+them. -/
+private lemma sqrt_pow_eq_rpow {S : ℝ} (hS : 0 ≤ S) (n : ℕ) :
+    Real.sqrt S ^ n = S ^ ((n : ℝ) / 2) := by
+  rw [Real.sqrt_eq_rpow, ← Real.rpow_natCast (S ^ ((1 : ℝ) / 2)) n, ← Real.rpow_mul hS]
+  congr 1
+  ring
+
+private lemma prod_infinitePlace_arakelov_algebraMap (x : κ → K) :
+    ∏ w : InfinitePlace L, (∑ i, w (algebraMap K L (x i)) ^ 2) ^ ((w.mult : ℝ) / 2) =
+      (∏ v : InfinitePlace K, (∑ i, v (x i) ^ 2) ^ ((v.mult : ℝ) / 2)) ^ finrank K L := by
+  have key := prod_infinitePlace_pow_mult_eq (K := K) (L := L)
+    (fun v ↦ Real.sqrt (∑ i, v (x i) ^ 2))
+    (fun w ↦ Real.sqrt (∑ i, w (algebraMap K L (x i)) ^ 2))
+    (fun φ ↦ congrArg Real.sqrt
+      (Finset.sum_congr rfl fun i _ ↦ by simp [InfinitePlace.apply]))
+  calc ∏ w : InfinitePlace L, (∑ i, w (algebraMap K L (x i)) ^ 2) ^ ((w.mult : ℝ) / 2)
+      = ∏ w : InfinitePlace L, Real.sqrt (∑ i, w (algebraMap K L (x i)) ^ 2) ^ w.mult :=
+        Finset.prod_congr rfl fun w _ ↦ (sqrt_pow_eq_rpow (by positivity) w.mult).symm
+    _ = (∏ v : InfinitePlace K, Real.sqrt (∑ i, v (x i) ^ 2) ^ v.mult) ^ finrank K L := key
+    _ = _ := by
+        congr 1
+        exact Finset.prod_congr rfl fun v _ ↦ sqrt_pow_eq_rpow (by positivity) v.mult
+
+private lemma arakelovMulHeight_pow_finrank_int (y : κ → 𝓞 K) :
+    arakelovMulHeight (fun i ↦ (y i : K)) ^ finrank K L
+      = arakelovMulHeight (fun i ↦ algebraMap K L (y i : K)) := by
+  rcases eq_or_ne y 0 with rfl | hy
+  · simp [show (fun _ : κ ↦ (0 : K)) = 0 from rfl, show (fun _ : κ ↦ (0 : L)) = 0 from rfl]
+  have hz : (fun i ↦ (y i : K)) ≠ 0 := by
+    obtain ⟨i, hi⟩ := Function.ne_iff.mp hy
+    exact Function.ne_iff.mpr ⟨i, by simpa using hi⟩
+  have hz' : (fun i ↦ algebraMap K L (y i : K)) ≠ 0 := by
+    obtain ⟨i, hi⟩ := Function.ne_iff.mp hz
+    exact Function.ne_iff.mpr ⟨i, fun h ↦ hi (FaithfulSMul.algebraMap_injective K L
+      (by simpa using h))⟩
+  rw [arakelovMulHeight_eq hz, arakelovMulHeight_eq hz', mul_pow,
+    prod_infinitePlace_arakelov_algebraMap (L := L), finprod_finitePlace_algebraMap_int hy]
+
+/-- **The Arakelov height over `L` is the `[L : K]`-th power of the Arakelov height over `K`**,
+the companion of `NumberField.mulHeight_pow_finrank` in the normalization of Layer 0.1. Only the
+archimedean factor has to be redone, and only through the local factor it reads off a place. -/
+theorem arakelovMulHeight_pow_finrank (x : κ → K) :
+    arakelovMulHeight x ^ finrank K L = arakelovMulHeight (algebraMap K L ∘ x) := by
+  obtain ⟨d, y, hd, hy⟩ := exists_integer_tuple (K := K) x
+  have hd' : algebraMap K L d ≠ 0 :=
+    (map_ne_zero_iff _ (FaithfulSMul.algebraMap_injective K L)).mpr hd
+  have h1 : (fun i ↦ (y i : K)) = d • x := funext fun i ↦ by rw [hy i]; rfl
+  have h2 : (fun i ↦ algebraMap K L (y i : K)) = algebraMap K L d • (algebraMap K L ∘ x) := by
+    funext i
+    simp [hy i]
+  have e1 : arakelovMulHeight (fun i ↦ (y i : K)) = arakelovMulHeight x :=
+    h1 ▸ arakelovMulHeight_smul_eq x hd
+  have e2 : arakelovMulHeight (fun i ↦ algebraMap K L (y i : K))
+      = arakelovMulHeight (algebraMap K L ∘ x) :=
+    h2 ▸ arakelovMulHeight_smul_eq _ hd'
+  rw [← e1, ← e2]
+  exact arakelovMulHeight_pow_finrank_int y
+
+/-- The logarithmic form of `NumberField.arakelovMulHeight_pow_finrank`. -/
+theorem finrank_nsmul_arakelovLogHeight (x : κ → K) :
+    finrank K L • arakelovLogHeight x = arakelovLogHeight (algebraMap K L ∘ x) := by
+  rw [arakelovLogHeight_eq_log_arakelovMulHeight, arakelovLogHeight_eq_log_arakelovMulHeight,
+    ← arakelovMulHeight_pow_finrank (L := L), Real.log_pow, nsmul_eq_mul]
+
+end Arakelov
 
 /-!
 ### Worked examples

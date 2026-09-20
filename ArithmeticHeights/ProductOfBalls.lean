@@ -101,6 +101,8 @@ theorem logConcave_gaussPi {ι : Type*} [Fintype ι] : LogConcave (gaussPi : (ι
 /-- The radius of the ball of volume one in `n` dimensions: Bombieri–Gubler's `ρ(n)`. -/
 @[expose] noncomputable def ballRadius (n : ℕ) : ℝ := unitVolumeRadius (EuclideanSpace ℝ (Fin n))
 
+theorem ballRadius_pos (n : ℕ) : 0 < ballRadius n := unitVolumeRadius_pos
+
 theorem volume_ball_euclideanSpace_congr {α β : Type*} [Fintype α] [Fintype β] (e : α ≃ β) :
     volume (Metric.ball (0 : EuclideanSpace ℝ α) 1)
       = volume (Metric.ball (0 : EuclideanSpace ℝ β) 1) := by

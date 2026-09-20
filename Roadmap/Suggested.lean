@@ -44,6 +44,20 @@ import ArithmeticHeights.Siegel          -- Layer 5.1
 import ArithmeticHeights.BombieriVaaler  -- Layer 5.2
 import ArithmeticHeights.MixedBall       -- Layer 5.3 (infrastructure)
 import ArithmeticHeights.BombieriVaalerField -- Layer 5.3
+import ArithmeticHeights.MixedCube       -- Layer 5.4 (infrastructure)
+import ArithmeticHeights.BombieriVaalerMaxNorm -- Layer 5.4
+import ArithmeticHeights.RowEntryHeight  -- Layer 5.5 (infrastructure)
+import ArithmeticHeights.BombieriVaalerEntries -- Layer 5.5
+import ArithmeticHeights.RestrictScalars -- Layer 5.6 (infrastructure)
+import ArithmeticHeights.BombieriVaalerRelative -- Layer 5.6
+import ArithmeticHeights.MonomialIndex    -- Layer 5.7 (infrastructure)
+import ArithmeticHeights.AuxiliaryPolynomial -- Layer 5.7
+import ArithmeticHeights.UnitHeight   -- Layer 6.1
+import ArithmeticHeights.UnitTorsion  -- Layer 6.2
+import ArithmeticHeights.Regulator    -- Layer 6.3
+import ArithmeticHeights.SUnit        -- Layer 6.4
+import ArithmeticHeights.SUnitTheorem -- Layer 6.5
+import ArithmeticHeights.SRegulator   -- Layer 6.5
 
 /-!
 # Arithmetic heights and Siegel's lemma: target signatures
@@ -69,7 +83,10 @@ name or a shape drifts, this file stops compiling. Definitions are pinned throug
 characterizes them, since several of them deliberately leave their bodies unexposed.
 
 **Open milestones remain `sorry`s**, stated in the vocabulary the finished layers actually
-deliver. Their names are unqualified inside `TauCetiRoadmap.ArithmeticHeights` so that the
+deliver. ⚠ **There are none left.** With Layer 6.5 every milestone of the roadmap is landed, and
+this file now carries no `sorry` at all; the convention is kept for the milestones a successor
+roadmap will add. The names of open milestones are unqualified inside
+`TauCetiRoadmap.ArithmeticHeights` so that the
 prototype does not occupy Mathlib's root namespaces: `minorGcd` and `unitBallVolume` are local
 to this file, and the theorems about the height of a subspace belong in `Submodule` when they
 land. The successive minima were such a name until 4.1 landed them as `ZLattice.successiveMinimum`
@@ -294,6 +311,192 @@ milestones concerned.
   a euclidean ball, and the slice of a ball by a subspace is a ball of the smaller dimension, so
   `NumberField.mixedEmbedding.volume_preimage_mixedBall_mixedSpan` is an *identity* obtained by
   orthonormalizing a `K`-basis of `V` place by place. Layer 4.5 is not used at all.
+* **Layer 4.5 is spent exactly once in the whole roadmap, and 5.4 is what spends it.** 5.3 proves
+  the Hermitian inequality with no cube slicing at all, and 5.2 uses the cube case over `ℚ`; the
+  product-of-balls form is needed only here, for the polydisc at a complex place. Vaaler says the
+  same in the other direction: the Hermitian inequality follows from the max-norm theorem, which
+  "is more difficult because it requires the cube-slicing inequality".
+* **The anisotropy of 5.4's body is paid in the height, not in the slice bound.** The body one
+  writes down first — the unit cube at each real place, the unit polydisc at each complex one —
+  has slices of volume `2 ^ k` and `π ^ k`, and those two normalizations cannot be undone by a
+  dilation, because the factor a real place wants (`2`) differs from the one a complex place wants
+  (`√π`) and an anisotropic dilation does not preserve the subspace being sliced. So
+  `NumberField.mixedEmbedding.mixedCube` is normalized to volume-one factors, its slice bound is a
+  clean `1`, and the two constants reappear in the height estimate
+  `NumberField.mixedEmbedding.mulHeight_le_pow_of_mem_smul_mixedCube`.
+* **What survives in 5.4 is `(2/π)^{k r₂}`, and over `ℚ` it is `1`.** `2^{d k}` from 4.2 against
+  `2^{−r₂ k}` from 4.3 and `2^{−r₁ k} π^{−r₂ k}` from the body leaves `(2/π)^{k r₂}`, since
+  `d = r₁ + 2 r₂`. That is Bombieri–Vaaler's own constant; the form the literature quotes drops it,
+  which is a genuine weakening exactly when `K` has a complex place. Like 5.3, 5.4 needs no rank
+  hypothesis on `A`.
+* **The `Fintype` instance must not appear in the statements about 5.4's body.** `mixedCube` is cut
+  out by individual coordinates, so its definition and the convexity, closedness, boundedness and
+  interior statements about it mention only the product topology of the mixed tuple space, which
+  needs no `Fintype`; Mathlib's `unusedFintypeInType` linter enforces it, and the hypothesis is
+  `Finite`, with `Fintype.ofFinite` supplying the sums inside the proofs. The ℓ² body of 5.3 is
+  genuinely different — its definition names a norm.
+* **The Hadamard inequality 5.5 needs is not the one 3.4 delivers, and it is deduced from it
+  rather than proved again.** At an infinite place the local factor of the tuple of minors is a
+  Gram determinant `σA (σA)ᴴ` with the *conjugate* transpose, whatever the kind of place, and
+  `ℂ` carries no order in which 3.4's two-block argument runs. `Matrix.realify` doubles both the
+  rows and the columns, `Matrix.det_realify_mul_transpose` identifies the real Gram determinant
+  with the square of the Hermitian one, and real Hadamard then gives the complex inequality
+  squared. Doubling only the *columns* — the real matrix `[Re B | Im B]`, whose Gram matrix is
+  `Re (B Bᴴ)` — is not enough: `det (B Bᴴ) ≤ det (Re (B Bᴴ))` is a theorem of the same depth.
+* **5.5 needs no rank hypothesis, and its exponent is the rank rather than the number of rows.**
+  Bombieri–Gubler's Corollary 2.9.7 gets the non-maximal-rank case "by restricting to `R`
+  independent rows"; that restriction is a lemma,
+  `Matrix.exists_submatrix_row_linearIndependent`, not a hypothesis on the user. Corollary 2.9.7
+  itself needs nothing new at all: it *is* 5.4, whose bound is already in terms of the row-space
+  height and already carries no hypothesis on `A`.
+* **The `√N` of 5.5 is `‖·‖₂ ≤ √N ‖·‖_∞` at an archimedean place, paid once per independent row
+  and nowhere else.** It is the only cardinality paid anywhere in Layer 5, and
+  `NumberField.arakelovMulHeight_le_mulHeight` — which is where it comes from — needs `ι`
+  nonempty, so `[Nonempty ι]` propagates into every entry-height statement.
+* **5.6 is the one milestone whose pinned signature survived contact with the proof unchanged.**
+  The statement below is the `sorry` this file carried, with the same binders, the same exponents
+  and the same normalizations, discharged by the library.
+* **Descending the system to `K` is not enough; the conjugates are what make the bound
+  basis-free.** Writing the rows of `A` in a `K`-basis of `F` and applying 2.9.8 over `K` gives a
+  bound that *depends on the basis* and is false for a bad one: over `ℚ(√2)` the row `(1, √2)` has
+  coordinate rows `(1, 0)` and `(0, 1)` in the basis `1, √2`, of height `1` each, but `(1, −1000)`
+  and `(0, 1)` in the basis `1, 1000 + √2`. What is basis-free is the *span* of the coordinate
+  rows, and the only route to it is Bombieri–Gubler's: the matrix of conjugates spans the same
+  space over a field carrying all `r` embeddings, and there 2.9.8 costs `∏ᵢ H_Ar(σ_u Aᵢ)`, which
+  is `∏ᵢ H_Ar(Aᵢ) ^ r` because the absolute height is invariant under an embedding.
+* **Layer 0 had to grow two statements before 5.6 could quote "`H_Ar(σ A) = H_Ar(A)`".** Layer 0.3
+  had the extension law for `Height.mulHeight` only, and 0.4 the embedding-invariance of
+  `NumberField.absMulHeight` only; the Arakelov normalization needed both, and got them as
+  `NumberField.arakelovMulHeight_pow_finrank` and `NumberField.arakelovMulHeight_rpow_comp`. The
+  archimedean half of the first is the same count as for the sup norm, applied to a different
+  local factor, so `NumberField.prod_infinitePlace_pow_mult_eq` now states it once for both.
+* **"Rearrange the basis by increasing height" is load-bearing, not a flourish.** The product form
+  bounds a basis of the solution space, whose dimension `k` exceeds `N − r M` whenever the
+  descended system is not of full rank `r M` — which happens already for a single row over `F`
+  with all entries in `K`. Dropping the surplus vectors is free, every height being at least `1`;
+  dropping the discriminant they carry is not, since `|D| ≥ 1`. The geometric mean of the smallest
+  `k'` of `k` numbers is at most the geometric mean of all `k`, which divides the exponent of
+  `|D|` down to `(N − r M) / (2 d)` exactly: `Real.exists_injective_prod_pow_le`.
+* **The auxiliary field is a compositum, and Layer 5.4 lost its `Fin m` to make room for the
+  descended system.** No normality is used, so the field carrying the conjugates is built as
+  `⨆ i, (σ i).fieldRange` inside `AlgebraicClosure K` rather than as a normal closure; and the
+  invertibility of `(σ_u (e t))` is the non-vanishing of the discriminant, which Mathlib states
+  only over an algebraically closed field, so the determinant is computed there and pulled back.
+  The descended system has rows indexed by `Fin m × Fin r`, and since 5.4's bound is in terms of
+  the row *space* its row index was inert: `NumberField.exists_basis_ker_prod_absMulHeight_le` and
+  `Matrix.finrank_ker_mulVecLin` now take an arbitrary row type.
+* **The coefficient vector of a polynomial is the whole of Layer 5.7, and it is a linear map.**
+  Siegel's lemma produces a vector indexed by the monomials of degree at most `D`; the milestone
+  is about the *polynomial* it names, so `MvPolynomial.ofDegreeLE` is stated as a `K`-linear map
+  with `MvPolynomial.ofDegreeLE_injective`, which is what carries independence of the solution
+  vectors over to independence of the polynomials. The bound is on Layer 2.1's
+  `MvPolynomial.mulHeight`, so the degree bound `D` occurs in the hypotheses and not in the
+  conclusion: `MvPolynomial.absMulHeight_coeff_degreeLE` makes the exchange.
+* **The monomials of bounded degree are a Mathlib gap of exactly one equivalence.** Mathlib has
+  `Finsupp.finite_of_degree_le` and, through `Finset.finsuppAntidiag`, stars and bars for degree
+  *exactly* `D`; what is missing is the slack variable relating the two, which is
+  `Finsupp.degreeLEEquivDegreeEq` and gives `Finsupp.card_subtype_degree_le` — there are
+  `(D + r).choose r` monomials of degree at most `D` in `r` variables. The `Fintype` instance is
+  noncomputable, by `Fintype.ofFinite`, and the monomials carry no linear order, so Layer 5.7
+  installs an arbitrary well-order for the Plücker indexing exactly as Layer 2.2 does.
+* **5.6's feasibility hypothesis was about the number of rows and should have been about the
+  rank.** The descended system has `K`-rank at most `r · rank A`, not `r M`, because the image of
+  `K ^ N` under `A` lies in the `F`-column space of `A`; so `r · rank A < N` already produces
+  `N − r · rank A` solutions. That is `Matrix.le_finrank_ker_mulVecRestrict`, and it turned the
+  two statements of 5.6 into four. Layer 5.7 quotes the rank form, since vanishing conditions on
+  a polynomial are normally given with repetitions.
+* **The logarithmic embedding is not the height, and the gap is the place it drops.** Both
+  identities the milestone warns about are false, and Layer 6.1 says exactly when each holds:
+  `logHeight₁ u = ∑_{w ≠ w₀} (logEmbedding u w)⁺` precisely when `w₀ u ≤ 1`, and
+  `2 logHeight₁ u = ∑_{w ≠ w₀} |logEmbedding u w|` precisely when `w₀ u = 1`
+  (`NumberField.Units.logHeight₁_eq_sum_posPart_logEmbedding_iff` and
+  `..._two_mul_logHeight₁_eq_sum_abs_logEmbedding_iff`). What holds unconditionally is an
+  identity, not an inequality: the height plus the dropped coordinate is the ℓ¹ norm, and the
+  factor `2` between them is the whole of the two-sided comparison.
+* **Northcott's theorem is the discreteness of the unit lattice.** The finiteness of the units of
+  bounded height, `NumberField.Units.finite_setOf_logHeight₁_le`, is Northcott's theorem along the
+  injection of `(𝓞 K)ˣ` into `K`; with the supremum-norm comparison it gives Mathlib's
+  `unitLattice_inter_ball_finite` back, which is the hypothesis Dirichlet's unit theorem rests on.
+  Layer 6.1 proves the easy direction and checks the other as an acceptance criterion rather than
+  restating Mathlib's theorem.
+* **The height of a unit detects torsion by itself, without Kronecker and without the kernel of
+  the embedding.** Layer 6.2 asks for `absMulHeight₁ u = 1 ↔ u ∈ torsion K` "from Kronecker (1.4)
+  and `logEmbedding_ker`", and neither is on the critical path: 6.1 writes `2 h(u)` as a sum of
+  absolute values over the infinite places, a sum of non-negative reals vanishes exactly when
+  every term does, and the resulting condition `∀ w, w u = 1` is Mathlib's
+  `NumberField.Units.mem_torsion` verbatim. `logEmbedding_ker` would be worse than optional —
+  Mathlib derives it *from* `mem_torsion`. Both named routes are kept as acceptance criteria.
+* **Where Kronecker is needed is in dropping the unit hypothesis.** A nonzero algebraic integer of
+  height one is a root of unity, hence a unit
+  (`NumberField.RingOfIntegers.isUnit_of_absMulHeight₁_eq_one`), so "units of height one" is the
+  whole of "algebraic integers of height one" and the hypothesis in 6.2 costs nothing. That is
+  Layer 1.4 restricted to `𝓞 K`, and it is the only place in 6.2 where 1.4 is used.
+* **The bound on the heights of a fundamental system is an existence statement, and that is the
+  content rather than a caveat.** A unimodular change of basis multiplies the heights and leaves
+  the regulator alone, so no such bound can hold for `fundSystem` or for every fundamental system.
+  Layer 6.3's family comes from the successive minima and has nothing to do with Mathlib's; what
+  makes it a *fundamental* system is `NumberField.Units.closure_sup_torsion_eq_top_of_span`, a
+  basis of `unitLattice K` read back through the kernel of `logEmbedding`.
+* **Hadamard's inequality is wanted in the ℓ¹ norm, and Layer 3.4 delivers the ℓ² one.** What
+  Layer 6.1 hands over is the ℓ¹ norm of a row, so the ℓ² route would pay `√r` per row and then
+  have to give it back; `Matrix.abs_det_le_prod_sum_abs`, the square-matrix corollary added to
+  Layer 3.4, stays inside the ordered field and needs no `Real.sqrt` and no analysis. The `2 d` in
+  the constant is Layer 6.1's factor `2`, not a loss in Hadamard's inequality.
+* **Unit rank zero is where the two bounds meet.** Both products are empty, Hadamard's bound reads
+  `R ≤ 1` and the reduced system reads `1 ≤ R`, so `regulator K = 1`
+  (`NumberField.Units.regulator_eq_one_of_rank_eq_zero`) — a value Mathlib does not record, having
+  only `regulator_pos`. The truncated `2 ^ (r − 1)` of the constant is `1` at `r = 0` and at
+  `r = 1`, which is exactly `∏_{i < r} max 1 ((i + 1) / 2) = r! / 2 ^ (r − 1)`.
+* **That the bounds are not vacuous has two different sources.** Layer 6.2 puts every member of
+  Mathlib's `fundSystem` strictly above height one, because its logarithmic embedding is a basis
+  vector of the unit lattice. For an arbitrary fundamental system that argument is unavailable and
+  the positivity comes from 6.3 itself: the family has maximal rank because its regulator is the
+  regulator of `K`, which is nonzero.
+* **The height of an `S`-unit is really a statement about `S`-integers.** Layer 6.4 states the
+  display for `x ∈ S.unit K`, and the proof uses only that the local factor `max (|x|_v) 1` is
+  trivial away from `S` — which is `|x|_v ≤ 1`, the defining condition of an `S`-*integer*. What
+  the `S`-unit condition buys is the same for `x⁻¹`, which is what makes the collection a group
+  and is what Layer 6.5 needs; it buys nothing for the height. The library states
+  `NumberField.mulHeight₁_eq_of_mem_integer` and derives the milestone's
+  `NumberField.mulHeight₁_eq_of_mem_unit` from it.
+* **The converse holds in a stronger, height-theoretic form.** The milestone asks only that all
+  finite absolute values outside `S` being `1` implies `S`-unit, which is one direction of
+  `Set.mem_unit_iff_finitePlace` and costs nothing. `NumberField.mulHeight₁_eq_iff_mem_integer`
+  says more: for `x ≠ 0` the height identity *itself* forces `x` to be an `S`-integer, because
+  every local factor is at least `1`, so a single place outside `S` with `|x|_v > 1` makes the
+  full finite product strictly larger than its part over `S`. That is the sense in which `S`
+  cannot be shrunk.
+* **Layer 6.4 is one lemma about `WithZeroMulInt.toNNReal`, repeated.** The dictionary
+  `NumberField.FinitePlace.mk_apply_eq_one_iff` — `|x|_v = 1` iff `v x = 1` — is an equivalence
+  only because the norm of a prime exceeds `1`, which makes that map strictly monotone; Mathlib
+  records the size as `IsDedekindDomain.HeightOneSpectrum.one_lt_absNorm` and has the dictionary
+  itself only for algebraic integers, as `NumberField.FinitePlace.norm_eq_one_iff_notMem`.
+  Everything else in the layer, membership and height alike, is a consequence.
+* **Layer 6.5 spends the class group on one statement, and never names the class number.** What
+  the rank computation needs of a place `v ∈ S` is a single `S`-unit whose valuation is nonzero at
+  `v` and zero at every other prime, and the class of `v` having finite order in
+  `ClassGroup (𝓞 K)` produces one: a generator of `v ^ orderOf [v]`. The size of that valuation is
+  never computed, so `FractionalIdeal.count` and the factorization API do not appear, and the
+  short exact sequence is never exhibited as short exact — rank-nullity over `ℤ` needs only that
+  the cokernel be a torsion module.
+* **The rank of the `S`-units is computed twice, by disjoint routes.**
+  `Set.unit_finrank_numberField` gets `r₁ + r₂ − 1 + |S|` from the class group and Dirichlet's
+  theorem, with no analysis; `NumberField.SUnit.finrank_unitLattice` gets the same number as the
+  real dimension of the space the `S`-unit lattice fills. Neither proof uses the other, and the
+  agreement is checked in both files.
+* **Discreteness of the `S`-unit lattice is Northcott's theorem.** Layer 6.1 recorded as an
+  acceptance criterion that Mathlib's `unitLattice_inter_ball_finite` *is* Northcott seen through
+  the height, and deliberately did not use it as a proof because Mathlib had one. For `S`-units
+  Mathlib has nothing and the reading becomes the proof: Layer 6.4's display bounds the height by
+  the embedding, and `NumberField.finite_setOfPred_logHeight₁_le` finishes.
+* **`S = ∅` recovers `NumberField.Units.regulator`, but not definitionally.** The index type of
+  the `S`-logarithmic space is `{w // w ≠ w₀} ⊕ ↥S`, and `α ⊕ Empty` is not `α`;
+  `NumberField.SUnit.regulator_empty` is a theorem, proved by transporting the covolume along a
+  measure-preserving linear equivalence with `ZLattice.covolume_comap`.
+* **The `S`-unit hypothesis, which Layer 6.4 did not need, is what the product formula needs.**
+  The height display asks only for `|x|_v ≤ 1` away from `S`; the additive identity
+  `NumberField.SUnit.sum_mult_mul_log_add_sum_log` asks for `|x|_v = 1` there, and fails for `2`
+  at `S = ∅` — an `∅`-integer that is not an `∅`-unit.
 * **The annihilator has to be transported before it has a height.** `Submodule.mulHeight` is
   defined on subspaces of `ι → K`, and the annihilator lives in the dual, so
   `mulHeight V.dualAnnihilator` does not typecheck: the identification along the standard basis is
@@ -1736,34 +1939,33 @@ example {r : ℝ} (hr : 0 < r) {x : ι → K} (hx : x ≠ 0)
     arakelovMulHeight x ≤ r ^ finrank ℚ K :=
   NumberField.mixedEmbedding.arakelovMulHeight_le_of_mem_smul_mixedBall hr hx hint hmem
 
-/-- **Layer 5.4 — Bombieri–Vaaler over a number field: the summit** (Bombieri–Gubler, Theorem
-2.9.4; Bombieri–Vaaler 1983).
+/-! ### Layer 5.4 — landed
 
-For `A` an `M × N` matrix of rank `M` over a number field `K` of degree `d` and discriminant
-`D_{K/ℚ}`, the solution space of `A x = 0` has a basis `x₁, …, x_{N−M}` with
+**Bombieri–Vaaler over a number field, max-norm form**, in
+`ArithmeticHeights/BombieriVaalerMaxNorm.lean` on `ArithmeticHeights/MixedCube.lean`. Two drifts
+from the shapes this file pinned. The rank hypothesis on `A` is **unnecessary**, for the reason it
+was unnecessary in 5.3 — it is kept in the `example`s below, unused, to record that; and the
+dimension `k` is a hypothesis rather than an argument, which also lets the statement read at
+`k = 0`. Both constants are delivered, and the subspace form the proof actually produces — in the
+relative sup-norm height, with no roots taken — is delivered beside them.
+-/
 
-`∏ l, H(x l) ≤ |D_{K/ℚ}| ^ ((N − M) / (2 d)) * H_Ar(A)`,
-
-where `H` is the absolute multiplicative height and `H_Ar(A)` is the **absolute** Arakelov height
-of the row space — the subspace height of Layer 3, not the height of the entries of `A`. The
-basis has coordinates in `𝓞 K`, as the README states it. Stated here for the kernel of a matrix;
-the equivalent subspace form follows from the duality theorem 3.5. -/
-theorem exists_basis_prod_absMulHeight_le {m : ℕ} (A : Matrix (Fin m) ι K)
-    (hA : LinearIndependent K A.row)
+/-- **Layer 5.4 — the summit, landed** as
+`NumberField.exists_basis_ker_prod_absMulHeight_le`. -/
+example {m : ℕ} (A : Matrix (Fin m) ι K) (_hA : LinearIndependent K A.row)
     (k : ℕ) (hk : finrank K (LinearMap.ker A.mulVecLin) = k) :
     ∃ b : Basis (Fin k) K (LinearMap.ker A.mulVecLin),
       (∀ l j, IsIntegral ℤ ((b l : ι → K) j)) ∧
       (∏ l, absMulHeight (fun j ↦ (b l : ι → K) j)) ≤
         |(NumberField.discr K : ℝ)| ^ ((k : ℝ) / (2 * finrank ℚ K)) *
           (Submodule.span K (Set.range A.row)).arakelovMulHeight ^ (finrank ℚ K : ℝ)⁻¹ :=
-  sorry
+  NumberField.exists_basis_ker_prod_absMulHeight_le A hk
 
-/-- **Layer 5.4 — the same at Bombieri–Vaaler's own constant.** The product-of-balls form of 4.5
-at the complex places gives the factor `(2 / π) ^ (k r₂ / d)`, which is `≤ 1`, so this implies
-the statement above; it is the constant of Bombieri–Vaaler's Theorem 8 in the max-norm
-normalization. -/
-theorem exists_basis_prod_absMulHeight_le' {m : ℕ} (A : Matrix (Fin m) ι K)
-    (hA : LinearIndependent K A.row)
+/-- **Layer 5.4 — the same at Bombieri–Vaaler's own constant, landed** as
+`NumberField.exists_basis_ker_prod_absMulHeight_le'`. The product-of-balls form of 4.5 at the
+complex places gives the factor `(2 / π) ^ (k r₂ / d)`, which is `≤ 1`, so this implies the
+statement above and is strictly sharper whenever `K` has a complex place. -/
+example {m : ℕ} (A : Matrix (Fin m) ι K) (_hA : LinearIndependent K A.row)
     (k : ℕ) (hk : finrank K (LinearMap.ker A.mulVecLin) = k) :
     ∃ b : Basis (Fin k) K (LinearMap.ker A.mulVecLin),
       (∀ l j, IsIntegral ℤ ((b l : ι → K) j)) ∧
@@ -1772,25 +1974,118 @@ theorem exists_basis_prod_absMulHeight_le' {m : ℕ} (A : Matrix (Fin m) ι K)
             ((k * NumberField.InfinitePlace.nrComplexPlaces K : ℝ) / finrank ℚ K) *
           |(NumberField.discr K : ℝ)| ^ ((k : ℝ) / (2 * finrank ℚ K)) *
           (Submodule.span K (Set.range A.row)).arakelovMulHeight ^ (finrank ℚ K : ℝ)⁻¹ :=
-  sorry
+  NumberField.exists_basis_ker_prod_absMulHeight_le' A hk
 
-/-- **Layer 5.5 — the entry-height corollary** (Bombieri–Gubler, Corollary 2.9.9). Bounding the
-absolute Arakelov height of the row space by the absolute height of the entries through
-`H_Ar(Aₘ) ≤ √N · H(A)` gives the form applications actually quote, and over `ℚ` it improves the
-`N` of the classical Siegel lemma (5.1) to `√N`. The row-by-row step is Layer 3.4's Hadamard
-inequality at the archimedean places; the finite places and the assembly over all places are this
-milestone's own work. -/
-theorem exists_ne_zero_mem_ker_absMulHeight_le {m : ℕ} (A : Matrix (Fin m) ι K)
+/-- **Layer 5.4 — the subspace form the proof produces, landed** as
+`NumberField.exists_basis_prod_mulHeight_le`: relative sup-norm heights on the left, the relative
+Arakelov height of `V` on the right, no roots taken, and the basis exhibited as integral points of
+`V` rather than through a `Basis`. -/
+example (V : Submodule K (ι → K)) :
+    ∃ x : Fin (finrank K V) → (ι → K), LinearIndependent K x ∧
+      (∀ l, x l ∈ V.integerPoints) ∧
+      (∏ l, Height.mulHeight (x l))
+        ≤ (2 / Real.pi) ^
+              (finrank K V * NumberField.InfinitePlace.nrComplexPlaces K)
+            * (Real.sqrt |(NumberField.discr K : ℝ)| ^ finrank K V * V.arakelovMulHeight) :=
+  NumberField.exists_basis_prod_mulHeight_le V
+
+/-- **Layer 5.4 — the slice bound, landed** as
+`NumberField.mixedEmbedding.one_le_volume_preimage_mixedCube`. The body is the product over the
+infinite places of the sup-norm balls of the local coordinates, normalized so that every
+one-coordinate factor has volume one; in the standard real coordinates it *is* a product of
+euclidean balls of volume one, so Vaaler's theorem of Layer 4.5 applies verbatim and the bound is
+a clean `1`. -/
+example (V : Submodule K (ι → K)) :
+    1 ≤ MeasureTheory.volume {y : ↥V.mixedSpan |
+        (y : NumberField.mixedEmbedding.mixedPi K ι) ∈
+          NumberField.mixedEmbedding.mixedCube K ι} :=
+  NumberField.mixedEmbedding.one_le_volume_preimage_mixedCube V.mixedSpan
+
+/-- **Layer 5.4 — the height estimate, landed** as
+`NumberField.mixedEmbedding.mulHeight_le_pow_of_mem_smul_mixedCube`. This is where the
+normalization of the body is paid back: an integral tuple in `r · B` has relative sup-norm height
+at most `2^{−r₁} π^{−r₂} · r ^ d`, and those are the two constants that combine with `2^{d k}`
+from 4.2 and `2^{−r₂ k}` from 4.3 into `(2/π)^{k r₂}`. -/
+example {r : ℝ} (hr : 0 < r) {x : ι → K} (hx : x ≠ 0)
+    (hint : ∀ l, ∃ z : 𝓞 K, (z : K) = x l)
+    (hmem : mixedPiEmb K ι x ∈ r • NumberField.mixedEmbedding.mixedCube K ι) :
+    Height.mulHeight x ≤
+      ((2 : ℝ)⁻¹ ^ NumberField.InfinitePlace.nrRealPlaces K
+          * (Real.pi : ℝ)⁻¹ ^ NumberField.InfinitePlace.nrComplexPlaces K) * r ^ finrank ℚ K :=
+  NumberField.mixedEmbedding.mulHeight_le_pow_of_mem_smul_mixedCube hr hx hint hmem
+
+/-! ### Layer 5.5 — landed
+
+**The corollaries applications quote**, in `ArithmeticHeights/BombieriVaalerEntries.lean` on
+`ArithmeticHeights/RowEntryHeight.lean`. The shape this file pinned is delivered exactly, as
+`NumberField.exists_ne_zero_mem_ker_absMulHeight_le_of_linearIndependent_row`; the drift is that
+the independence hypothesis is **not needed**, and the library's primary statements are in terms
+of `A.rank`, of which the pinned form is the special case. Corollary 2.9.7, the non-maximal-rank
+product bound over the row-space height, needed nothing new: it is 5.4.
+-/
+
+/-- **Layer 5.5 — the single small solution, landed** as
+`NumberField.exists_ne_zero_mem_ker_absMulHeight_le_of_linearIndependent_row`, in exactly the
+shape pinned here. -/
+example {m : ℕ} (A : Matrix (Fin m) ι K)
     (hA : LinearIndependent K A.row) (hm : m < Fintype.card ι) :
     ∃ x : ι → K, x ≠ 0 ∧ A.mulVec x = 0 ∧ (∀ j, IsIntegral ℤ (x j)) ∧
       absMulHeight x ≤
         |(NumberField.discr K : ℝ)| ^ (2 * finrank ℚ K : ℝ)⁻¹ *
           (Real.sqrt (Fintype.card ι) * A.mulHeight ^ (finrank ℚ K : ℝ)⁻¹) ^
             ((m : ℝ) / (Fintype.card ι - m)) :=
-  sorry
+  NumberField.exists_ne_zero_mem_ker_absMulHeight_le_of_linearIndependent_row A hA hm
 
-/-- **Layer 5.6 — the relative version** (Bombieri–Gubler, Theorem 2.9.19): the entries lie in a
-finite extension `F/K` of degree `r` while the solutions are required to lie in `K`. With
+/-- **Layer 5.5 — the same without a rank hypothesis, landed** as
+`NumberField.exists_ne_zero_mem_ker_absMulHeight_le`: the exponent is `rank A`, and the only
+hypothesis is that the system is underdetermined. -/
+example {m : ℕ} (A : Matrix (Fin m) ι K) (hm : A.rank < Fintype.card ι) :
+    ∃ x : ι → K, x ≠ 0 ∧ A.mulVec x = 0 ∧ (∀ j, IsIntegral ℤ (x j)) ∧
+      absMulHeight x ≤
+        |(NumberField.discr K : ℝ)| ^ (2 * finrank ℚ K : ℝ)⁻¹ *
+          (Real.sqrt (Fintype.card ι) * A.mulHeight ^ (finrank ℚ K : ℝ)⁻¹) ^
+            ((A.rank : ℝ) / (Fintype.card ι - A.rank)) :=
+  NumberField.exists_ne_zero_mem_ker_absMulHeight_le A hm
+
+/-- **Layer 5.5 — the product bound over a basis of the solution space, landed** as
+`NumberField.exists_basis_ker_prod_absMulHeight_le_entries`. This is Bombieri–Gubler's Corollary
+2.9.9; the single solution above is extracted from it by `H ≥ 1`. -/
+example [Nonempty ι] {m : ℕ} (A : Matrix (Fin m) ι K) {k : ℕ}
+    (hk : finrank K (LinearMap.ker A.mulVecLin) = k) :
+    ∃ b : Basis (Fin k) K (LinearMap.ker A.mulVecLin),
+      (∀ l j, IsIntegral ℤ ((b l : ι → K) j)) ∧
+      (∏ l, absMulHeight (fun j ↦ (b l : ι → K) j)) ≤
+        |(NumberField.discr K : ℝ)| ^ ((k : ℝ) / (2 * finrank ℚ K)) *
+          (Real.sqrt (Fintype.card ι) * A.mulHeight ^ (finrank ℚ K : ℝ)⁻¹) ^ A.rank :=
+  NumberField.exists_basis_ker_prod_absMulHeight_le_entries A hk
+
+/-- **Layer 5.5 — the row space against the rows, landed** as
+`Matrix.arakelovMulHeight_span_range_row_le_prod`. This is 2.9.8, the inequality the milestone is
+really about; the `√N` and the exponent `rank A` come after it. -/
+example {m : ℕ} {A : Matrix (Fin m) ι K} (hA : LinearIndependent K A.row) :
+    (Submodule.span K (Set.range A.row)).arakelovMulHeight
+      ≤ ∏ i, arakelovMulHeight (A i) :=
+  Matrix.arakelovMulHeight_span_range_row_le_prod hA
+
+/-- **Layer 3.4 — Hadamard's inequality at a complex place, landed** as
+`Matrix.sum_sq_norm_plucker_row_le_prod`. Layer 3.4 delivered the inequality in an ordered field,
+which is not what an infinite place of a number field produces; this is the Hermitian form, and
+5.5 is its only consumer. -/
+example {m : ℕ} (B : Matrix (Fin m) ι ℂ) :
+    ∑ s : Set.powersetCard ι m, ‖exteriorPower.plucker m B.row s‖ ^ 2
+      ≤ ∏ i, ∑ j, ‖B i j‖ ^ 2 :=
+  Matrix.sum_sq_norm_plucker_row_le_prod B
+
+/-! ### Layer 5.6 — landed
+
+The milestone is `NumberField.exists_linearIndependent_mem_ker_prod_absMulHeight_le` in
+`ArithmeticHeights/BombieriVaalerRelative.lean`, on
+`ArithmeticHeights/RestrictScalars.lean`. This is the one signature this file pinned that the
+proof did not change: the statement below is the `sorry` it carried, discharged by the library.
+-/
+
+/-- **Layer 5.6 — the relative version, landed** (Bombieri–Gubler, Theorem 2.9.19): the entries
+lie in a finite extension `F/K` of degree `r` while the solutions are required to lie in `K`. With
 `M` rows and `r M < N`, there are `N − r M` `K`-linearly independent solutions with
 
 `∏ l, H(x l) ≤ |D_{K/ℚ}| ^ ((N − r M) / (2 d)) · ∏ i, H_Ar(A i) ^ r`,
@@ -1798,8 +2093,7 @@ finite extension `F/K` of degree `r` while the solutions are required to lie in 
 `H_Ar(A i)` the absolute Arakelov height of the `i`-th row, an element of `F ^ N`. This is the
 form transcendence arguments use when the auxiliary construction and the field of definition
 differ. -/
-theorem exists_linearIndependent_mem_ker_prod_absMulHeight_le
-    (F : Type*) [Field F] [NumberField F] [Algebra K F] {m : ℕ} (A : Matrix (Fin m) ι F)
+example (F : Type*) [Field F] [NumberField F] [Algebra K F] {m : ℕ} (A : Matrix (Fin m) ι F)
     (hmn : finrank K F * m < Fintype.card ι) :
     ∃ x : Fin (Fintype.card ι - finrank K F * m) → (ι → K),
       LinearIndependent K x ∧ (∀ l, A.mulVec (fun j ↦ algebraMap K F (x l j)) = 0) ∧
@@ -1808,9 +2102,180 @@ theorem exists_linearIndependent_mem_ker_prod_absMulHeight_le
         |(NumberField.discr K : ℝ)| ^
             ((Fintype.card ι - finrank K F * m : ℝ) / (2 * finrank ℚ K)) *
           ∏ i, (arakelovMulHeight (A i) ^ (finrank ℚ F : ℝ)⁻¹) ^ finrank K F :=
-  sorry
+  NumberField.exists_linearIndependent_mem_ker_prod_absMulHeight_le A hmn
+
+/-- **Layer 5.6 — the single small solution, landed** as
+`NumberField.exists_ne_zero_mem_ker_absMulHeight_le_relative`. This is the form
+Bombieri–Gubler's own applications of 2.9.19 quote. -/
+example (F : Type*) [Field F] [NumberField F] [Algebra K F] {m : ℕ} (A : Matrix (Fin m) ι F)
+    (hmn : finrank K F * m < Fintype.card ι) :
+    ∃ x : ι → K, x ≠ 0 ∧ A.mulVec (fun j ↦ algebraMap K F (x j)) = 0 ∧
+      (∀ j, IsIntegral ℤ (x j)) ∧
+      absMulHeight x ≤
+        |(NumberField.discr K : ℝ)| ^ (2 * finrank ℚ K : ℝ)⁻¹ *
+          (∏ i, (arakelovMulHeight (A i) ^ (finrank ℚ F : ℝ)⁻¹) ^ finrank K F)
+            ^ ((Fintype.card ι - finrank K F * m : ℝ))⁻¹ :=
+  NumberField.exists_ne_zero_mem_ker_absMulHeight_le_relative A hmn
+
+/-- **Layer 5.6 — the product bound over a basis of the solution space, landed** as
+`NumberField.exists_basis_ker_prod_absMulHeight_le_relative`. The solution space is the kernel of
+`Matrix.mulVecRestrict`, the `K`-linear map `x ↦ A x` on `K`-rational vectors; no basis of `F/K`
+appears. Its exponent on the discriminant is the dimension of that kernel, which is why the
+milestone above needs the rearrangement by increasing height. -/
+example (F : Type*) [Field F] [NumberField F] [Algebra K F] {m : ℕ} (A : Matrix (Fin m) ι F)
+    {k : ℕ} (hk : finrank K (LinearMap.ker (Matrix.mulVecRestrict (K := K) A)) = k) :
+    ∃ b : Basis (Fin k) K (LinearMap.ker (Matrix.mulVecRestrict (K := K) A)),
+      (∀ l j, IsIntegral ℤ ((b l : ι → K) j)) ∧
+      (∏ l, absMulHeight fun j ↦ (b l : ι → K) j) ≤
+        |(NumberField.discr K : ℝ)| ^ ((k : ℝ) / (2 * finrank ℚ K)) *
+          ∏ i, (arakelovMulHeight (A i) ^ (finrank ℚ F : ℝ)⁻¹) ^ finrank K F :=
+  NumberField.exists_basis_ker_prod_absMulHeight_le_relative A hk
+
+/-- **Layer 5.6 — 2.9.8 over a finite extension, landed** as
+`Matrix.arakelovMulHeight_span_restrictScalars_rpow_le'`. The inequality the milestone is really
+about: the height of the row space of the descended system against the rows of `A` over `F`. The
+field carrying the conjugates is built inside the proof and appears in no statement. -/
+example (F : Type*) [Field F] [NumberField F] [Algebra K F] {m r : ℕ} (e : Basis (Fin r) K F)
+    (A : Matrix (Fin m) ι F) :
+    (Submodule.span K (Set.range (Matrix.restrictScalars e A).row)).arakelovMulHeight
+        ^ (finrank ℚ K : ℝ)⁻¹
+      ≤ ∏ i, (arakelovMulHeight (A i) ^ (finrank ℚ F : ℝ)⁻¹) ^ r :=
+  Matrix.arakelovMulHeight_span_restrictScalars_rpow_le' e A
+
+/-- **Layer 0.3 — the Arakelov extension law, landed** as
+`NumberField.arakelovMulHeight_pow_finrank`, and **Layer 0.4 — the embedding-invariance of the
+absolute Arakelov height, landed** as `NumberField.arakelovMulHeight_rpow_comp`. Both were added
+when 5.6 landed; the second is what turns `H_Ar(σ Aᵢ) = H_Ar(Aᵢ)` into a theorem. -/
+example {L : Type*} [Field L] [NumberField L] [Algebra K L] {κ : Type*} [Fintype κ] (x : κ → K) :
+    arakelovMulHeight x ^ finrank K L = arakelovMulHeight (algebraMap K L ∘ x) :=
+  NumberField.arakelovMulHeight_pow_finrank x
 
 end Siegel
+
+/-! ### Layer 5.7 — landed
+
+**The auxiliary-polynomial form**, in `ArithmeticHeights/AuxiliaryPolynomial.lean` on
+`ArithmeticHeights/MonomialIndex.lean`. This file never pinned a signature for 5.7, so what
+follows records the delivered shape rather than a discharged `sorry`. Two things about it were
+decided by the proof and not by the roadmap: the bound is on Layer 2.1's height of the
+*polynomial*, so the degree bound `D` occurs only in the hypotheses; and the relative form's
+feasibility hypothesis is `r · rank A < N`, which sent Layer 5.6 back for a rank form of both its
+statements.
+-/
+
+section AuxiliaryPolynomial
+
+variable {K : Type*} [Field K] [NumberField K] {σ : Type*} [Finite σ] {N D : ℕ}
+
+/-- **Layer 5.7 — the auxiliary polynomial, landed** as
+`MvPolynomial.exists_ne_zero_mem_ker_mulHeight_rpow_le`. `N` linear conditions on the
+coefficients of a polynomial in the variables `σ` of total degree at most `D`, of rank `R` less
+than the number `M` of such monomials, are satisfied by a nonzero polynomial with integral
+coefficients and `H(P) ≤ |D| ^ (1 / (2 d)) · (√M · H(A)) ^ (R / (M − R))`. -/
+example (A : Matrix (Fin N) {m : σ →₀ ℕ // m.degree ≤ D} K)
+    (hA : A.rank < Fintype.card {m : σ →₀ ℕ // m.degree ≤ D}) :
+    ∃ P : MvPolynomial σ K, P ≠ 0 ∧ P.totalDegree ≤ D ∧
+      (∀ m, IsIntegral ℤ (P.coeff m)) ∧
+      A.mulVec (fun m ↦ P.coeff (m : σ →₀ ℕ)) = 0 ∧
+      P.mulHeight ^ ((finrank ℚ K : ℝ))⁻¹ ≤
+        |(NumberField.discr K : ℝ)| ^ (2 * finrank ℚ K : ℝ)⁻¹ *
+          (Real.sqrt (Fintype.card {m : σ →₀ ℕ // m.degree ≤ D}) *
+              A.mulHeight ^ ((finrank ℚ K : ℝ))⁻¹) ^
+            ((A.rank : ℝ) / (Fintype.card {m : σ →₀ ℕ // m.degree ≤ D} - A.rank)) :=
+  MvPolynomial.exists_ne_zero_mem_ker_mulHeight_rpow_le A hA
+
+/-- **Layer 5.7 under the hypothesis users check, landed** as
+`MvPolynomial.exists_ne_zero_mem_ker_mulHeight_rpow_le_of_lt`: fewer conditions than
+coefficients, at the cost of the weaker exponent `N / (M − N)`. Without the feasibility
+hypothesis the statement is false — one variable, `D = 0` and the condition "the coefficient
+vanishes". -/
+example (A : Matrix (Fin N) {m : σ →₀ ℕ // m.degree ≤ D} K)
+    (hN : N < Fintype.card {m : σ →₀ ℕ // m.degree ≤ D}) :
+    ∃ P : MvPolynomial σ K, P ≠ 0 ∧ P.totalDegree ≤ D ∧
+      (∀ m, IsIntegral ℤ (P.coeff m)) ∧
+      A.mulVec (fun m ↦ P.coeff (m : σ →₀ ℕ)) = 0 ∧
+      P.mulHeight ^ ((finrank ℚ K : ℝ))⁻¹ ≤
+        |(NumberField.discr K : ℝ)| ^ (2 * finrank ℚ K : ℝ)⁻¹ *
+          (Real.sqrt (Fintype.card {m : σ →₀ ℕ // m.degree ≤ D}) *
+              A.mulHeight ^ ((finrank ℚ K : ℝ))⁻¹) ^
+            ((N : ℝ) / (Fintype.card {m : σ →₀ ℕ // m.degree ≤ D} - N)) :=
+  MvPolynomial.exists_ne_zero_mem_ker_mulHeight_rpow_le_of_lt A hN
+
+/-- **Layer 5.7 — the basis form, landed** as
+`MvPolynomial.exists_linearIndependent_mem_ker_prod_mulHeight_rpow_le`. The independence is
+independence of the *polynomials*, carried over from the solution vectors by the injective linear
+map `MvPolynomial.ofDegreeLE`. -/
+example (A : Matrix (Fin N) {m : σ →₀ ℕ // m.degree ≤ D} K) {k : ℕ}
+    (hk : finrank K (LinearMap.ker A.mulVecLin) = k) :
+    ∃ P : Fin k → MvPolynomial σ K, LinearIndependent K P ∧
+      (∀ l, (P l).totalDegree ≤ D) ∧ (∀ l m, IsIntegral ℤ ((P l).coeff m)) ∧
+      (∀ l, A.mulVec (fun m ↦ (P l).coeff (m : σ →₀ ℕ)) = 0) ∧
+      ∏ l, (P l).mulHeight ^ ((finrank ℚ K : ℝ))⁻¹ ≤
+        |(NumberField.discr K : ℝ)| ^ ((k : ℝ) / (2 * finrank ℚ K)) *
+          (Real.sqrt (Fintype.card {m : σ →₀ ℕ // m.degree ≤ D}) *
+              A.mulHeight ^ ((finrank ℚ K : ℝ))⁻¹) ^ A.rank :=
+  MvPolynomial.exists_linearIndependent_mem_ker_prod_mulHeight_rpow_le A hk
+
+/-- **Layer 5.7 — the relative form, landed** as
+`MvPolynomial.exists_ne_zero_mem_ker_mulHeight_rpow_le_relative`: the conditions have
+coefficients in `F / K` of degree `s` while the polynomial is required to be defined over `K`,
+and the feasibility hypothesis is `s · rank A < M`. -/
+example {F : Type*} [Field F] [NumberField F] [Algebra K F]
+    (A : Matrix (Fin N) {m : σ →₀ ℕ // m.degree ≤ D} F)
+    (hA : finrank K F * A.rank < Fintype.card {m : σ →₀ ℕ // m.degree ≤ D}) :
+    ∃ P : MvPolynomial σ K, P ≠ 0 ∧ P.totalDegree ≤ D ∧
+      (∀ m, IsIntegral ℤ (P.coeff m)) ∧
+      A.mulVec (fun m ↦ algebraMap K F (P.coeff (m : σ →₀ ℕ))) = 0 ∧
+      P.mulHeight ^ ((finrank ℚ K : ℝ))⁻¹ ≤
+        |(NumberField.discr K : ℝ)| ^ (2 * finrank ℚ K : ℝ)⁻¹ *
+          (∏ i, (arakelovMulHeight (A i) ^ ((finrank ℚ F : ℝ))⁻¹) ^ finrank K F) ^
+            ((Fintype.card {m : σ →₀ ℕ // m.degree ≤ D} - finrank K F * A.rank : ℝ))⁻¹ :=
+  MvPolynomial.exists_ne_zero_mem_ker_mulHeight_rpow_le_relative A hA
+
+/-- **Layer 5.7 — the relative basis form, landed** as
+`MvPolynomial.exists_linearIndependent_mem_ker_prod_mulHeight_rpow_le_relative`. -/
+example {F : Type*} [Field F] [NumberField F] [Algebra K F]
+    (A : Matrix (Fin N) {m : σ →₀ ℕ // m.degree ≤ D} F)
+    (hA : finrank K F * A.rank < Fintype.card {m : σ →₀ ℕ // m.degree ≤ D}) :
+    ∃ P : Fin (Fintype.card {m : σ →₀ ℕ // m.degree ≤ D} - finrank K F * A.rank) →
+        MvPolynomial σ K,
+      LinearIndependent K P ∧ (∀ l, (P l).totalDegree ≤ D) ∧
+      (∀ l m, IsIntegral ℤ ((P l).coeff m)) ∧
+      (∀ l, A.mulVec (fun m ↦ algebraMap K F ((P l).coeff (m : σ →₀ ℕ))) = 0) ∧
+      ∏ l, (P l).mulHeight ^ ((finrank ℚ K : ℝ))⁻¹ ≤
+        |(NumberField.discr K : ℝ)| ^
+            ((Fintype.card {m : σ →₀ ℕ // m.degree ≤ D} - finrank K F * A.rank : ℝ) /
+              (2 * finrank ℚ K)) *
+          ∏ i, (arakelovMulHeight (A i) ^ ((finrank ℚ F : ℝ))⁻¹) ^ finrank K F :=
+  MvPolynomial.exists_linearIndependent_mem_ker_prod_mulHeight_rpow_le_relative A hA
+
+/-- **Layer 5.7 — the dimension of the coefficient space, landed** as
+`Finsupp.card_subtype_degree_le`: there are `(D + r).choose r` monomials of degree at most `D` in
+`r` variables. Mathlib has stars and bars for degree *exactly* `D`, through
+`Finset.finsuppAntidiag`; the slack variable is `Finsupp.degreeLEEquivDegreeEq`. -/
+example : Fintype.card {m : σ →₀ ℕ // m.degree ≤ D}
+    = (D + Nat.card σ).choose (Nat.card σ) := by
+  have : Fintype σ := Fintype.ofFinite σ
+  rw [Finsupp.card_subtype_degree_le, Nat.card_eq_fintype_card]
+
+/-- **Layer 5.6 with the rank in place of the number of rows, landed** as
+`NumberField.exists_linearIndependent_mem_ker_prod_absMulHeight_le_rank`. Added when 5.7 landed:
+the descended system has `K`-rank at most `r · rank A`, so `r · rank A < N` already produces
+`N − r · rank A` solutions. -/
+example {F : Type*} [Field F] [NumberField F] [Algebra K F] {ι : Type*} [Fintype ι]
+    [LinearOrder ι] {m : ℕ} (A : Matrix (Fin m) ι F)
+    (hmn : finrank K F * A.rank < Fintype.card ι) :
+    ∃ x : Fin (Fintype.card ι - finrank K F * A.rank) → (ι → K),
+      LinearIndependent K x ∧
+      (∀ l, A.mulVec (fun j ↦ algebraMap K F (x l j)) = 0) ∧
+      (∀ l j, IsIntegral ℤ (x l j)) ∧
+      (∏ l, absMulHeight (x l)) ≤
+        |(NumberField.discr K : ℝ)| ^
+            ((Fintype.card ι - finrank K F * A.rank : ℝ) / (2 * finrank ℚ K))
+          * ∏ i, (arakelovMulHeight (A i) ^ (finrank ℚ F : ℝ)⁻¹) ^ finrank K F :=
+  NumberField.exists_linearIndependent_mem_ker_prod_absMulHeight_le_rank A hmn
+
+end AuxiliaryPolynomial
 
 /-! ## Layer 6: heights and the unit group
 
@@ -1820,39 +2285,153 @@ Mathlib proves Dirichlet's unit theorem in full (`NumberField.Units.logEmbedding
 builds the height-side dictionary around them and the `S`-unit theorem Mathlib does not have; it
 re-proves none of the unit theorem and redefines none of the `S`-objects. -/
 
-section Units
+/-! ### Layer 6.1 — landed
+
+The height of a unit, and Dirichlet's logarithmic embedding:
+`ArithmeticHeights/UnitHeight.lean`. -/
+
+section UnitHeight
 
 variable {K : Type*} [Field K] [NumberField K]
 
-/-- **Layer 6.2 — units of height one.** The height-theoretic identification of the torsion
-subgroup, from Kronecker (1.4) and Mathlib's `logEmbedding_ker`. -/
-theorem absMulHeight₁_eq_one_iff_mem_torsion (u : (𝓞 K)ˣ) :
-    NumberField.absMulHeight₁ ((u : 𝓞 K) : K) = 1 ↔ u ∈ NumberField.Units.torsion K :=
-  sorry
+open NumberField.InfinitePlace in
+/-- **Layer 6.1 — the height of a unit is carried by the infinite places, landed** as
+`NumberField.Units.logHeight₁_eq_sum_posPart`. Every finite local factor of a unit is `1`, by
+`NumberField.FinitePlace.apply_units_eq_one`, so the height is the sum of the positive parts of
+the weighted logarithms over the infinite places. -/
+example (u : (𝓞 K)ˣ) :
+    logHeight₁ ((u : 𝓞 K) : K)
+      = ∑ w : InfinitePlace K, ((w.mult : ℝ) * Real.log (w ((u : 𝓞 K) : K)))⁺ :=
+  NumberField.Units.logHeight₁_eq_sum_posPart u
 
-/-- **Layer 6.3 — Hadamard's bound.** The regulator is at most `(2 d) ^ r` times the product of
-the absolute logarithmic heights of Mathlib's fundamental system (and of any `r` independent
-units): the regulator is the determinant of the `r × r` matrix of `logEmbedding`s, each row has
-ℓ¹ norm at most `∑ w, |mult w · log (w ε)| = 2 · logHeight₁ ε = 2 d · h(ε)`, and Hadamard's
-inequality — Layer 3.4's `Matrix.det_mul_transpose_self_le_prod`, in the ℓ² form, which is where
-the `2 d` and not a `d` comes from — bounds a determinant by the product of the row norms. -/
-theorem regulator_le_prod_absLogHeight₁ :
+open NumberField.InfinitePlace in
+/-- **Layer 6.1 — twice the height is the ℓ¹ norm of the full vector of weighted logarithms,
+landed** as `NumberField.Units.two_mul_logHeight₁_eq_sum_abs`. The vector sums to `0` by the
+product formula, so its negative parts repeat its positive ones. -/
+example (u : (𝓞 K)ˣ) :
+    2 * logHeight₁ ((u : 𝓞 K) : K)
+      = ∑ w : InfinitePlace K, |(w.mult : ℝ) * Real.log (w ((u : 𝓞 K) : K))| :=
+  NumberField.Units.two_mul_logHeight₁_eq_sum_abs u
+
+open scoped Classical in
+open NumberField.InfinitePlace NumberField.Units.dirichletUnitTheorem in
+/-- **Layer 6.1 — the height through Dirichlet's logarithmic embedding, landed** as
+`NumberField.Units.logHeight₁_eq_sum_posPart_logEmbedding`. `logEmbedding` drops the coordinate
+at the distinguished place `w₀`; by the product formula that coordinate is minus the sum of the
+others, and it is the second summand here. ⚠ It is not zero in general. -/
+example (u : (𝓞 K)ˣ) :
+    logHeight₁ ((u : 𝓞 K) : K)
+      = (∑ w : {w : InfinitePlace K // w ≠ w₀},
+          (NumberField.Units.logEmbedding K (Additive.ofMul u) w)⁺)
+        + (-∑ w : {w : InfinitePlace K // w ≠ w₀},
+            NumberField.Units.logEmbedding K (Additive.ofMul u) w)⁺ :=
+  NumberField.Units.logHeight₁_eq_sum_posPart_logEmbedding u
+
+open scoped Classical in
+open NumberField.InfinitePlace NumberField.Units.dirichletUnitTheorem in
+/-- **Layer 6.1 — the two-sided comparison with the ℓ¹ norm of the logarithmic embedding,
+landed** as `NumberField.Units.sum_abs_logEmbedding_le_two_mul_logHeight₁` and
+`NumberField.Units.logHeight₁_le_sum_abs_logEmbedding`. The factor `2` is sharp: it is the
+dropped coordinate, and `NumberField.Units.two_mul_logHeight₁_eq_sum_abs_logEmbedding_iff` says
+when it vanishes. -/
+example (u : (𝓞 K)ˣ) :
+    (∑ w : {w : InfinitePlace K // w ≠ w₀},
+        |NumberField.Units.logEmbedding K (Additive.ofMul u) w|) / 2
+        ≤ logHeight₁ ((u : 𝓞 K) : K) ∧
+      logHeight₁ ((u : 𝓞 K) : K)
+        ≤ ∑ w : {w : InfinitePlace K // w ≠ w₀},
+            |NumberField.Units.logEmbedding K (Additive.ofMul u) w| :=
+  ⟨by linarith [NumberField.Units.sum_abs_logEmbedding_le_two_mul_logHeight₁ u],
+    NumberField.Units.logHeight₁_le_sum_abs_logEmbedding u⟩
+
+/-- **Layer 6.1 — the units of bounded height are finite, landed** as
+`NumberField.Units.finite_setOf_logHeight₁_le`. This is Northcott (Layer 1.1) along the injection
+of `(𝓞 K)ˣ` into `K`, and the same comparison run backwards recovers Mathlib's
+`unitLattice_inter_ball_finite`, which `ArithmeticHeights/UnitHeight.lean` checks. -/
+example (B : ℝ) : {u : (𝓞 K)ˣ | logHeight₁ ((u : 𝓞 K) : K) ≤ B}.Finite :=
+  NumberField.Units.finite_setOf_logHeight₁_le B
+
+end UnitHeight
+
+/-! ### Layer 6.2 — landed
+
+Units of height one: `ArithmeticHeights/UnitTorsion.lean`. -/
+
+section UnitTorsion
+
+variable {K : Type*} [Field K] [NumberField K]
+
+/-- **Layer 6.2 — units of height one, landed** as
+`NumberField.Units.absMulHeight₁_eq_one_iff_mem_torsion`. The height-theoretic identification of
+the torsion subgroup. ⚠ Neither Kronecker (1.4) nor `logEmbedding_ker` is needed: by 6.1 twice
+the height is a sum of absolute values over the infinite places, so it vanishes exactly when each
+term does, which is Mathlib's `NumberField.Units.mem_torsion` verbatim. Both routes the milestone
+names are checked as acceptance criteria instead. -/
+example (u : (𝓞 K)ˣ) :
+    NumberField.absMulHeight₁ ((u : 𝓞 K) : K) = 1 ↔ u ∈ NumberField.Units.torsion K :=
+  NumberField.Units.absMulHeight₁_eq_one_iff_mem_torsion u
+
+open NumberField.InfinitePlace in
+/-- **Layer 6.2 — the step that does the work, landed** as
+`NumberField.Units.logHeight₁_eq_zero_iff_forall_infinitePlace`. A unit has height one exactly
+when every infinite place sends it to `1`. -/
+example (u : (𝓞 K)ˣ) :
+    logHeight₁ ((u : 𝓞 K) : K) = 0 ↔ ∀ w : InfinitePlace K, w ((u : 𝓞 K) : K) = 1 :=
+  NumberField.Units.logHeight₁_eq_zero_iff_forall_infinitePlace u
+
+/-- **Layer 6.2 — the height and the logarithmic embedding vanish together, landed** as
+`NumberField.Units.logHeight₁_eq_zero_iff_logEmbedding_eq_zero`. 6.1's two-sided comparison
+carries a factor `2` and so says nothing about the common zero set; this does. -/
+example (u : (𝓞 K)ˣ) :
+    logHeight₁ ((u : 𝓞 K) : K) = 0
+      ↔ NumberField.Units.logEmbedding K (Additive.ofMul u) = 0 :=
+  NumberField.Units.logHeight₁_eq_zero_iff_logEmbedding_eq_zero u
+
+/-- **Layer 6.2 — the unit hypothesis is no restriction, landed** as
+`NumberField.RingOfIntegers.isUnit_of_absMulHeight₁_eq_one`, with
+`NumberField.RingOfIntegers.absMulHeight₁_eq_one_iff_isOfFinOrder` beside it. A nonzero algebraic
+integer of height one is a root of unity, hence a unit. This is where Kronecker (1.4) is actually
+used. -/
+example {x : 𝓞 K} (hx : x ≠ 0) (h : NumberField.absMulHeight₁ (x : K) = 1) : IsUnit x :=
+  NumberField.RingOfIntegers.isUnit_of_absMulHeight₁_eq_one hx h
+
+/-- **Layer 6.2 — the gap above one is strict off the torsion subgroup, landed** as
+`NumberField.Units.absLogHeight₁_pos_of_notMem_torsion`, and applied to Mathlib's `fundSystem` as
+`NumberField.Units.prod_absLogHeight₁_fundSystem_pos`: the product of heights that Layer 6.3
+bounds the regulator by is positive, so the bound is not vacuous. -/
+example : 0 < ∏ i, NumberField.absLogHeight₁ ((NumberField.Units.fundSystem K i : 𝓞 K) : K) :=
+  NumberField.Units.prod_absLogHeight₁_fundSystem_pos K
+
+end UnitTorsion
+
+/-! ### Layer 6.3 — landed
+
+The regulator and the heights of a fundamental system: `ArithmeticHeights/Regulator.lean`. -/
+
+section Regulator
+
+variable {K : Type*} [Field K] [NumberField K]
+
+/-- **Layer 6.3 — Hadamard's bound, landed** as
+`NumberField.Units.regulator_le_prod_absLogHeight₁`, with
+`NumberField.Units.regOfFamily_le_prod_absLogHeight₁` for an arbitrary family and
+`NumberField.Units.regulator_le_prod_logHeight₁` in the relative height, where the constant is
+`2 ^ r`. ⚠ The pinned route named the ℓ² form of Hadamard's inequality; the library uses the ℓ¹
+form, `Matrix.abs_det_le_prod_sum_abs`, added to Layer 3.4 for this layer. The `2 d` and not a `d`
+is Layer 6.1's factor `2` — the coordinate `logEmbedding` drops — and not a loss in Hadamard's
+inequality. -/
+example :
     NumberField.Units.regulator K ≤
       (2 * Module.finrank ℚ K : ℝ) ^ NumberField.Units.rank K *
         ∏ i, NumberField.absLogHeight₁ ((NumberField.Units.fundSystem K i : 𝓞 K) : K) :=
-  sorry
+  NumberField.Units.regulator_le_prod_absLogHeight₁ K
 
-/-- **Layer 6.3 — a fundamental system of small height exists** (Bugeaud–Győry 1996, Lemma 1,
-the case `S = S_∞`). The converse of Hadamard's bound cannot hold for every fundamental system — a
-unimodular change of basis makes the heights arbitrarily large at fixed regulator — but some
-fundamental system, a reduced basis of the unit lattice, has `∏ h(ε i) ≤ c(r, d) · R` with the
-explicit constant `c = (r!)² / (2 ^ (r − 1) d ^ r)`. Route, theirs: 4.2 for the ℓ¹ unit ball, of
-volume `2 ^ r / r!`, on `unitLattice K`, of covolume `regulator K`, gives `∏ λ i ≤ r! · R`; the
-basis of 4.6 costs `r! / 2 ^ (r − 1)`; and `h(ε) ≤ ‖logEmbedding ε‖₁ / d` by 6.1, which costs
-`d ^ (-r)`. "Fundamental system" is what Mathlib's
-`closure_fundSystem_sup_torsion_eq_top` says of `fundSystem`: `r` units generating the unit
-group modulo torsion. -/
-theorem exists_fundSystem_prod_absLogHeight₁_le :
+/-- **Layer 6.3 — a fundamental system of small height exists, landed** as
+`NumberField.Units.exists_fundSystem_prod_absLogHeight₁_le`. The pinned shape and the pinned
+constant survived intact. Layer 4.2 against the ℓ¹ unit ball of the log space
+(`NumberField.Units.volume_logBall`, `NumberField.Units.prod_successiveMinimum_logBall_le`), the
+basis of Layer 4.6, and the comparison of Layer 6.1. -/
+example :
     ∃ ε : Fin (NumberField.Units.rank K) → (𝓞 K)ˣ,
       Subgroup.closure (Set.range ε) ⊔ NumberField.Units.torsion K = ⊤ ∧
       ∏ i, NumberField.absLogHeight₁ ((ε i : 𝓞 K) : K) ≤
@@ -1860,28 +2439,152 @@ theorem exists_fundSystem_prod_absLogHeight₁_le :
             (2 ^ (NumberField.Units.rank K - 1) *
               (Module.finrank ℚ K : ℝ) ^ NumberField.Units.rank K) *
           NumberField.Units.regulator K :=
-  sorry
+  NumberField.Units.exists_fundSystem_prod_absLogHeight₁_le K
 
-/-- **Layer 6.5 — the `S`-unit theorem, in the form and under the name of mathlib4#40791.** For a
-finite set `S` of finite places, Mathlib's `S`-unit group `S.unit K` has `ℤ`-rank
-`r₁ + r₂ − 1 + |S|`. `S = ∅` recovers Dirichlet's theorem, since `(∅ : Set _).unit K` is `(𝓞 K)ˣ`
-through `Set.unitEquivUnitsInteger` and `integer_empty`. -/
-theorem _root_.Set.unit_finrank_numberField
-    (S : Set (IsDedekindDomain.HeightOneSpectrum (𝓞 K))) (hS : S.Finite) :
+/-- **Layer 6.3 — a family of units that spans the unit lattice is a fundamental system, landed**
+as `NumberField.Units.closure_sup_torsion_eq_top_of_span`. This is the step that turns the basis
+of Layer 4.6 — a basis of `unitLattice K` and nothing more — into a generating set modulo torsion,
+and it is what makes the statement above about *fundamental* systems. -/
+example {m : ℕ} (ε : Fin m → (𝓞 K)ˣ)
+    (h : Submodule.span ℤ (Set.range fun i ↦
+        NumberField.Units.logEmbedding K (Additive.ofMul (ε i)))
+      = NumberField.Units.unitLattice K) :
+    Subgroup.closure (Set.range ε) ⊔ NumberField.Units.torsion K = ⊤ :=
+  NumberField.Units.closure_sup_torsion_eq_top_of_span ε h
+
+/-- **Layer 6.3 — neither bound is vacuous, landed** as
+`NumberField.Units.prod_absLogHeight₁_pos_of_closure_sup_torsion_eq_top`. For Mathlib's
+`fundSystem` this is Layer 6.2; for an arbitrary fundamental system that route is not available,
+and the positivity instead comes from this layer — such a family has maximal rank because its
+regulator is the regulator of `K`, and a linearly independent family has no zero member. -/
+example {u : Fin (NumberField.Units.rank K) → (𝓞 K)ˣ}
+    (h : Subgroup.closure (Set.range u) ⊔ NumberField.Units.torsion K = ⊤) :
+    0 < ∏ i, NumberField.absLogHeight₁ ((u i : 𝓞 K) : K) :=
+  NumberField.Units.prod_absLogHeight₁_pos_of_closure_sup_torsion_eq_top h
+
+/-- **Layer 6.3 — at unit rank zero the two bounds meet, landed** as
+`NumberField.Units.regulator_eq_one_of_rank_eq_zero`. Both products are empty, so Hadamard's bound
+reads `R ≤ 1` and the reduced system reads `1 ≤ R`. Mathlib records
+`NumberField.Units.regulator_pos` but not this value. -/
+example (h : NumberField.Units.rank K = 0) : NumberField.Units.regulator K = 1 :=
+  NumberField.Units.regulator_eq_one_of_rank_eq_zero K h
+
+end Regulator
+
+/-! ### Layer 6.4 — landed
+
+`S`-integers, `S`-units, and where their height lives: `ArithmeticHeights/SUnit.lean`. -/
+
+section SUnit
+
+variable {K : Type*} [Field K] [NumberField K]
+
+/-- **Layer 6.4 — the height of an `S`-unit, landed** as
+`NumberField.mulHeight₁_eq_of_mem_unit`: the height is carried by the infinite places together
+with the places of `S`. ⚠ The library proves this from
+`NumberField.mulHeight₁_eq_of_mem_integer`, which asks only that `x` be an `S`-integer; the
+`S`-unit hypothesis is not what the display needs. -/
+example (S : Set (IsDedekindDomain.HeightOneSpectrum (𝓞 K))) {x : Kˣ} (hx : x ∈ S.unit K) :
+    mulHeight₁ (x : K)
+      = (∏ w : InfinitePlace K, max (w (x : K)) 1 ^ w.mult)
+        * ∏ᶠ v ∈ S, max (FinitePlace.mk v (x : K)) 1 :=
+  NumberField.mulHeight₁_eq_of_mem_unit S hx
+
+/-- **Layer 6.4 — the converse, landed** as `Set.mem_unit_iff_finitePlace`: an element of `Kˣ`
+whose absolute values at the finite places outside `S` are all `1` is an `S`-unit. -/
+example (S : Set (IsDedekindDomain.HeightOneSpectrum (𝓞 K))) (x : Kˣ)
+    (h : ∀ v ∉ S, FinitePlace.mk v (x : K) = 1) : x ∈ S.unit K :=
+  (Set.mem_unit_iff_finitePlace S x).mpr h
+
+/-- **Layer 6.4 — the display characterizes the `S`-integers, landed** as
+`NumberField.mulHeight₁_eq_iff_mem_integer`. Every local factor is at least `1`, so one finite
+place outside `S` carrying absolute value greater than `1` already breaks the identity: `S` cannot
+be shrunk. -/
+example (S : Set (IsDedekindDomain.HeightOneSpectrum (𝓞 K))) {x : K} (hx : x ≠ 0) :
+    mulHeight₁ x
+        = (∏ w : InfinitePlace K, max (w x) 1 ^ w.mult)
+          * ∏ᶠ v ∈ S, max (FinitePlace.mk v x) 1
+      ↔ x ∈ S.integer K :=
+  NumberField.mulHeight₁_eq_iff_mem_integer S hx
+
+/-- **Layer 6.4 — `S = ∅` recovers `𝓞 K` and its units, landed** as
+`Set.mem_integer_empty_iff` and `Set.mem_unit_empty_iff`. Mathlib reaches the second through
+`IsDedekindDomain.integer_empty`, `Set.unitEquivUnitsInteger` and `Algebra.botEquivOfInjective`;
+the library argues directly, `x` and `x⁻¹` both having every valuation at most `1`. -/
+example {x : Kˣ} :
+    x ∈ (∅ : Set (IsDedekindDomain.HeightOneSpectrum (𝓞 K))).unit K ↔
+      ∃ u : (𝓞 K)ˣ, ((u : 𝓞 K) : K) = (x : K) :=
+  Set.mem_unit_empty_iff
+
+/-- **Layer 6.4 — the finite part of the height of a rational, landed** as
+`NumberField.FinitePlace.finprod_apply_ratCast`. This is the acceptance test the roadmap names for
+this layer, and the statement of the provenance file `FinitePlaceProduct.lean`. -/
+example {q : ℚ} (hq : q ≠ 0) :
+    ∏ᶠ w : FinitePlace K, w (q : K) = (|(q : ℝ)| ^ finrank ℚ K)⁻¹ :=
+  NumberField.FinitePlace.finprod_apply_ratCast hq
+
+end SUnit
+
+/-! ### Layer 6.5 — landed
+
+The `S`-unit theorem, the `S`-logarithmic embedding and the `S`-regulator:
+`ArithmeticHeights/SUnitTheorem.lean` and `ArithmeticHeights/SRegulator.lean`. -/
+
+section SUnitTheorem
+
+variable {K : Type*} [Field K] [NumberField K]
+
+/-- **Layer 6.5 — the `S`-unit theorem, landed** in the form and under the name of mathlib4#40791,
+as `Set.unit_finrank_numberField`. For a finite set `S` of finite places, Mathlib's `S`-unit group
+`S.unit K` has `ℤ`-rank `r₁ + r₂ − 1 + |S|`. -/
+example (S : Set (IsDedekindDomain.HeightOneSpectrum (𝓞 K))) (hS : S.Finite) :
     Module.finrank ℤ (Additive (S.unit K)) = NumberField.Units.rank K + Nat.card S :=
-  sorry
+  Set.unit_finrank_numberField S hS
 
-/-- **Layer 6.5 — the `S`-unit theorem, in the shape of Mathlib's `exist_unique_eq_mul_prod`.**
-The rank statement made usable: a fundamental system of `r₁ + r₂ − 1 + |S|` `S`-units such that
-every `S`-unit is uniquely a root of unity times a product of their integer powers. -/
-theorem exists_sUnit_fundSystem (S : Set (IsDedekindDomain.HeightOneSpectrum (𝓞 K)))
-    (hS : S.Finite) :
+/-- **Layer 6.5 — the `S`-units are finitely generated, landed** as `Set.unit_fg`. This and the
+rank statement above are the two open TODOs of Mathlib's
+`Mathlib/RingTheory/DedekindDomain/SInteger.lean`. -/
+example (S : Set (IsDedekindDomain.HeightOneSpectrum (𝓞 K))) (hS : S.Finite) :
+    Group.FG (S.unit K) := S.unit_fg hS
+
+/-- **Layer 6.5 — a fundamental system of `S`-units, landed** as `Set.exists_unit_fundSystem`, in
+the shape of Mathlib's `NumberField.Units.exist_unique_eq_mul_prod`. ⚠ The library also carries
+`Set.exists_unit_fundSystem'`, where the root of unity is unique as well: it is determined by the
+exponents, so the pinned uniqueness is the weaker of the two available. -/
+example (S : Set (IsDedekindDomain.HeightOneSpectrum (𝓞 K))) (hS : S.Finite) :
     ∃ ε : Fin (NumberField.Units.rank K + Nat.card S) → S.unit K,
       ∀ x : S.unit K, ∃! e : Fin (NumberField.Units.rank K + Nat.card S) → ℤ,
         ∃ ζ ∈ CommGroup.torsion (S.unit K), x = ζ * ∏ i, ε i ^ e i :=
-  sorry
+  S.exists_unit_fundSystem hS
 
-end Units
+/-- **Layer 6.5 — the `S`-logarithmic embedding has image a full lattice, landed** as
+`NumberField.SUnit.unitLattice_span_eq_top` together with the discreteness instance, so that
+`NumberField.SUnit.unitLattice S` is an `IsZLattice`. Its rank is read off the dimension of the
+space, independently of the group-theoretic computation above. -/
+example (S : Finset (IsDedekindDomain.HeightOneSpectrum (𝓞 K))) :
+    Module.finrank ℤ (NumberField.SUnit.unitLattice S) = NumberField.Units.rank K + S.card :=
+  NumberField.SUnit.finrank_unitLattice S
+
+/-- **Layer 6.5 — the `S`-regulator, landed** as `NumberField.SUnit.regulator`, the covolume of
+the `S`-unit lattice, with `S = ∅` giving back `NumberField.Units.regulator`. ⚠ The recovery is a
+theorem and not a definitional unfolding; see the findings above. -/
+example : NumberField.SUnit.regulator (∅ : Finset (IsDedekindDomain.HeightOneSpectrum (𝓞 K)))
+    = NumberField.Units.regulator K :=
+  NumberField.SUnit.regulator_empty
+
+open scoped Classical in
+/-- **Layer 6.5 — the `S`-analogue of Layer 6.1, landed** as
+`NumberField.SUnit.two_mul_logHeight₁_eq_sum_abs_logEmbedding_add_abs_sum`: twice the height of an
+`S`-unit is the ℓ¹ norm of the coordinates the `S`-logarithmic embedding keeps plus the size of
+the one it drops. As in 6.1 this is an identity, not an inequality. -/
+example (S : Finset (IsDedekindDomain.HeightOneSpectrum (𝓞 K)))
+    (x : ((S : Set (IsDedekindDomain.HeightOneSpectrum (𝓞 K))).unit K)) :
+    2 * Height.logHeight₁ ((x : Kˣ) : K)
+      = (∑ i, |NumberField.SUnit.logEmbedding S (Additive.ofMul x) i|)
+        + |∑ i, NumberField.SUnit.logEmbedding S (Additive.ofMul x) i| :=
+  NumberField.SUnit.two_mul_logHeight₁_eq_sum_abs_logEmbedding_add_abs_sum x
+
+end SUnitTheorem
 
 /-! ## Worked examples (acceptance criteria)
 

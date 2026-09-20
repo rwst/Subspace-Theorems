@@ -288,6 +288,14 @@ theorem ballRadius_one : ballRadius 1 = 1 / 2 := by
   rw [ballRadius_eq, unitBallVolume_one, Nat.cast_one, div_one, Real.rpow_neg_one]
   norm_num
 
+theorem unitBallVolume_two : unitBallVolume 2 = π := by
+  rw [unitBallVolume, EuclideanSpace.volume_ball_fin_two]
+  simp [Real.pi_pos.le]
+
+theorem ballRadius_two : ballRadius 2 = 1 / Real.sqrt π := by
+  rw [ballRadius_eq, unitBallVolume_two, show ((2 : ℕ) : ℝ) = 2 by norm_num,
+    Real.rpow_neg Real.pi_pos.le, ← Real.sqrt_eq_rpow, one_div]
+
 theorem sq_le_sq_iff_abs_le {a c : ℝ} (hc : 0 ≤ c) : a ^ 2 ≤ c ^ 2 ↔ |a| ≤ c := by
   rw [sq_le_sq, abs_of_nonneg hc]
 
