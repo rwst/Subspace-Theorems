@@ -5,27 +5,34 @@
 #
 # Adapted for this repository from `scripts/source-modules.sh` of the Tau Ceti project
 # (<https://github.com/TauCetiProject/TauCeti>) at commit 37ae92f8170796e94b66279ea66f8635d9ca2aa0.
-# Changes: the library root is `ArithmeticHeights` rather than `TauCeti`, and the function is named
-# after what it does rather than after the project. The pristine original is
-# `~/math/TauCeti/scripts/source-modules.sh`.
+# Changes: the library roots are `ArithmeticHeights` and `DiophantineApproximation` rather than
+# `TauCeti`, and the function is named after what it does rather than after the project. The
+# pristine original is `~/math/TauCeti/scripts/source-modules.sh`.
 #
-# Shared, fail-closed discovery of the Lean modules under ArithmeticHeights/.
+# Shared, fail-closed discovery of the Lean modules under the library roots.
+#
+# `LIBRARY_ROOTS` is the single list of them, and every gate reads it from here: adding a roadmap
+# to this repository means adding its directory to this array and nothing else.
 #
 # library_source_modules FILES MODULES writes the validated source paths as a
 # NUL-delimited list to FILES and the corresponding Lean module names, one per
 # line, to MODULES. Callers choose their own temporary destinations.
 
+LIBRARY_ROOTS=(ArithmeticHeights DiophantineApproximation)
+
 library_source_modules() {
   local files_out="$1"
   local modules_out="$2"
   local symlinks_out="${files_out}.symlinks"
-  local module_path_re="^ArithmeticHeights(/[A-Za-z_][A-Za-z0-9_']*)+\.lean$"
+  local roots_re
+  roots_re="$(IFS='|'; printf '%s' "${LIBRARY_ROOTS[*]}")"
+  local module_path_re="^($roots_re)(/[A-Za-z_][A-Za-z0-9_']*)+\.lean$"
   local file module
   local -a files=()
   local -a symlinks=()
 
-  find ArithmeticHeights -type f -name '*.lean' -print0 | LC_ALL=C sort -z > "$files_out"
-  find ArithmeticHeights -type l -print0 | LC_ALL=C sort -z > "$symlinks_out"
+  find "${LIBRARY_ROOTS[@]}" -type f -name '*.lean' -print0 | LC_ALL=C sort -z > "$files_out"
+  find "${LIBRARY_ROOTS[@]}" -type l -print0 | LC_ALL=C sort -z > "$symlinks_out"
   mapfile -d '' files < "$files_out"
   mapfile -d '' symlinks < "$symlinks_out"
   if ((${#symlinks[@]} != 0)); then
@@ -33,7 +40,7 @@ library_source_modules() {
     return 1
   fi
   if ((${#files[@]} == 0)); then
-    echo 'source-modules: found no ArithmeticHeights source files; the audit is miswired.' >&2
+    echo 'source-modules: found no library source files; the audit is miswired.' >&2
     return 1
   fi
 

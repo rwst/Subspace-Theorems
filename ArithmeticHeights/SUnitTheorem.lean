@@ -41,6 +41,9 @@ powers.
 
 ## Main results
 
+* `NumberField.exists_mem_asIdeal_iff_eq`: a nonzero algebraic integer lying in a given prime and
+  in no other — the one use the proof makes of the finiteness of the class group, and the input
+  Layer 0.3 of the `DiophantineApproximation` roadmap consumes as well.
 * `Set.unitValuation`: the map `S.unit K → ⊕_{v ∈ S} ℤ` of the sequence above, with
   `Set.range_unitOfUnitsₗ` identifying its kernel with the units of `𝓞 K`.
 * `Set.finrank_range_unitValuationₗ`: its image has rank `|S|`, from the class group.
@@ -216,15 +219,14 @@ theorem _root_.Set.finrank_ker_unitValuationₗ :
 ### The image: finite index in `⊕_{v ∈ S} ℤ`
 -/
 
-/-- **A power of a prime ideal is principal, and its generator lies in that prime and in no
-other.** The class of `v` in `ClassGroup (𝓞 K)` has finite order because the class group is
-finite, so `v ^ orderOf [v]` is principal; a generator `a` of it lies in `v` because the exponent
-is positive, and in no other prime `w`, because `w` is prime and `v ^ n ≤ w` would force the
-maximal ideals `v` and `w` to be equal. ⚠ The exponent of `a` at `v` is never computed: only that
-it is nonzero. -/
-private theorem exists_generator (v₀ : HeightOneSpectrum (𝓞 K)) :
-    ∃ a : 𝓞 K, a ≠ 0 ∧ a ∈ v₀.asIdeal ∧
-      ∀ w : HeightOneSpectrum (𝓞 K), w ≠ v₀ → a ∉ w.asIdeal := by
+/-- **There is a nonzero algebraic integer lying in a given prime and in no other.** The class of
+`v₀` in `ClassGroup (𝓞 K)` has finite order because the class group is finite, so
+`v₀ ^ orderOf [v₀]` is principal; a generator `a` of it lies in `v₀` because the exponent is
+positive, and in no other prime `w`, because `w` is prime and `v₀ ^ n ≤ w` would force the maximal
+ideals `v₀` and `w` to be equal. ⚠ The exponent of `a` at `v₀` is never computed: only that it is
+nonzero. -/
+theorem exists_mem_asIdeal_iff_eq (v₀ : HeightOneSpectrum (𝓞 K)) :
+    ∃ a : 𝓞 K, a ≠ 0 ∧ ∀ w : HeightOneSpectrum (𝓞 K), a ∈ w.asIdeal ↔ w = v₀ := by
   have hI0 : v₀.asIdeal ≠ 0 := v₀.ne_bot
   have hImem : v₀.asIdeal ∈ (Ideal (𝓞 K))⁰ := mem_nonZeroDivisors_of_ne_zero hI0
   set c := ClassGroup.mk0 (⟨v₀.asIdeal, hImem⟩ : (Ideal (𝓞 K))⁰) with hc
@@ -238,15 +240,15 @@ private theorem exists_generator (v₀ : HeightOneSpectrum (𝓞 K)) :
     rintro rfl
     rw [Submodule.span_singleton_eq_bot.mpr rfl] at ha
     exact hpowne ha
-  refine ⟨a, hane, ?_, ?_⟩
-  · have hle : (𝓞 K ∙ a) ≤ v₀.asIdeal := by
+  refine ⟨a, hane, fun w ↦ ⟨fun hmem ↦ ?_, fun hw ↦ ?_⟩⟩
+  · have hle : v₀.asIdeal ^ orderOf c ≤ w.asIdeal := by
+      rw [ha]; exact (Submodule.span_singleton_le_iff_mem _ _).mpr hmem
+    exact HeightOneSpectrum.ext
+      (v₀.isMaximal.eq_of_le w.isPrime.ne_top (Ideal.IsPrime.le_of_pow_le hle)).symm
+  · subst hw
+    have hle : (𝓞 K ∙ a) ≤ w.asIdeal := by
       rw [← ha]; exact Ideal.pow_le_self hpos.ne'
     exact hle (Submodule.mem_span_singleton_self a)
-  · intro w hw hmem
-    have hle : v₀.asIdeal ^ orderOf c ≤ w.asIdeal := by
-      rw [ha]; exact (Submodule.span_singleton_le_iff_mem _ _).mpr hmem
-    exact hw (HeightOneSpectrum.ext
-      (v₀.isMaximal.eq_of_le w.isPrime.ne_top (Ideal.IsPrime.le_of_pow_le hle))).symm
 
 /-- **Every place of `S` supports an `S`-unit alone**: for `v₀ ∈ S` there is an `S`-unit whose
 valuation is nonzero at `v₀` and zero at every other place of `S`. This is the whole use the proof
@@ -254,7 +256,10 @@ makes of the finiteness of the class group. -/
 theorem _root_.Set.exists_unitValuation_apply_ne_zero (v₀ : ↥S) :
     ∃ y : Additive ↥(S.unit K), S.unitValuation y v₀ ≠ 0 ∧
       ∀ v : ↥S, v ≠ v₀ → S.unitValuation y v = 0 := by
-  obtain ⟨a, hane, hmem, hnot⟩ := exists_generator (K := K) (v₀ : HeightOneSpectrum (𝓞 K))
+  obtain ⟨a, hane, ha⟩ := exists_mem_asIdeal_iff_eq (K := K) (v₀ : HeightOneSpectrum (𝓞 K))
+  have hmem : a ∈ (v₀ : HeightOneSpectrum (𝓞 K)).asIdeal := (ha _).mpr rfl
+  have hnot : ∀ w : HeightOneSpectrum (𝓞 K), w ≠ (v₀ : HeightOneSpectrum (𝓞 K)) →
+      a ∉ w.asIdeal := fun w hw hw' ↦ hw ((ha w).mp hw')
   have hK : algebraMap (𝓞 K) K a ≠ 0 :=
     fun h => hane ((injective_iff_map_eq_zero _).mp
       (FaithfulSMul.algebraMap_injective (𝓞 K) K) a h)

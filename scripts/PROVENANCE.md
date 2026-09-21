@@ -9,18 +9,26 @@ changed; the pristine originals stay in that clone and are not vendored here.
 `scripts/check.sh` runs everything. `scripts/check.sh --quick` runs only the gates that need no
 build.
 
+**Every gate reads both library roots**, `ArithmeticHeights` and `DiophantineApproximation`, one
+per roadmap. The single list of them is `LIBRARY_ROOTS` in `source-modules.sh`; `guards.sh`,
+`lint-style.sh` and `lint-env.sh` read it from there, and `Axioms.lean` and `ModuleSystem.lean`
+carry the same list as `auditedRoots`. Adding a roadmap to this repository means adding its
+directory to those three places — `lakefile.lean`, `source-modules.sh`, and the two audit
+executables — and nothing else. Upstream has one root and hard-codes it; that is the whole of the
+difference here.
+
 ## Tracked: the gates themselves
 
 | File | Gate | Origin |
 | --- | --- | --- |
 | `check.sh` | runs every gate below, cheapest first, and reports all failures in one round | ours; stands in for upstream's `.github/workflows/ci.yml`, which needs a CI to run |
-| `guards.sh` | four textual scans: the library may not import `Roadmap` (the `sorry`-allowed target signatures), may not use `set_option`, may not `import Mathlib`, and may not open a `namespace ArithmeticHeights` | the first two are upstream's CI steps; the last two are ours |
+| `guards.sh` | four textual scans, per library root: a library may not import `Roadmap` (the `sorry`-allowed target signatures), may not use `set_option`, may not `import Mathlib`, and may not open a `namespace` of its own name | the first two are upstream's CI steps; the last two are ours |
 | `Axioms.lean` | `lake exe axioms` — every declaration reaches only `propext`, `Classical.choice`, `Quot.sound`; catches `sorry`/`sorryAx`, `native_decide`'s `Lean.ofReduceBool`, and home-rolled axioms, including ones reaching in through imports | adapted from upstream |
 | `ModuleSystem.lean` | `lake exe module-system` — reads `ModuleData.isModule` back out of each built `.olean`, certifying the compilation rather than the source text | adapted from upstream |
-| `HeaderStyle.lean` | the copyright/`Authors:` contract, through Mathlib's `copyrightHeaderChecks`; Mathlib's own command linter skips files absent from a library root, and this library has no root | adapted from upstream |
+| `HeaderStyle.lean` | the copyright/`Authors:` contract, through Mathlib's `copyrightHeaderChecks`; Mathlib's own command linter skips files absent from a library root, and these libraries have no root module | adapted from upstream |
 | `source-modules.sh` | fail-closed source discovery shared by the two lint entry points: refuses symlinks and non-module paths, and fails when it finds nothing, so a miswired gate cannot pass vacuously | adapted from upstream |
-| `lint-style.sh` | the header audit plus Mathlib's text-based linters (`lake exe lint-style`) over the whole library | adapted from upstream |
-| `lint-env.sh` | the environment linters: `#lint` over the built library — simpNF, docBlame, checkType, synTaut, unusedArguments, … | ours; upstream's is a different thing (see below) |
+| `lint-style.sh` | the header audit plus Mathlib's text-based linters (`lake exe lint-style`) over both libraries | adapted from upstream |
+| `lint-env.sh` | the environment linters: one `#lint` per library root over the built libraries — simpNF, docBlame, checkType, synTaut, unusedArguments, … | ours; upstream's is a different thing (see below) |
 | `nolints-style.txt` | exceptions for `lake exe lint-style`, deliberately empty | the file `lint-style` reads by convention |
 
 ## What each gate catches, and where

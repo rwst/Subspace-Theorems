@@ -5,19 +5,20 @@ Authors: The Tau Ceti contributors
 
 Adapted for this repository from `scripts/Axioms.lean` of the Tau Ceti project
 (<https://github.com/TauCetiProject/TauCeti>) at commit `37ae92f8170796e94b66279ea66f8635d9ca2aa0`.
-Changes: the audited library root is `ArithmeticHeights` rather than `TauCeti`, and the module
-enumeration no longer prepends a root module, because this library has none.
+Changes: the audited library roots are `ArithmeticHeights` and `DiophantineApproximation` rather
+than the single root `TauCeti`, and the module enumeration no longer prepends a root module,
+because neither library has one.
 The pristine original is `~/math/TauCeti/scripts/Axioms.lean`; everything else is upstream's.
 -/
 import Lean
 
 /-!
-# `axioms`: the axiom-allowlist audit for the `ArithmeticHeights` library
+# `axioms`: the axiom-allowlist audit for this repository's libraries
 
-The repository's axiom gate. This executable builds the `ArithmeticHeights` environment from
-its compiled `.olean`s and inspects, for every declaration *defined in `ArithmeticHeights`*, the
-axioms it transitively depends on (`Lean.collectAxioms`). It fails unless every such
-declaration uses only the standard allowlist
+The repository's axiom gate. This executable builds the environment of every audited library
+(`ArithmeticHeights`, `DiophantineApproximation`) from its compiled `.olean`s and inspects, for
+every declaration *defined in one of them*, the axioms it transitively depends on
+(`Lean.collectAxioms`). It fails unless every such declaration uses only the standard allowlist
 
   `propext`, `Classical.choice`, `Quot.sound`.
 
@@ -29,10 +30,14 @@ imports. Run via `lake exe axioms` (after `lake build`).
 
 open Lean
 
-/-- The library whose declarations are audited (the AI-owned mathematics). -/
-def auditedRoot : Name := `ArithmeticHeights
+/-- The libraries whose declarations are audited (the AI-owned mathematics), one per roadmap.
+Keep in step with `LIBRARY_ROOTS` in `scripts/source-modules.sh`. -/
+def auditedRoots : List Name := [`ArithmeticHeights, `DiophantineApproximation]
 
-/-- Axioms permitted anywhere in `ArithmeticHeights`. -/
+/-- The audited roots as one string, for the audit's own messages. -/
+def auditedRootsString : String := ", ".intercalate (auditedRoots.map toString)
+
+/-- Axioms permitted anywhere in the audited libraries. -/
 def allowedAxioms : List Name := [``propext, ``Classical.choice, ``Quot.sound]
 
 /-- Build the environment from the given imported modules and run `act` in `CoreM`.
@@ -49,8 +54,9 @@ def withImportedEnv {α} (modules : Array Name) (act : CoreM α) : IO α := do
     fun env => Prod.fst <$> Core.CoreM.toIO act
       (ctx := { fileName := "<axioms>", fileMap := default }) (s := { env := env })
 
-/-- Is `mod` the audited library root or one of its submodules? -/
-def inAuditedLib (mod : Name) : Bool := mod == auditedRoot || auditedRoot.isPrefixOf mod
+/-- Is `mod` an audited library root or one of its submodules? -/
+def inAuditedLib (mod : Name) : Bool :=
+  auditedRoots.any fun root => mod == root || root.isPrefixOf mod
 
 /-- The module name for a `.lean` source path, e.g.
 `ArithmeticHeights/Foo/Bar.lean ↦ ArithmeticHeights.Foo.Bar`. -/
@@ -67,20 +73,23 @@ partial def collectLeanModules (dir : System.FilePath) : IO (Array Name) := do
       acc := acc.push (pathToModule entry.path)
   return acc
 
-/-- Every module in the `ArithmeticHeights` library: all of `ArithmeticHeights/**/*.lean`.
+/-- Every module in every audited library: all of `<root>/**/*.lean`, for each root.
 Enumerating the source tree, rather than importing a root, is what keeps the audit independent
 of the Lake glob: a module orphaned from every root is audited just the same.
 
-Unlike Tau Ceti, this library has no root module at all — `lakefile.lean` globs `.submodules`
-and nothing re-exports the library — so the root is not prepended here. Add it back if a root
-module is ever introduced. -/
-def auditedModules : IO (Array Name) :=
-  collectLeanModules (auditedRoot.toString : System.FilePath)
+Unlike Tau Ceti, these libraries have no root module at all — `lakefile.lean` globs `.submodules`
+and nothing re-exports them — so no root is prepended here. Add it back if a root module is ever
+introduced. -/
+def auditedModules : IO (Array Name) := do
+  let mut acc := #[]
+  for root in auditedRoots do
+    acc := acc ++ (← collectLeanModules (root.toString : System.FilePath))
+  return acc
 
 /-- Reader/State monad for the shared axiom-reachability pass: the `Environment` is read-only
 and the `NameMap Bool` memoizes, for every constant visited, whether it transitively depends on
 an axiom outside `allowedAxioms`. The map is threaded across *all* candidates so the shared
-`Mathlib`/`ArithmeticHeights` closure is walked once total, not re-walked per declaration. -/
+`Mathlib`/library closure is walked once total, not re-walked per declaration. -/
 abbrev AxiomCacheM := ReaderT Environment (StateM (Lean.NameMap Bool))
 
 /-- Does `c` transitively depend on an axiom outside `allowedAxioms`? Memoized in the shared
@@ -95,7 +104,7 @@ in-progress constant contributes nothing. Adapted from Robin Arnez's mathlib-wid
 The fail-if-any-disallowed-axiom guarantee is sound: the declaration that *directly* mentions a
 disallowed axiom is always cached `true` (its badness comes from its own edge to the leaf axiom,
 not a back edge), and since the imported libraries are axiom-clean that declaration is itself an
-audited `ArithmeticHeights` candidate — so any violation fails the run. The `false` sentinel
+audited candidate — so any violation fails the run. The `false` sentinel
 can, in a cyclic declaration cluster, leave *other* members of the cluster cached clean, so the
 reported offender list may under-count (the next run flags the rest); it never lets a violation
 pass. -/
@@ -120,8 +129,8 @@ partial def reachesDisallowedAxiom (c : Name) : AxiomCacheM Bool := do
   modify (·.insert c res)
   return res
 
-/-- Audit every declaration defined in `ArithmeticHeights`. Returns the number audited and a list of
-violation messages, **already rendered to `String`**.
+/-- Audit every declaration defined in an audited library. Returns the number audited and a list
+of violation messages, **already rendered to `String`**.
 
 The strings must be materialized here, inside the environment callback: declaration and
 axiom `Name`s loaded from `.olean`s live in a memory-mapped region that is unmapped once
@@ -129,7 +138,7 @@ axiom `Name`s loaded from `.olean`s live in a memory-mapped region that is unmap
 def audit : CoreM (Nat × Array String) := do
   let env ← getEnv
   let modNames := env.allImportedModuleNames
-  -- Candidate declarations: those defined in a `ArithmeticHeights` module.
+  -- Candidate declarations: those defined in a module of an audited library.
   let candidates : Array Name := env.constants.fold (init := #[]) fun acc declName _ =>
     match env.getModuleIdxFor? declName with
     | some idx =>
@@ -157,14 +166,16 @@ def main : IO UInt32 := do
   let (audited, messages) ← withImportedEnv modules audit
   if audited == 0 then
     -- Governance tooling must fail loudly if it audited nothing (e.g. miswired import).
-    IO.eprintln s!"axioms: audited 0 declarations in {auditedRoot}: the audit is miswired."
+    IO.eprintln s!"axioms: audited 0 declarations in {auditedRootsString}: \
+      the audit is miswired."
     return 1
   if messages.isEmpty then
-    IO.println s!"axioms: audited {audited} {auditedRoot} declaration(s); \
+    IO.println s!"axioms: audited {audited} {auditedRootsString} declaration(s); \
       all within the allowlist {allowedAxioms}."
     return 0
   else
-    IO.eprintln s!"axioms: {messages.size} declaration(s) in {auditedRoot} use disallowed axioms:"
+    IO.eprintln s!"axioms: {messages.size} declaration(s) in {auditedRootsString} \
+      use disallowed axioms:"
     for m in messages do IO.eprintln m
     IO.eprintln s!"allowed: {allowedAxioms}"
     return 1

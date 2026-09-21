@@ -21,8 +21,10 @@
 # and a theorem whose proof is not exposed is not mistaken for an axiom. A module-style driver makes
 # `docBlame` report every documented declaration as undocumented.
 #
-# `#lint … in ArithmeticHeights` selects by MODULE prefix, not by namespace (Batteries'
+# `#lint … in <root>` selects by MODULE prefix, not by namespace (Batteries'
 # `getDeclsInPackage`), which is what we need: declarations here live in Mathlib's root namespaces.
+# One `#lint` per library root, so the report says which library each violation is in; the roots
+# are `LIBRARY_ROOTS` in `scripts/source-modules.sh`.
 
 set -euo pipefail
 
@@ -38,7 +40,9 @@ driver="$lint_src/LintEnvDriver.lean"
 library_source_modules "$lint_src/files" "$lint_src/modules"
 mapfile -d '' files < "$lint_src/files"
 sed 's/^/import /' "$lint_src/modules" > "$driver"
-printf '#lint in ArithmeticHeights\n' >> "$driver"
+for root in "${LIBRARY_ROOTS[@]}"; do
+  printf '#lint in %s\n' "$root" >> "$driver"
+done
 
 expected_imports="${#files[@]}"
 emitted_imports="$(grep -c '^import ' "$driver")"
@@ -56,13 +60,25 @@ printf '%s\n' "$report"
 # Fail closed on a vacuous pass. `#lint` reports success identically whether it judged every
 # declaration or none at all, so a driver that imported nothing, or a `#lint` that stopped
 # selecting our modules, would otherwise read as green.
-summary="$(printf '%s\n' "$report" | grep -E 'Found [0-9]+ errors? in [0-9]+ declarations' || true)"
-if [[ -z $summary ]]; then
-  echo 'lint-env: no linter summary in the report; the lint is miswired.' >&2
+mapfile -t summaries < <(printf '%s\n' "$report" \
+  | grep -E 'Found [0-9]+ errors? in [0-9]+ declarations' || true)
+if ((${#summaries[@]} != ${#LIBRARY_ROOTS[@]})); then
+  echo "lint-env: expected ${#LIBRARY_ROOTS[@]} linter summaries in the report, got \
+${#summaries[@]}; the lint is miswired." >&2
   exit 1
 fi
-declarations="$(printf '%s\n' "$summary" | sed -E 's/.* in ([0-9]+) declarations.*/\1/')"
-linters="$(printf '%s\n' "$summary" | sed -E 's/.* with ([0-9]+) linters.*/\1/')"
+declarations=0
+linters=0
+for summary in "${summaries[@]}"; do
+  d="$(printf '%s\n' "$summary" | sed -E 's/.* in ([0-9]+) declarations.*/\1/')"
+  l="$(printf '%s\n' "$summary" | sed -E 's/.* with ([0-9]+) linters.*/\1/')"
+  if ((d == 0)); then
+    echo 'lint-env: one of the linter runs judged 0 declarations; the lint is miswired.' >&2
+    exit 1
+  fi
+  declarations=$((declarations + d))
+  linters="$l"
+done
 if ((declarations == 0)); then
   echo 'lint-env: the linters judged 0 declarations; the lint is miswired.' >&2
   exit 1

@@ -5,18 +5,19 @@ Authors: The Tau Ceti contributors
 
 Adapted for this repository from `scripts/ModuleSystem.lean` of the Tau Ceti project
 (<https://github.com/TauCetiProject/TauCeti>) at commit `37ae92f8170796e94b66279ea66f8635d9ca2aa0`.
-Changes: the audited library root is `ArithmeticHeights` rather than `TauCeti`, and the module
-enumeration no longer prepends a root module, because this library has none.
+Changes: the audited library roots are `ArithmeticHeights` and `DiophantineApproximation` rather
+than the single root `TauCeti`, and the module enumeration no longer prepends a root module,
+because neither library has one.
 The pristine original is `~/math/TauCeti/scripts/ModuleSystem.lean`; everything else is upstream's.
 -/
 import Lean
 
 /-!
-# `module-system`: enforce that every `ArithmeticHeights` file opts into the module system
+# `module-system`: enforce that every library file opts into the module system
 
-The repository's module-system gate. This executable inspects the built `.olean`s of the
-`ArithmeticHeights` library and fails unless **every** module in `ArithmeticHeights` was
-elaborated with the `module` keyword, i.e. opts into the Lean module system.
+The repository's module-system gate. This executable inspects the built `.olean`s of the audited
+libraries (`ArithmeticHeights`, `DiophantineApproximation`) and fails unless **every** module in
+them was elaborated with the `module` keyword, i.e. opts into the Lean module system.
 
 The signal is read from the compiled artifact, not the source text: each module's
 `ModuleData.isModule` flag is set by the frontend exactly when the file began with
@@ -34,8 +35,12 @@ part, which `readModuleData` loads on its own; we copy the `Bool` out and free t
 
 open Lean
 
-/-- The library whose modules must opt into the module system (the AI-owned mathematics). -/
-def auditedRoot : Name := `ArithmeticHeights
+/-- The libraries whose modules must opt into the module system (the AI-owned mathematics), one
+per roadmap. Keep in step with `LIBRARY_ROOTS` in `scripts/source-modules.sh`. -/
+def auditedRoots : List Name := [`ArithmeticHeights, `DiophantineApproximation]
+
+/-- The audited roots as one string, for the audit's own messages. -/
+def auditedRootsString : String := ", ".intercalate (auditedRoots.map toString)
 
 /-- The module name for a `.lean` source path, e.g.
 `ArithmeticHeights/Foo/Bar.lean ↦ ArithmeticHeights.Foo.Bar`. -/
@@ -52,15 +57,18 @@ partial def collectLeanModules (dir : System.FilePath) : IO (Array Name) := do
       acc := acc.push (pathToModule entry.path)
   return acc
 
-/-- Every module in the `ArithmeticHeights` library: all of `ArithmeticHeights/**/*.lean`.
+/-- Every module in every audited library: all of `<root>/**/*.lean`, for each root.
 Enumerating the source tree, rather than importing a root, is what keeps the audit independent
 of the Lake glob: a module orphaned from every root is audited just the same.
 
-Unlike Tau Ceti, this library has no root module at all — `lakefile.lean` globs `.submodules`
-and nothing re-exports the library — so the root is not prepended here. Add it back if a root
-module is ever introduced. -/
-def auditedModules : IO (Array Name) :=
-  collectLeanModules (auditedRoot.toString : System.FilePath)
+Unlike Tau Ceti, these libraries have no root module at all — `lakefile.lean` globs `.submodules`
+and nothing re-exports them — so no root is prepended here. Add it back if a root module is ever
+introduced. -/
+def auditedModules : IO (Array Name) := do
+  let mut acc := #[]
+  for root in auditedRoots do
+    acc := acc ++ (← collectLeanModules (root.toString : System.FilePath))
+  return acc
 
 /-- Read `isModule` out of `modData` in its own frame. The `@[noinline]` (mirroring Lake's
 builtin linter) ends `modData`'s lifetime here, so the runtime drops its reference into the
@@ -91,15 +99,16 @@ def main : IO UInt32 := do
     | none => IO.eprintln s!"module-system: no `.olean` for {m} (did `lake build` run?)"
               bad := bad.push m
   if modules.isEmpty then
-    IO.eprintln s!"module-system: found 0 modules under {auditedRoot}: the audit is miswired."
+    IO.eprintln s!"module-system: found 0 modules under {auditedRootsString}: \
+      the audit is miswired."
     return 1
   if bad.isEmpty then
-    IO.println s!"module-system: all {modules.size} {auditedRoot} module(s) opt into the \
+    IO.println s!"module-system: all {modules.size} {auditedRootsString} module(s) opt into the \
       module system."
     return 0
   else
-    IO.eprintln s!"module-system: {bad.size} of {modules.size} {auditedRoot} module(s) do not opt \
-      into the module system (their compiled `.olean` has isModule = false):"
+    IO.eprintln s!"module-system: {bad.size} of {modules.size} {auditedRootsString} module(s) do \
+      not opt into the module system (their compiled `.olean` has isModule = false):"
     for m in bad do IO.eprintln s!"  {m}"
     IO.eprintln "Add `module` as the first line of each (after the copyright header), and make \
       imports `public import` where the import's contents appear in this file's public API."

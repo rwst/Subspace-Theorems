@@ -5,14 +5,15 @@
 #
 # Adapted for this repository from `scripts/lint-style.sh` of the Tau Ceti project
 # (<https://github.com/TauCetiProject/TauCeti>) at commit 37ae92f8170796e94b66279ea66f8635d9ca2aa0.
-# Changes: the library root is `ArithmeticHeights`. Upstream passes its real (empty) library root
+# Changes: the library roots are `ArithmeticHeights` and `DiophantineApproximation`
+# (`LIBRARY_ROOTS` in `scripts/source-modules.sh`). Upstream passes its real (empty) library root
 # `TauCeti` as a second argument, purely so that `lint-style`'s same-package filter keeps the
-# generated module's imports; this library has no root module to pass, so the library's own modules
-# are passed instead — they put `ArithmeticHeights` into that filter, and contribute nothing else
+# generated module's imports; these libraries have no root module to pass, so their own modules
+# are passed instead — they put both roots into that filter, and contribute nothing else
 # (their own imports are Mathlib's, which the filter drops). The pristine original is
 # `~/math/TauCeti/scripts/lint-style.sh`.
 #
-# Run the source-based style checks over every ArithmeticHeights source file: Mathlib's
+# Run the source-based style checks over every library source file: Mathlib's
 # copyright/`Authors:` contract (scripts/HeaderStyle.lean) and Mathlib's text-based linters
 # (`lake exe lint-style`).
 #
@@ -29,7 +30,7 @@ cd "$PROJECT_ROOT"
 
 lint_src="$(mktemp -d "$PWD/.lake/lint-style-src.XXXXXX")"
 trap 'rm -rf "$lint_src"' EXIT
-lint_module="$lint_src/ArithmeticHeightsLint/All.lean"
+lint_module="$lint_src/SubspaceTheoremsLint/All.lean"
 mkdir -p "$(dirname "$lint_module")"
 
 . "$SCRIPTS/source-modules.sh"
@@ -52,7 +53,7 @@ fi
 
 mapfile -t modules < "$lint_src/modules"
 if ! LEAN_SRC_PATH="$lint_src${LEAN_SRC_PATH:+:$LEAN_SRC_PATH}" \
-    lake exe lint-style "$@" ArithmeticHeightsLint.All "${modules[@]}"; then
+    lake exe lint-style "$@" SubspaceTheoremsLint.All "${modules[@]}"; then
   status=1
 fi
 

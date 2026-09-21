@@ -5,8 +5,8 @@ Authors: The Tau Ceti contributors
 
 Adapted for this repository from `scripts/HeaderStyle.lean` of the Tau Ceti project
 (<https://github.com/TauCetiProject/TauCeti>) at commit `37ae92f8170796e94b66279ea66f8635d9ca2aa0`.
-Changes: the audited library is `ArithmeticHeights`, which has no library root at all, so the
-root exemption upstream needs does not arise. The pristine original is
+Changes: the audited libraries are `ArithmeticHeights` and `DiophantineApproximation`, neither
+of which has a library root at all, so the root exemption upstream needs does not arise. The pristine original is
 `~/math/TauCeti/scripts/HeaderStyle.lean`; the code below is upstream's.
 -/
 import Mathlib.Tactic.Linter.Header
@@ -15,9 +15,10 @@ import Mathlib.Tactic.Linter.Header
 # Copyright-header audit
 
 Mathlib's `linter.style.header` deliberately skips a module unless the library root imports it.
-This library has no root module at all, so the ordinary command linter never reaches these files.
+These libraries have no root module at all, so the ordinary command linter never reaches their
+files.
 This audit calls the linter's public `copyrightHeaderChecks` function on the validated
-`ArithmeticHeights/**` source list supplied by `scripts/lint-style.sh`.
+source list supplied by `scripts/lint-style.sh`.
 
 This intentionally enforces the copyright block and `Authors:` contract, not the same command
 linter's separate broad-import, duplicate-import, directory-dependency, or module-doc checks. The
@@ -35,7 +36,7 @@ def expectedLicense := Mathlib.Linter.linter.style.header.license.defValue
 code when the source list is empty or at least one file has a malformed header. -/
 unsafe def main (args : List String) : IO UInt32 := do
   if args.isEmpty then
-    IO.eprintln "header-style: received no validated ArithmeticHeights source files; \
+    IO.eprintln "header-style: received no validated library source files; \
       the audit is miswired."
     return 1
   let mut failures : UInt32 := 0
@@ -50,6 +51,6 @@ unsafe def main (args : List String) : IO UInt32 := do
   if failures != 0 then
     IO.eprintln s!"header-style: {failures} source file(s) have malformed copyright headers."
   else
-    IO.eprintln s!"header-style: all {args.length} ArithmeticHeights source file(s) \
+    IO.eprintln s!"header-style: all {args.length} library source file(s) \
       have conforming headers."
   return min failures 125
