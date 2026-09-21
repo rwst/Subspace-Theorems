@@ -82,9 +82,48 @@ three lines of rewriting. ⚠ **2.4 took two as well, and this time the second f
 Mathlib is missing**: `…/Wronskian.lean` is the Wronskian of `n` polynomials in *one* variable —
 Mathlib has only the two-polynomial `Polynomial.wronskian` — and `…/GeneralizedWronskian.lean` is
 the Kronecker substitution that reduces several variables to one. The seam is the same one as in
-2.3: the first file knows nothing about the roadmap, and the second is the reduction. Layers 0,
-1.1, 1.2, 1.3, 2.1, 2.2, 2.3 and 2.4 together stand at **thirty-two** files, and nothing suggests
-the pattern stops.
+2.3: the first file knows nothing about the roadmap, and the second is the reduction. ⚠ **2.5
+asked for one file and got one** — the second milestone of this roadmap to do so, and for the
+opposite reason to 2.2's: not that its halves refuse to separate, but that its three estimates
+turned out to be *one* estimate. `…/CountingVolume.lean` proves a single Chernoff bound in `m`
+coordinates and then applies it twice, at two weights; the seam a second file would have followed
+does not exist. ⚠ **2.6 took four, and every seam is one the milestone did not mention**:
+`…/BoxMonomial.lean` is the dictionary between coefficient vectors and polynomials of bounded
+*partial* degrees — the box, which `ArithmeticHeights`'s `…/MonomialIndex.lean` does not cover
+because Siegel's lemma is packaged there on the simplex of bounded total degree;
+`…/MonomialHeight.lean` is the height of one condition row, a statement about tuples of powers
+with no polynomial in it; `…/IndexConditions.lean` turns the index into a finite linear system
+and counts it by 2.5; and `…/AuxiliaryPolynomial.lean` is the index theorem. The first two know
+nothing about each other. ⚠ **2.7 took eight, and only one of them is Roth's lemma**:
+`…/HeightTransport.lean` is the transport from local factors to heights with a one-sided
+nonarchimedean bound, a statement about finitely supported families with no polynomial in it;
+`…/IndexRename.lean` is the dictionary for an injective renaming — a Hasse derivative, the index
+and a partial degree each commute with one — together with the three shapes of the index a
+determinant needs; `…/PolynomialDeterminantHeight.lean` is the local estimate for a sum, a
+product and a determinant of polynomials, and the one file that knows both what an absolute
+value is and what a determinant is; `…/RothDecomposition.lean` is the tensor decomposition and
+the identity that makes the determinant of derivatives a product of two Wronskians, with no
+height and no number field anywhere; `…/RothDeterminant.lean` assembles the degree, the height
+and the index of that determinant; `…/RothBaseCase.lean` is the one-variable case, the only file
+of the milestone that touches Gelfond's inequality; `…/RothEstimates.lean` is three inequalities
+between real numbers and imports no algebra at all; and `…/RothLemma.lean` is the induction.
+⚠ **3.1 took two, and the seam is the one the milestone's own sentence predicted**:
+`…/ApproximationClass.lean` is Mahler's reduction with nothing arithmetic in it — a finite index
+type, a family of maps into the unit simplex, a count and a pigeonhole — and
+`…/IndependentHeights.lean` is the half that needs Northcott, and so the first file of the roadmap
+since Layer 1 whose only import from Mathlib is a height.
+⚠ **3.2 took seven, and they are the five steps of the book plus their two tools**:
+`…/GlobalBound.lean` is the product formula read against local upper bounds — Step IV, and the
+file that decides the constant `2` of the theorem; `…/MvPolynomialEvalBound.lean` bounds the value
+of a polynomial at one absolute value, trivially and through a Taylor expansion, and knows nothing
+of number fields; `…/RothLocalBound.lean` is the one-step translation of that bound into the base
+field along `AbsoluteValue.LiesOver`; `…/RothClass.lean` is Step 0, Layer 3.1 in the form the
+proof quotes; `…/RothKeyInequality.lean` is Steps III to V at a fixed multidegree;
+`…/RothAuxiliary.lean` is Steps I and II, and the only file of the milestone that opens Layers 2.6
+and 2.7; and `…/RothTheorem.lean` is the choice of `ε`, `N`, `m`, `σ`, `L`, `M` and `D`, in the
+book's order, and nothing else.
+Layers 0, 1.1, 1.2, 1.3, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 3.1 and 3.2 together
+stand at **fifty-four** files, and nothing suggests the pattern stops.
 
 **This roadmap stands on [`ArithmeticHeights`](../ArithmeticHeights/README.md).** That roadmap's
 long-horizon section names the Subspace Theorem, Roth's theorem and unit equations as what its
@@ -124,12 +163,27 @@ successive minimum used below is consumed from there by milestone number and non
   the agreement with `Polynomial.rootMultiplicity` in one variable — the **generalized
   Wronskian** criterion for linear independence — also landed, in any number of variables and
   with the `n`-polynomial Wronskian in one variable under it, which Mathlib has only for `n = 2`
-  — and along a system of linear forms, the **auxiliary polynomial** of prescribed index, and
-  **Roth's lemma** with its multihomogeneous generalization.
-- **Roth's theorem** over a number field with a finite set of places (Lang's formulation), with
-  Roth's original theorem, **Ridout's theorem** and the `p`-adic case as instances; **Mahler's
-  theorem** on the fractional parts of `(p/q)^k`; the **strong gap principle** and the resulting
-  **bound on the number of approximations**; and Roth's theorem with **moving targets**.
+  — the **counting and volume estimates** that say how many linear conditions the auxiliary
+  polynomial has to satisfy — also landed, both directions of the lattice-point comparison and
+  both exponential tails, with the book's constants — the **auxiliary polynomial** of prescribed
+  index — also landed, in the `ε`–`D₀` form every application uses, with Siegel's lemma applied
+  on the box of bounded partial degrees rather than on the simplex of bounded total degree — and
+  **Roth's lemma** itself, Bombieri–Gubler's Lemma 6.3.7 — also landed, at the book's constants,
+  with the induction run on `θ` rather than on `σ` so that no real power occurs inside it. Its
+  multihomogeneous generalization, which Layer 5.3 consumes, is not this milestone.
+- **Approximation classes** — Mahler's reduction of a Diophantine inequality to solutions that
+  behave alike at every place — landed, stated for an arbitrary finite index set and an arbitrary
+  family of maps into the unit simplex, with the count of the classes, the two-sided bound the
+  class gives on each local factor, and the `(L, M)`-**independent** sequences Northcott's theorem
+  produces inside any infinite set. Mathlib has the stars-and-bars count it rests on and nothing
+  above it.
+- **Roth's theorem** over a number field with a finite set of places (Lang's formulation) —
+  **landed**, in the form with targets in a finite extension measured by a chosen absolute value
+  over each place, which contains Roth's original theorem, Ridout's and Schmidt's algebraic-
+  coefficient shapes at once — with Roth's original theorem, **Ridout's theorem** and the `p`-adic
+  case still to be derived as instances; **Mahler's theorem** on the fractional parts of
+  `(p/q)^k`; the **strong gap principle** and the resulting **bound on the number of
+  approximations**; and Roth's theorem with **moving targets**.
 - The **geometry of numbers of a parallelepiped over a number field**: `S`-adic approximation
   domains as a lattice and a convex body, successive minima counted over `K`, the two-sided
   Minkowski theorem for them, **Evertse's lemma**, and the passage to **exterior powers**.
@@ -383,12 +437,14 @@ form — and **Wirsing's third lower bound**, `w_n ≤ w_n^* (w_n + 1 − n)`, w
 `n ≤ w_n^*` and is what Layer 7.3 consumes. **Wirsing's first two lower bounds on `w_n^*`, and
 1.4, are untouched — and all three are optional**: 1.4 is the only consumer of the two bounds,
 and nothing in Layers 2–9 consumes 1.4. Both bounds need a hypothesis `1 ≤ n` that the roadmap's
-prototypes omitted, since at `n = 0` both exponents vanish. ⚠ **Layers 2.1, 2.2, 2.3 and 2.4 are
-landed**: multivariate Hasse derivatives with the substitution formula behind them, the exactness
+prototypes omitted, since at `n = 0` both exponents vanish. ⚠ **Layer 2 is landed in full**: multivariate Hasse derivatives with the substitution formula
+behind them, the exactness
 of the height of a product in disjoint variables — Bombieri–Gubler's Proposition 1.6.2 — at every
 absolute value at once, the index of a polynomial at a point, as a valuation in any
-characteristic, and the generalized Wronskian criterion for linear independence in characteristic
-zero. Mathlib has none of the four. What 2.2 needed from it is one lemma, the Segre
+characteristic, the generalized Wronskian criterion for linear independence in characteristic
+zero, the counting-and-volume estimates behind the auxiliary polynomial, **the auxiliary
+polynomial itself**, Lemma 6.3.4, and **Roth's lemma**, Lemma 6.3.7. Mathlib has none of the
+seven. What 2.2 needed from it is one lemma, the Segre
 relation `Height.mulHeight_fun_mul_eq`, and the bridge to it is `Finsupp` and not `MvPolynomial`,
 because that lemma is stated for tuples over a finite index type while the exponents of a
 polynomial are not one. What 2.3 needed is nothing at all: the weighted order of a support is
@@ -396,7 +452,45 @@ built here, on Mathlib's weighted homogeneous components. ⚠ **A Wronskian crit
 polynomials in several variables is no longer missing — and neither is one in a single
 variable**, which is the part of 2.4 the milestone did not advertise: `Polynomial.wronskian` is
 the two-polynomial determinant, built for Mason–Stothers, and the `n`-polynomial one with its
-independence criterion is new here.
+independence criterion is new here. ⚠ **What 2.5 needed from Mathlib is the decoupling of a
+product over coordinates**, `MeasureTheory.integral_fintype_prod_volume_eq_pow`, and Haar
+scaling; what it had to add is one inequality about `Real.sinh`, which Mathlib has no
+inequalities for at all, and one about `Real.exp` that Mathlib very nearly has.
+⚠ **What 2.6 needed from Mathlib is the Segre relation for an arbitrary finite family**,
+`Height.mulHeight_fun_prod_eq`, which is what makes the height of a condition row a product of
+one-variable heights with no loss; and what it had to add is the **one-input transport** from
+local factors to the height that Layer 2.1 recorded as missing —
+`Height.mulHeight_le_pow_totalWeight`, three lines, with `finprod_induction` in place of the
+finite-support argument one would expect. The height of the tuple of powers
+`α ^ k, k ≤ d`, is `H(α) ^ d` **exactly**, and Mathlib does not have that either.
+⚠ **What 2.7 needed from Mathlib is `MvPolynomial.finSuccEquiv` and `Nat.factorial_le_pow`**,
+and what it had to add is the *other* transport from local factors to heights — one object
+against a **power** of another, with a one-sided inequality at the nonarchimedean absolute
+values, which is what a Hasse derivative satisfies and a product does not. The obstruction there
+was that the finite-support fact for the local factor of a *family* is private in Mathlib;
+`AdmissibleAbsValues.hasFiniteMulSupport`, the same fact for a single element, gives it back in
+three lines. Mathlib also has no bound on the height of a determinant of *polynomials*, and
+there can be none in the projective height of the entries alone — the estimate has to be made
+at each absolute value and transported once.
+⚠ **Layer 3.1 is landed, and it is the one milestone so far that needed nothing new from
+Mathlib.** The count of the approximation classes is stars and bars, which Mathlib has as
+`Finset.card_finsuppAntidiag_nat_eq_choose`, and the existence of `(L, M)`-independent sequences
+is `NumberField.finite_setOfPred_logHeight₁_le`, Mathlib's Northcott property for a number field.
+What is added is the vocabulary — the cell of a point of the unit simplex, the normalized
+logarithmic profile of a family of local factors, and the two-sided bound the cell gives on each
+of them — none of which Mathlib has any reason to have.
+
+⚠ **Layer 3.2 is landed, and it needed nothing new from Mathlib either — but it needed one thing
+this roadmap had put in the wrong place.** Every input was already here: the index theorem, Roth's
+lemma, the Hasse–Taylor expansion, the approximation classes, Northcott. What was missing was the
+*global* step: this roadmap's route said "bound `Q(β)` below by 0.4", and Layer 0.4's fundamental
+inequality is a product over `S`, which is not enough (see 3.2). The product formula over all the
+places against local upper bounds — `NumberField.one_le_of_forall_apply_le_sum` — is the one
+statement the milestone had to add, and Mathlib's `NumberField.prod_abs_eq_one` is all it stands
+on. Beside it, the milestone adds the local bounds on the value of a polynomial at one absolute
+value, which Mathlib has only for *homogeneous* polynomials and with a constant depending on the
+polynomial rather than on its height (`Height.mulHeight_eval_le`), and that is the wrong shape
+here because the polynomial varies with `D`.
 
 ## The build, in layers
 
@@ -1044,8 +1138,11 @@ local estimates into a statement about `MvPolynomial.mulHeight` needs a transpor
 **one** input and a **one-sided** nonarchimedean hypothesis, and `ArithmeticHeights`'s
 `Finsupp.mulHeight_le_of_forall_iSup_le` has two inputs and demands *equality* at the
 nonarchimedean places — which Gauss's lemma supplies for a product and a Hasse derivative does
-not. That transport belongs in the `ArithmeticHeights` roadmap; until it is written, 2.6 and 5.6
-consume the local estimates directly, which is the form they use them in anyway.
+not. That transport belongs in the `ArithmeticHeights` roadmap; ⚠ **2.6 wrote the case it
+needed** — `Height.mulHeight_le_pow_totalWeight`, one tuple, a constant at the archimedean
+absolute values and `≤ 1` at the others — in `DiophantineApproximation/MonomialHeight.lean`, and
+it is three lines. The general two-sided form is still the `ArithmeticHeights` roadmap's, and
+5.6 still consumes the local estimates directly.
 
 **2.2 Polynomials in disjoint variables** (Bombieri–Gubler, Proposition 1.6.2) — **landed**.
 For `f : MvPolynomial σ K` and `g : MvPolynomial τ K`, the height of
@@ -1072,7 +1169,7 @@ table of two others along an injection has the product of their heights, and the
 is the coefficient identity that produces the injection. That lemma and its local companion
 belong to the `ArithmeticHeights` roadmap and are written so that they can move there unchanged.
 
-⚠ **Renaming came free, and it is what 2.7 will call.** The statement above uses `Sum.inl` and
+⚠ **Renaming came free, and it is what 2.7 calls.** The statement above uses `Sum.inl` and
 `Sum.inr`, but Roth's lemma multiplies two generalized Wronskians that already sit inside one
 variable set. The height does not see how the variables are named —
 `MvPolynomial.mulHeight_rename_of_injective`, proved from the same reindexing lemma — so the
@@ -1173,10 +1270,10 @@ derivative beyond `K`-linearity. Characteristic zero is used only in the hard ha
 twice — in the binomial determinant, and in the factor `∏ i, i !` relating the two normalisations
 of the Wronskian.
 
-**2.5 Counting and volume** (Bombieri–Gubler 6.3.3, Lemma 6.3.5, and (7.23)–(7.25)). Three
-estimates, all elementary and all needed with explicit constants. *Lattice points:* with
-`V_m(t)` the volume of `{x ∈ [0,1]^m | ∑ x j ≤ t}`, the number of `i` with `0 ≤ i j ≤ d j` and
-`∑ j, i j / d j ≤ t` lies between `V_m(t) ∏ d j` and
+**2.5 Counting and volume** (Bombieri–Gubler 6.3.3, Lemma 6.3.5, and (7.23)–(7.25)) —
+**landed**. Three estimates, all elementary and all needed with explicit constants. *Lattice
+points:* with `V_m(t)` the volume of `{x ∈ [0,1]^m | ∑ x j ≤ t}`, the number of `i` with
+`0 ≤ i j ≤ d j` and `∑ j, i j / d j ≤ t` lies between `V_m(t) ∏ d j` and
 `V_m(t) (1 + max 1 t⁻¹ ∑ j, 1/d j)^m ∏ d j`. *The tail:* `V_m((1/2 − ε) m) ≤ exp (−6 m ε²)` for
 `0 ≤ ε ≤ 1/2`. *The multihomogeneous tail:* with `n ≥ 1` and `0 < η ≤ 2/(n + 1)`, the proportion
 of exponent tuples `J` of multidegree `(d_1, …, d_m)` in `m` blocks of `n + 1` variables with
@@ -1185,7 +1282,51 @@ of exponent tuples `J` of multidegree `(d_1, …, d_m)` in `m` blocks of `n + 1`
 with the lattice-point comparison that makes it a count. The proofs are one exponential-moment
 estimate each. State them in a file that imports no number theory.
 
-**2.6 The auxiliary polynomial** (Bombieri–Gubler, Lemma 6.3.4 — the index theorem). Let `F/K` be
+⚠ **They are one exponential-moment estimate, not one each.** The lemma is
+`MeasureTheory.setIntegral_prod_le_exp_mul_pow`: for a nonnegative weight `g` on the line,
+`∫_{∑ x j ≤ s} ∏ j, g (x j) ≤ exp (λ s) · (∫ exp (−λ x) g x)^m`. Both tails are that one bound at
+two weights — the indicator of `[0,1]`, and the Beta`(1, n)` density `n (1 − x)^{n−1}` of one
+coordinate of a point taken uniformly in the standard `n`-simplex — and what separates them is a
+single pointwise inequality about `exp`. Mathlib's
+`MeasureTheory.integral_fintype_prod_volume_eq_pow` is what decouples the coordinates; nothing
+probabilistic is needed and no independence is ever mentioned.
+
+⚠ **Every restriction the book puts on the parameters is an artefact of its proof, and all three
+came out.** `ε ≤ 1/2` in Lemma 6.3.5 is vacuous, since beyond `ε = 1/2` the region is empty; and
+`0 < λ ≤ n + 4` and `η ≤ 2/(n + 1)` in (7.24)–(7.25) are the price of the book's method, which
+truncates the alternating series `∑ (−λ)^k/(n+k)!` after three terms and has to pair off the tail
+to see that the rest is negative. The pointwise bound `exp(−u) ≤ 1 − u + u²/2` gives exactly those
+three terms for **every** `u ≥ 0`, and it follows in three lines from Mathlib's
+`Real.quadratic_le_exp_of_nonneg` and the identity `(1+u+u²/2)(1−u+u²/2) = 1 + u⁴/4`. The landed
+statements assume only `0 ≤ ε` and `0 ≤ η`.
+
+⚠ **The `6` is `6^k k! ≤ (2k+1)!`, sharp at `k = 1`.** The uniform weight needs
+`sinh u ≤ u exp(u²/6)`, which is that comparison of the two power series term by term, and the
+constant `−6 m ε²` then comes out of `λ = 12 ε` on the nose. Mathlib has no inequality of this
+kind for `Real.sinh`, so `Real.sinh_le_mul_exp_sq_div_six` is new; it is the only place in the
+layer where a series is summed, and the only use made of `Real.exp`'s power series.
+
+⚠ **The multihomogeneous estimate is stated as a proportion, and that is what removes the simplex
+volume.** The book's `V` is an `mn`-dimensional volume which the book itself rewrites, in the very
+next display, as an integral over `[0,1]^m` against the density of one simplex coordinate — and
+that rewriting *is* the volume `r^k/k!` of a simplex, which Mathlib does not have and which would
+have to be built by induction with Fubini on a pi measure. Stating the bound against the
+**normalised** density makes the factor `V₀ = (n!)^{−m}` cancel from both sides of the book's
+`V/V₀`, and what is left is literally the proportion this milestone asks for. The price is that
+the landed statement bounds an integral against a probability density rather than an
+`mn`-dimensional volume; the two differ by that missing factor and by nothing else.
+
+⚠ **Both lattice-point bounds are one covering argument, and only the upper one needs `t > 0`.**
+Attach to each admissible `i` the half-open box `∏ j, [i j/d j, (i j + 1)/d j)`. Rounding the
+coordinates of a point of `𝒱_m(t)` down lands in such a box, so the boxes *cover* the region and
+the lower bound needs no disjointness at all; and the boxes, which are disjoint, fit inside
+`(1 + ρ) 𝒱_m(t)` for the book's `ρ = max 1 t⁻¹ ∑ j, 1/d j`, so the upper bound is
+`Measure.addHaar_smul` and nothing else. At `t = 0` the origin is always an admissible lattice
+point while `V_m(0) = 0`, so the hypothesis `t > 0` on the upper bound is not decoration — the
+acceptance criteria record it as a rejection test.
+
+**2.6 The auxiliary polynomial** (Bombieri–Gubler, Lemma 6.3.4 — the index theorem) —
+**landed**. Let `F/K` be
 a finite extension of degree `r`, let `α k : Fin m → F` for `k : Fin N` be points, and let
 `t k > 0` with `r ∑ k, V_m(t k) < 1`. For every `δ > 0` there is `D₀` such that for all
 `d : Fin m → ℕ` with `D₀ ≤ d j` there is a nonzero `P : MvPolynomial (Fin m) K` with
@@ -1195,32 +1336,185 @@ logarithmic heights. This is the `ε`–`D₀` reading of the book's `o(1)`, and
 state: every application lets `d j → ∞` with `m` fixed. Route: `ArithmeticHeights` 5.7 with the
 relative Siegel lemma of 5.6 behind it, the conditions being the vanishing of
 `hasseDeriv μ P` at `α k` for `∑ j, μ j / d j < t k`, counted by 2.5, with rows of height at most
-`∏ j, (2 H(α k j)) ^ d j`. No other Siegel lemma is proved here.
+`∏ j, (2 H(α k j)) ^ d j`. No other Siegel lemma is proved here. In
+`DiophantineApproximation/AuxiliaryPolynomial.lean`
+(`MvPolynomial.exists_ne_zero_le_index_logHeight_le`), on
+`…/BoxMonomial.lean`, `…/MonomialHeight.lean` and `…/IndexConditions.lean`.
 
-**2.7 Roth's lemma** (Bombieri–Gubler, Lemma 6.3.7, with the base case 6.3.9). Let
+⚠ **The route is 5.6, not 5.7, and that is a statement about coefficient spaces rather than about
+Siegel's lemma.** Layer 5.7 packages the relative Siegel lemma on the coefficients of a
+polynomial of bounded **total** degree — the simplex of monomials — and Lemma 6.3.4 bounds the
+**partial** degrees, which is a box. Neither shape contains the other usefully: shrinking `D`
+until the simplex fits in the box discards the monomials of large total degree that carry the
+construction, and enlarging it breaks the degree bound 2.7 needs. So 2.6 applies 5.6 —
+`NumberField.exists_ne_zero_mem_ker_absMulHeight_le_relative_rank`, which is stated for an
+arbitrary finite index type — to `∀ j, Fin (d j + 1)` directly, and carries its own dictionary
+`MvPolynomial.ofBox` between coefficient vectors and polynomials. Naming the box by a `Pi` type
+rather than by a subtype of the exponents is what makes its cardinality `∏ j, (d j + 1)` free and
+a condition row literally a multiplication table.
+
+⚠ **The rank form that 5.7 sent 5.6 back for is not what 2.6 needed.** What Layer 2.5 counts is
+the number of *conditions*; `Matrix.rank_le_card_height` is the only thing said about the rank
+here, and the row form of 5.6 would have served. Nothing in Roth's method asks whether conditions
+at distinct orders at distinct points are independent.
+
+⚠ **The `log 2` of the bound is the binomial coefficient, and it is the only loss in the row
+height.** The entry of a row at the monomial `X ^ I` is
+`(∏ j, (I j).choose (μ j)) ∏ j, α j ^ (I j − μ j)`, a multiplication table over the variables, so
+Mathlib's Segre relation gives its height as a product of one-variable heights *exactly*; and the
+tuple of powers `α j ^ k, k ≤ d j`, has height *exactly* `H(α j) ^ d j`, an equality this roadmap
+had to prove and Mathlib does not have. The single estimate made anywhere is
+`(I j).choose (μ j) ≤ 2 ^ d j`. The `+ δ` of the milestone pays for something else entirely.
+
+⚠ **Three quantities have to be negligible and they are of three different orders, which is the
+whole content of the book's `o(1)`.** The lattice-point correction `(1 + ρ)^m − 1` is `O(m²/D₀)`;
+the `√M` by which the Arakelov normalization of Siegel's lemma exceeds the sup-norm one
+contributes `½ log M = O(∑ j, log d j)`; and the discriminant of `K` contributes a constant. All
+three are `o(∑ j, d j)`, and `δ` is exactly the room they need. The elementary inequalities behind
+them are `log y ≤ 2 √y` and `(1 + x)^m ≤ 1 + x m 2^m`; neither is sharp and neither needs to be.
+
+⚠ **`m = 0` is excluded by the hypothesis rather than handled by the proof.** `V₀(t) = 1` for
+every `t ≥ 0`, so the feasibility hypothesis reads `r N < 1` and forces `N = 0`. That is as it
+should be — a nonzero polynomial in no variables is a nonzero constant, whose index is `0` at
+every point — and the acceptance criteria record it as a rejection test. The positivity
+`0 < V_m(t)` for `t > 0` that this argument needs was added to 2.5.
+
+**2.7 Roth's lemma** (Bombieri–Gubler, Lemma 6.3.7, with the base case 6.3.9) — **landed**. Let
 `P : MvPolynomial (Fin m) K` be nonzero over a number field, with `degreeOf j P ≤ d j` and
 `1 ≤ d j`, let `ξ : Fin m → K`, and let `0 < σ ≤ 1/2`. If `d (j + 1) / d j ≤ σ` for all `j` and
 `σ⁻¹ (h(P) + 4 m d 0) ≤ d j · h(ξ j)` for all `j`, then
 `index d ξ P ≤ 2 m σ ^ ((1/2) ^ (m − 1))`. Heights are absolute logarithmic heights; stated with
-Mathlib's relative ones, the term `4 m d 0` carries the factor `totalWeight K`. Prove the base
-case `m = 1` at its own constant, `index · d 0 · h(ξ 0) ≤ h(P) + d 0 log 2`, from
-`ArithmeticHeights` 1.2 and 2.3: `(X − ξ)^k` divides `P`. The induction is 2.4 applied to a
-decomposition `P = ∑ f_j(x_1, …, x_{m−1}) g_j(x_m)` with both families linearly independent, 2.2
-for the height of the product of the two Wronskians, 2.1 and `ArithmeticHeights` 2.2–2.3 for the
-height of a determinant of derivatives, and 2.3 for the index of a determinant. ⚠ The constants
-`4` and `2 m` are the book's and are not sharp; keep them, because Layer 5.3 quotes this lemma
-with them. ⚠ The sharpening of this lemma through Faltings's product theorem is *not* this
-milestone; see *Long horizon*.
+Mathlib's relative ones, the term `4 m d 0` carries the factor `totalWeight K` — which is how it
+is stated, in `MvPolynomial.index_le_of_degree_ratio`. The base case `m = 1` is at the book's own
+constant, `index · d 0 · h(ξ 0) ≤ h(P) + d 0 log 2`, from `ArithmeticHeights` 1.2 and 2.3:
+`(X − ξ)^k` divides `P`. The induction is 2.4 applied to a decomposition
+`P = ∑ f_j(x_1, …, x_{m−1}) g_j(x_m)` with both families linearly independent, 2.2 for the height
+of the product of the two Wronskians, 2.1 and the local estimates of `ArithmeticHeights` 2.2–2.3
+for the height of a determinant of derivatives, and 2.3 for the index of a determinant. ⚠ The
+constants `4` and `2 m` are the book's and are not sharp; they are kept, because Layer 5.3 quotes
+this lemma with them. ⚠ The sharpening of this lemma through Faltings's product theorem is *not*
+this milestone; see *Long horizon*. In
+`DiophantineApproximation/{HeightTransport,IndexRename,PolynomialDeterminantHeight,
+RothDecomposition,RothDeterminant,RothBaseCase,RothEstimates,RothLemma}.lean`.
+
+⚠ **The induction runs on `θ`, not on `σ`, and that is the whole reason no real power occurs
+inside it.** Written with the book's `σ` the inductive step would have to replace `σ` by `√σ`,
+and a `Real.rpow` would then appear in every hypothesis of every recursive call. Written with a
+parameter `θ` and `σ = θ ^ (2 ^ m)` the step replaces `θ` by `θ ^ 2` and **leaves `σ` alone**: the
+hypotheses on the degrees and on the heights carry over verbatim, the conclusion is
+`index ≤ 2 m θ`, and the book's exponent is a single change of variable, `θ = σ ^ ((1/2)^(m−1))`,
+made once at the end. Nothing in the induction knows what `Real.rpow` is.
+
+⚠ **The constant `2 m` is uniform, and the reduction to `θ < 1/2` is what makes it so.** At
+`θ ≥ 1/2` the conclusion is free: a nonzero polynomial of partial degrees at most `d` has index at
+most the number of variables — `MvPolynomial.index_le_card`, which is a statement about the
+support of the *translate* and needs 2.6's `hasseDeriv_eq_zero_of_lt` rather than a degree bound
+on `taylorAt` — and `2 m θ ≥ m` there. So the step may assume `θ < 1/2`, and it is `θ² < θ/2` that
+closes both halves of the quadratic estimate with room to spare. The first attempt at this proof
+carried the one-variable case at its own sharper constant `1`, and the reduction removed the need
+for it; the milestone's `2 m` is what the file proves at every `m ≥ 1`.
+
+⚠ **The separated variable is `X 0`, so the induction runs with the degrees *increasing*.**
+Mathlib's `MvPolynomial.finSuccEquiv` splits off the **first** variable, and Roth's lemma
+separates the one of **smallest** degree; rather than build a `finSuccEquivLast`, the induction is
+stated with `d j ≤ σ · d (j + 1)` and the book's decreasing form is recovered once, at the end,
+by `rename Fin.rev` — under which the index, the height and the partial degrees all transform by
+lemmas the milestone needed anyway.
+
+⚠ **Both families of the decomposition are independent for one reason, and it is not a
+minimality argument.** The textbook proof takes `p` minimal in `P = ∑ f_i g_i` and reads the
+independence of both families off minimality. Here the first family is chosen to be a *basis of
+the span of the coefficients* of `P` along the separated variable; then the independence of the
+second is a statement about a linear functional — a relation among the coefficient columns kills
+every coefficient of `P`, hence the span, hence every basis vector — and `p ≤ d 0 + 1` is
+`finrank_range_le_card`. The degree bounds on the two families are then not needed at all:
+`MvPolynomial.degreeOf_mul_eq` reads the degrees of the two Wronskians off the degrees of the
+determinant, which are bounded entry by entry.
+
+⚠ **There is no projective bound on the height of a *sum* of polynomials, so the determinant is
+estimated at each absolute value and transported once.** `H(N X + 1) = N` while both summands
+have height `1`, so the Leibniz expansion cannot be bounded term by term in the projective
+height, and the general shape of the estimate — `p!` and the multiplication constants at the
+archimedean absolute values, nothing at the others — has to be carried locally. The transport
+that does it is the one with a **one-sided** inequality at the nonarchimedean absolute values,
+which `ArithmeticHeights`'s `Finsupp.mulHeight_le_of_forall_iSup_le` does not provide: that one
+demands an *equality* there, which Gauss's lemma supplies for a product and a Hasse derivative
+does not. The obstruction Layer 2.6 hit — Mathlib's finite-support fact for the local factor of a
+*family* is private — is removed in three lines by
+`Finsupp.hasFiniteMulSupport_iSup_apply`, which derives it from
+`AdmissibleAbsValues.hasFiniteMulSupport` for a single element.
+
+⚠ **The support count, not the total degree, is what keeps the constant linear in `p`, and
+`log 2 < 0.694` is load-bearing.** Iterating `MvPolynomial.iSup_coeff_mul_le_two_pow` over a
+`p`-fold product costs `2 ^ (D p (p+1) / 2)`, because the accumulated factor's total degree grows
+at every step; iterating `MvPolynomial.iSup_coeff_mul_le_card_support`, whose constant is the
+*smaller* of the two supports and so is always the new factor's, costs `2 ^ (D p)`. In Roth's
+lemma `p` can be as large as the smallest degree, so the difference is the whole estimate. What
+then has to fit in the hypothesis's `4 p d` is `log p! + 2 D p log 2` with `D = ∑ j, d j ≤ 2 d`
+and `p ≤ d + 1`: that is `p d + 4 p d log 2 ≈ 3.78 p d`, and with only `log 2 ≤ 1` it would be
+`5 p d` and the milestone's constant would be wrong.
+
+⚠ **Only `Finsupp.degree (μ i) ≤ i` is used of Layer 2.4, and its univariate half is not used at
+all.** The orders of the generalized Wronskian never have to be pinned — an order reaching into
+the wrong variable set kills its row, which is a theorem rather than a choice — and the
+*multivariate* criterion serves for the family in one variable as well as for the family in
+`m − 1`. So `Polynomial.hasseWronskianDet`, the `n`-polynomial Wronskian 2.4 had to build because
+Mathlib has only `Polynomial.wronskian`, is consumed only inside 2.4's own proof.
+
+⚠ **`0 < totalWeight K` is not decoration, which is why the milestone is stated over a number
+field.** At `totalWeight K = 0` the hypothesis of the base case reads `h(P) ≤ σ d h(ξ)` with both
+sides allowed to vanish, and nothing bounds the multiplicity of the root; the rest of the proof
+is uniform in `totalWeight K` and would go through. Roth's theorem is false over function fields,
+and this is where that shows up.
 
 ### Layer 3: Roth's theorem
 
-**3.1 Approximation classes** (Bombieri–Gubler 6.4.2–6.4.4; reused at 7.5.6). For a finite index
-set `A` and a family of maps `φ a : X → [0, 1]` with `∑ a, φ a x ≤ 1`, the partition of `X` by the
-cell of side `1/N` containing `(φ a x)_a`: the number of nonempty cells is at most
-`(N + |A|).choose |A|` (Lemma 6.4.3), and an infinite `X` has an infinite cell for every `N`. With
-it: `(L, M)`-**independent** sequences, `h(β 0) ≥ L` and `h(β (j + 1)) ≥ M h(β j)`, exist inside
-every infinite subset of `K`, by Northcott. Stated once, abstractly, because Layers 3.2, 3.7 and
-5.1 each use it for a different family `φ`.
+**3.1 Approximation classes** (Bombieri–Gubler 6.4.2–6.4.4; reused at 7.5.6) — **landed**. For a
+finite index set `A` and a family of maps `φ a : X → [0, 1]` with `∑ a, φ a x ≤ 1`, the partition
+of `X` by the cell of side `1/N` containing `(φ a x)_a`: the number of nonempty cells is at most
+`(N + |A|).choose |A|` (Lemma 6.4.3) — `Set.ncard_image_cellIndex_le`, and the count of *labels*
+is that number exactly, `Set.ncard_setOf_sum_le` — and an infinite `X` has an infinite cell for
+every `N`, `Set.Infinite.exists_cellIndex_eq`. With it: `(L, M)`-**independent** sequences,
+`h(β 0) ≥ L` and `h(β (j + 1)) ≥ M h(β j)`, exist inside every infinite subset of `K`, by
+Northcott — `NumberField.exists_isHeightIndependent`, and the two reductions together are
+`NumberField.exists_cellIndex_eq_and_isHeightIndependent`. Stated once, abstractly, because
+Layers 3.2, 3.7 and 5.1 each use it for a different family `φ`. In
+`DiophantineApproximation/{ApproximationClass,IndependentHeights}.lean`.
+
+⚠ **Lemma 6.4.3 is an equality, and the slack is a coordinate.** The book writes "the number of
+solutions of this inequality is `(N + |S|).choose |S|`" and that is literally true: adding one
+coordinate for `N − ∑ a, c a` turns the labels into the tuples on `Option A` that sum to `N`
+*exactly*, which is Mathlib's `Finset.card_finsuppAntidiag_nat_eq_choose`. No induction on `N`
+and no hockey-stick identity appears. What the applications quote is the inequality, because the
+labels are what is counted and not every label is attained.
+
+⚠ **What the milestone did not name is what the consumer actually uses: the book's (6.9).** An
+approximation class does not merely say that its members behave alike — for a family `f` of
+numbers in `(0, 1]` with `Λ = ∏ b, f b < 1` it traps every coordinate,
+`Λ ^ ((c a + 1)/N) < f a ≤ Λ ^ (c a / N)`, so that `|A|` unrelated local factors are replaced by
+one quantity raised to `|A|` exponents known to within `1/N`. That is the form Layers 3.2 and 3.7
+consume, and it is proved here — `Real.le_rpow_cellIndex_div` and
+`Real.rpow_cellIndex_add_one_div_lt`. The two halves are `≤` and `<` because the cell is
+half-open, and neither can be strengthened: the upper half is attained.
+
+⚠ **The hypothesis `∑ a, φ a x ≤ 1` is what makes the count a binomial coefficient.** Without it
+the labels are the `(N + 1)^{|A|}` cells of the *cube*, not the `(N + |A|).choose |A|` cells that
+meet the simplex — at `N = 1` and `|A| = 2`, four against three. The lower bound (6.10) of the
+book needs more still, that the point lie *on* the hyperplane `∑ a, y a = 1`; the count and the
+pigeonhole do not, and are stated with `≤ 1` so that a family that is only subadditive still has
+a class.
+
+⚠ **The profile is where `0 < f a` matters, and it is the book's "non-trivial approximation".** A
+`β` equal to a target `α v` has local factor `0` at `v` and no logarithmic profile; there is at
+most one such `β` per place, so a consumer discards finitely many solutions before classifying
+the rest — which is what `Λ(β) < 1` does in the book.
+
+⚠ **Northcott is the only arithmetic in the milestone, and it gives an infinite sequence.** The
+recursion asks each time for an element of `X` whose height exceeds `M h(β j)`, and one exists
+because a set of bounded height is finite while `X` is not; the book's "infinite subsequence of
+`(L, M)`-independent elements" is therefore the statement proved, and the `m`-tuple the auxiliary
+polynomial consumes is a restriction of it. `1 < M` and `0 < L` are needed only to make the terms
+*distinct*, `NumberField.IsHeightIndependent.injective`; existence holds at every `L` and `M`.
 
 **3.2 Roth's theorem** (Bombieri–Gubler, Theorem 6.4.1; Roth 1955 for `K = ℚ`, `S∞ = {∞}`;
 Ridout 1958 over `ℚ`; Lang for number fields). Let `F/K` be a finite extension, `S∞` and `S₀`
@@ -1231,14 +1525,57 @@ in them, and `κ > 2`. Then the set of `β ∈ K` with
 (∏ v ∈ S∞, min 1 (w v (β − α v)) ^ v.mult) * ∏ v ∈ S₀, min 1 (w v (β − α v))  ≤  mulHeight₁ β ^ (−κ)
 ```
 
-is finite. This is the book's statement raised to the power `d`. Route: 6.4.2–6.4.10 — reduce to
-one approximation class (3.1), take `m` with `r |S| exp (−6 m ε²) < 1/2` and an
-`(L, M)`-independent `m`-tuple in it, build `P` by 2.6 with `d j ≈ D / h(β j)`, find by 2.7 a
-derivative `Q` of `P` of small order with `Q(β) ≠ 0` (Lemma 6.4.7), bound `Q(β)` above at each
-place of `S` by the Taylor expansion at `(α v, …, α v)` (2.1) and below by 0.4, and let `D → ∞`.
+is finite — **landed**, `NumberField.finite_setOf_prod_min_one_le`, in
+`DiophantineApproximation/{GlobalBound,MvPolynomialEvalBound,RothLocalBound,RothClass,
+RothKeyInequality,RothAuxiliary,RothTheorem}.lean`. This is the book's statement raised to the
+power `d`. The route is the one this milestone named, 6.4.2–6.4.10: reduce to
+one approximation class (3.1) — `NumberField.exists_isHeightIndependent_forall_le_rpow` — take
+`m` with `r |S| exp (−6 m ε²) < 1/2` and an
+`(L, M)`-independent `m`-tuple in it, build `P` by 2.6 with `d j = ⌈D / h(β j)⌉`, find by 2.7 a
+derivative `Q` of `P` of small order with `Q(β) ≠ 0` (Lemma 6.4.7) —
+`NumberField.exists_auxiliary_deriv` — bound `Q(β)` above at each
+place of `S` by the Taylor expansion at `(α v, …, α v)` (2.1), below by the product formula, and
+compare — `NumberField.roth_key_inequality`.
 ⚠ The book's Theorem 6.2.3 — targets in the completions `K_v` — is this theorem and not a
 different one: a `K`-algebraic element of `K_v` *is* an element of a finite extension with an
 absolute value over `v` (0.1). It is not stated separately.
+
+⚠ **Step IV is the product formula over all the places, and Layer 0.4 will not do it.** This
+milestone's own route said "below by 0.4", and that is wrong. The fundamental inequality bounds
+`∏_{v ∈ S} min 1 |y|_v ^ w_v` from below by `H(y)^{−1}`, which cuts the product down to `S`; but
+the local bound on `|Q(β)|_v` carries the local factor of the *coefficients* of `Q`, and the
+product of those over `S` alone is not bounded by `h(Q)` — the complementary product can be
+smaller than `1`, and the height is projective, so no normalisation repairs it. Charging `h(Q)`
+and the `h(β j)` twice turns the final inequality `κ(1 − |S|/N)(1/2 − 4ε) ≤ 1 + C/L` into
+`κ(…) ≤ 2 + C/L` and proves Roth's theorem only for `κ > 4`. What Step IV needs is
+`NumberField.one_le_of_forall_apply_le_sum`: local upper bounds at **every** place, multiplied by
+the product formula. Layer 0.4 is consumed by Layers 5 and 7, not by this one.
+
+⚠ **Nothing tends to infinity.** The book lets `D → ∞` and reads off (6.22). Here every error
+term is explicit: all but one are `O(D/L)` and are killed by choosing `L` large, which happens
+before `D` is introduced, and the one that is not is `([K : ℚ] + 2 ∑ w_v) log (D + 2)`, coming
+from the `∏ j (d j + 1)` monomials of the box. `Real.exists_le_and_mul_log_add_lt` — a logarithm
+is eventually beaten by any positive multiple of the identity — then produces one explicit `D`.
+No filter, no `IsLittleO` and no `Tendsto` occurs anywhere in the milestone.
+
+⚠ **`κ > 2` is used exactly once, as `1/κ < 1/2`.** It is what leaves room for the two losses,
+`4ε` from the differentiation of the auxiliary polynomial and `|S|/N` from the size of the
+approximation class, and the contradiction is `κ(1 − |S|/N)(1/2 − 4ε) > 1`. Every other step is
+uniform in `κ`. The book's `(1/2 − 3ε)` is `(1/2 − 4ε)` here, because Roth's lemma is quoted
+through an infimum and a strict inequality is needed to produce an order; `ε` is at the caller's
+disposal, so the constant is immaterial and nothing downstream sees it.
+
+⚠ **The index type of the places is the disjoint union of the two typed finsets**, `↥S∞ ⊕ ↥S₀`,
+with `NumberField.sPlaceAbsValue` and `NumberField.sPlaceWeight` reading off the absolute value
+and the weight. That is the shape Layer 3.1 asked for, and the weights are what make (6.10)
+usable without a second estimate: `∑_a c a ≥ N(1 − |S|/N)` is unweighted, the product over the
+places of `S` is weighted, and every weight is at least `1`.
+
+⚠ **Two families of solutions are discarded before the classification, and both are forced.** A
+`β` of height at most `1` has `Λ(β) ≤ 1` with no room and no logarithmic profile; a `β` equal to
+a target at some place has local factor `0` there. The first set is finite by Northcott, the
+second has at most one element per place, and an infinite solution set stays infinite after both
+are removed. This is the book's "non-trivial approximation", and it is where `0 < κ` is used.
 
 **3.3 The forms applications quote.** Each is 3.2 for a choice of data, and each is stated.
 *Targets at infinity* (6.2.5): a target may be the point `∞`, with local factor
@@ -1802,13 +2139,65 @@ Tau Ceti test files beside the milestones named.
   did not ask for was added, and it is the one that pins the normalisation: the `n = 2` case of
   the determinant is Mathlib's `Polynomial.wronskian` on the nose, and `1, t, t²` over `ℚ` have
   Wronskian `2` — the factorial that separates the two normalisations.
+- **2.5.** This list asked for nothing, so the file fixes its own: `V_m(t) = 1` once `t` reaches
+  `m` and `V_m(t) = 0` for `t < 0`, the two ends of the region; `V_1(t) = min 1 t`, which is what
+  pins the normalization — in one variable the volume is a *length*, so `V_1(t) = t` on `[0,1]`;
+  and that the density of the multihomogeneous estimate integrates to `1`, without which the
+  third estimate would not be about a proportion. ⚠ The one that earns its place is a **rejection
+  test**: the upper lattice-point bound is false at `t = 0`, where the origin is an admissible
+  lattice point and the region has no volume, so the book's `t ∈ ℝ_+` is load-bearing — unlike
+  its `ε ≤ 1/2`, `λ ≤ n + 4` and `η ≤ 2/(n+1)`, all three of which came out. All **landed**.
+- **2.6.** This list asked for nothing here either, so the files fix their own — all **landed**.
+  That the box has `∏ j, (d j + 1)` monomials, which is what makes the coefficient count of
+  Lemma 6.3.4 a product and not a binomial coefficient; that the condition of order `0` is
+  evaluation at the point, so that the first row of the system is "`P` vanishes at `α`"; that an
+  order leaving the box carries no condition; and that the tuple of powers `α ^ k, k ≤ d`, has
+  height `H(α) ^ d` exactly. ⚠ The two that earn their place are **rejection tests**: with no
+  variables the feasibility hypothesis `r ∑ k, V₀(t k) < 1` forces `N = 0`, because a nonzero
+  constant has index `0` at every point; and `r S < 1` does **not** imply `r (1+ε) S < 1`, which
+  is why the choice of `ε` has to precede the choice of `D₀` and not follow it. ⚠ A third pins
+  the hypothesis of `MvPolynomial.hasseDeriv_eq_zero_of_lt`: at `μ j = degreeOf j P` the
+  derivative survives, `∂_(X 0) (X 0) = 1`, so the inequality there is strict for a reason.
+- **2.7.** This list asked for nothing here either, and the milestone's own are the two ends of
+  the exponent and two rejection tests — all **landed**. In one variable the conclusion is
+  `index ≤ 2 σ`, linear in `σ`, and the lemma is Lemma 6.3.9 at a worse constant; in two it is
+  `index ≤ 4 √σ`, which is the case that fixes the shape of the induction, since the quadratic
+  lower bound on the index of the determinant is what turns `σ` into `√σ` and every further
+  variable squares the exponent again. ⚠ The two that earn their place are **rejection tests**:
+  the closing inequality of the induction is *false* without `θ < 1/2` — at `θ = 1` every other
+  hypothesis holds and there is no contradiction, so the reduction that makes the constant
+  uniform is load-bearing — and the `min` in the quadratic lower bound is not decoration, since
+  at `p = 3`, `e = 2`, `x = 1/2` the sum is `1/2`, *less* than the linear half `p x / 2 = 3/4`,
+  while the quadratic half `p x² / 4 = 3/16` survives. ⚠ Layer 2.3's own acceptance test is the
+  third: `index d (α, α) ((X 0 − X 1)^k) = k / max (d 0) (d 1)` says that a polynomial vanishing
+  on the diagonal has large index when the weights are *balanced*, which is exactly what the
+  hypothesis `d (j+1) / d j ≤ σ` forbids.
 - **Conventions.** The refutation of the untyped Subspace statement, as a theorem: over `ℚ`, with
   the four absolute values `|·|^{1/j}`, `j = 1, …, 4`, the coordinate forms on `ℚ²` and
   `ε = 1/12`, every `(1, q)` with `q ≥ 1` satisfies the inequality and no finite set of proper
   subspaces of `ℚ²` contains them all. And the failure at `Fintype.card ι = 1`.
-- **3.2.** Roth's theorem is false with `κ = 2` (Dirichlet) and the set it bounds is nonempty for
-  every `κ`; with two targets at one place the statement is about the nearer one, which `min 1`
-  handles and a bare product does not.
+- **3.1.** The count is checked against a hand enumeration at `N = 0`, where there is exactly one
+  class and the formula gives `(0 + |A|).choose |A| = 1`. ⚠ The two that earn their place are a
+  **rejection test** and a **sharpness test**: the classes are the cells of the *simplex* and not
+  of the cube, and the constant family `y a = 1` — every coordinate in `[0, 1]` — has a label
+  summing to `2` at `N = 1`, so without `∑ a, y a ≤ 1` the count would be `(N + 1)^{|A|}`, four
+  against three at `N = 1`, `|A| = 2`; and the upper half of (6.9) is **attained**, at the
+  one-coordinate family `f = 1/4` with `N = 2`, so its exponent is not off by one. The
+  load-bearing hypothesis of the second half is `X.Infinite`: in `{0, 1} ⊆ ℚ` every element has
+  height `1` and no sequence is `(1, 2)`-independent.
+- **3.2.** The set the theorem bounds is nonempty for every `κ` — the target `0` at every place
+  has `β = 0` as a solution, so the finiteness is not finiteness of the empty set — and the
+  classical one-place shape is an instance of the milestone. Both **landed**. ⚠ The one this list
+  asked for first, that **Roth's theorem is false with `κ = 2`**, was **not** done, and the
+  reason is a boundary and not a difficulty: the witness is Dirichlet's theorem at an algebraic
+  irrational, so it needs a second number field with a chosen real place and the dictionary
+  between `Real.irrationalityExponent` and the product over the places of `ℚ` — which is
+  precisely **Layer 3.3**, whose whole content is that dictionary. What is landed instead is a
+  **rejection test** that costs no places: at `κ = 0` the right-hand side is `1`, the truncated
+  product is always at most `1`, and *every* element of `K` is a solution, so the hypothesis on
+  `κ` is load-bearing. ⚠ The third item on this list, about two targets at one place, is not a
+  statement of this milestone at all — Roth's theorem carries one target per place — and is left
+  to 3.3, where targets at `∞` make the question concrete.
 - **3.5.** `‖(3/2)^k‖ > exp (−k/10)` for all but finitely many `k`, with no value of the
   exceptional set asserted.
 - **6.3.** Schmidt's example that the conclusion cannot be finiteness of points: with
@@ -1920,18 +2309,69 @@ expansion sit in one degree, so the top coefficient is a binomial determinant, a
 nonzero because a polynomial with `n` terms cannot vanish to order `n` at `1`. Characteristic
 zero is used exactly there and in the factorial between the two normalisations; the easy half
 needs neither it nor any property of the derivative.
-The next milestone on the path to 2.6 is **2.5, counting and volume** — three elementary
-estimates with explicit constants, in a file that imports no number theory, and the last thing
-2.6 is waiting for.
+⚠ **2.5 is landed** (one file, and the first milestone since 2.2 to need only the one it asked
+for), and what it taught is that the three estimates are *one*: a Chernoff bound in `m`
+coordinates, applied at two weights. The book's own restrictions on the parameters — `ε ≤ 1/2`,
+`0 < λ ≤ n + 4`, `η ≤ 2/(n+1)` — are artefacts of its alternating-series argument and all three
+came out; what is load-bearing, and what the rejection test pins, is `t > 0` in the upper
+lattice-point bound. The one thing the layer could not state as the book does is the
+multihomogeneous *volume*, because the book's reduction of it to a one-variable integral is the
+volume of a simplex and Mathlib has none; against the normalised density the estimate is the
+proportion the milestone asked for, with the `(n!)^{−m}` cancelled.
+⚠ **2.6 is landed** (four files, and the first milestone of Layer 2 with a height in it), and
+what it taught is that the milestone's own route was one layer off: the relative Siegel lemma it
+needs is `ArithmeticHeights` **5.6**, applied on the box of bounded partial degrees, and 5.7 —
+the same lemma on the simplex of bounded total degree — is a sibling rather than an ancestor.
+What the construction costs beyond the count of conditions is three quantities of three different
+orders, all `o(∑ j, d j)`, and that is the whole of the book's `o(1)`; the `log 2` in the bound
+is the binomial coefficient of the Hasse derivative and nothing else, because the height of a
+condition row is a product of one-variable heights **exactly**.
+⚠ **2.7 is landed** (eight files, and the largest milestone of this roadmap so far), and what
+it taught is that the induction is not on `σ`: parameterising by `θ` with `σ = θ^(2^m)` leaves
+`σ` fixed through every recursive call, so no real power occurs inside the proof and the book's
+exponent is one change of variable at the end. The constant `2 m` is uniform because
+`index ≤ (number of variables)` makes the conclusion free at `θ ≥ 1/2`; the independence of both
+families of the decomposition follows from choosing the first to be a basis rather than from
+minimality; and the height of the determinant has to be estimated place by place, because the
+projective height of a *sum* of polynomials is not bounded by those of the summands.
+**Layer 2 is complete.**
 
-The path to Roth's theorem is 0.1 → 0.4 → 2.6 → 2.7 → 3.1 → 3.2, with 2.1–2.5 feeding 2.6 and
-2.7. Its one heavy import is the relative Siegel lemma in auxiliary-polynomial form,
-`ArithmeticHeights` 5.6–5.7; nothing from that roadmap's Layers 3, 4 or 6 is used before Layer 4
-here. **2.7 is the hard milestone of the first half** and should be settled before 3.2 is
-attempted, because 3.2 is bookkeeping around it. Once 3.2 stands, 3.3–3.8, 8.1, 8.3, 8.4, 8.5 and
-the `w > 2` criterion of 7.4 are all within reach — every classical application of Thue–Siegel–Roth,
+⚠ **3.1 is landed** (two files, the first milestone of Layer 3 and the shortest of this
+roadmap since 2.2), and what it
+taught is that the milestone's own abstraction is the load-bearing decision: nothing in Mahler's
+reduction is about places, heights or number fields, so the count and the pigeonhole are stated
+for an arbitrary finite index type — over a number field it is the disjoint union of the two
+typed finsets, not a set of places — and the only arithmetic in the layer is Northcott's theorem
+in the second half. The count is an *equality* and a stars-and-bars bijection, and the statement
+the consumers will actually quote is the book's (6.9), which the milestone did not name.
+
+⚠ **3.2 is landed, and Roth's theorem is proved** (seven files, the second largest milestone of
+this roadmap after 2.7), and what it taught is that this section's own prediction — "3.2 is
+bookkeeping around 2.6, 2.7 and 3.1" — was right about the *inputs* and wrong about the *route*:
+the one step the roadmap had put in the wrong place is Step IV, which needs the product formula
+over all the places and not the fundamental inequality of 0.4 over `S` (see 3.2 above), and
+getting it wrong would have proved the theorem only for `κ > 4`. What the milestone also cost, and
+this section did not predict, is the parameter order: `ε` and `N` from `κ`, the number of
+variables from the feasibility of the index theorem, `σ` from the number of variables, `L` and `M`
+from `σ` and from the constants of the data, the solutions from `L` and `M`, and `D` last — seven
+choices, each depending on all the earlier ones, and the book states them in exactly that order
+for exactly that reason. Against that, the book's `D → ∞` cost nothing: every error term but one
+is `O(D/L)`, and the one that is not is a logarithm.
+
+The path to Roth's theorem was 0.1 → 2.6 → 2.7 → 3.1 → 3.2, with 2.1–2.5 feeding 2.6 and
+2.7, and **all of it is behind us**. Its one heavy import was the relative Siegel
+lemma, `ArithmeticHeights` **5.6** — 5.7, which the ordering named, is packaged on the wrong
+coefficient space and 2.6 repackages 5.6 itself; nothing from that roadmap's Layers 3, 4 or 6 is
+used before Layer 4 here. ⚠ **Layer 0.4 turns out not to be on this path at all**: the ordering
+put it there, and Step IV does not use it. Its consumers are Layers 5 and 7.
+Now that 3.2 stands,
+**3.3–3.8, 8.1, 8.3, 8.4, 8.5 and
+the `w > 2` criterion of 7.4 are all within reach** — every classical application of
+Thue–Siegel–Roth,
 including Thue–Mahler and the two-variable unit equation, is available before any geometry of
-numbers.
+numbers. The next milestone is **3.3**, the forms applications quote, which is also where the
+dictionary between the places of `ℚ` and `Real.irrationalityExponent` gets built and where 3.2's
+own sharpness test — that `κ = 2` is false — becomes stateable.
 
 The path to the summit is Layer 4 → Layer 5 → 6.1 → 6.2 → 6.3. Layer 4 needs
 `ArithmeticHeights` 4.1–4.4 and 3.1, and is independent of Layers 2 and 3 here; it can be built
@@ -1981,8 +2421,11 @@ method; the existence of `T`-numbers; and anything **effective**. **Do not attem
 
 ## Provenance
 
-Secondary to everything above: the milestones are the specification. No proof of any theorem of
-Layers 2–6 exists in Lean. What exists, in [`rwst/lean-code`](https://github.com/rwst/lean-code)
+Secondary to everything above: the milestones are the specification. Layers 0, 1.1–1.3, all
+of Layer 2 and Layers 3.1–3.2 — **Roth's theorem** — are proved in this repository and nothing
+else of Layers 3–9 is. What
+exists elsewhere, in
+[`rwst/lean-code`](https://github.com/rwst/lean-code)
 (CC0), is the *other side* of the interface — statements of the Subspace Theorem recorded as
 cited axioms, and sorry-free derivations of consequences from them — and it is useful in two
 ways.
