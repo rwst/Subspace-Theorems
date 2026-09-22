@@ -122,8 +122,72 @@ proof quotes; `…/RothKeyInequality.lean` is Steps III to V at a fixed multideg
 `…/RothAuxiliary.lean` is Steps I and II, and the only file of the milestone that opens Layers 2.6
 and 2.7; and `…/RothTheorem.lean` is the choice of `ε`, `N`, `m`, `σ`, `L`, `M` and `D`, in the
 book's order, and nothing else.
-Layers 0, 1.1, 1.2, 1.3, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 3.1 and 3.2 together
-stand at **fifty-four** files, and nothing suggests the pattern stops.
+⚠ **3.3 took four, and the seam is not between the classical theorems but under them**:
+`…/RationalPlaces.lean` is the dictionary between the finite places of `ℚ` and `padicNorm`, and
+knows no Diophantine approximation at all; `…/RothInfinity.lean` is the target `∞` and the Möbius
+change of variable that removes it, and is the only file of the layer that touches a general
+number field; `…/RothRational.lean` is Roth's theorem over `ℚ` at the real place and the value of
+the irrationality exponent; and `…/Ridout.lean` is the `ℚ`-workhorse — one target at the infinite
+place and one at each prime of a finite set — with Ridout's theorem and the `p`-adic form as its
+two instances. The two classical theorems share a file because they share that workhorse, and the
+workhorse is what a fifth form would quote.
+⚠ **3.4 took three, and the seam is the one the layer's own sentence predicted**:
+`…/ProjectiveTarget.lean` is the local dictionary — the zero of `a X₀ + b X₁` as a point of
+`OnePoint F`, the comparison between the value of the form and the approximation factor at that
+zero, and Cramer's rule read at one absolute value — and knows nothing of number fields;
+`…/ApproxProd.lean` defines the central quantity, proves it a function on projective space, and
+carries the two facts about a two-element index type — the height of a pair is the height of the
+ratio, and linear independence is a determinant; and `…/RothProjective.lean` is the two
+directions. The split by which form is small at each place lives in the third file, with the
+theorem it serves.
+⚠ **3.5 took two, and the seam is between arithmetic and approximation**:
+`…/PrimeProducts.lean` is the finite part of the product formula — the primes of an integer as a
+`Finset Nat.Primes`, and the fact that a product of `p`-adic sizes over *the* primes of the
+number itself is an identity rather than an estimate — and knows no Diophantine approximation at
+all; `…/MahlerPowers.lean` is the theorem. The first file is the arithmetic input Layer 3.3 did
+not have, and it is what the remaining applications of Ridout's theorem will quote.
+⚠ **3.6 took two, and the seam is between algebra and approximation**: `…/BinaryForm.lean` is
+the dictionary between a binary form and the complex roots of its dehomogenization — Mathlib's
+`Polynomial.homogenize` supplies the form itself, and the file adds the degree bound, the value
+on the line at infinity, the product over the roots and the multiplicity bound at an irrational
+root — and knows no approximation at all; `…/ThueEquation.lean` is Roth's theorem for pairs of
+integers, the exceptional set of one root, and the theorem. Layer 8.4 will quote the first file
+unchanged, since everything in it is about one form and none of it about `S`.
+⚠ **3.7 took two, and the seam is between a pair of solutions and a count**:
+`…/GapPrinciple.lean` is the strong gap principle and the approximation class of one solution,
+and counts nothing; `…/CountingApproximations.lean` is two combinatorial lemmas that know no
+heights — points with a gap in a window, chains in a finite set — and the two counts. It also
+restructured `…/RothTheorem.lean`, which now proves the core of Roth's proof as a statement of its
+own.
+⚠ **3.8 took one file, and the work went into the files it stands on**: `…/MovingTargets.lean` is
+the theorem and its acceptance tests. The core of Roth's proof in `…/RothTheorem.lean` is now
+stated for targets that change along the chain, Steps I to V in `…/RothAuxiliary.lean`,
+`…/RothKeyInequality.lean` and `…/RothLocalBound.lean` take one target per coordinate, chains are
+chosen by index in `…/IndependentHeights.lean`, and the one new fact — the size of a target
+bounded by its height — went into `…/FundamentalInequality.lean`, beside the upper bound it reads
+at one place.
+⚠ **4.1 took four files, and the seam is between a lattice and a domain**:
+`…/FinitePlaceValues.lean` is three facts about one finite place — its value group and the
+largest value below a bound, approximation at finitely many places, the ultrametric Leibniz
+bound — and knows no lattice; `…/ModuleCovolume.lean` is the covolume of any finitely generated
+`𝓞 K`-module in `Kⁱ`, read from maximal determinants at the finite places, and knows no domain;
+`…/ApproximationDomain.lean` is the domain, its lattice and its body, and the covolume;
+`…/ApproximationVolume.lean` is the volume, the comparison with `Q` to the weight, and the
+acceptance tests.
+⚠ **4.2 took two files, and the seam is between the minima and their product**:
+`…/FieldMinima.lean` is the minima over `K`, their attainment and their three comparisons with
+the real minima, and knows no measure; `…/FieldMinkowski.lean` is Minkowski's second theorem over
+`K`, its reading for approximation domains, and the acceptance tests.
+4.3 took one, `…/ApproximationRank.lean`: the rank, read from the minima for any lattice and body
+before it is read for approximation domains.
+⚠ **4.4 took two, and the seam is the arithmetic**: `…/SIntegerApproximation.lean` is simultaneous
+approximation by `S₀`-integers and knows no form; `…/EvertseLemma.lean` is the induction, run over
+any field whose places admit such an approximation, then read over a number field.
+⚠ **4.5 took two, and the seam is the number field**: `…/WedgeForm.lean` is the exterior algebra
+of forms over any field — Laplace's identity, independence, Lemma 7.5.33 and two bounds for a
+determinant at a place — and knows no domain; `…/WedgeDomain.lean` is Step VIII and Lemma 7.5.31.
+Layers 0, 1.1, 1.2, 1.3, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 3.1–3.8 and 4.1–4.5 together stand at
+**seventy-nine** files, and nothing suggests the pattern stops.
 
 **This roadmap stands on [`ArithmeticHeights`](../ArithmeticHeights/README.md).** That roadmap's
 long-horizon section names the Subspace Theorem, Roth's theorem and unit equations as what its
@@ -180,13 +244,29 @@ successive minimum used below is consumed from there by milestone number and non
 - **Roth's theorem** over a number field with a finite set of places (Lang's formulation) —
   **landed**, in the form with targets in a finite extension measured by a chosen absolute value
   over each place, which contains Roth's original theorem, Ridout's and Schmidt's algebraic-
-  coefficient shapes at once — with Roth's original theorem, **Ridout's theorem** and the `p`-adic
-  case still to be derived as instances; **Mahler's theorem** on the fractional parts of
-  `(p/q)^k`; the **strong gap principle** and the resulting **bound on the number of
-  approximations**; and Roth's theorem with **moving targets**.
+  coefficient shapes at once — and **the forms the applications quote, also landed**: the
+  statement with targets in `OnePoint F`, so that the point at infinity is a target;
+  **Roth's original theorem**, as the value `2` of the irrationality exponent of every real
+  algebraic irrational; **Ridout's theorem**; and the **`p`-adic form**. And **Roth's theorem on
+  the projective line — the Subspace Theorem in two variables — also landed**, in both
+  directions: the finiteness of the exceptional set of lines for two linearly independent forms
+  at each place of `S`, and the recovery of Roth's theorem from it for the forms `X₀` and
+  `X₁ − α v X₀`. This is the interface Layers 8.1, 8.3, 8.4 and 8.6 consume, and the central
+  quantity `NumberField.approxProd` that Layer 6.3 will state the Subspace Theorem with lives
+  here. And **Mahler's theorem** on the fractional parts of `(p/q)^k` — **also landed**, with
+  the finite part of the product formula under it. And **Thue's theorem** over `ℤ`, the first
+  Diophantine equation — **also landed**, from Roth's theorem over `ℚ` at one place, with the
+  hypothesis "three pairwise non-proportional linear factors over `ℂ`" read literally. And the
+  **strong gap principle** with the resulting **bound on the number of approximations** — **also
+  landed**, the bound on the large solutions depending on `κ`, `|S|` and `[F : K]` alone, from the
+  core of Roth's proof restated as a theorem of its own. And Roth's theorem with **moving
+  targets** — **also landed**, the core of the proof restated once more for targets that change
+  along the chain. Layer 3 is complete.
 - The **geometry of numbers of a parallelepiped over a number field**: `S`-adic approximation
-  domains as a lattice and a convex body, successive minima counted over `K`, the two-sided
-  Minkowski theorem for them, **Evertse's lemma**, and the passage to **exterior powers**.
+  domains as a lattice and a convex body — **landed**, with the covolume of the lattice exact and
+  the volume of the body — successive minima counted over `K` and the two-sided Minkowski theorem
+  for them — **landed** — the rank of a domain and its drop below `n + 1` for negative weight —
+  **landed** — **Evertse's lemma** — **landed** — and the passage to **exterior powers**.
 - The **Subspace Theorem** — the summit — for a number field and a finite set of places: the
   **parametric** form, the projective form with coefficients in the field, the form with
   **algebraic coefficients**, the **affine** form for `S`-integral points, and **Vojta's
@@ -226,8 +306,16 @@ successive minimum used below is consumed from there by milestone number and non
   - 3.1–3.5, the Plücker point, the height of a subspace, Cauchy–Binet and duality — `h(V(Q))` in
     Layer 5.4 is a subspace height, and Layer 4.5 works in the exterior power that 3.1 builds;
   - 4.1, 4.2 and 4.4, successive minima, Minkowski's second theorem and the extraction lemma —
-    Layer 4.2 is assembled from these three and proves no geometry of numbers of its own; 4.3's
-    number-field lattice and its covolume — Layer 4.1;
+    Layer 4.2 is assembled from these three and proves no geometry of numbers of its own, which
+    held: ⚠ **4.2 consumed all three as stated**, Cassels' Lemma 1 in its gauge form, both halves
+    of the real theorem, the regrouping `Finset.prod_pow_le_prod_range` and the packaged
+    extraction lemma, and it spends the extraction twice — once for `μ l ≤ λ (d (l − 1) + 1)` and
+    once to show that below `n + 1` the minima over `K` are finite at all; 4.3's
+    number-field lattice and its covolume — Layer 4.1; ⚠ **4.1 consumed 4.3's tools and not its
+    theorem**: the pseudo-basis `Submodule.exists_pseudoBasis`, the finite half
+    `NumberField.FinitePlace.finprod_iSup_eq_inv_absNorm` and the real norm of the mixed space
+    `NumberField.mixedEmbedding.norm_mixedSpace`, because the lattice of an approximation domain is
+    cut out by local conditions and is not the integral points of a subspace;
   - 5.5, 5.6 and 5.7, Siegel's lemma with entry heights, its relative version and the
     auxiliary-polynomial form — the *only* source of auxiliary polynomials in Layers 2.5 and 5.2;
   - 6.4 and 6.5, heights of `S`-units and the `S`-unit theorem with the `S`-logarithmic lattice —
@@ -297,7 +385,7 @@ the rest are the difference between a theorem a consumer can apply and one they 
 | `S` for `S`-integers and `S`-units | `S : Set (IsDedekindDomain.HeightOneSpectrum (𝓞 K))`, **finite places only**, the carrier of Mathlib's `S.integer K` and `S.unit K` and the convention `ArithmeticHeights` pins. The affine Subspace Theorem and every equation of Layer 8 use it, with all infinite places implicitly present: there `S∞ = Finset.univ` and `S₀` is the image of `S` under `FinitePlace.mk`. ⚠ Bombieri–Gubler's `S` always **contains** the archimedean places in these statements; translate. |
 | normalization | **Mathlib's, which is relative.** The local factor of `y` at `v : InfinitePlace K` is `v y ^ v.mult` and at `v : FinitePlace K` it is `v y`, and the height is `Height.mulHeight`. Bombieri–Gubler's absolute values and heights are **absolute** — each is the `d`-th root of Mathlib's. Every inequality below is homogeneous in that normalization, so it reads the same in both: raise Bombieri–Gubler's `∏ … < H(x)^{−n−1−ε}` to the `d`-th power. ⚠ The exception is any statement that mixes a relative quantity with an explicit constant or with a height over a different field; each such statement below says what it is in. |
 | where the points live, where the coefficients live | **Points in `K`, coefficients and targets in a finite extension `F` of `K`**, with `[Algebra K F]`, measured at `v` by an absolute value `w v : AbsoluteValue F ℝ` with `(w v).LiesOver v` — Mathlib's `AbsoluteValue.LiesOver`. This is Bombieri–Gubler's Theorem 6.4.1 ("we extend `\|·\|_v` to an absolute value of `F`") and it is the one formulation that contains both forms in print: `F = K` is the Evertse–Schlickewei number-field form, and `K = ℚ` with `F` generated by the coefficients is Schmidt's form with algebraic coefficients. **Neither of those two specializes to the other**, which is why the general one is pinned. No completion `K_v` appears in any statement of this roadmap: "a `K`-algebraic element of `K_v`" is an element of some `F` together with a `w` over `v`. |
-| the central quantity | `NumberField.approxProd S∞ S₀ w L x`, the product over `v ∈ S∞` of `(∏ i, w v (L v i x) / ⨆ j, v (x j)) ^ v.mult` times the product over `v ∈ S₀` of `∏ i, w v (L v i x) / ⨆ j, v (x j)`, where `L v i : Module.Dual F (ι → F)` and `x` is mapped into `F`. It is an object, not an abbreviation: it is invariant under scaling `x` by `Kˣ`, bounded above in terms of the forms alone, raised to `[K' : K]` under extension of `K`, and multiplicative in `S`. The local sup norm `⨆ j, v (x j)` inside it is written out and has no name, as in `ArithmeticHeights`. The forms are indexed by the underlying `AbsoluteValue K ℝ` of a place, `L : AbsoluteValue K ℝ → ι → Module.Dual F (ι → F)`, so that one family serves both finsets; its values off `S∞` and `S₀` are irrelevant. |
+| the central quantity | `NumberField.approxProd S∞ S₀ w L x`, the product over `v ∈ S∞` of `(∏ i, w v (L v i x) / ⨆ j, v (x j)) ^ v.mult` times the product over `v ∈ S₀` of `∏ i, w v (L v i x) / ⨆ j, v (x j)`, where `L v i : Module.Dual F (ι → F)` and `x` is mapped into `F`. It is an object, not an abbreviation: it is invariant under scaling `x` by `Kˣ`, bounded above in terms of the forms alone, raised to `[K' : K]` under extension of `K`, and multiplicative in `S`. ⚠ **Landed in Layer 3.4** as `NumberField.approxProd`, and the invariance under scaling needs the `LiesOver` hypotheses (`NumberField.approxProd_smul`): the numerator of a local factor is measured in `F` and the denominator in `K`, and the two scale by the same number only because `w v` lies over `v`. The local sup norm `⨆ j, v (x j)` inside it is written out and has no name, as in `ArithmeticHeights`. The forms are indexed by the underlying `AbsoluteValue K ℝ` of a place, `L : AbsoluteValue K ℝ → ι → Module.Dual F (ι → F)`, so that one family serves both finsets; its values off `S∞` and `S₀` are irrelevant. |
 | strict or non-strict | **`≤`.** `approxProd … x ≤ mulHeight x ^ (−(card ι) − ε)`. The literature writes `<`; the two theorems are equivalent (pass to `ε/2` and discard the finitely many projective points of height `1`), and `≤` is what a consumer's estimate produces. |
 | the conclusion | `∃ T : Finset (Submodule K (ι → K)), (∀ W ∈ T, W ≠ ⊤) ∧ ∀ x ≠ 0, … → ∃ W ∈ T, x ∈ W`. Subspaces of `Kⁿ⁺¹` — of the field of the **points**, not of `F`. Finiteness of a set of solutions is `Set.Finite`. |
 | multiplicative or logarithmic | **Both**, multiplicative primary, as in Mathlib and `ArithmeticHeights`. The Roth machinery is additive by nature — the index theorem and Roth's lemma bound `h(P)` — so Layers 2 and 5 are stated in `logHeight`; Layers 3, 6, 7, 8 in `mulHeight`. |
@@ -491,6 +579,108 @@ on. Beside it, the milestone adds the local bounds on the value of a polynomial 
 value, which Mathlib has only for *homogeneous* polynomials and with a constant depending on the
 polynomial rather than on its height (`Height.mulHeight_eval_le`), and that is the wrong shape
 here because the polynomial varies with `D`.
+
+⚠ **Layer 3.3 is landed, and what it needed from Mathlib was a dictionary Mathlib has in two
+halves that do not meet.** Mathlib has Ostrowski's theorem for `ℚ`
+(`Rat.AbsoluteValue.equiv_padic_of_bounded`) and it has the finite places of a number field
+(`NumberField.FinitePlace`), and nothing connects them: the first gives an absolute value
+*equivalent* to `padicNorm p`, the second a normalized one, and the exponent between them is
+exactly what Ridout's `2 + ε` cannot afford to lose. `Rat.exists_prime_padic_eq` is that missing
+statement, and the argument that pins the exponent to `1` is a height computation, not a
+valuation-theoretic one: the multiplicative height of `p⁻¹` is `p`, its infinite part is `1`, and
+Ostrowski applied to every finite place at once says only one of them contributes. Beside it, the
+layer adds the local factor at a target in `OnePoint F` and the bounded distortion of the Möbius
+change of variable, neither of which has an analogue in Mathlib.
+
+⚠ **Layer 3.4 is landed, and what it needed from Mathlib was one missing fact about places and
+nothing else.** The two-variable Subspace Theorem is linear algebra over Roth's theorem: the
+determinant of two forms, Cramer's rule read at one absolute value, and the chart
+`[x₀ : x₁] ↦ x₁ / x₀`. Mathlib supplies all of that. What it does not supply is that an infinite
+place and a finite place never have the same underlying absolute value — obvious, and needed the
+moment a choice made on `S` has to be spread to every `AbsoluteValue K ℝ`, which is how Roth's
+theorem indexes its targets. `NumberField.InfinitePlace.val_ne_finitePlace_val` is that fact, in
+four lines from `v 2 = 2` against `v 2 ≤ 1`. Beside it, the layer adds the central quantity
+`NumberField.approxProd` — the object Layer 6.3 states the Subspace Theorem with — and its
+invariance under scaling, which is what makes the theorem a statement about subspaces.
+
+⚠ **Layer 3.5 is landed, and what it needed from Mathlib is a piece of elementary arithmetic,
+not of approximation theory.** Mahler's theorem is Ridout's theorem applied to one auxiliary
+rational, and the only step that is not immediate is that a product of `p`-adic sizes over the
+primes of a fixed integer is `1 / d` exactly — the finite part of the product formula, with the
+hypothesis that no prime factor is missing. Mathlib has `padicNorm`, `Nat.primeFactors` and the
+factorization of a natural number, and nothing that puts them together; `Nat.primesOf` and
+`Rat.prod_padicNorm_natCast` are that, in thirty lines. ⚠ The identity fails in one direction
+only — over a smaller set of primes the product is too *large* — and that is the direction every
+application needs it not to fail in.
+
+⚠ **Layer 3.6 is landed, and Mathlib already had the binary form.** `Polynomial.homogenize`
+turns a polynomial in one variable into an element of `MvPolynomial (Fin 2)`, and
+`Polynomial.homogenize_eq_of_isHomogeneous` says every homogeneous form is one, so the roadmap's
+`G ∈ ℤ[X, Y]` needed no definition. What was missing is small and algebraic: the degree bound on
+the dehomogenization `G(X, 1)` that the last lemma leaves to its caller, the value `G(x, 0)` on
+the line at infinity, and — the one real input — that an **irrational** root of multiplicity `μ`
+of an integer polynomial with three distinct complex roots has `2 μ < deg g`, from
+`(minpoly ℚ r) ^ μ ∣ g`. Mathlib has no `rootMultiplicity_pow`, and the proof does not need one.
+
+⚠ **Layer 3.7 is landed, and nothing it needed was missing from Mathlib.** The gap principle is
+the fundamental inequality of Layer 0.4 against the triangle inequality at the places of `S`, and
+the counts are `Set.ncard_le_ncard_of_injOn` into a product and
+`Finset.card_eq_sum_card_fiberwise` over the classes. What was missing was in this repository:
+the statement at the core of Roth's proof, which Layer 3.2 had proved only inside a proof by
+contradiction.
+
+⚠ **Layer 3.8 is landed, and what it needed from outside the proof was a bound Mathlib lacks.**
+Mathlib bounds no single absolute value by the height: there is `Height.mulHeight₁_eq` and the
+product formula, but not `max |x|_w 1 ≤ H(x)` for one place, let alone for an absolute value of an
+extension lying over a place. The first is the fundamental inequality of Layer 0.4 at one place;
+the second is that read through Layer 0.1's classification, where the exponent `t ≤ 1` of a root
+of a finite place is exactly what it needs. Both are in `…/FundamentalInequality.lean`. Mathlib's
+`Asymptotics.IsLittleO` states the growth condition, and is used once.
+
+⚠ **Layer 4.1 is landed, and what it needed from outside was three facts and two instances.**
+Mathlib has the adic valuation, a uniformizer and `Ideal.IsPrime.prod_mem_iff`, but not what they
+say about a finite place: that its values on `Kˣ` are exactly the integer powers of `N 𝔭`, so that
+there is a largest value below any bound; that an algebraic integer can be a unit at one place and
+as small as prescribed at finitely many others; and a covolume for any `𝓞 K`-module of `Kⁱ` —
+Mathlib's `covolume_idealLattice` is the case `#ι = 1`. The first two are in
+`…/FinitePlaceValues.lean`, the third, from `ArithmeticHeights`' pseudo-basis, in
+`…/ModuleCovolume.lean`. And Mathlib's instance search finds the Borel structure and the Haar
+property of the volume on `mixedSpace K` but not on `ι → mixedSpace K`: the product instances ask
+for a `∀ i`-family, which it does not assemble. Both are declared once, beside the covolume.
+
+⚠ **Layer 4.2 is landed, and what it needed from outside was one fact Mathlib had and one
+constant it had too.** That tuples of `Kⁱ` independent over `ℚ` have mixed embeddings independent
+over `ℝ` is Mathlib's `linearIndependent_algebraMap_comp_iff` read in the coordinates of
+`latticeBasis`, whose coordinates on the mixed embedding are those of `integralBasis`
+(`latticeBasis_repr_apply`); `NumberField.mixedEmbedding.linearIndependent_pi` says so once. The
+constant `c_K` is Mathlib's `NumberField.house` of the members of `integralBasis K`, and
+`one_le_house_of_isIntegral` makes it at least `1`.
+
+⚠ **Layer 4.3 is landed, and it needed nothing from outside.** That a spanning set contains a
+basis of what it spans, indexed by `Fin` of the dimension, is Mathlib's
+`Submodule.exists_fun_fin_finrank_span_eq`; that a bounded set holds finitely many points of an
+`𝓞 K`-lattice was already proved for 4.2's attainment, and is now public as
+`NumberField.finite_setOf_mem_of_isBounded`.
+
+⚠ **Layer 4.4 is landed, and what it needed from outside was a fundamental domain Mathlib had.**
+Simultaneous approximation by `S₀`-integers is not in Mathlib; it took one file, from 4.1's prime
+avoidance (`NumberField.FinitePlace.exists_apply_eq_one_forall_apply_le`), Mathlib's
+`Ideal.IsMaximal.exists_inv` and one geometric sum at the finite places, and Mathlib's
+`ZSpan.fract` for `latticeBasis` at the infinite ones — no Chinese remainder theorem and no
+localization. The induction needed only linear algebra Mathlib states:
+`Matrix.mulVec_surjective_iff_isUnit` solves (7.40), and
+`linearIndependent_of_top_le_span_of_card_eq_finrank` keeps the forms independent after one is
+removed.
+
+⚠ **Layer 4.5 is landed, and what it needed from outside was Cauchy–Binet and Cramer's rule.**
+Laplace's identity is `ArithmeticHeights` 3.4's `exteriorPower.sum_plucker_mul_plucker` read for
+forms; the second half of Lemma 7.5.33 is Mathlib's `Matrix.cramer_one`; the double count of the
+weight is `Finset.card_filter_powersetCard_subset`. What Mathlib lacks and 4.5 adds is small: the
+bounds `p!` and `1` for a determinant at an archimedean and a nonarchimedean place
+(`AbsoluteValue.apply_det_le`, `AbsoluteValue.apply_det_le_of_isNonarchimedean`), and that an
+infinite place is archimedean (`NumberField.InfinitePlace.not_isNonarchimedean`). ⚠ 4.5 consumed
+`ArithmeticHeights` 3.1 and 3.4 as stated and **not** 3.5's duality: the pairing of `⋀^p` with
+`⋀^k` that the book's proof of 7.5.33 uses never appears.
 
 ## The build, in layers
 
@@ -1535,7 +1725,15 @@ one approximation class (3.1) — `NumberField.exists_isHeightIndependent_forall
 derivative `Q` of `P` of small order with `Q(β) ≠ 0` (Lemma 6.4.7) —
 `NumberField.exists_auxiliary_deriv` — bound `Q(β)` above at each
 place of `S` by the Taylor expansion at `(α v, …, α v)` (2.1), below by the product formula, and
-compare — `NumberField.roth_key_inequality`.
+compare — `NumberField.roth_key_inequality`. ⚠ Since 3.7 the steps after the reduction are a
+theorem of their own, `NumberField.roth_no_chain` — above a height `L`, no `(L, M)`-independent
+chain of `m + 1` solutions in one class — with `ε`, `N`, `m` and `M` the definitions
+`NumberField.rothEps`, `rothClassSize`, `rothChainLength` and `rothRatio` of `κ`, `|S|` and
+`[F : K]`; the theorem is that statement fed by the reduction, and its statement did not change.
+⚠ Since 3.8 that theorem is itself the constant case of `NumberField.roth_no_moving_chain`, in
+which every member of the chain has its own targets: Steps I and II take the index at a target
+*point* and one height constant per coordinate, Steps III to V one target and one size bound per
+coordinate, and no statement consumed outside 3.2 changed.
 ⚠ The book's Theorem 6.2.3 — targets in the completions `K_v` — is this theorem and not a
 different one: a `K`-algebraic element of `K_v` *is* an element of a finite extension with an
 absolute value over `v` (0.1). It is not stated separately.
@@ -1577,8 +1775,8 @@ a target at some place has local factor `0` there. The first set is finite by No
 second has at most one element per place, and an infinite solution set stays infinite after both
 are removed. This is the book's "non-trivial approximation", and it is where `0 < κ` is used.
 
-**3.3 The forms applications quote.** Each is 3.2 for a choice of data, and each is stated.
-*Targets at infinity* (6.2.5): a target may be the point `∞`, with local factor
+**3.3 The forms applications quote — landed.** Each is 3.2 for a choice of data, and each is
+stated. *Targets at infinity* (6.2.5): a target may be the point `∞`, with local factor
 `min 1 (v β)⁻¹`; by a rational Möbius change of variable, under which `mulHeight₁` changes by a
 bounded factor. State 3.2 with targets in `OnePoint F` so that every later form is an instance.
 *Roth:* `irrationalityExponent α = 2` for every real algebraic irrational `α` — the value Layer
@@ -1588,49 +1786,322 @@ bounded factor. State 3.2 with targets in `OnePoint F` so that every later form 
 `S₁` and `∞` at `S₂`, after splitting the solutions by which of `p`, `q` a prime of `S₁ ∩ S₂`
 divides. *`p`-adic* (6.2.6): for `α` in a number field `F`, `w` over `Rat.AbsoluteValue.padic p`
 and `ε > 0`, finitely many `n ∈ ℤ` with `w (α − n) ≤ |n|^{−1−ε}`.
+All four are proved, in `…/{RationalPlaces,RothInfinity,RothRational,Ridout}.lean`, as
+`NumberField.finite_setOf_prod_onePointApprox_le`, `Real.irrationalityExponent_eq_two`,
+`Rat.finite_setOf_ridout` and `Rat.finite_setOf_apply_intCast_sub_le`, with
+`Rat.finite_setOf_onePointApprox_mul_prod_le` — one target at the infinite place of `ℚ` and one
+at each prime of a finite set — as the shape the last two are instances of, and
+`Real.finite_setOf_min_one_abs_sub_le` as the classical one-place statement over `ℚ` with the
+naive height.
 
-**3.4 Roth's theorem on the projective line.** The Subspace Theorem of Layer 6.3 for
-`Fintype.card ι = 2`, proved *here*, from 3.3: at each place a solution `x` is close to the zero
-of at most one of the two forms, so the solutions split into `2^{|S|}` sets according to which,
-and on each set `approxProd` is comparable to the left side of 3.2 for that choice of targets,
-with `β = x 1 / x 0`. Conversely 3.2 is this statement for `L v 0 = X 0`,
-`L v 1 = X 1 − α v X 0` (Bombieri–Gubler, Example 7.2.7); prove both directions. This is the
-interface Layers 8.1, 8.3, 8.4 and 8.6 consume, so that the two-variable unit equation and
-everything resting on it are available without Layers 4–6.
+⚠ **The local factor at the target `∞` is `(max 1 |β|_v)⁻¹`, not the `min 1 (|β|_v)⁻¹` written
+above.** The two are the same number for every `β ≠ 0`; at `β = 0` Lean's `(0 : ℝ)⁻¹ = 0` makes
+the second `0`, where the factor's value is `1`. The reciprocal of a maximum needs no case
+distinction and no hypothesis, and `AbsoluteValue.onePointApprox` is defined that way. This is
+the roadmap's only wrong formula in Layer 3, and it is wrong only at one point.
 
-**3.5 Mahler's theorem on `(p/q)^k`** (Mahler 1957; Bombieri–Gubler 6.2.7 for `3/2`). For coprime
+⚠ **"A Möbius change of variable" is `β ↦ (β − c)⁻¹`, and `c` is not free.** Inverting alone
+*exchanges* the targets `0` and `∞` rather than removing `∞`, so it cannot clear a configuration
+that has both; the base point `c ∈ K` must avoid every finite target, which it can because `K` is
+infinite and `S` is finite. The distortion is bounded at each place — that is
+`AbsoluteValue.min_one_sub_onePointMobius_le`, and its finite-target case splits on whether `β`
+is close to `c`, because when it is, the new factor is large but the old one is bounded below —
+and the constant is absorbed by lowering `κ` to some `κ₁ ∈ (2, κ)` and collecting the finitely
+many solutions of small height by Northcott. That is the only step of Layer 3.3 that uses
+`κ > 2` with room to spare; everything else is uniform in `κ`.
+
+⚠ **The dictionary is the milestone, and its content is the exponent.** Mathlib's Ostrowski gives
+only that a finite place of `ℚ` is a positive *power* of some `padicNorm p`. A power `≠ 1` would
+be fatal: Ridout's `2 + ε` would become `(2 + ε)/t`, and no choice of `ε` repairs that. The
+exponent is pinned to `1` in `Rat.exists_prime_padic_eq` by a height computation — `H(p⁻¹) = p`,
+its infinite part is `1`, and Ostrowski applied to *every* finite place at once says exactly one
+of them contributes — and the converse, that every `padicNorm p` *is* a finite place, then falls
+out of Layer 0.1's Ostrowski for a number field plus the forward half.
+
+⚠ **The `p`-adic form gains its exponent at the infinite place, and this is why 3.3 cannot be
+skipped.** With the `p`-adic place alone the best 3.2 gives is `w (α − n) ≤ |n|^{−2−ε}`; the
+exponent `1 + ε` comes from putting the target `∞` at the infinite place, where a rational
+*integer* has local factor exactly `H(n)⁻¹`. The `OnePoint` form is load-bearing, not
+presentational — the `H(n)⁻¹` is an equality for integers and an inequality for everything else,
+so no crude bound recovers it.
+
+⚠ **A prime of `S₁ ∩ S₂` carries two factors and Roth's theorem carries one target per place**,
+and the reconciliation is coprimality, not a strengthening of 3.2: such a prime divides at most
+one of `p` and `q`, so on each of the `2^{|S₁ ∩ S₂|}` classes cut out by *which* it divides, one
+of the two factors is `1` and a single target accounts for both. Ridout's solution set is the
+union of those classes. This is the only statement of Layer 3.3 whose proof splits the solutions,
+and the split is the roadmap's own, made precise.
+
+⚠ **The two classical statements are about the *naive* height, and nothing is lost.** Over `ℚ`
+the multiplicative height of `p/q` in lowest terms is `max (|p|, q)` exactly
+(`Rat.mulHeight₁_eq_max`), so Ridout's `max(|p|, q)^{−2−ε}` is 3.2's `H(β)^{−κ}` with no
+constant left over. The place where a constant *does* appear is the passage from Layer 1.1's
+`LiouvilleWith`, which measures against the denominator alone: there the two differ by a bounded
+factor, and the factor is absorbed by using two exponents `2 < κ' < κ` rather than one.
+
+**3.4 Roth's theorem on the projective line** — **landed**, in
+`DiophantineApproximation/ProjectiveTarget.lean`, `…/ApproxProd.lean` and
+`…/RothProjective.lean`. The Subspace Theorem of Layer 6.3 for `Fintype.card ι = 2`, proved
+*here*, from 3.3: at each place a solution `x` is close to the zero of at most one of the two
+forms, so the solutions split into `2^{|S|}` sets according to which, and on each set
+`approxProd` is comparable to the left side of 3.2 for that choice of targets, with
+`β = x 1 / x 0`. Conversely 3.2 is this statement for `L v 0 = X 0`, `L v 1 = X 1 − α v X 0`
+(Bombieri–Gubler, Example 7.2.7); both directions are proved. This is the interface Layers 8.1,
+8.3, 8.4 and 8.6 consume, so that the two-variable unit equation and everything resting on it
+are available without Layers 4–6.
+`NumberField.approxProd` is the central quantity, `NumberField.approxProd_smul` its invariance
+under scaling, `NumberField.exists_finset_submodule_of_approxProd_le_card_two` the theorem,
+`NumberField.finite_setOf_prod_min_one_le_of_subspace` the converse as an implication and
+`NumberField.finite_setOf_prod_min_one_le_card_two` the roundtrip;
+`NumberField.finite_setOf_prod_onePointApprox_le_const` is 3.3 with a constant, which both
+directions consume.
+
+⚠ **The exceptional subspaces of `ℙ¹` are its points, and the point at infinity is one of them
+by force.** For the coordinate forms, a point with `x 0 = 0` makes one factor of `approxProd`
+vanish, so it satisfies the hypothesis for *every* `ε` and every height while lying on no line
+`K ⬝ (1, β)`. The conclusion is therefore "finitely many points of `ℙ¹(K)`", never "finitely
+many `β ∈ K`": the affine reading of the milestone above — "with `β = x 1 / x 0`" — is the right
+reading of the *proof* and the wrong reading of the *statement*, and the line at infinity has to
+be put into the finite set by hand.
+
+⚠ **`approxProd` is a function on projective space only because the absolute values lie over the
+places.** The numerator of a local factor is measured by `w v`, an absolute value of `F`, and the
+denominator by `v`, an absolute value of `K`; under `x ↦ c ⬝ x` the first scales by
+`|c|_{w v}` and the second by `|c|_v`, and these agree exactly under `LiesOver`. The conventions
+table below claims the invariance with no hypothesis, and that is wrong: the hypothesis is free,
+because every layer carries it, but it belongs in the statement.
+
+⚠ **Linear independence enters exactly once, as a determinant.** The hypothesis
+`LinearIndependent F (L v)` is used only through `a₀ b₁ − a₁ b₀ ≠ 0`, and everything local is
+Cramer's rule read at one absolute value: `|det| · max(1, |β|) ≤ (∑ |coefficients|) · max_i |L_i|`
+is what stops both normalized values from being small at the same point. This is the whole of the
+linear algebra in the milestone, and it is why the general `n` of Layer 6.3 is a different
+problem rather than a longer version of this one.
+
+⚠ **The comparison between a form and a target needs a constant that grows with the target.** At
+`β = t + 1` the truncated factor `min(1, |β − t|)` is `1` while the normalized value of the form
+is `1 / max(1, |β|)`, so no absolute constant compares them; the working constant is
+`(2 + 2|t|)/|b|` for the form `a X₀ + b X₁` with zero `t = −a/b`, and the proof splits at
+`|β| = 2 + 2|t|`. Both directions therefore produce an inequality with a constant in front of the
+height, and both are finished the way 3.3 finishes its Möbius change of variable — at an exponent
+strictly between `2` and `κ`, with Northcott collecting the bounded-height remainder.
+
+⚠ **The `2^{|S|}` split needs a choice function on *every* absolute value of `K`, not on `S`.**
+Roth's theorem indexes its targets by an arbitrary `AbsoluteValue K ℝ`, so the choice of which
+form is small must be extended off `S` — twice, with `Function.extend` — and the two extensions
+compose only because no infinite place has the underlying absolute value of a finite place. That
+last fact is `NumberField.InfinitePlace.val_ne_finitePlace_val`, which is not in Mathlib.
+
+⚠ **The whole milestone is stated for an arbitrary index type with two elements, never `Fin 2`.**
+`Fintype.card ι = 2` is unpacked to two distinct elements exhausting `ι`, and nothing is
+transported along an equivalence with `Fin 2`: the transport would have to be carried through
+`approxProd`, through `LinearIndependent` and through `Module.Dual`, where it buys nothing. The
+only two places `Fin 2` appears are the supremum over the index type and the height of the
+tuple, and both are one lemma. This is what makes Layer 6.6 — "for `card ι = 2`, 6.3 is 3.4" —
+a matter of discharging one equation rather than a translation.
+
+**3.5 Mahler's theorem on `(p/q)^k`** (Mahler 1957; Bombieri–Gubler 6.2.7 for `3/2`) —
+**landed**, in `DiophantineApproximation/{PrimeProducts,MahlerPowers}.lean`. For coprime
 integers `p > q ≥ 2` and `ε > 0`, the distance from `(p/q)^k` to the nearest integer exceeds
-`exp (−ε k)` for all but finitely many `k`. Route: 3.3 over `ℚ` with `S₀` the primes dividing
-`p q`, targets `1` at `∞`, `∞` at the primes of `q` and `0` at the primes of `p`, and
-`β = p^k / (N q^k)` with `N` the nearest integer; the factor `|N|_ℓ` that appears when
-`gcd (N, p) ≠ 1` cancels between the two sides. The acceptance test for 3.3, and the input to the
-formula `g(k) = 2^k + ⌊(3/2)^k⌋ − 2` in Waring's problem for large `k`, which is not a target.
+`exp (−ε k)` for all but finitely many `k`. Route: 3.3 over `ℚ` — as Ridout's theorem, with `S₁`
+the primes of `q`, `S₂` the primes of `p` and the target `1` at the infinite place — applied to
+`β = N q^k / p^k` with `N` the nearest integer.
+`Nat.eventually_exp_neg_lt_abs_sub_round` is the theorem,
+`Nat.finite_setOf_exists_int_abs_sub_ratPow_le` the finiteness under it and
+`Nat.finite_setOf_exists_int_abs_sub_ratPow_le_rpow` the form Ridout's theorem actually gives;
+`Nat.primesOf` and `Rat.prod_padicNorm_natCast` are the arithmetic input. The acceptance test for
+3.3, and the input to the formula `g(k) = 2^k + ⌊(3/2)^k⌋ − 2` in Waring's problem for large `k`,
+which is not a target.
 
-**3.6 Thue's equation** (Thue 1909; Bombieri–Gubler 6.2.1). For `G ∈ ℤ[X, Y]` homogeneous with at
+⚠ **The route above is the reciprocal of the one this section used to prescribe, and that is not
+a matter of taste.** The prescription was `β = p^k / (N q^k)` with the target `0` at the primes
+of `p` and `∞` at those of `q`. That is correct mathematics, but the denominator is then
+`N q^k / gcd(N, p^k)`, whose prime factors need not divide `p q` at all: the product over the
+primes of `q` is only an estimate, and the cancellation against the height has to be done by
+naming the gcd. In the orientation used here the denominator divides `p^k`, so the product over
+the primes of `p` is `1 / β.den` **exactly**, and the whole cancellation is the height bound
+`max |β.num| β.den ≤ 2 β.den`. Both orientations prove the theorem; only one never mentions
+`gcd(N, p^k)`. ⚠ The sentence above about "the factor `|N|_ℓ` that appears when `gcd(N, p) ≠ 1`"
+described the other orientation, and in this one no such factor ever appears.
+
+⚠ **Ridout's theorem is needed, and Roth's is not enough — concretely.** Without the two products
+over the finite places the left-hand side of the inequality is smaller by `p^{−2k}` and no choice
+of `ε` makes it hold. This is the sense in which 3.5 is the acceptance test of 3.3 rather than of
+3.2: it is not that the finite places make the proof shorter, it is that the statement is out of
+reach without them.
+
+⚠ **The exceptional set is genuinely nonempty, so the conclusion is `∀ᶠ` and not `∀`.** At
+`k = 0` the number `(p/q)^0` is the integer `1` and the distance is `0`, which fails the
+inequality for every `ε`. ⚠ And **no bound on the exceptional set is asserted or available**:
+that is Roth's ineffectivity, inherited unchanged, and it is the reason the milestone below
+asks only for finiteness.
+
+⚠ **The finiteness under the theorem quantifies over every integer, not over the nearest one.**
+`Nat.finite_setOf_exists_int_abs_sub_ratPow_le` says that only finitely many `k` admit *some*
+integer within `exp(−ε k)` of `(p/q)^k`; the `round` form is the special case, and the proof
+therefore never uses the minimality of `round`. The two are equivalent, but only the first is
+what Ridout's theorem produces.
+
+⚠ **`q ≥ 2` and the coprimality are the same hypothesis twice, and both are needed.** If `q = 1`,
+or if `q ∣ p`, then `(p/q)^k` is an integer and the distance is `0` for every `k`. The acceptance
+criteria record both as rejection tests, at `(3, 1)` and at `(4, 2)`.
+
+**3.6 Thue's equation** (Thue 1909; Bombieri–Gubler 6.2.1) — **landed**, in
+`DiophantineApproximation/{BinaryForm,ThueEquation}.lean`. For `G ∈ ℤ[X, Y]` homogeneous with at
 least three pairwise non-proportional linear factors over `ℂ` and `m ≠ 0`, the equation
 `G(x, y) = m` has finitely many solutions `(x, y) ∈ ℤ²`. By the book's direct argument from the
 classical case of 3.3; Layer 8.3 contains it, and it is here as the first Diophantine equation the
-roadmap solves and the test that 3.3 is usable.
+roadmap solves and the test that 3.3 is usable. The statement is
+`MvPolynomial.IsHomogeneous.finite_setOf_eval_eq`, for `G : MvPolynomial (Fin 2) ℤ` with
+`G.IsHomogeneous d` and three linear forms `l i 0 X + l i 1 Y` over `ℂ`, pairwise of nonzero
+determinant, each dividing `G`; under it `Polynomial.finite_setOf_eval_homogenize_eq` is the
+same theorem for `g.homogenize d` with the hypothesis counted on the complex roots of `g`, the
+point at infinity counting once when `deg g < d`. The approximation input is
+`Real.finite_setOf_pow_abs_sub_div_mul_pow_le` — Roth's theorem for pairs of integers,
+`|ξ − x / y| ^ μ |y| ^ e ≤ C` finitely often when `e > 2 μ` — and the exceptional set of one
+root is `Complex.finite_setOf_norm_div_sub_pow_mul_pow_le`.
+
+⚠ **This is not the book's reduction, and the difference is the multiplicities.**
+Bombieri–Gubler's proof of 6.2.1 factors `G` into irreducible forms over `ℤ`, changes coordinates
+so that `Y ∤ G`, and uses the box principle over the divisors of `m` to show that only one
+irreducible factor can carry infinitely many solutions — `x / y` accumulates at a zero of each —
+so that the direct argument ("the other factors are bounded away from `0`") is only ever applied
+to a separable form. Here the direct argument is run on `G` itself, with multiplicities, which
+avoids the factorization in `ℤ[X, Y]` and the change of coordinates and pays with the exponent:
+at the root `r` nearest to `x / y` it is `d / μ`, not `d`. For an irrational root `d / μ > 2`
+still holds, and that is `Polynomial.two_mul_count_roots_lt_natDegree`: `(minpoly ℚ r) ^ μ ∣ g`,
+the minimal polynomial has degree at least `2`, and in degree exactly `2` the third distinct root
+has to come from the cofactor. For a rational root it does not: `X ^ 2 (X ^ 2 − 2 Y ^ 2)` has the
+root `0` with `μ = 2` and `d = 4`, where the exponent is exactly `2` and Roth's theorem says
+nothing. There **Liouville's inequality with exponent `1`** takes over —
+`|x / y − c| ≥ 1 / (c.den |y|)` unless `x / y = c`, and `x / y = c` makes `G(x, y) = 0` — and
+needs only `μ < d`. This milestone's "the book's direct argument" is the book's argument for an
+irreducible form; for the theorem as stated, which allows repeated factors, either the reduction
+or this repair is needed.
+
+⚠ **The nearest root decides the case, and only one of three cases is approximation theory.**
+A non-real root stays `|Im r|` away from every real `x / y`; a rational one is Liouville's
+inequality above; only an **irrational real** nearest root goes to Roth's theorem. And the line
+at infinity costs nothing: if `Y ∣ G` then `y ∣ m`, so `|y| ≤ |m|`, and `|x|` is bounded by the
+size of the roots — the book changes coordinates instead.
+
+⚠ **Only Roth's theorem over `ℚ` at the real place is used** —
+`Real.finite_setOf_min_one_abs_sub_le` — and no finite place appears. "The test that 3.3 is
+usable" is right in the sense that the input is 3.3's classical case; it is not a test of
+Ridout's theorem, which 3.5 was.
+
+⚠ **What the proof uses is three zeros, not three factors.** A linear form dividing `G` vanishes
+at one point of `ℙ¹(ℂ)`, and two non-proportional forms at different points; the statement takes
+the factors because this milestone does, and the converse — a zero gives a factor — is true and
+not needed.
+
+⚠ **`m ≠ 0` and "three" are both sharp**, and for different reasons. With two linear factors
+Pell's equation `x ^ 2 − 2 y ^ 2 = 1` has infinitely many solutions; with three, of which one is
+rational, `x ^ 3 − x y ^ 2 = 0` has the whole line `x = 0`. ⚠ **Nothing is effective**: the
+solutions are finitely many and no bound on them is asserted or available, since each
+exceptional set is finite only because Roth's is.
 
 **3.7 Counting approximations** (Bombieri–Gubler, Theorem 6.5.4, Lemma 6.5.6 and 6.5.7; Davenport
-and Roth 1955 for one place). *The strong gap principle:* if `β ≠ β'` are solutions of 3.2 in one
-approximation class of size `1/N` with `h(β) ≤ h(β')`, then
+and Roth 1955 for one place) — **landed**, in
+`DiophantineApproximation/{GapPrinciple,CountingApproximations}.lean`, with the core of Roth's
+proof exposed in `…/RothTheorem.lean`. *The strong gap principle:* if `β ≠ β'` are solutions of
+3.2 in one approximation class of size `1/N` with `h(β) ≤ h(β')`, then
 `h(β') ≥ ((1 − |S|/N) κ − 1) h(β) − log 4`. *The count in a window:* with
 `c = (1 − |S|/N) κ − 1 > 1`, at most `⌈log A / log ((c + 1)/2)⌉ · (N + |S|).choose |S|` solutions
-have `h(β) ∈ (X, A X]`, for `X > log 16 / (c − 1)`. *The count of large solutions:* with `ε`,
+have `h(β) ∈ (X, A X]`, for `X ≥ log 16 / (c − 1)`. *The count of large solutions:* with `ε`,
 `m`, `L`, `M`, `N` chosen as in 6.5.7, the solutions with `h(β) > L` number at most
 `m ⌈log M / log ((c + 1)/2)⌉ (N + |S|).choose |S|` — a bound depending only on `κ`, `|S|` and
 `[F : K]`, while `L` depends on the heights of the targets — and those with `h(β) ≤ L` are
 counted by the window bound and by Northcott. Absolute logarithmic heights throughout. ⚠ This is
 a bound on the **number** of solutions and gives no bound on their height; that asymmetry is the
-ineffectivity of the method and should be said in the docstring.
+ineffectivity of the method, and the docstring of the count says so.
 
-**3.8 Moving targets** (Vojta; Bombieri–Gubler, Theorem 6.5.2). There is no infinite sequence of
-pairs `(α_j, β_j)` with `α_j : S → F`, `β_j ∈ K`, `1 + ∑ v, h(α_j v) = o(h(β_j))` and each
-`β_j` a solution of the inequality of 3.2 with targets `α_j`. By the proof of 3.2 with `α`
-replaced by `α_j` in 2.6; the book's argument is five lines once 3.2 is structured so that the
-heights of the targets enter only through the bound on `h(P)`, and the milestone is to structure
-it so.
+The statements are `NumberField.mul_absLogHeight₁_sub_le_of_approxClass_eq` (the gap principle,
+for two solutions with one `NumberField.approxClass`), `NumberField.ncard_setOf_absLogHeight₁_mem_Ioc_le`
+(the window) and `NumberField.exists_ncard_setOf_lt_absLogHeight₁_le` (the large solutions,
+bounded by `NumberField.rothLargeCount κ |S| [F : K]`, whose type shows that it sees nothing
+else). Under the first, `NumberField.mul_absLogHeight₁_sub_le_of_localApprox_le` takes any vector
+of exponents `λ ≥ 0` governing the local factors of both points. The combinatorics is in two
+lemmas that know no heights: `Set.ncard_le_ceil_mul_ncard_of_gap`, points with a multiplicative
+gap in a window, and `Finset.card_le_mul_of_not_exists_chain`, a finite set with small blocks and
+no chain of `m + 1` points — the book's greedy grouping.
+
+⚠ **The count needed Roth's proof restructured.** A finiteness theorem bounds no number; what
+6.5.7 consumes is the statement inside 3.2's proof — above a height `L`, no `(L, M)`-independent
+chain of `m + 1` solutions lies in one class — with `m`, `M` and `N` visibly independent of the
+targets. 3.2 had proved it only inside one proof by contradiction, with `ε`, `N` and `m` drawn
+from existentials. It is now `NumberField.roth_no_chain`, the parameters are the definitions
+`NumberField.rothEps`, `rothClassSize`, `rothChainLength` and `rothRatio`, and Roth's theorem is
+derived from it with its statement unchanged. 3.8 restructured it once more, for targets that
+change along the chain: `roth_no_chain` is now the constant case of
+`NumberField.roth_no_moving_chain`, with `L = [K : ℚ] (1 + ∑ v, h(α v)) / δ`.
+
+⚠ **The window hypothesis is `X ≥ log 16 / (c − 1)`; the book's is `X >`.** Bombieri–Gubler
+state Lemma 6.5.6 strictly and apply it in 6.5.7 (b) at equality; the proof needs only `≤`. The
+count of small solutions that 6.5.7 (b) then writes, `⌈log L / log ((c + 1)/2)⌉ (N + |S|).choose
+|S|`, has `log L` where the lemma — at `X = log 16 / (c − 1)` and `A = L / X` — gives
+`log (L / X)`; the first bounds the second only when `X ≥ 1`, that is when `c ≤ 1 + log 16`. The
+acceptance criteria state the count the lemma gives.
+
+⚠ **A solution equal to a target lies in no class of the book, and the lemma counts it.** The
+book classifies the non-trivial approximations by the profile `log Λ_v(β) / log Λ(β)`, which means
+nothing when `Λ(β) = 0`; `NumberField.approxClass` puts such a `β = α v` in the corner `N e_v` of
+the simplex, where the class bounds (6.9) and (6.10) still hold. The gap principle uses of the
+class only those bounds, so the book's first step — shrinking `S` to the places where
+`|β − α v| < 1` — is not needed either.
+
+⚠ **The large-solution bound has one block per class fewer than the book's.** No chain of `m + 1`
+solutions leaves at most `m` blocks in each class, and `m + 1` is the number of variables of the
+auxiliary polynomial; the book's `m` is its number of variables.
+
+**3.8 Moving targets** (Vojta; Bombieri–Gubler, Theorem 6.5.2) — **landed**, in
+`DiophantineApproximation/MovingTargets.lean`, with the core of Roth's proof restated for moving
+targets in `…/RothTheorem.lean`. For a sequence of pairs `(α_j, β_j)` with `α_j : S → F`,
+`β_j ∈ K` and `1 + ∑ v, h(α_j v) = o(h(β_j))`, only finitely many `j` have `β_j` a solution of
+the inequality of 3.2 with targets `α_j` — `NumberField.finite_setOf_prod_min_one_le_of_isLittleO`
+— and in the book's form, no infinite sequence consists of solutions,
+`NumberField.not_forall_prod_min_one_le_of_isLittleO`. Heights in the growth condition are
+absolute, the `o` is Mathlib's `Asymptotics.IsLittleO` along `atTop`, and the inequality is 3.2's.
+The proof is the book's five lines once 3.2 is structured for it, and it is: the core of 3.2 is
+now `NumberField.roth_no_moving_chain` — there is a `δ > 0`, depending on `K`, `S`, `[F : ℚ]` and
+`κ` and on no target, such that no chain of `m + 1` solutions in one class with heights growing
+by the ratio `M`, each member with its own targets, has `1 + ∑ v, h(α_j v) ≤ δ h(β_j)`
+throughout. The `o` supplies the `δ`; Mahler's reduction, run on the indices with each pair
+classified at its own targets, supplies the chain.
+
+⚠ **The targets enter Roth's proof in two places, and the book names one.** Its proof of 6.5.2
+says that only (6.11), the height of the auxiliary polynomial, changes. The Taylor expansion at a
+place of `S` carries the size of the target as well — the `log⁺ |α_v|_{v,K}` of (6.16), which is
+the `2 |S| max log⁺ |α_v|` inside the `C₂` of (6.19) — and with moving targets that term must be
+`o(D)` too. It is bounded by the height of the target, `max |x|_w 1 ≤ H(x)` for `w` over a place
+of `K`, which is Layer 0.1's classification:
+`NumberField.max_apply_one_le_mulHeight₁_of_liesOver_infinitePlace` and its finite twin. With that
+fix the milestone's phrase is true of the whole proof: the targets enter only through
+`∑ v, h(α_j v)`.
+
+⚠ **3.2 was restructured, and nothing outside it had to change.** Steps I and II take the index at
+a target point `(α_0 v, …, α_m v)` — Layer 2.6 always allowed one — and one height constant per
+coordinate; Steps III to V take one target and one size bound per coordinate; 3.7's
+`roth_no_chain` is the constant case of `roth_no_moving_chain`. Roth's theorem and everything its
+consumers quote are unchanged; the only pinned shape that moved is the landed Steps I and II
+example in `Suggested.lean`.
+
+⚠ **The conclusion counts indices, and the `1 +` is load-bearing.** A sequence may repeat a pair,
+and the statement bounds the set of `j`, not of values. Without the `1`, the constant pair
+`(0, 0)` over `ℚ` at `S = {∞}` satisfies `0 = o(0)` and is a solution at every index; with it,
+the growth condition forces `h(β_j) → ∞`.
+
+⚠ **A solution equal to one of its own targets is classified, not discarded.** 3.2 throws away
+the at most `|S|` values `β` equal to a target; with moving targets there may be infinitely many
+such indices, and 3.7's `NumberField.approxClass` at the pair's own targets puts each in a corner
+of the simplex, where (6.9) and (6.10) still hold. The proof therefore never needs that
+`β_j = α_j v` forces `h(α_j v) = h(β_j)`, which is the invariance of the absolute height under
+extension of the base field.
+
+⚠ **`o` cannot be weakened to `O`.** With the targets equal to the approximations every index is
+a solution and `1 + h(α_j) = O(h(β_j))`. The quantitative form, 6.5.3, replaces the `o` by
+`δ(κ) h(β_j)` with an explicit `δ(κ)`; here `δ` is an existential and depends on `K`, `S` and
+`[F : ℚ]` as well as on `κ`.
 
 ### Layer 4: parallelepipeds over a number field
 
@@ -1642,7 +2113,8 @@ restriction on the coefficients by the book's own Remark 7.2.3, and the adelic s
 recovered below from `ArithmeticHeights` 4.2 and 4.4. No adèle and no Haar measure on a local
 field appears.
 
-**4.1 Approximation domains** (Bombieri–Gubler 7.5.6, Lemma 7.5.7, Corollary 7.5.8). Throughout
+**4.1 Approximation domains** (Bombieri–Gubler 7.5.6, Lemma 7.5.7, Corollary 7.5.8) — **landed**,
+in `…/{FinitePlaceValues,ModuleCovolume,ApproximationDomain,ApproximationVolume}.lean`. Throughout
 Layers 4 and 5 and in 6.1 the set of places consists of **every** infinite place together with a
 finite `S₀` — a domain with no condition at some infinite place is unbounded there, and 6.2 adds
 the missing infinite places before it starts. For forms `L v i : Module.Dual K (ι → K)` linearly
@@ -1650,80 +2122,262 @@ independent for each such `v`, exponents `c v i : ℝ` and `Q ≥ 1`, the **appr
 `NumberField.approxDomain S₀ L c Q : Set (ι → K)` is the set of `x` with
 `v (L v i x) ≤ Q ^ c v i` for every infinite place `v`, every `v ∈ S₀` and all `i`, and
 `v (x j) ≤ 1` for every finite place `v ∉ S₀` and all `j`. It is a set of points of `Kⁿ⁺¹` and
-is defined as one. Its **weight** is
+is defined as one. Its **weight** `NumberField.approxWeight` is
 `∑ v : InfinitePlace K, v.mult * ∑ i, c v i + ∑ v ∈ S₀, ∑ i, c v i`, the exponent of `Q` in the
 product of all local bounds in Mathlib's normalization; Bombieri–Gubler's `d ∑ c` is this number
-after their `Q` is replaced by `Q^d`. The structure: the conditions at the finite places cut out a full
-`𝓞 K`-submodule `Λ` of `Kⁿ⁺¹`, the conditions at the infinite places a compact convex symmetric
-body `B` in `(K ⊗ ℝ)ⁿ⁺¹` that is a product over the infinite places of bodies balanced over
-`K_v`, and the domain is `Λ ∩ B`. Prove the covolume and volume formulas that replace Lemma
-7.5.7: with `a v i` the largest value of `v` that is at most `Q ^ c v i`, the index of `Λ` in
-`(𝓞 K)ⁿ⁺¹` (a generalized index; `Λ` need not be contained in it) is
-`∏ v ∈ S₀, v (det (L v)) * ∏ i, (a v i)⁻¹`, and the volume of `B` is the volume of the unit
-body times `∏ v : InfinitePlace K, (v (det (L v))⁻¹ * ∏ i, Q ^ c v i) ^ v.mult`. Hence `vol B / covol Λ` is
-`Q` to the weight, up to a factor between two constants depending only on `K`, `S₀`, `n` and the
-determinants. ⚠ The book states the finite-place volume as an equality in `Q ^ c v i`; it is an
-equality in `a v i` and an inequality up to `∏ v ∈ S₀, (absNorm v) ^ (n + 1)` in `Q ^ c v i`,
-because `Q ^ c v i` need not lie in the value group.
+after their `Q` is replaced by `Q^d`. The structure, `NumberField.approxDomain_eq`: the conditions
+at the finite places cut out a full `𝓞 K`-submodule `Λ = NumberField.approxModule` of `Kⁿ⁺¹`, the
+conditions at the infinite places a compact convex symmetric body `B = NumberField.approxBody` in
+`(K ⊗ ℝ)ⁿ⁺¹ = ι → mixedSpace K` that is balanced over every completion
+(`NumberField.mul_mem_approxBody`), and the domain is `Λ ∩ B`. The covolume and volume formulas
+that replace Lemma 7.5.7: with `a v i` the largest value of `v` that is at most `Q ^ c v i`
+(`NumberField.FinitePlace.floorValue`), the index of `Λ` in `(𝓞 K)ⁿ⁺¹` (a generalized index; `Λ`
+need not be contained in it) is `∏ v ∈ S₀, v (det (L v)) * ∏ i, (a v i)⁻¹`
+(`NumberField.covolume_approxLattice`), and the volume of `B` is the volume
+`2 ^ (r₁ (n + 1)) π ^ (r₂ (n + 1))` of the unit body times
+`∏ v : InfinitePlace K, (v (det (L v))⁻¹ * ∏ i, Q ^ c v i) ^ v.mult`
+(`NumberField.volume_approxBody`). Hence `vol B / covol Λ` is `Q` to the weight up to a factor
+between two constants depending only on `K`, `S₀`, `n` and the determinants: at most
+`NumberField.approxConst S₀ L` and at least that divided by `∏ v ∈ S₀, N 𝔭_v ^ (n + 1)`
+(`NumberField.volume_div_covolume_le`, `NumberField.le_volume_div_covolume`). ⚠ The book states
+the finite-place volume as an equality in `Q ^ c v i`; it is an equality in `a v i` and an
+inequality up to `∏ v ∈ S₀, (absNorm v) ^ (n + 1)` in `Q ^ c v i`, because `Q ^ c v i` need not
+lie in the value group. **Confirmed**: at the `2`-adic place of `ℚ`, in one variable with `L = id`,
+`c = 1` and `Q = 3/2`, the covolume is `1` where the book's formula gives `2/3`.
 
-**4.2 Successive minima over `K`.** For an `𝓞 K`-module `Λ` and a body `B` as in 4.1, the `l`-th
-**`K`-minimum** `μ l` is the infimum of the `λ` for which `Λ ∩ λ B` contains `l` vectors linearly
-independent over `K`, for `l = 1, …, n + 1`. Prove that the `K`-minima are attained and that
-vectors realizing them can be chosen `K`-independent; that with `λ` the successive minima of
-`ArithmeticHeights` 4.1 for `Λ` as a `ZLattice` of rank `d (n + 1)`,
-`λ l ≤ μ l ≤ λ (d (l − 1) + 1)` — the right-hand inequality is the extraction lemma,
-`ArithmeticHeights` 4.4 — and `λ (d l) ≤ c_K μ l`, where `c_K` is the largest absolute value of
-a conjugate of a member of a fixed integral basis `ω` of `𝓞 K`: if `x 1, …, x l` realize the
-first `l` `K`-minima then the `d l` vectors `ω j • x i` lie in `Λ`, because `Λ` is an
-`𝓞 K`-module, are independent over `ℤ`, and lie in `c_K μ l B`, because each factor of `B` is
-balanced. Deduce **Minkowski's second theorem over `K`**, two-sided:
+⚠ **The index is read from maximal determinants, and no quotient is ever formed.** For any finitely
+generated `𝓞 K`-module `Λ ⊆ Kⁱ` spanning `Kⁱ`, `Submodule.covolume_mixedImage` gives
+`covol Λ = (∏ᶠ_{v ∤ ∞} B v)⁻¹ covol (𝓞 K) ^ #ι` with `B v` the largest value of `v` on the
+determinants of `#ι` vectors of `Λ`. Its proof takes a pseudo-basis `Λ = ⊕ J i • y i` —
+`ArithmeticHeights`' `Submodule.exists_pseudoBasis`, normalized to integral ideals — computes the
+covolume as `|N (det y)| ∏ N (J i)` from Mathlib's ideal lattices and one change of variables, and
+reads both norms place by place. The approximation module is known only through local conditions,
+and `B v` is computed from them: the ultrametric Leibniz bound applied to `L v · x` gives
+`v (det L v)⁻¹ ∏ a v i` at a place of `S₀`, attained by `M⁻¹ (π k e_k)` with `v (π k) = a v k`
+moved into `Λ` by one algebraic integer that is a unit at `v` and small where it has to be; off
+`S₀` the maximum is `1`. No localization, no Smith normal form and no index of a quotient appears,
+which is also why the class group never enters.
+
+⚠ **The volume is one change of variables, not one per place.** `B` is the preimage of a product
+of closed balls under the `mixedSpace K`-linear map whose matrix has at `w` the coefficients of
+`L w` embedded by `w`; its real determinant is an algebra norm, `∏ v (det L v) ^ mult v`, by
+`LinearMap.det_restrictScalars`. The book's place-by-place coordinate changes (the proof of 7.5.7)
+never appear.
+
+⚠ **Three choices of form.** The ambient is `ι → mixedSpace K`, where `normAtPlace` lives, not
+`ArithmeticHeights`' euclidean `mixedPi K ι`; the geometry of numbers that 4.2 consumes is stated
+for any normed space. The module is stated with `|Q|`, so that it is a submodule for every real
+`Q`; it agrees with the domain for `Q ≥ 0`, where `NumberField.approxDomain_eq` is stated. And no
+`DecidableEq ι` appears in any statement: the coefficients of a form are its values at
+`Pi.basisFun K ι j`.
+
+**4.2 Successive minima over `K`** (Bombieri–Gubler, Definition C.2.9, Theorem C.2.11) —
+**landed**, in `…/{FieldMinima,FieldMinkowski}.lean`. For an `𝓞 K`-module `Λ` and a body `B` as
+in 4.1, the `l`-th **`K`-minimum** `μ l` is the infimum of the `λ` for which `Λ ∩ λ B` contains
+`l` vectors linearly independent over `K`, for `l = 1, …, n + 1`; it is
+`NumberField.successiveMinimum Λ B (l - 1)`, indexed from `0` as `ZLattice.successiveMinimum`
+is, and `0` above `n + 1`. The `K`-minima are attained, and vectors realizing them can be chosen
+`K`-independent: one family of `n + 1` vectors of `Λ`, the `l`-th in `μ l B`
+(`NumberField.exists_linearIndependent_mem_smul_successiveMinimum`). With `λ` the successive
+minima of `ArithmeticHeights` 4.1 for `Λ` as a `ZLattice` of rank `d (n + 1)`,
+`λ l ≤ μ l ≤ λ (d (l − 1) + 1)` (`NumberField.successiveMinimum_mixedImage_le`,
+`NumberField.successiveMinimum_le_successiveMinimum_mixedImage`) — the right-hand inequality is
+the extraction lemma, `ArithmeticHeights` 4.4 — and `λ (d l) ≤ c_K μ l`
+(`NumberField.successiveMinimum_mixedImage_le_mul`), where `c_K` is the largest absolute value of
+a conjugate of a member of a fixed integral basis `ω` of `𝓞 K` — the largest house of a member of
+Mathlib's `integralBasis K`, `NumberField.integralBasisHouse K ≥ 1`: if `x 1, …, x l` are
+`K`-independent in `Λ ∩ t B` then the `d l` vectors `ω j • x i` lie in `Λ`, because `Λ` is an
+`𝓞 K`-module, are independent over `ℚ` and hence over `ℝ`, and lie in `c_K t B`, because `B` is
+balanced over every completion (for approximation domains, `NumberField.mul_mem_approxBody`).
+Deduce **Minkowski's second theorem over `K`**, two-sided:
 
 ```text
 c_K^{−d(n+1)} · (2^{d(n+1)} / (d(n+1))!) · covol Λ / vol B  ≤  (μ 1 ⋯ μ (n+1))^d  ≤  2^{d(n+1)} · covol Λ / vol B,
 ```
 
-from `ArithmeticHeights` 4.2 and the monotonicity of `λ`. This is the content of the adelic
+from `ArithmeticHeights` 4.2 and the monotonicity of `λ` — stated multiplicatively, for any Haar
+measure, as `NumberField.covolume_le_prod_successiveMinimum_pow_mul_measure` and
+`NumberField.prod_successiveMinimum_pow_mul_measure_le`. This is the content of the adelic
 theorem of Bombieri–Vaaler and McFeat (Bombieri–Gubler, Theorem C.2.11) in the only generality
-the Subspace Theorem uses, and it is proved from the real one.
+the Subspace Theorem uses, and it is proved from the real one. With 4.1's comparison of
+`vol B / covol Λ` with `Q` to the weight, for an approximation domain `(μ 1 ⋯ μ (n+1))^d` is
+`Q ^ (−weight)` up to two constants depending on `K`, `S₀`, `n` and the determinants
+(`NumberField.le_prod_successiveMinimum_approx`, `NumberField.prod_successiveMinimum_approx_le`);
+the lower bound, which is the one 4.3 needs, uses the half of 4.1's comparison that carries no
+loss.
 
-**4.3 The rank of an approximation domain** (Bombieri–Gubler, Definition 7.5.11, Lemma 7.5.12).
-`V(Q)`, the `K`-span of the approximation domain, and its **rank** `dim V(Q)`, which is the
-number of `K`-minima that are at most `1`. If the weight of the domain is negative then the rank
-is at most `n` for all sufficiently large `Q`, from the lower bound of 4.2: the last minimum is
-at least a positive power of `Q`. Also: for `Q` bounded the domains are contained in one bounded
-set, which holds finitely many points of `Λ`, so only finitely many subspaces `V(Q)` arise from a
-bounded range of `Q`.
+⚠ **The lattice alone makes the `K`-minima finite, and the extraction lemma is spent twice.** That
+`Λ ∩ λ B` holds `l ≤ n + 1` independent vectors for some `λ` needs `K`-independent vectors in `Λ`
+at all; they come from the extraction lemma applied to the `d (n + 1)` vectors realizing the real
+minima, which is the proof of `μ l ≤ λ (d (l − 1) + 1)` read qualitatively. So every statement
+takes `Λ` only through `[DiscreteTopology Λ.mixedImage]` and `[IsZLattice ℝ Λ.mixedImage]`, and
+none carries a hypothesis that `Λ` spans `Kⁿ⁺¹` or is finitely generated.
 
-**4.4 Evertse's lemma** (Evertse 1996; Bombieri–Gubler, Lemma 7.5.29). Let `x 1, …, x (n+1)` be a
-basis of `Kⁿ⁺¹`, and for each infinite place `v` and each `v ∈ S₀` let reals `0 < μ v 1 ≤ … ≤ μ v (n+1)` satisfy
-`v (L v k (x j)) ≤ μ v j` for all `k`, `j`. Then there are vectors `y 1 = x 1`,
-`y i = x i + ∑ j < i, ξ i j • x j` with `ξ i j` in the `S₀`-integers, and bijections `π v`
-between the vectors and the forms, such that `v (L v (π v i) (y j)) ≤ C min (μ v i) (μ v j)` at
-the infinite places and `≤ min (μ v i) (μ v j)` at the finite ones, `C` depending only on `K`,
-`S₀` and the forms. It is the step that replaces Mahler's theorem on compound convex bodies and
-Davenport's lemma in Schmidt's original argument (7.5.27–7.5.28), neither of which this roadmap
-builds. Its arithmetic input is a **simultaneous approximation property of `S`-integers**, to be
-proved first and stated without completions: for every family `γ v ∈ K` indexed by the infinite
-places and `S₀` there is an `S₀`-integer `ξ` with `v (ξ + γ v) ≤ 1` at each finite place of `S₀` and
-`v (ξ + γ v) ≤ A` at each infinite place, `A` depending only on `K`. Route: the Chinese remainder
-theorem in `𝓞 K` localized away from `S₀` for the finite conditions, then a translation by an
-element of `𝓞 K`, which does not disturb them, into a bounded fundamental domain of `𝓞 K` in
-`K ⊗ ℝ`. With coefficients in `K`, the `γ v` of the book's (7.40) lie in `K`, which is why the
-completion-free form suffices.
+⚠ **Attainment needs no greedy minimality.** Cassels' Lemma 1, `ArithmeticHeights` 4.1, builds
+the realizing family greedily and carries a minimality clause through the induction. Over `K`
+each minimum is attained by finiteness alone — a dilate of a bounded body holds finitely many
+points of `Λ`, and the body is closed — and the single family is assembled afterwards by the
+selection step of the extraction lemma: `l` independent vectors realizing `μ l` contain one outside
+the span of the `l − 1` already chosen.
+
+⚠ **Only the lower bound sees the completions.** The upper bound of Minkowski's second theorem
+over `K` holds for any bounded symmetric convex body with nonempty interior; `λ (d l) ≤ c_K μ l`,
+and with it the lower bound, is the only statement that asks `B` to be balanced over every
+completion, in the form `mul_mem_approxBody` states it. Over `ℚ` the integral basis is `± 1`, so
+`c_ℚ = 1`, `d = 1`, and in one variable both bounds are equalities.
+
+**4.3 The rank of an approximation domain** (Bombieri–Gubler, Definition 7.5.11, Lemma 7.5.12) —
+**landed**, in `…/ApproximationRank.lean`. `V(Q)`, the `K`-span of the approximation domain, is
+`NumberField.approxSpan S₀ L c Q`, and its **rank** `dim V(Q)` is the number of `K`-minima that
+are at most `1` (`NumberField.finrank_approxSpan`); `V(Q)` is spanned by the vectors realizing
+them, for any family realizing the minima (`NumberField.approxSpan_eq_span_image`). Both hold for
+the points of any lattice in any closed bounded symmetric convex body, and are proved so first
+(`NumberField.finrank_span_setOf_mem`, `NumberField.span_setOf_mem_eq_span_image`). If the weight
+of the domain is negative then the rank is at most `n` for all sufficiently large `Q` —
+`∀ᶠ Q in atTop`, `NumberField.eventually_finrank_approxSpan_lt`, and `V(Q) ≠ ⊤` in the form 6.1
+consumes, `NumberField.eventually_approxSpan_ne_top` — from the lower bound of 4.2 with every
+minimum replaced by the last: `μ (n+1) ^ {d (n+1)}` is at least a constant times `Q ^ (−weight)`
+(`NumberField.le_successiveMinimum_approx_pow`). Also: for `Q` in `[Q₁, Q₂]` with `Q₁ > 0` the
+domains all lie in one domain — of the exponents `|c|` at the level `max Q₂ Q₁⁻¹` — which holds
+finitely many points of `Λ` (`NumberField.finite_approxDomain`,
+`NumberField.finite_biUnion_approxDomain`), so only finitely many subspaces `V(Q)` arise from a
+bounded range of `Q` (`NumberField.finite_image_approxSpan`). ⚠ `Q₁ > 0` is needed: as `Q → 0` the
+bounds with negative exponent blow up.
+
+⚠ **Lemma 7.5.12 is a statement about levels, not about solutions.** The book states
+`1 ≤ rank ≤ n` along the heights `Q = H(x)` of the hypothetical infinite set of solutions of its
+Lemma 7.5.9: the lower bound because each solution lies in its own domain, and "for all but
+finitely many" by Northcott's theorem, which makes the heights large. Neither is a statement about
+domains, and what the proof shows about domains is the parametric statement above. The rank of a
+domain can be `0` — over `ℚ` with `c = −1` it is, at every level above `1` — and at the level `1`,
+with the weight already negative, it is still full: the statement is eventual, not uniform.
+
+⚠ **The rank is read from the minima through attainment, and the count is `≤ 1`.** That `μ l ≤ 1`
+gives `l` independent points of the domain needs 4.2's attainment and `μ k B ⊆ B` for `μ k ≤ 1`,
+which is balancedness; the converse needs nothing, since the dilation `1` is admissible. The
+book's `rank = max {l | μ l ≤ 1}` and the count agree because the minima are monotone below
+`n + 1`. Over `ℚ` with `c = 0` the domain is `ℤ ∩ [−1, 1]` and its one minimum is exactly `1`, so
+a count of the minima below `1` would be wrong.
+
+**4.4 Evertse's lemma** (Evertse 1996; Bombieri–Gubler, Lemma 7.5.29) — **landed**, in
+`…/SIntegerApproximation.lean` and `…/EvertseLemma.lean`. Let `x 1, …, x (n+1)` be a basis of
+`Kⁿ⁺¹`, and for each infinite place `v` and each `v ∈ S₀` let weights `ν v k > 0` and reals
+`μ v 1 ≤ … ≤ μ v (n+1)` satisfy `v (L v k (x j)) ≤ ν v k μ v j` for all `k`, `j`. Then there are
+vectors `y 1 = x 1`, `y i = x i + ∑ j < i, ξ i j • x j` with `ξ i j` in the `S₀`-integers, and
+bijections `π v` between the vectors and the forms, such that
+`v (L v (π v i) (y j)) ≤ C ν v (π v i) min (μ v i) (μ v j)` at the infinite places and
+`≤ ν v (π v i) min (μ v i) (μ v j)` at the finite ones, `C` depending only on `K` and `n`
+(`NumberField.exists_evertse`; the book's statement, `ν = 1`, is
+`NumberField.exists_evertse_unweighted`). It is the step that replaces Mahler's theorem on
+compound convex bodies and Davenport's lemma in Schmidt's original argument (7.5.27–7.5.28),
+neither of which this roadmap builds. The proof is the book's induction, run once over any field
+with a set of places that admits simultaneous approximation by a subring
+(`AbsoluteValue.exists_evertse_of_approx`), with one estimate for both kinds of place: a sum of `m`
+terms costs `m` at an archimedean place and `1` at a nonarchimedean one. Its arithmetic input is a
+**simultaneous approximation property of `S`-integers**, proved first and stated without
+completions: for every family `γ v ∈ K` indexed by the infinite places and `S₀` there is an
+`S₀`-integer `ξ` with `v (ξ + γ v) ≤ 1` at each finite place of `S₀` and `v (ξ + γ v) ≤ A` at each
+infinite place, `A` depending only on `K` (`NumberField.exists_forall_apply_add_le`). ⚠ Route, as
+landed, with no Chinese remainder theorem: the principal part at one finite place `v₀` is
+`−γ s a ∑_{i<N} p ^ i`, with `s` an algebraic integer that is a unit at `v₀` and cancels the poles
+of `γ` elsewhere (4.1's prime avoidance) and `a s + p = 1` with `p` in the prime of `v₀`, so that
+`1 − s a ∑_{i<N} p ^ i = p ^ N` is small at `v₀`
+(`NumberField.FinitePlace.exists_apply_add_le_one`); the principal parts at the places of `S₀` are
+summed; and an element of `𝓞 K` translates the sum into a fundamental domain of `𝓞 K` in `K ⊗ ℝ`,
+which does not disturb the finite conditions
+(`NumberField.exists_integer_forall_infinitePlace_add_le`, `A` the sum of the norms of the embedded
+integral basis). With coefficients in `K`, the `γ v` of the book's (7.40) lie in `K`, which is why
+the completion-free form suffices.
+
+⚠ **The constant depends only on `K` and `n`, and it has to.** The book lets `C` depend on `K`,
+`S` and the forms. Its proof gives more: the coefficients of (7.38) are at most `1` in the rescaled
+sense, and the finite conditions of the approximation are met exactly, so the only constant that
+enters is `A`, which is `K`'s. And 7.5.30 needs more: it applies the lemma to the forms
+`Q ^ (−c v i) L v i`, which change with `Q`. So `C` is chosen before `S₀`, the forms and the
+vectors.
+
+⚠ **The forms carry weights, because over `K` they cannot be rescaled.** The forms
+`Q ^ (−c v i) L v i` of 7.5.30 do not have coefficients in `K`, and at a finite place
+`Q ^ (−c v i)` is in general not a value of `v`: rescaling there would lose the factor `N 𝔭` that
+4.1 found in the covolume, and with it the exact finite bound of (7.43). So the lemma takes a
+weight `ν v i > 0` per form — the removed form of (7.38) maximizes `v (α k) · ν v k`, the rescaled
+choice without the rescaling — and 4.5 takes `ν v i = Q ^ c v i`.
+
+⚠ **The constant at the infinite places is not `1`, even for real coefficients, and the vectors
+must be sorted.** Over `ℚ` there are forms for which no real `ξ` meets the conclusion with `C = 1`:
+the exact bound is a nonarchimedean privilege, and the triangle inequality in (7.38) costs a factor.
+And if `μ v` is not nondecreasing no constant exists, because the first vector is never corrected.
+The book's `0 < μ v j` is not needed; nonnegativity follows from the bounds.
 
 **4.5 Exterior powers of a system of forms** (Bombieri–Gubler 7.5.2, (7.16)–(7.17), Lemma 7.5.33,
-7.5.30–7.5.31). For `1 ≤ p ≤ n`: the forms `L v I = L v (i 1) ∧ ⋯ ∧ L v (i p)` on
-`⋀[K]^p (ι → K)`, indexed by `Set.powersetCard ι p` as in `ArithmeticHeights` 3.1, are linearly
-independent when the `L v i` are, their determinant is a power of `det (L v)`, and **Laplace's
-identity** `L v I (y J) = det (L v (i a) (y (j b)))` holds, through Mathlib's pairing of the
-exterior power with the dual. Lemma 7.5.33: for a `k`-dimensional `W ≤ Kⁿ⁺¹` with basis extended
-to a basis `x` of `Kⁿ⁺¹`, the span in `⋀^{n+1−k}` of the wedges `x J` with
-`J ≠ {k+1, …, n+1}` depends only on `W` and determines `W`. And Lemma 7.5.31 in the language of
-4.1–4.2: from the domain of `L`, `c`, `Q` of rank at most `n`, with `k` chosen in `[rank, n]` to
-minimize `μ k / μ (k+1)` and `y` the vectors of 4.4 applied to vectors realizing the
-`K`-minima, the wedges `y J` lie in an approximation domain for the forms `L v I` in
-`⋀^{n+1−k}` — whose exponents depend on the `K`-minima of the original domain — of which all
-`K`-minima but the last are at most `1` and the last is at least a positive power of `Q`.
+7.5.30–7.5.31) — **landed**, in `…/WedgeForm.lean` and `…/WedgeDomain.lean`. For `1 ≤ p ≤ n`: the
+forms `L v I = L v (i 1) ∧ ⋯ ∧ L v (i p)`, read in the Plücker coordinates
+`Set.powersetCard ι p → K` of `ArithmeticHeights` 3.1 and indexed by the `p`-subsets of `ι`
+(`exteriorPower.wedgeForms`), satisfy **Laplace's identity**
+`L v I (y J) = det (L v (i a) (y (j b)))` (`exteriorPower.wedgeForm_plucker`), and are linearly
+independent when the `L v i` are
+(`exteriorPower.linearIndependent_wedgeForms`); so are the wedges `x J` of the members of a basis
+(`exteriorPower.linearIndependent_plucker_comp`). **Lemma 7.5.33**: for a basis `x` of `Kⁿ⁺¹` and
+`k + p = n + 1`, the span of the wedges `x J` of the `p`-subsets `J` meeting `{0, …, k − 1}`
+(`exteriorPower.wedgeSpan`) depends only on the span of `x 0, …, x (k − 1)` and determines it
+(`exteriorPower.wedgeSpan_eq_wedgeSpan_iff`, and
+`exteriorPower.mem_span_iff_forall_plucker_mem_wedgeSpan` for the reading back); it is the kernel of
+the wedge of the last `p` coordinate forms of `x`, a hyperplane that misses the top wedge
+(`exteriorPower.wedgeSpan_eq_ker`,
+`exteriorPower.plucker_topBlock_notMem_wedgeSpan`, `exteriorPower.finrank_wedgeSpan_add_one`).
+And **Lemma 7.5.31** in the language of 4.1–4.2, indexed from `0` as 4.2 is: for vectors `x`
+realizing the `K`-minima `μ` of the domain of `L`, `c` and a level `Q > 1`, Evertse's lemma with the
+weights `ν v i = Q ^ c v i` gives vectors `y` and bijections `π v` whose wedges `y J`, `J` meeting
+the first `k` indices, lie in the approximation domain for the forms `L v I` with the exponents
+`NumberField.wedgeExponent` — the book's `S(Q)`, with (7.44) and (7.45), and a constant depending
+only on `K` and `n` (`NumberField.exists_plucker_mem_approxDomain_wedgeForms`). `Q` to the weight of
+that domain is exactly `Q ^ (e w)` times `(C ^ M (∏ μ) ^ e μ (k − 1) / μ k) ^ d`, with
+`e = n.choose (p − 1)` and `M` the number of `p`-subsets
+(`NumberField.rpow_approxWeight_wedgeExponent`), hence at most a constant times
+`(μ (k − 1) / μ k) ^ d` (`NumberField.rpow_approxWeight_wedgeExponent_le`); all of its `K`-minima
+but the last are at most `1`, and the last is at least a constant times `μ k / μ (k − 1)`
+(`NumberField.exists_successiveMinimum_wedge`). For a domain of rank `R`, `1 ≤ R ≤ n`, some `k` in
+`[R, n]` has `(μ (k − 1) / μ k) ^ (n + 1 − R) ≤ μ n ⁻¹` (`NumberField.exists_div_pow_le_inv`, the
+book's (7.41)), so the last minimum to the power `d (n + 1)(n + 1 − R)` is at least a constant times
+`Q ^ (−weight)`, a positive power of `Q` for negative weight
+(`NumberField.exists_successiveMinimum_wedge_pow`). What Step IX adds — the minima between
+`Q ^ (−C)` and `Q ^ C`, rounding the wedge exponents to a grid, 5.6 in `⋀^p` — belongs to 6.1.
+
+⚠ **The exterior power is read in coordinates, and its determinant is never computed.** 6.1 applies
+4.2, 4.3 and 5.6 to domains in `⋀^p Kⁿ⁺¹`, and those live on `κ → K`, so the wedge of forms is a
+form on the Plücker coordinates and Mathlib's pairing of `⋀^p M` with `⋀^p (Dual R M)` enters only
+through Cauchy–Binet. The book records that the determinant of the wedges is a power of
+`det (L v)` — the Sylvester–Franke theorem — but nothing uses its value: 4.1–4.3's constants may
+depend on the forms and see them only through their determinants, so independence, which follows
+from a biorthogonal family, is all that is needed.
+
+⚠ **Lemma 7.5.33 needs no pairing between `⋀^{n+1−k}` and `⋀^k`.** The book identifies the span
+with the annihilator of `x 1 ∧ ⋯ ∧ x k` under the perfect pairing into `⋀^{n+1}`. The dual route is
+shorter: with `f` the coordinate forms of `x`, the wedges `x J` are a basis biorthogonal to the
+wedges of the `f`, so the span is the kernel of the one form `f k ∧ ⋯ ∧ f n`; and `u` lies in the
+span of the first `k` vectors exactly when every wedge through `u` lies in that kernel — if
+`f j₀ u ≠ 0` with `j₀ ≥ k`, putting `u` in place of `x j₀` in the top block gives a wedge on which
+the form is `f j₀ u`, by Cramer's rule.
+
+⚠ **`S(Q)` is an approximation domain whose exponents move with `Q`, and the book's normalization
+disappears.** The bound `C μ_I Q ^ c(π v I)` at an infinite place is written `Q ^ e` with
+`e = c(π v I) + logb Q (C μ_I)` — for `Q > 1` the bound itself — so 4.2 and 4.3 apply to `S(Q)`
+verbatim, with constants uniform in `Q`. The book's `μ v j = λ j ^ (ε v)` with
+`∏_{v | ∞} μ v j = λ j`, (7.42), is not needed: in Mathlib's normalization a dilation multiplies
+the bound at every infinite place, and `d` reappears as the exponent of Minkowski's theorem.
+
+⚠ **(7.45) is one factor, and the weight is exact.** A subset `J` other than the top block contains
+an index below `k`, so in every term of the determinant one factor is at most `μ (k − 1)` instead of
+at least `μ k`; that alone is (7.45), with no ordering of `J`. And the book's chain after (7.46) is
+an identity before it is an estimate: each index lies in `e` of the `p`-subsets and exactly one
+wedge comes from the top block, so Minkowski's upper bound cancels everything but the jump. ⚠ The
+weight of `S(Q)`, not its last minimum, is what 6.1 consumes: after rounding the exponents to a
+grid, a negative weight is what makes the rank of the wedge domain eventually `M − 1`, by 4.3.
+
+⚠ **The choice of `k` needs `R ≥ 1`, and any large jump will do.** The book takes the smallest
+minimizer of `λ k / λ (k + 1)` in `[R, n]`; the proof uses only that some jump is at least the
+geometric mean, which `λ R ≤ 1` (the book's indexing) makes at least `λ (n + 1) ^ (1/(n + 1 − R))`.
+For rank `0` no `k` need exist.
 
 ### Layer 5: the Subspace machinery
 
@@ -1870,7 +2524,10 @@ sizes, the conclusion of 6.3 holds for the product over all of `κ v`. By splitt
 according to the order of the `w v (L v i x)` and discarding all but the `n + 1` smallest, which
 by general position form a basis and bound `⨆ j, v (x j)` from below.
 
-**6.6 Consistency with Layer 3.** For `Fintype.card ι = 2`, 6.3 is 3.4. Prove that the two
+**6.6 Consistency with Layer 3.** For `Fintype.card ι = 2`, 6.3 is 3.4. ⚠ **3.4 is landed**, and
+it is stated for an arbitrary index type with `Fintype.card ι = 2` and with `approxProd` — the
+same object 6.3 uses — so this direction is the discharge of one equation and not a translation;
+what remains is the converse, that 6.3 at `card ι = 2` is no stronger. Prove that the two
 statements agree, so that the library carries one theorem on the projective line and not two.
 
 ### Layer 7: approximation of algebraic numbers, and transcendence
@@ -1918,7 +2575,9 @@ primes dividing `b`, the forms `X, Y, α X − α Y − Z` at `∞` for the hypo
 ⚠ This genuinely needs three variables: the denominators have the special shape
 `b^r (b^s − 1)`, the Subspace Theorem exploits both factors, and Ridout's theorem (3.3), which
 sees only the factor `b^r`, gives the criterion only for `w > 2` (Ferenczi–Mauduit 1997). State
-that weaker criterion too, as the consumer of 3.3 that needs none of Layers 4–6.
+that weaker criterion too, as the consumer of 3.3 that needs none of Layers 4–6. ⚠ **3.3 is
+landed**, so that weaker criterion is now buildable; `Rat.finite_setOf_ridout` is the input, with
+`S₁` the primes dividing `b` and `S₂` empty.
 
 **7.5 The complexity of an algebraic irrational** (Adamczewski–Bugeaud 2007, Theorem 1). For
 `a : ℕ → Fin b`, the **complexity** `p(n)` is the number of distinct words of length `n` occurring
@@ -1944,7 +2603,10 @@ largest, the left side of the affine inequality is *equal* to `(mulHeight x)⁻�
 through the origin, and each line meets `x 1 + x 2 = 1` once. ⚠ Use 6.4 **for
 `Fintype.card ι = 2`**, which is 3.4 together with the affine equivalence of 6.4; that
 equivalence is formal from 0.3 and is to be proved dimension by dimension so that this milestone
-needs Layers 0, 2 and 3 only.
+needs Layers 0, 2 and 3 only. ⚠ **3.4 is landed**, so what stands between this milestone and its
+proof is the affine equivalence and the split by largest coordinate, not the Subspace Theorem:
+`NumberField.exists_finset_submodule_of_approxProd_le_card_two` is the input, and its conclusion
+is already the "finitely many lines through the origin" this route asks for.
 
 **8.2 The unit equation in `n` variables** (Evertse; van der Poorten–Schlickewei;
 Bombieri–Gubler, Theorem 7.4.2 and Corollary 7.4.3). For `a : ι → Kˣ`, finitely many
@@ -2090,7 +2752,8 @@ Tau Ceti test files beside the milestones named.
   layer where a minimal polynomial is computed. Two rejection tests were added that this list did
   not ask for: that `Irrational ξ` is needed for the lower bound `2`, and that the determinant
   hypothesis of the Möbius invariance is load-bearing. ⚠ `irrationalityExponent (2 ^ (1/3 : ℝ))`
-  was **not** done: Layer 1 gives `[2, 3]` and the value `2` needs 3.3.
+  could not be done here — Layer 1 gives only `[2, 3]` — and is **landed in 3.3**, where Roth's
+  theorem gives the value `2`; it is the acceptance test of `…/RothRational.lean`.
 - **1.2.** `koksmaExponent 1 ξ = mahlerExponent 1 ξ` and `mahlerExponent 1 ξ + 1 =
   irrationalityExponent ξ` for every real `ξ`; `mahlerExponent 1 q = 0` at a rational and
   `1 ≤ mahlerExponent 1 (√2)` — **landed**, together with the Möbius invariance of both exponents
@@ -2188,18 +2851,114 @@ Tau Ceti test files beside the milestones named.
 - **3.2.** The set the theorem bounds is nonempty for every `κ` — the target `0` at every place
   has `β = 0` as a solution, so the finiteness is not finiteness of the empty set — and the
   classical one-place shape is an instance of the milestone. Both **landed**. ⚠ The one this list
-  asked for first, that **Roth's theorem is false with `κ = 2`**, was **not** done, and the
-  reason is a boundary and not a difficulty: the witness is Dirichlet's theorem at an algebraic
-  irrational, so it needs a second number field with a chosen real place and the dictionary
-  between `Real.irrationalityExponent` and the product over the places of `ℚ` — which is
-  precisely **Layer 3.3**, whose whole content is that dictionary. What is landed instead is a
-  **rejection test** that costs no places: at `κ = 0` the right-hand side is `1`, the truncated
-  product is always at most `1`, and *every* element of `K` is a solution, so the hypothesis on
-  `κ` is load-bearing. ⚠ The third item on this list, about two targets at one place, is not a
-  statement of this milestone at all — Roth's theorem carries one target per place — and is left
-  to 3.3, where targets at `∞` make the question concrete.
-- **3.5.** `‖(3/2)^k‖ > exp (−k/10)` for all but finitely many `k`, with no value of the
-  exceptional set asserted.
+  asked for first, that **Roth's theorem is false with `κ = 2`**, could not be done here, and the
+  reason was a boundary and not a difficulty: the witness is Dirichlet's theorem at an algebraic
+  irrational, so it needs a chosen real place and the dictionary between
+  `Real.irrationalityExponent` and the product over the places of `ℚ` — which is precisely
+  **Layer 3.3**. It is **landed there**, in `…/RothRational.lean`, at `ξ = √2 − 1`. What was
+  landed here instead is a **rejection test** that costs no places: at `κ = 0` the right-hand
+  side is `1`, the truncated product is always at most `1`, and *every* element of `K` is a
+  solution, so the hypothesis on `κ` is load-bearing. ⚠ The third item on this list, about two
+  targets at one place, is not a statement of this milestone at all — Roth's theorem carries one
+  target per place — and is answered in 3.3, where the target `∞` makes the question concrete:
+  `∞` and `0` are different targets at the same place, and the acceptance criteria of
+  `…/RothInfinity.lean` exhibit a `β` at which the two factors are `1/2` and `1`.
+- **3.3.** This list asked for one thing under 3.2 and one under 1.1, and both are **landed**
+  here: **Roth's theorem is false at `κ = 2`**, at `ξ = √2 − 1`, because Mathlib's infinite
+  Dirichlet set `{q | |ξ − q| < 1/q.den²}` sits inside the set the theorem would have to bound —
+  for `ξ ∈ (1/4, 3/4)` every such `q` has naive height exactly `q.den`; and
+  `irrationalityExponent (2 ^ (1/3)) = 2`, the value Layer 1 left between `2` and `3`. ⚠ Three
+  more earn their place. A **conformance** test, that Layer 3.2 is the case of the `OnePoint`
+  statement in which every target is finite, so nothing was weakened to make room for `∞`; a
+  **rejection** test, that `∞` and `0` are genuinely different targets — at a `β` of local size
+  `2` the factors are `1/2` and `1` — so the `OnePoint` is not decoration; and a **sharpness**
+  test for the `p`-adic form, that at `ε = 0` it is false, since with target `0` in `F = ℚ` the
+  powers of `p` satisfy `|p^k|_p = |p^k|^{−1}` with equality. ⚠ One test is about Lean and not
+  about mathematics, and it is the one that caught the roadmap's formula: the factor at the
+  target `∞` is `1` at `β = 0`, while `min 1 (|β|_v)⁻¹` is `0` there.
+- **3.4.** **Landed**, four tests. A **conformance** test, that the roundtrip lands on Layer
+  3.2's own statement hypothesis for hypothesis, so the two statements are the same statement and
+  not two shapes that happen to be true together. Two tests about the **point at infinity**: that
+  for the coordinate forms `(0, 1)` makes `approxProd` vanish — so it is a solution for every
+  `ε`, and the exceptional set must contain a line that no `β ∈ K` names — and that it lies on
+  none of the lines `K ⬝ (1, β)`. And a **sharpness** test for the local comparison, that no
+  constant independent of the target can bound `min(1, |β − t|) · max(1, |β|)` by `|β − t|`:
+  at `β = t + 1` the first is `|t| + 1` and the second is `1`. ⚠ One more is about Lean and not
+  about mathematics: the projective height of `[0 : 1]` is `1`, and so is `mulHeight₁` of Lean's
+  junk ratio `1 / 0 = 0`, which is why the identity "the height of `x` is the height of
+  `x 1 / x 0`" needs no hypothesis `x 0 ≠ 0` and is true where `β` is not defined.
+- **3.5.** **Landed**, four tests. The one asked for here: `‖(3/2)^k‖ > exp (−k/10)` for all
+  but finitely many `k`, with no value of the exceptional set asserted. Two **rejection** tests,
+  that the conclusion is *false for every `ε`* at `(p, q) = (3, 1)` and at `(4, 2)` — so `q ≥ 2`
+  and the coprimality are both load-bearing and for the same reason, that `(p/q)^k` is then an
+  integer. And a test that **`k = 0` is in the exceptional set for every `ε`**, which is why the
+  conclusion has to be `∀ᶠ` and cannot be `∀`. Under them, in `PrimeProducts.lean`, two more:
+  that `d ≠ 0` is not removable from the product formula — the empty product is `1` and Lean's
+  `(0 : ℚ)⁻¹` is `0` — and that over a set of primes missing a factor the product is too
+  **large**, never too small.
+- **3.6.** **Landed**, six tests. `x³ − 2 y³ = m` has finitely many solutions for every `m ≠ 0`,
+  the three complex roots of `X³ − 2` being distinct because it is separable; `x² y − 2 y³ = m`
+  likewise, through the branch where `Y` divides the form and no approximation is used; and
+  `x y (x + y) = m`, entered through the headline statement with the three linear factors `X`,
+  `Y`, `X + Y` supplied by hand. Two **rejection** tests: Pell's equation `x² − 2 y² = 1` has
+  infinitely many solutions — so "three" cannot be lowered to two — and `x³ − x y² = 0` has the
+  whole line `x = 0` while `X³ − X` has the three distinct roots `0, 1, −1`, so `m ≠ 0` is not
+  removable. ⚠ The first and the Pell test are the two set for **8.4** below, over `ℤ`.
+- **3.7.** **Landed**, six tests. Two **rejection** tests of the gap principle, over `ℚ` with
+  `S = {∞, 2}` and the targets `3` at `∞` and `5` at `2`: both `3` and `5` are solutions for every
+  `κ`, with the close heights `log 3` and `log 5`, and at `κ = 10`, `N = 4` the conclusion fails
+  for the pair — so the theorem puts them in different classes, and without the class hypothesis
+  it would be false — and fails for `3` against itself, so `β ≠ β'` is not removable. A
+  **conformance** test that at one place every solution of height greater than `1` lies in one
+  class, so that Davenport and Roth's gap principle needs no class hypothesis; the book's count
+  of small solutions, at the endpoint `X = log 16 / (c − 1)` its own hypothesis excludes; the
+  quantifier order of the large count, `∃ B, ∀ α, ∃ L`, with `B = rothLargeCount`; and the
+  sharpness of the chain lemma — two points of heights `1` and `2` at ratio `3` form no chain and
+  fill the bound `1 · 2`.
+- **3.8.** **Landed**, three tests. A **conformance** test that constant targets give 3.2 back: an
+  infinite solution set of 3.2 enumerates injectively, its heights tend to infinity by Northcott,
+  a constant is `o` of them, and 3.8 bounds the indices. Two **rejection** tests over `ℚ` at
+  `S = {∞}`: the constant pair `(0, 0)` satisfies the growth condition without its `1` and is a
+  solution at every index, so the `1` is not removable; and the constant pair `(2, 2)` — targets
+  equal to the approximations — satisfies it with `O` in place of `o` and is a solution at every
+  index, so the `o` cannot be weakened.
+- **4.1.** **Landed**, two tests. A **conformance** test: over `ℚ`, with `S₀ = ∅`, the coordinate
+  forms and `c = 0`, the body is the cube `[−1, 1]ⁱ`, of volume `2 ^ #ι`, and the lattice is `ℤⁱ`,
+  of covolume `1` — which pins the unit body and the normalization of the covolume at once. A
+  **rejection** test of the book's finite-place volume: at the `2`-adic place of `ℚ`, in one
+  variable with `L = id`, `c = 1` and `Q = 3/2`, the largest value of `|·|_2` at most `3/2` is `1`
+  and the covolume is `1`, not `Q ^ (−c) = 2/3`.
+- **4.2.** **Landed**, three tests. Two **conformance** tests over `ℚ`: the `K`-minima are the
+  real minima, since `d = 1` closes `λ l ≤ μ l ≤ λ (d (l − 1) + 1)`; and in one variable both
+  halves of Minkowski's second theorem over `K` are equalities, `μ 1 · vol B = 2 · covol Λ` — the
+  classical `|β| / a` for the interval `[−a, a]` and the lattice `ℤ β` — which pins the
+  normalization `2 ^ {d (n + 1)}` and the constant `c_ℚ = 1`, the house of the integral basis
+  `± 1`. A **rejection** test: the minima vanish above `n + 1` and are positive below it, so they
+  are not monotone on all of `ℕ` and every statement about them carries `l ≤ n + 1`.
+- **4.3.** **Landed**, three tests. A **conformance** test over `ℚ`, in one variable, with
+  `S₀ = ∅`, the coordinate form and `c = −1`, of weight `−1`: the rank is `1` exactly when `Q ≤ 1`,
+  the domain being the integers of absolute value at most `Q⁻¹` — so the conclusion of Lemma
+  7.5.12 holds at every level above `1` and fails at `1`, and is eventual, not uniform. Two
+  **rejection** tests: with `c = 0` the domain is `ℤ ∩ [−1, 1]`, of rank `1` and with minimum
+  exactly `1`, so the minima are counted at most `1` and not below it; and for the coordinate forms
+  with `c = 0`, of weight `0`, every domain contains the standard basis and the rank is `n + 1` at
+  every level, so the weight has to be negative, not merely nonpositive.
+- **4.4.** **Landed**, four tests, over `ℚ` in two variables with the standard basis. A
+  **conformance** test: for the forms `± (2/5) X₀ + X₁` at `∞` and `μ = (2/5, 1)`, `ξ = −2` meets
+  the conclusion with `C = 9/5`. Three **rejection** tests: for the same data no `ξ`, rational or
+  real, meets it with `C = 1`, so the best constant lies in `(1, 9/5]` and the infinite places are
+  genuinely worse than the finite ones; for `X₀ ± ε X₁` and `μ = (1, ε)` decreasing, every other
+  hypothesis holds and no `C` works for all `ε`, so the minima must be sorted; and at the `2`-adic
+  place, for `4 X₀ + X₁`, `4 X₀ + 3 X₁` and `μ = (1/4, 1)`, no coefficient integral at `2` meets
+  the bound `1/4`, so the coefficients are `S₀`-integers and not algebraic integers.
+- **4.5.** **Landed**, four tests. Two **conformance** tests: in two variables the wedge of two
+  forms on the wedge of two vectors is the `2 × 2` determinant with the forms along the rows, which
+  pins the orientation of Laplace's identity; and in `ℚ³` with `k = 1`, `e₀ ∧ (e₁ + e₂)` lies in
+  the span of the wedges meeting the first index and the top wedge `e₁ ∧ e₂` does not — the span of
+  the wedges *contained in* the first `k` indices would be `0`. Two **rejection** tests on the
+  choice of `k`: for the minima `1/2, 2, 2, 8` of a domain of rank `1` the jump at `k = 2` fails
+  (7.41) and the jump at `k = 1` meets it, so the choice matters; and for the minima `4, 8` of a
+  domain of rank `0` no `k` meets it, so the rank has to be positive.
 - **6.3.** Schmidt's example that the conclusion cannot be finiteness of points: with
   `L 1 = X 1 + √2 X 2 + √3 X 3`, `L 2 = X 1 − √2 X 2 + √3 X 3`, `L 3 = X 1 − √2 X 2 − √3 X 3` at
   `∞`, every solution of `x 1 ² − 2 x 2 ² = 1`, `x 3 = 0` satisfies
@@ -2210,7 +2969,8 @@ Tau Ceti test files beside the milestones named.
   `(u, −u, 1)` solves `x 1 + x 2 + x 3 = 1` for every unit `u`: the no-vanishing-subsum
   hypothesis is not removable.
 - **8.4.** `x³ − 2 y³ = 1` has finitely many integer solutions; `x² − 2 y² = 1` has infinitely
-  many, and has two linear factors.
+  many, and has two linear factors. ⚠ Over `ℤ` both are already discharged by 3.6's tests; what
+  8.4 adds is the number field and the `S`-integers.
 - **7.5.** The characteristic sequence of the powers of `2` has `p(n) ≤ 3 n + 1` — a window of
   length `n` starting beyond `2 n` contains at most one `1` — so `∑ k, 2^{−2^k}` is
   transcendental by 7.5.
@@ -2363,18 +3123,110 @@ The path to Roth's theorem was 0.1 → 2.6 → 2.7 → 3.1 → 3.2, with 2.1–2
 lemma, `ArithmeticHeights` **5.6** — 5.7, which the ordering named, is packaged on the wrong
 coefficient space and 2.6 repackages 5.6 itself; nothing from that roadmap's Layers 3, 4 or 6 is
 used before Layer 4 here. ⚠ **Layer 0.4 turns out not to be on this path at all**: the ordering
-put it there, and Step IV does not use it. Its consumers are Layers 5 and 7.
+put it there, and Step IV does not use it. Its consumers are Layers 5 and 7, the gap principle
+of 3.7 — and, since 3.8, the core of Roth's proof itself, which bounds the size of each target by
+its height with the fundamental inequality read at one place. Step IV still does not use it.
 Now that 3.2 stands,
-**3.3–3.8, 8.1, 8.3, 8.4, 8.5 and
+**3.5–3.8, 8.1, 8.3, 8.4, 8.5 and
 the `w > 2` criterion of 7.4 are all within reach** — every classical application of
 Thue–Siegel–Roth,
 including Thue–Mahler and the two-variable unit equation, is available before any geometry of
-numbers. The next milestone is **3.3**, the forms applications quote, which is also where the
-dictionary between the places of `ℚ` and `Real.irrationalityExponent` gets built and where 3.2's
-own sharpness test — that `κ = 2` is false — becomes stateable.
+numbers; and with **3.4 landed**, the interface those applications actually consume — the
+Subspace Theorem in two variables — is in place.
+
+⚠ **3.3 is landed, and the four classical forms are proved** (four files). What it taught is
+that this section's prediction — "the forms applications quote, each 3.2 for a choice of data" —
+was right about three of the four and wrong about the fourth: *targets at infinity* is not a
+choice of data but a **theorem**, with its own change of variable, its own distortion estimate
+and its own use of the room in `κ > 2`, and the other three are choices of data *given it*. The
+second thing it cost, and this section did not predict either, is the dictionary between the
+finite places of `ℚ` and `padicNorm`: Mathlib has both ends and nothing between them, and the
+exponent Ostrowski leaves free is exactly what Ridout's `2 + ε` cannot afford. The third is
+smaller and sharper: the roadmap's own formula for the factor at `∞` is wrong at one point, and
+`(max 1 |β|_v)⁻¹` is the junk-free form. Against that, Ridout's `2^{|S₁ ∩ S₂|}` split cost
+nothing — it is a `Finset.powerset` and a case analysis on divisibility.
+
+⚠ **3.4 is landed, in three files, and it cost less than this section expected.** The prediction
+here — that it "needs 3.3's `OnePoint` form to split the solutions by which form is small at each
+place" — was exactly right, and that split is the cheap part: a choice function on
+`↥Sinf ⊕ ↥Sfin` and two `Function.extend`s. What the milestone actually cost is the local
+comparison between the value of a linear form and the approximation factor at its zero, where the
+constant has to grow with the target; and what it did not predict is that the conclusion is about
+**points of `ℙ¹(K)` and not about `β ∈ K`** — the line at infinity is a solution of the
+inequality for every `ε`, so it is forced into the exceptional set by the statement rather than
+by the proof. The milestone's own sentence "with `β = x 1 / x 0`" is the right reading of the
+proof and the wrong reading of the theorem.
+
+⚠ **3.5 is landed, and it cost two files rather than the one this section implied.** The
+prediction — that it is 3.3 for a choice of data — was right, and the choice of data is four
+lines. What it did not predict is that the arithmetic *under* the choice is the work: Ridout's
+two products are estimates in general and identities exactly when the index set is the set of
+primes of the number itself, and nothing in Mathlib says so. The second thing it got wrong is
+the orientation of the auxiliary rational, which decides whether `gcd(N, p^k)` has to be named.
+Against that, the passage from the power of `p` that Ridout's theorem gives to the `exp(−ε k)`
+of the statement cost one initial segment of `k` and nothing else.
+
+⚠ **3.6 is landed, and it cost two files and a detour around the book's reduction.** The
+prediction — the book's direct argument from the classical case of 3.3 — was right for an
+irreducible form, and the approximation side is the one-place rational Roth theorem read for
+unreduced fractions. What it did not say is that the book reaches an irreducible form by
+factoring over `ℤ` first; run without that step, the exponent at the nearest root is `d / μ`,
+which stays above `2` at irrational roots by an argument through the minimal polynomial and
+**drops to `2` at rational ones**, where Liouville's inequality with exponent `1` takes over. And
+it did not predict that Mathlib already has the binary form — `Polynomial.homogenize` — so that
+the statement cost no definition.
+
+⚠ **3.7 is landed, and it cost a restructuring of 3.2 rather than new mathematics.** The gap
+principle is the book's proof, and the two counts are combinatorics that `Set.ncard` makes short.
+What this section did not predict is that the count of large solutions cannot quote Roth's
+theorem: it needs the chain statement inside 3.2's proof, with the parameters as functions of `κ`,
+`|S|` and `[F : K]`, and 3.2 had them only as existentials inside one proof by contradiction. It
+also found the book's window hypothesis one inequality too strict for the book's own use of it.
+
+⚠ **3.8 is landed, and Layer 3 with it.** It cost a second restructuring of 3.2, smaller than
+3.7's — Steps I to V generalized from one target per place to one per coordinate — and one fact
+the book uses without naming: the size of a target is bounded by its height. The book's claim
+that only the height of the auxiliary polynomial sees the targets is half right; the Taylor
+expansion sees their sizes, and Layer 0.1's classification is what turns those into heights.
+
+⚠ **4.1 is landed, the first milestone on the path to the summit.** It cost four files, two of
+them infrastructure the milestone's text does not mention: a covolume for `𝓞 K`-modules that are
+not ideals, and the value group of a finite place. It confirmed the roadmap's warning about the
+book's finite-place volume, and it found that the index needs neither localization nor a quotient
+— the maximal determinants at each place determine it.
+
+⚠ **4.2 is landed, and it proves no geometry of numbers of its own, as
+*[Consumed](#consumed)* said it would.** It cost two files, one fact Mathlib had — independence
+over `ℚ` survives the mixed embedding — and one constant it had too, the house. What the
+milestone's text did not predict is that the extraction lemma is spent twice, the second time to
+show the `K`-minima finite at all, and that attaining them needs finiteness rather than Cassels'
+greedy argument.
+
+⚠ **4.3 is landed, in one file, and its lemma had to leave the book's proof by contradiction.**
+Bombieri–Gubler state 7.5.12 along the heights of hypothetical solutions; stated for domains it is
+eventual in the level, the rank can be `0`, and a bounded range of levels needs no Northcott. The
+rank is read from the minima for any lattice and any closed body, and 4.2's attainment is what
+reads it.
+
+⚠ **4.4 is landed, in two files, and its constant had to become uniform in the forms.** The book
+lets `C` depend on the forms and then applies the lemma to forms that move with `Q`; the proof
+gives a constant depending on `K` and `n` only, and the statement now says so. Over `K` the moving
+forms are not forms over `K`, so they became weights. The arithmetic input, approximation by
+`S₀`-integers, needed no Chinese remainder theorem.
+
+⚠ **4.5 is landed, in two files, and Layer 4 is complete.** The exterior power had to be read in
+coordinates, so that 6.1 can apply Layers 4.2–5.6 inside it; Lemma 7.5.33 took the dual route and
+no pairing; and `S(Q)` became an approximation domain whose exponents move with `Q`, whose weight
+is computed exactly — the form 6.1 consumes, rather than the last minimum the book states.
+
+The next milestone off that path is **8.1**, the two-variable unit equation, which 3.4 unblocked
+and which is the first application resting on the projective interface rather than on the affine
+one. Beside it, the `w > 2` criterion of **7.4** is reachable from 3.3 alone. On the path, the
+next is **Layer 5**: 5.1's reductions, which land in 4.1's domains, and 5.2's multihomogeneous
+auxiliary polynomial, which needs nothing of Layer 4, can start now.
 
 The path to the summit is Layer 4 → Layer 5 → 6.1 → 6.2 → 6.3. Layer 4 needs
-`ArithmeticHeights` 4.1–4.4 and 3.1, and is independent of Layers 2 and 3 here; it can be built
+`ArithmeticHeights` 4.1–4.4, 3.1 and 3.4, and is independent of Layers 2 and 3 here; it can be built
 in parallel with them by someone who prefers lattices to polynomials. Within Layer 5, 5.2 and 5.3
 are Layer 2 in multihomogeneous dress and 5.5 is elementary; **5.4 is the delicate one**, because
 its statement is easy to get wrong (the exceptional subspaces) and everything in 5.6 is
@@ -2422,8 +3274,12 @@ method; the existence of `T`-numbers; and anything **effective**. **Do not attem
 ## Provenance
 
 Secondary to everything above: the milestones are the specification. Layers 0, 1.1–1.3, all
-of Layer 2 and Layers 3.1–3.2 — **Roth's theorem** — are proved in this repository and nothing
-else of Layers 3–9 is. What
+of Layer 2 and all of Layer 3 — **Roth's theorem, the classical forms of it that the
+applications quote, the Subspace Theorem in two variables, Mahler's theorem on `(p/q)^k`,
+Thue's theorem, the count of approximations and Roth's theorem with moving targets** — and
+the approximation domains, the successive minima over `K`, the rank, Evertse's lemma and the
+exterior powers — all of Layer 4 — are proved in this repository and nothing else of Layers 4–9
+is. What
 exists elsewhere, in
 [`rwst/lean-code`](https://github.com/rwst/lean-code)
 (CC0), is the *other side* of the interface — statements of the Subspace Theorem recorded as
@@ -2432,7 +3288,16 @@ ways.
 
 - As **consumers to test the pinned statements against**: `CITED/Ridout.lean`
   (`Ridout.finite_ratios` and its algebraic-multiplier form, a Ridout-type theorem derived from
-  the two-variable Subspace Theorem — an instance of 3.3–3.4), `CITED/CorvajaZannierProof.lean`
+  the two-variable Subspace Theorem — an instance of 3.3–3.4; ⚠ **3.4 is now landed here, and
+  it is the theorem that file takes as an axiom**: `Ridout.finite_ratios` is the *projective*
+  form, two linearly independent forms at each place and finiteness of the set of ratios, which
+  is 3.4 and not 3.3 — its own docstring records that its `ℚ`-linear forms exclude the algebraic
+  irrational targets 3.3 handles, and `finite_ratios_alg` is the `K`-linear form, which is 3.4
+  over a general `F`. What still separates them is the **convention, not the mathematics**: that
+  file quantifies over an untyped `S : Finset (AbsoluteValue ℚ ℝ)`, which the first example under
+  *Conventions* above refutes, and it concludes with the finite set of *ratios* where 3.4
+  concludes with the finite set of lines — the fifteen lines that pass between the two are in
+  that file already), `CITED/CorvajaZannierProof.lean`
   (the Corvaja–Zannier theorem on `‖α u‖` for `S`-units `u`), and
   `CITED/NairKumarRoutProof.lean` (an `S`-unit integrality statement from three variables over
   `ℚ`). A statement of 6.3 from which these three cannot be re-derived is the wrong statement.

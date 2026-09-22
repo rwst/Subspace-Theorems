@@ -29,6 +29,8 @@ sequence *all of whose terms lie in one approximation class*.
 * `NumberField.IsHeightIndependent`: the property, for a sequence.
 * `NumberField.exists_isHeightIndependent`: every infinite subset of a number field contains an
   `(L, M)`-independent sequence, for every `L` and `M`.
+* `NumberField.exists_isHeightIndependent_comp`: the same for a family of points indexed by an
+  arbitrary set of unbounded height, choosing indices rather than points.
 * `NumberField.IsHeightIndependent.injective`: with `0 < L` and `1 < M` the terms are distinct,
   their heights being strictly increasing.
 * `NumberField.exists_cellIndex_eq_and_isHeightIndependent`: **6.4.4**, the two reductions at
@@ -79,15 +81,24 @@ theorem exists_mem_lt_logHeight₁ {X : Set K} (hX : X.Infinite) (C : ℝ) :
   push Not at h
   exact hX ((NumberField.finite_setOfPred_logHeight₁_le K C).subset fun x hx ↦ h x hx)
 
+/-- **A family of points of unbounded height on `X` has an `(L, M)`-independent subsequence.**
+What is chosen is a sequence of *indices* `x j ∈ X`, and the terms are the points `g (x j)`: two
+indices may carry the same point. That is the form Layer 3.8 needs, where every index is a pair
+of a point and its own targets. -/
+theorem exists_isHeightIndependent_comp {ι : Type*} (g : ι → K) {X : Set ι}
+    (hX : ∀ C : ℝ, ∃ x ∈ X, C < logHeight₁ (g x)) (L M : ℝ) :
+    ∃ x : ℕ → ι, (∀ j, x j ∈ X) ∧ IsHeightIndependent L M fun j ↦ g (x j) := by
+  choose y hyX hy using hX
+  refine ⟨fun j ↦ Nat.rec (motive := fun _ ↦ ι) (y L)
+    (fun _ prev ↦ y (M * logHeight₁ (g prev))) j, fun j ↦ ?_, (hy L).le, fun j ↦ (hy _).le⟩
+  cases j with
+  | zero => exact hyX L
+  | succ j => exact hyX _
+
 /-- **Every infinite subset of a number field contains an `(L, M)`-independent sequence.** -/
 theorem exists_isHeightIndependent {X : Set K} (hX : X.Infinite) (L M : ℝ) :
-    ∃ β : ℕ → K, (∀ j, β j ∈ X) ∧ IsHeightIndependent L M β := by
-  choose g hgX hg using fun C : ℝ ↦ exists_mem_lt_logHeight₁ hX C
-  refine ⟨fun j ↦ Nat.rec (motive := fun _ ↦ K) (g L)
-    (fun _ prev ↦ g (M * logHeight₁ prev)) j, fun j ↦ ?_, (hg L).le, fun j ↦ (hg _).le⟩
-  cases j with
-  | zero => exact hgX L
-  | succ j => exact hgX _
+    ∃ β : ℕ → K, (∀ j, β j ∈ X) ∧ IsHeightIndependent L M β :=
+  exists_isHeightIndependent_comp id (exists_mem_lt_logHeight₁ hX) L M
 
 /-- The heights of an `(L, M)`-independent sequence are strictly increasing, once `L` is positive
 and `M` exceeds `1`. -/

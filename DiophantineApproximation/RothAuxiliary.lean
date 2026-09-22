@@ -13,9 +13,11 @@ public import DiophantineApproximation.RothLemma
 /-!
 # Steps I and II of Roth's proof
 
-Step I is Layer 2.6: for `m + 1` variables, `|S|` targets and a multidegree `d` with every `d j`
-large, the index theorem produces a nonzero `P` over `K` with `degreeOf j P ≤ d j`, with index at
-least `(1/2 − ε)(m + 1)` at every `(α v, …, α v)`, and with `h(P) ≤ [K : ℚ] C₁ ∑ j, d j`. The
+Step I is Layer 2.6: for `m + 1` variables, `|S|` target points and a multidegree `d` with every
+`d j` large, the index theorem produces a nonzero `P` over `K` with `degreeOf j P ≤ d j`, with
+index at least `(1/2 − ε)(m + 1)` at every target point, and with
+`h(P) ≤ [K : ℚ] ∑ j, C₁ j d j`. In Roth's theorem the target points are the diagonals
+`(α v, …, α v)`; with moving targets (Layer 3.8) the `j`-th coordinate is the target of `β j`. The
 feasibility hypothesis is Lemma 6.3.5, `V_{m+1}((1/2 − ε)(m + 1)) ≤ exp (−6 (m + 1) ε²)`, and it
 is what fixes the number of variables: `r |S| exp (−6 (m + 1) ε²) < 1/2`.
 
@@ -44,11 +46,17 @@ Roth's lemma is quoted through the infimum, so a strict inequality is needed to 
 and `2 (m + 1) ε < 3 (m + 1) ε` is the cheapest one. Since `ε` is at the caller's disposal the
 constant is immaterial, and nothing downstream sees it.
 
-⚠ **The height bound is `[K : ℚ] (C₁ + log 2) ∑ j, d j`, with `C₁` a hypothesis.** The index
+⚠ **The height bound is `[K : ℚ] ∑ j, (C₁ j + log 2) d j`, with `C₁` a hypothesis.** The index
 theorem's constant is `r / (1 − r ∑ V)` times a sum of volumes; under the feasibility hypothesis
 the first factor is at most `2r` and the volumes sum to less than `1 / (2r)`, so the two cancel and
 only the heights of the targets survive. That cancellation is why `m` may be taken as large as the
 feasibility demands without the height of `P` growing with it.
+
+⚠ **`C₁` is indexed by the coordinate, and that is the whole of Layer 3.8's change here.** The
+heights of the targets enter `h(P)` as `∑ j, h(α j) d j`, the book's (6.11): the target of `β j`
+is weighed by `d j ≈ D / h(β j)`. With one constant for all coordinates the bound is
+`C₁ ∑ j, d j = O(D / L)`; with moving targets it is `∑ j, C₁ j d j`, which is `o(D)` exactly when
+`h(α j) = o(h(β j))`.
 
 ## References
 
@@ -67,21 +75,24 @@ namespace NumberField
 variable {K F : Type*} [Field K] [NumberField K] [Field F] [NumberField F] [Algebra K F]
 
 /-- **Steps I and II of Roth's proof** (Bombieri–Gubler 6.4.5–6.4.7): the auxiliary polynomial of
-Layer 2.6, differentiated until it survives at `β` by Layer 2.7. -/
-theorem exists_auxiliary_deriv {A : Type*} [Fintype A] (tgt : A → F)
-    {ε : ℝ} (hε0 : 0 < ε) (hε1 : ε < 1 / 2) {m : ℕ}
+Layer 2.6, differentiated until it survives at `β` by Layer 2.7. The index is taken at the point
+`tgt a` for every `a`, and `C₁ j` bounds the heights of the `j`-th coordinates of those points; in
+Roth's theorem the points are diagonal and `C₁` is constant, and in Layer 3.8 they are not. -/
+theorem exists_auxiliary_deriv {A : Type*} [Fintype A] {m : ℕ} (tgt : A → Fin (m + 1) → F)
+    {ε : ℝ} (hε0 : 0 < ε) (hε1 : ε < 1 / 2)
     (hfeas : (finrank K F : ℝ) * (Fintype.card A : ℝ)
       * Real.exp (-(6 * ((m : ℝ) + 1) * ε ^ 2)) < 1 / 2)
-    {C₁ : ℝ} (hC₁0 : 0 ≤ C₁) (hC₁ : ∀ a, absLogHeight₁ (tgt a) + Real.log 2 + 1 ≤ C₁) :
+    {C₁ : Fin (m + 1) → ℝ} (hC₁0 : ∀ j, 0 ≤ C₁ j)
+    (hC₁ : ∀ a j, absLogHeight₁ (tgt a j) + Real.log 2 + 1 ≤ C₁ j) :
     ∃ D₀ : ℕ, ∀ d : Fin (m + 1) → ℕ, (∀ j, D₀ ≤ d j) → ∀ β : Fin (m + 1) → K,
       (∀ j : Fin m, (d j.succ : ℝ) ≤ ε ^ (2 ^ m) * (d j.castSucc : ℝ)) →
-      (∀ j, (totalWeight K : ℝ) * C₁ * (∑ i, (d i : ℝ))
+      (∀ j, (totalWeight K : ℝ) * ∑ i, C₁ i * (d i : ℝ)
             + 4 * ((m : ℝ) + 1) * (d 0 : ℝ) * (totalWeight K : ℝ)
           ≤ ε ^ (2 ^ m) * ((d j : ℝ) * logHeight₁ (β j))) →
       ∃ Q : MvPolynomial (Fin (m + 1)) K, eval β Q ≠ 0 ∧ (∀ j, Q.degreeOf j ≤ d j) ∧
         (∀ a, ENNReal.ofReal ((1 / 2 - 4 * ε) * ((m : ℝ) + 1))
-          ≤ index (fun j ↦ (d j : ℝ)) (fun _ ↦ tgt a) (Q.map (algebraMap K F))) ∧
-        Real.log Q.mulHeight ≤ (totalWeight K : ℝ) * (C₁ + Real.log 2) * ∑ i, (d i : ℝ) := by
+          ≤ index (fun j ↦ (d j : ℝ)) (tgt a) (Q.map (algebraMap K F))) ∧
+        Real.log Q.mulHeight ≤ (totalWeight K : ℝ) * ∑ i, (C₁ i + Real.log 2) * (d i : ℝ) := by
   classical
   have hr0 : (0 : ℝ) ≤ (finrank K F : ℝ) := Nat.cast_nonneg _
   set e := (Fintype.equivFin A).symm with hedef
@@ -103,28 +114,30 @@ theorem exists_auxiliary_deriv {A : Type*} [Fintype A] (tgt : A → F)
             * Real.exp (-(6 * ((m : ℝ) + 1) * ε ^ 2)) := by ring
       _ < 1 / 2 := hfeas
   obtain ⟨D₀, hD₀⟩ := MvPolynomial.exists_ne_zero_le_index_logHeight_le (K := K) (F := F)
-    (α := fun k : Fin (Fintype.card A) ↦ fun _ : Fin (m + 1) ↦ tgt (e k))
+    (α := fun k : Fin (Fintype.card A) ↦ tgt (e k))
     (t := fun _ : Fin (Fintype.card A) ↦ (1 / 2 - ε) * ((m + 1 : ℕ) : ℝ))
     (fun _ ↦ by positivity) (by rw [← hVdef]; linarith) (δ := 1) one_pos
   refine ⟨max D₀ 1, fun d hd β hratio hheight ↦ ?_⟩
   have hd1 : ∀ j, 1 ≤ d j := fun j ↦ le_trans (le_max_right D₀ 1) (hd j)
   obtain ⟨P, hP0, hPdeg, hPindex, hPheight⟩ := hD₀ d fun j ↦ le_trans (le_max_left D₀ 1) (hd j)
   rw [← hVdef] at hPheight
-  have hdsum0 : (0 : ℝ) ≤ ∑ i, (d i : ℝ) := Finset.sum_nonneg fun i _ ↦ Nat.cast_nonneg _
   -- the height of the auxiliary polynomial
-  have hPh : Real.log P.mulHeight ≤ (totalWeight K : ℝ) * C₁ * ∑ i, (d i : ℝ) := by
+  have hCd0 : (0 : ℝ) ≤ ∑ i, C₁ i * (d i : ℝ) :=
+    Finset.sum_nonneg fun i _ ↦ mul_nonneg (hC₁0 i) (Nat.cast_nonneg _)
+  have hPh : Real.log P.mulHeight ≤ (totalWeight K : ℝ) * ∑ i, C₁ i * (d i : ℝ) := by
     have hstep1 : (∑ k : Fin (Fintype.card A), ∑ j : Fin (m + 1),
-          V * (absLogHeight₁ (tgt (e k)) + Real.log 2 + 1) * (d j : ℝ))
-        ≤ ((Fintype.card A : ℝ) * V) * (C₁ * ∑ i, (d i : ℝ)) := by
+          V * (absLogHeight₁ (tgt (e k) j) + Real.log 2 + 1) * (d j : ℝ))
+        ≤ ((Fintype.card A : ℝ) * V) * ∑ i, C₁ i * (d i : ℝ) := by
       calc (∑ k : Fin (Fintype.card A), ∑ j : Fin (m + 1),
-            V * (absLogHeight₁ (tgt (e k)) + Real.log 2 + 1) * (d j : ℝ))
-          ≤ ∑ _k : Fin (Fintype.card A), ∑ j : Fin (m + 1), V * C₁ * (d j : ℝ) := by
+            V * (absLogHeight₁ (tgt (e k) j) + Real.log 2 + 1) * (d j : ℝ))
+          ≤ ∑ _k : Fin (Fintype.card A), ∑ j : Fin (m + 1), V * (C₁ j * (d j : ℝ)) := by
             refine Finset.sum_le_sum fun k _ ↦ Finset.sum_le_sum fun j _ ↦ ?_
+            rw [← mul_assoc]
             exact mul_le_mul_of_nonneg_right
-              (mul_le_mul_of_nonneg_left (hC₁ (e k)) hV0) (Nat.cast_nonneg _)
-        _ = ∑ _k : Fin (Fintype.card A), V * C₁ * ∑ j : Fin (m + 1), (d j : ℝ) :=
+              (mul_le_mul_of_nonneg_left (hC₁ (e k) j) hV0) (Nat.cast_nonneg _)
+        _ = ∑ _k : Fin (Fintype.card A), V * ∑ j : Fin (m + 1), C₁ j * (d j : ℝ) :=
             Finset.sum_congr rfl fun k _ ↦ (Finset.mul_sum _ _ _).symm
-        _ = ((Fintype.card A : ℝ) * V) * (C₁ * ∑ i, (d i : ℝ)) := by
+        _ = ((Fintype.card A : ℝ) * V) * ∑ i, C₁ i * (d i : ℝ) := by
             rw [Finset.sum_const, nsmul_eq_mul, Finset.card_univ, Fintype.card_fin]
             ring
     have hcoef : (finrank K F : ℝ)
@@ -132,35 +145,34 @@ theorem exists_auxiliary_deriv {A : Type*} [Fintype A] (tgt : A → F)
         ≤ 2 * (finrank K F : ℝ) := by
       rw [div_le_iff₀ (by linarith)]
       nlinarith
-    have hCd0 : (0 : ℝ) ≤ C₁ * ∑ i, (d i : ℝ) := mul_nonneg hC₁0 hdsum0
     have hstep2 : (finrank K F : ℝ)
         / (1 - (finrank K F : ℝ) * ∑ _k : Fin (Fintype.card A), V)
         * (∑ k : Fin (Fintype.card A), ∑ j : Fin (m + 1),
-            V * (absLogHeight₁ (tgt (e k)) + Real.log 2 + 1) * (d j : ℝ))
-        ≤ C₁ * ∑ i, (d i : ℝ) := by
+            V * (absLogHeight₁ (tgt (e k) j) + Real.log 2 + 1) * (d j : ℝ))
+        ≤ ∑ i, C₁ i * (d i : ℝ) := by
       calc (finrank K F : ℝ) / (1 - (finrank K F : ℝ) * ∑ _k : Fin (Fintype.card A), V)
             * (∑ k : Fin (Fintype.card A), ∑ j : Fin (m + 1),
-              V * (absLogHeight₁ (tgt (e k)) + Real.log 2 + 1) * (d j : ℝ))
-          ≤ (2 * (finrank K F : ℝ)) * (((Fintype.card A : ℝ) * V) * (C₁ * ∑ i, (d i : ℝ))) := by
+              V * (absLogHeight₁ (tgt (e k) j) + Real.log 2 + 1) * (d j : ℝ))
+          ≤ (2 * (finrank K F : ℝ)) * (((Fintype.card A : ℝ) * V) * ∑ i, C₁ i * (d i : ℝ)) := by
             refine mul_le_mul hcoef hstep1 ?_ (by positivity)
             refine Finset.sum_nonneg fun k _ ↦ Finset.sum_nonneg fun j _ ↦ ?_
-            have h3 : (0 : ℝ) ≤ absLogHeight₁ (tgt (e k)) := absLogHeight₁_nonneg _
+            have h3 : (0 : ℝ) ≤ absLogHeight₁ (tgt (e k) j) := absLogHeight₁_nonneg _
             have h4 : (0 : ℝ) < Real.log 2 := Real.log_pos (by norm_num)
             exact mul_nonneg (mul_nonneg hV0 (by linarith)) (Nat.cast_nonneg _)
-        _ = (2 * ((finrank K F : ℝ) * ((Fintype.card A : ℝ) * V))) * (C₁ * ∑ i, (d i : ℝ)) := by
+        _ = (2 * ((finrank K F : ℝ) * ((Fintype.card A : ℝ) * V))) * ∑ i, C₁ i * (d i : ℝ) := by
             ring
-        _ ≤ 1 * (C₁ * ∑ i, (d i : ℝ)) := by
+        _ ≤ 1 * ∑ i, C₁ i * (d i : ℝ) := by
             refine mul_le_mul_of_nonneg_right ?_ hCd0
             rw [← hsumV]
             linarith
-        _ = C₁ * ∑ i, (d i : ℝ) := one_mul _
+        _ = ∑ i, C₁ i * (d i : ℝ) := one_mul _
     have hfr : (0 : ℝ) < (finrank ℚ K : ℝ) := by
       exact_mod_cast Module.finrank_pos
     rw [div_le_iff₀ hfr] at hPheight
     calc Real.log P.mulHeight ≤ _ * (finrank ℚ K : ℝ) := hPheight
-      _ ≤ (C₁ * ∑ i, (d i : ℝ)) * (finrank ℚ K : ℝ) :=
+      _ ≤ (∑ i, C₁ i * (d i : ℝ)) * (finrank ℚ K : ℝ) :=
           mul_le_mul_of_nonneg_right hstep2 hfr.le
-      _ = (totalWeight K : ℝ) * C₁ * ∑ i, (d i : ℝ) := by
+      _ = (totalWeight K : ℝ) * ∑ i, C₁ i * (d i : ℝ) := by
           rw [totalWeight_eq_finrank]
           ring
   -- Roth's lemma
@@ -202,14 +214,14 @@ theorem exists_auxiliary_deriv {A : Type*} [Fintype A] (tgt : A → F)
     have hmap : (hasseDeriv μ P).map (algebraMap K F) = hasseDeriv μ (P.map (algebraMap K F)) :=
       map_hasseDeriv _ μ P
     have hPa : ENNReal.ofReal ((1 / 2 - ε) * ((m + 1 : ℕ) : ℝ))
-        ≤ index (fun j ↦ (d j : ℝ)) (fun _ ↦ tgt a) (P.map (algebraMap K F)) := by
+        ≤ index (fun j ↦ (d j : ℝ)) (tgt a) (P.map (algebraMap K F)) := by
       have h := hPindex (e.symm a)
       rwa [Equiv.apply_symm_apply] at h
     have hdrop := MvPolynomial.index_le_hasseDeriv_add (fun j ↦ (d j : ℝ))
-      (fun j ↦ Nat.cast_nonneg _) (fun _ ↦ tgt a) (P.map (algebraMap K F)) μ
+      (fun j ↦ Nat.cast_nonneg _) (tgt a) (P.map (algebraMap K F)) μ
     rw [hmap]
     have hchain : ENNReal.ofReal ((1 / 2 - ε) * ((m + 1 : ℕ) : ℝ))
-        ≤ index (fun j ↦ (d j : ℝ)) (fun _ ↦ tgt a) (hasseDeriv μ (P.map (algebraMap K F)))
+        ≤ index (fun j ↦ (d j : ℝ)) (tgt a) (hasseDeriv μ (P.map (algebraMap K F)))
           + ENNReal.ofReal (μ.sum fun j k ↦ (k : ℝ) / d j) := le_trans hPa hdrop
     rw [← tsub_le_iff_right, ← ENNReal.ofReal_sub _ hμw0] at hchain
     refine le_trans (ENNReal.ofReal_le_ofReal ?_) hchain
@@ -233,6 +245,11 @@ theorem exists_auxiliary_deriv {A : Type*} [Fintype A] (tgt : A → F)
       ((2 : ℝ) ^ ∑ i, d i) (totalWeight K), Real.log_rpow (by positivity), Real.log_pow] at hlog
     have hcast : ((∑ i, d i : ℕ) : ℝ) = ∑ i, (d i : ℝ) := by push_cast; ring
     rw [hcast] at hlog
+    have hsplit : ∑ i, (C₁ i + Real.log 2) * (d i : ℝ)
+        = ∑ i, C₁ i * (d i : ℝ) + Real.log 2 * ∑ i, (d i : ℝ) := by
+      rw [Finset.mul_sum, ← Finset.sum_add_distrib]
+      exact Finset.sum_congr rfl fun i _ ↦ by ring
+    rw [hsplit]
     rw [totalWeight_eq_finrank] at hPh hlog ⊢
     nlinarith [hlog, hPh]
 

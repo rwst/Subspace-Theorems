@@ -8,6 +8,8 @@ module
 public import Mathlib.NumberTheory.Height.NumberField
 
 -- Used only inside proofs.
+import DiophantineApproximation.PlacesOverFinite
+import DiophantineApproximation.PlacesOverInfinite
 import Mathlib.Algebra.Order.BigOperators.GroupWithZero.Finset
 
 /-!
@@ -40,6 +42,10 @@ and that is the fundamental inequality in the shape Layer 0.4's second half cons
 * `NumberField.inv_mulHeight₁_le_prod_min_one_apply`: the truncated product over a finite set of
   places is at least `(mulHeight₁ x)⁻¹`, and `NumberField.finprod_min_one_le_prod` is the finite
   half of it on its own.
+* `NumberField.max_apply_one_le_mulHeight₁_of_liesOver_infinitePlace` and its finite twin: an
+  absolute value of an extension over a place of `K` is at most the height,
+  `max |x|_w 1 ≤ H(x)`; `NumberField.InfinitePlace.max_apply_one_le_mulHeight₁` and
+  `NumberField.FinitePlace.max_apply_one_le_mulHeight₁` are the case of a place.
 * `NumberField.FinitePlace.hasFiniteMulSupport_max_one` and
   `NumberField.FinitePlace.hasFiniteMulSupport_min_one`: the two truncations of `v ↦ |x|_v` still
   have finite multiplicative support, which is what makes the `finprod`s above meaningful.
@@ -68,7 +74,9 @@ at least it. Both are `finprod_le_finprod₀` against the function that is `f` o
 E. Bombieri and W. Gubler, *Heights in Diophantine Geometry*, Cambridge University Press (2006),
 (1.8) and Lemma 1.5.18.
 
-This is the first half of Layer 0.4 of the `DiophantineApproximation` roadmap.
+This is the first half of Layer 0.4 of the `DiophantineApproximation` roadmap; the bound at one
+absolute value over a place was added for Layer 3.8, and it is the one statement of the file that
+quotes Layer 0.1.
 -/
 
 public section
@@ -231,6 +239,68 @@ theorem inv_mulHeight₁_le_prod_min_one_apply {x : K} (hx : x ≠ 0) :
     finprod_min_one_le_prod Sfin hx
   exact mul_le_mul hinf hfin (finprod_nonneg fun _ ↦ le_min zero_le_one (apply_nonneg _ _))
     (Finset.prod_nonneg fun v _ ↦ pow_nonneg (hle0 v) _)
+
+/-!
+### One absolute value at a time
+
+The upper bound at a single place, and then at an absolute value of an extension lying over a
+place: `max |x|_w 1 ≤ H(x)`. The second is the size of a target bounded by its height, which
+Layer 3.8 needs when the targets move; it is the upper bound read through Layer 0.1's
+classification, and it is false for an arbitrary absolute value — `|·|_2 ^ 2` on `ℚ` takes the
+value `4` at `1/2`, whose height is `2` — so the exponent `t ≤ 1` of the classification is what
+it uses.
+-/
+
+section OnePlace
+
+variable {F : Type*} [Field F] [NumberField F]
+
+/-- **An infinite place is bounded by the height**: `max |x|_w 1 ≤ H(x)`. -/
+theorem InfinitePlace.max_apply_one_le_mulHeight₁ (w : InfinitePlace F) (x : F) :
+    max (w x) 1 ≤ mulHeight₁ x := by
+  rcases eq_or_ne x 0 with rfl | hx
+  · simp [mulHeight₁_zero]
+  refine max_le ?_ (one_le_mulHeight₁ x)
+  have h := prod_apply_le_mulHeight₁ {w} (∅ : Finset (FinitePlace F)) hx
+  rw [Finset.prod_singleton, Finset.prod_empty, mul_one] at h
+  rcases le_or_gt (w x) 1 with h1 | h1
+  · exact le_trans h1 (one_le_mulHeight₁ x)
+  · exact le_trans (le_self_pow₀ h1.le InfinitePlace.mult_ne_zero) h
+
+/-- **A finite place is bounded by the height**: `max |x|_w 1 ≤ H(x)`. -/
+theorem FinitePlace.max_apply_one_le_mulHeight₁ (w : FinitePlace F) (x : F) :
+    max (w x) 1 ≤ mulHeight₁ x := by
+  rcases eq_or_ne x 0 with rfl | hx
+  · simp [mulHeight₁_zero]
+  refine max_le ?_ (one_le_mulHeight₁ x)
+  have h := prod_apply_le_mulHeight₁ (∅ : Finset (InfinitePlace F)) {w} hx
+  rwa [Finset.prod_singleton, Finset.prod_empty, one_mul] at h
+
+variable [Algebra K F]
+
+/-- **An absolute value over an infinite place is bounded by the height**, `max |x|_w 1 ≤ H(x)`:
+by Layer 0.1 it is an infinite place of `F`. -/
+theorem max_apply_one_le_mulHeight₁_of_liesOver_infinitePlace (v : InfinitePlace K)
+    (w : AbsoluteValue F ℝ) [w.LiesOver v.1] (x : F) : max (w x) 1 ≤ mulHeight₁ x := by
+  obtain ⟨w', rfl⟩ := exists_infinitePlace_eq_of_liesOver v w
+  exact w'.max_apply_one_le_mulHeight₁ x
+
+/-- **An absolute value over a finite place is bounded by the height**, `max |x|_w 1 ≤ H(x)`: by
+Layer 0.1 it is a power of exponent at most `1` of a finite place of `F`. -/
+theorem max_apply_one_le_mulHeight₁_of_liesOver_finitePlace (v : FinitePlace K)
+    (w : AbsoluteValue F ℝ) [w.LiesOver v.1] (x : F) : max (w x) 1 ≤ mulHeight₁ x := by
+  obtain ⟨P, t, ht0, ht1, hw⟩ := exists_finitePlace_rpow_eq_of_liesOver v w
+  refine le_trans ?_ ((FinitePlace.mk P).max_apply_one_le_mulHeight₁ x)
+  rw [hw]
+  rcases le_or_gt (FinitePlace.mk P x) 1 with h1 | h1
+  · rw [max_eq_right (Real.rpow_le_one (apply_nonneg _ _) h1 ht0.le)]
+    exact le_max_right _ _
+  · refine max_le_max_right 1 ?_
+    calc FinitePlace.mk P x ^ t ≤ FinitePlace.mk P x ^ (1 : ℝ) :=
+          Real.rpow_le_rpow_of_exponent_le h1.le ht1
+      _ = FinitePlace.mk P x := Real.rpow_one _
+
+end OnePlace
 
 /-! ### Acceptance criteria -/
 
