@@ -66,21 +66,6 @@ namespace NumberField
 
 variable {K F : Type*} [Field K] [NumberField K] [Field F] [NumberField F] [Algebra K F]
 
-/-- **An infinite place and a finite place never have the same underlying absolute value.** The
-infinite one takes the value `2` at `2`, the finite one at most `1`. -/
-theorem InfinitePlace.val_ne_finitePlace_val (v : InfinitePlace K) (u : FinitePlace K) :
-    v.1 ≠ u.1 := by
-  intro hcon
-  have h1 : v.1 (((2 : ℕ) : K)) = 2 := by
-    rw [← NumberField.InfinitePlace.coe_apply, NumberField.InfinitePlace.map_natCast]
-    norm_num
-  have h2 : u.1 (((2 : ℕ) : K)) ≤ 1 := by
-    rw [← NumberField.FinitePlace.coe_apply,
-      show (((2 : ℕ) : K)) = (((2 : ℤ) : K)) by push_cast; ring]
-    exact NumberField.FinitePlace.apply_intCast_le_one u 2
-  rw [hcon] at h1
-  linarith
-
 /-- **Layer 3.3, with a constant.** Roth's theorem with targets in `OnePoint F` tolerates a
 constant in front of the height: applying it at an exponent strictly between `2` and `κ` and
 collecting the remaining bounded-height solutions by Northcott absorbs any `C`. -/

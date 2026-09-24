@@ -364,6 +364,12 @@ noncomputable def unitLattice (S : Finset (IsDedekindDomain.HeightOneSpectrum (�
     Submodule ℤ (logSpace S) :=
   Submodule.map (logEmbedding S).toIntLinearMap ⊤
 
+/-- Membership in the `S`-unit lattice: being the `S`-logarithmic embedding of an `S`-unit. -/
+theorem mem_unitLattice_iff {S : Finset (IsDedekindDomain.HeightOneSpectrum (𝓞 K))}
+    {z : logSpace S} : z ∈ unitLattice S ↔ ∃ x, logEmbedding S x = z := by
+  rw [unitLattice, Submodule.map_top]
+  rfl
+
 /-- **A set of `S`-units of bounded height is finite**, by Northcott's theorem restricted along
 the injection of the `S`-units into `K`. -/
 theorem finite_setOf_logHeight₁_le (B : ℝ) :

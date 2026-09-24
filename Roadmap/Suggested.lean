@@ -75,6 +75,39 @@ import DiophantineApproximation.SIntegerApproximation -- Layer 4.4, approximatio
 import DiophantineApproximation.EvertseLemma -- Layer 4.4, Evertse's lemma
 import DiophantineApproximation.WedgeForm -- Layer 4.5, exterior powers of a system of forms
 import DiophantineApproximation.WedgeDomain -- Layer 4.5, the wedge domain
+import DiophantineApproximation.UnitNormalization -- Layer 5.1, the reductions
+import DiophantineApproximation.SubspaceReduction -- Layer 5.1, the approximation classes
+import DiophantineApproximation.MultiHomogeneous -- Layer 5.2, multihomogeneous polynomials
+import DiophantineApproximation.MonomialDeviation -- Layer 5.2, counting the omitted monomials
+import DiophantineApproximation.SubspaceAuxiliary -- Layer 5.2, the auxiliary polynomial
+import DiophantineApproximation.FormIndex -- Layer 5.3, the index along linear forms
+import DiophantineApproximation.FormSpecialization -- Layer 5.3, specializing a block
+import DiophantineApproximation.GeneralizedRothLemma -- Layer 5.3, the generalized Roth lemma
+import DiophantineApproximation.LinearFormValue -- Layer 5.4, Liouville for a linear form
+import DiophantineApproximation.SubspaceNormal -- Layer 5.4, the normal vector of a hyperplane
+import DiophantineApproximation.SubspaceHeightBounds -- Layer 5.4, the two bounds on `h(V(Q))`
+import DiophantineApproximation.ExceptionalSubspace -- Layer 5.4, the exceptional subspaces
+import DiophantineApproximation.PolynomialGrid -- Layer 5.5, the grid lemma
+import DiophantineApproximation.SmallPoint -- Layer 5.5, non-vanishing at a small point
+import DiophantineApproximation.LogComparison -- Layer 5.6, an elementary comparison of logs
+import DiophantineApproximation.FormIndexSubspace -- Layer 5.6, index to surviving derivative
+import DiophantineApproximation.SubspaceValueBound -- Layer 5.6, the local bounds of Step VI
+import DiophantineApproximation.SubspaceKeyInequality -- Layer 5.6, Step VI
+import DiophantineApproximation.PenultimateMinimum -- Layer 5.6, the penultimate minimum
+import DiophantineApproximation.WedgeRecovery -- Layer 6.1, Lemma 7.5.33 as a function
+import DiophantineApproximation.MinimaBounds -- Layer 6.1, the minima between two powers of `Q`
+import DiophantineApproximation.ExponentGrid -- Layer 6.1, exponents on a grid
+import DiophantineApproximation.WedgeExponentBound -- Layer 6.1, the box and the negative weight
+import DiophantineApproximation.ParametricSubspace -- Layer 6.1, the parametric Subspace Theorem
+import DiophantineApproximation.SubspaceTheorem -- Layer 6.2, the Subspace Theorem over `K`
+import DiophantineApproximation.FormBaseChange -- Layer 6.3, forms along a ring homomorphism
+import DiophantineApproximation.PlaceConjugation -- Layer 6.3, the places of a Galois extension
+import DiophantineApproximation.ExtensionApproxProd -- Layer 6.3, the conjugated systems
+import DiophantineApproximation.SubspaceAlgebraic -- Layer 6.3, algebraic coefficients
+import DiophantineApproximation.AffineProd -- Layer 6.4, the affine quantity
+import DiophantineApproximation.SubspaceAffine -- Layer 6.4, the affine Subspace Theorem
+import DiophantineApproximation.GeneralPosition -- Layer 6.5, forms in general position
+import DiophantineApproximation.SubspaceGeneralPosition -- Layer 6.5, Vojta's refinement
 
 /-!
 # Diophantine approximation and the Subspace Theorem: target signatures
@@ -106,10 +139,15 @@ does not occupy Mathlib's root namespaces. In `TauCeti/` they take the names `RE
 **Landed milestones appear here as `example`s discharged by the library**, not as `sorry`s: a
 milestone that `DiophantineApproximation/` proves is one whose signature has stopped drifting, and
 the `example` is what certifies that the shape pinned here is the shape that was proved. Layers
-0.1, 0.2, 0.3, 0.4, 1.1, 1.2, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 3.1, 3.2, 3.3, 3.4, 3.5, 3.6,
-3.7, 3.8, 4.1, 4.2, 4.3, 4.4 and 4.5 are landed — Layers 3 and 4 are complete — and 1.3 is
-landed **except for Wirsing's first two inequalities, which are optional** — their only consumer
-is the optional Layer 1.4 — in
+0.1, 0.2, 0.3, 0.4, 1.1, 1.2, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7,
+3.8, 4.1, 4.2, 4.3, 4.4, 4.5, 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 6.1, 6.2, 6.3, 6.4 and 6.5 are
+landed —
+Layers 3, 4 and 5 are complete, and **the Subspace Theorem is proved, in the form its consumers
+apply**: points in `K`, coefficients in a finite extension, in the affine form every
+application of Layer 8 quotes, and for families of forms in general position of any finite
+sizes — and 1.3 is
+landed **except for Wirsing's first two inequalities, which are optional** — their only consumer is
+the optional Layer 1.4 — in
 `DiophantineApproximation/{Nonarchimedean,PlacesOverFinite,PlacesOverInfinite,
 PlacesOver,ConjugatePlaces,LocalExtension,SIntegerLocalization,SAdicHeight,FundamentalInequality,
 LiouvilleInequality,IrrationalityExponent,LiouvilleExponent,PolynomialSupNorm,MahlerExponent,
@@ -124,30 +162,47 @@ RothKeyInequality,RothAuxiliary,RothTheorem,RationalPlaces,RothInfinity,RothRati
 Ridout,ProjectiveTarget,ApproxProd,RothProjective,PrimeProducts,MahlerPowers,BinaryForm,
 ThueEquation,GapPrinciple,CountingApproximations,MovingTargets,FinitePlaceValues,ModuleCovolume,
 ApproximationDomain,ApproximationVolume,FieldMinima,FieldMinkowski,ApproximationRank,
-SIntegerApproximation,EvertseLemma,WedgeForm,WedgeDomain}.lean`; 0.1's
-three signatures below survived verbatim, 1.1's definition
-survived verbatim and one of its five theorems lost a hypothesis, 1.2's two definitions survived
-and its `naiveHeight` abbreviation did not, 1.3's two elementary signatures survived up to a
-**name collision**, 2.1's definition survived verbatim and its one prototyped theorem survived
-with `R` weakened to a `CommSemiring`, 2.2 had nothing prototyped here at all and is stated
-below for the first time, 2.3's definition survived verbatim while all three of its theorems
-lost hypotheses — twice the strict positivity of the weights, once `IsDomain` as well — 2.4's
-one prototyped theorem survived verbatim, **3.2's one prototyped theorem survived verbatim** —
-the statement of Roth's theorem pinned below is the statement that was proved, hypothesis for
-hypothesis — **3.3's one prototyped theorem survived up to the order of its two hypotheses** and
-was the only one of its four statements prototyped at all, **3.4's one prototyped object — the
-definition `approxProd` — survived verbatim** and has moved from this file into the library,
-where Layer 6.3 will find it, **3.5's one prototyped theorem survived verbatim** — the second
-statement in a row to do so, and the first whose hypotheses are all about natural numbers —
-**4.1's two prototyped definitions, `approxDomain` and `approxWeight`, survived verbatim** and
-have moved into the library, where Layer 6.1's prototype below finds them, and
-0.2,
-0.3, 0.4, 2.5, 2.6, 2.7, 3.1, 3.6, 3.7, 3.8, 4.2, 4.3, 4.4 and 4.5 had none to survive: they are
-prototyped here for the first time — 2.6, 2.7 and 4.2 deliberately, since the preamble above judged
-their statements unstateable without the `ArithmeticHeights` objects, which was true until those
-objects landed, 3.1 because it is elementary and was expected not to drift, 4.3 because its rank is
-read from 4.2's minima, 4.4 because its bijections and triangular vectors had no settled shape,
-and 4.5 because its wedge domain is read from 4.4's output. What the proofs taught:
+SIntegerApproximation,EvertseLemma,WedgeForm,WedgeDomain,UnitNormalization,
+SubspaceReduction,MultiHomogeneous,MonomialDeviation,SubspaceAuxiliary,FormIndex,
+FormSpecialization,GeneralizedRothLemma,LinearFormValue,SubspaceNormal,SubspaceHeightBounds,
+ExceptionalSubspace,PolynomialGrid,SmallPoint,LogComparison,FormIndexSubspace,
+SubspaceValueBound,SubspaceKeyInequality,PenultimateMinimum,WedgeRecovery,MinimaBounds,
+ExponentGrid,WedgeExponentBound,ParametricSubspace,SubspaceTheorem,FormBaseChange,
+PlaceConjugation,ExtensionApproxProd,SubspaceAlgebraic,AffineProd,SubspaceAffine,
+GeneralPosition,SubspaceGeneralPosition}.lean`;
+0.1's three signatures below survived verbatim, 1.1's definition survived verbatim and one of its
+five theorems lost a hypothesis, 1.2's two definitions survived and its `naiveHeight` abbreviation
+did not, 1.3's two elementary signatures survived up to a **name collision**, 2.1's definition
+survived verbatim and its one prototyped theorem survived with `R` weakened to a `CommSemiring`,
+2.2 had nothing prototyped here at all and is stated below for the first time, 2.3's definition
+survived verbatim while all three of its theorems lost hypotheses — twice the strict positivity of
+the weights, once `IsDomain` as well — 2.4's one prototyped theorem survived verbatim, **3.2's one
+prototyped theorem survived verbatim** — the statement of Roth's theorem pinned below is the
+statement that was proved, hypothesis for hypothesis — **3.3's one prototyped theorem survived up
+to the order of its two hypotheses** and was the only one of its four statements prototyped at
+all, **3.4's one prototyped object — the definition `approxProd` — survived verbatim** and has
+moved from this file into the library, where Layer 6.3 will find it, **3.5's one prototyped
+theorem survived verbatim** — the second statement in a row to do so, and the first whose
+hypotheses are all about natural numbers — **4.1's two prototyped definitions, `approxDomain` and
+`approxWeight`, survived verbatim** and have moved into the library, where Layer 6.1 found them,
+**6.1's one prototyped theorem survived verbatim** — the parametric Subspace Theorem pinned below
+is the statement that was proved — **6.2's statement was never prototyped under its own name**,
+since it is Layer 6.3's at `F = K` and `w = id` and was left implicit in it, and is stated below
+for the first time — **6.3's one prototyped theorem survived verbatim**, hypothesis for hypothesis
+and in order, which is the third statement of this file to do so and the only summit statement
+that was pinned before any of the machinery under it existed, **6.4's one prototyped theorem
+survived verbatim as well**, display for display — the fourth, and the two summit statements in a
+row — its left-hand side having since been given the name `NumberField.affineProd`, which the
+example below states in both shapes — and 0.2, 0.3, 0.4, 2.5, 2.6, 2.7, 3.1, 3.6, 3.7, 3.8, 4.2, 4.3,
+4.4, 4.5, 5.1 5.2, 5.3, 5.4, 5.5, 5.6 and 6.5 had none to survive: they are prototyped here for the
+first time — 2.6, 2.7 and 4.2 deliberately, since the preamble above judged their statements unstateable without the
+`ArithmeticHeights` objects, which was true until those objects landed, 3.1 because it is
+elementary and was expected not to drift, 4.3 because its rank is read from 4.2's minima, 4.4
+because its bijections and triangular vectors had no settled shape, 4.5 because its wedge domain
+is read from 4.4's output, 5.1 because the shape of its approximation classes was settled only by
+the weight computation, and 5.2 because the expansion coefficients `a(L; J; I)` have no shape at
+all until one decides that they are coefficients of `blockSubst A⁻¹ (∂_I P)`. What the proofs
+taught:
 
 * ⚠ **The archimedean half needs no finiteness at all.** `NumberField.isInfinitePlace_of_liesOver`
   is proved for an arbitrary field extension `F / K` — no `NumberField F`, no
@@ -720,6 +775,253 @@ and 4.5 because its wedge domain is read from 4.4's output. What the proofs taug
   `(μ (k - 1) / μ k) ^ d` (`NumberField.rpow_approxWeight_wedgeExponent_le`), the form 6.1 needs
   after rounding the exponents to a grid. The choice of `k` needs rank `≥ 1`, and any `k` whose
   jump is at least the geometric mean will do.
+* ⚠ **Layer 5.1's unit normalization is balanced, and its constant does not depend on `n`.** Lemma
+  7.5.4 asks the `S₀`-unit `u` to make the affine height of `u • x` at most `h(x) + C₀`. The book
+  picks one nonzero coordinate and bounds it from below at every place of `S`; here the target of
+  the lattice approximation is the trace-zero vector `(mult v / D) h(x) - mult v log |x|_v`, so
+  every place is handled at once and no coordinate and no distinguished place is chosen. The
+  statement quantifies over the index type **after** the constant, which is the book's "depending
+  only on `S` and `K`".
+* ⚠ **Layer 5.1's Corollary 7.5.5 needs no independence of the forms.** The book compares
+  `h_aff(L v (x))` with `h_aff(x)` in both directions, which uses independence; only the upper
+  bound is needed, and it is the height of the single number `L v i x` against the affine height
+  of `x` (`ArithmeticHeights` 0.5). The two-sided bound on `log v (L v i x)` is then the
+  fundamental inequality of Layer 0.4 at one place, the book's (7.19).
+* ⚠ **Layer 5.1's approximation classes are cells of a cube, and reuse nothing from Layer 3.1.**
+  Layer 3.1's cells index points of the unit **simplex**, because in Roth's theorem every local
+  factor is at most `1`; at 7.5.6 the exponents `log v (L v i y) / log H(x)` have both signs and
+  are only bounded, so the classes are the cells of edge `1/N` of the cube `[-2, 2]`, as the book
+  says, and their finiteness is that of a set of functions with finite support and values in a
+  finite grid. The book's pigeonhole along an infinite sequence of solutions is not needed either:
+  the statement is parametric in the solution.
+* ⚠ **Layer 5.2's chain rule is the whole content of its vanishing statement.** The expansion
+  coefficient `a(L v; J; I)` is *not* `binom (J + I) I · a(L v; J + I; 0)`: Bombieri–Gubler
+  differentiate in the original coordinates and expand in the transformed ones, so a coefficient
+  of `∂_I P` is a combination, over all orders with the same block degrees, of coefficients of `P`
+  read in the transformed coordinates. `MvPolynomial.coeff_blockSubst_hasseDeriv_eq_zero` proves
+  what is needed by induction on the order and never names that combination. It needs
+  characteristic zero, because `hasseDeriv_comp` produces a positive integer factor to invert.
+* ⚠ **Layer 5.2's volume computation is avoidable, and so is most of its "sufficiently large".**
+  The exponential moment of the exponent of one variable is exact on the lattice — the uniform
+  distribution on the monomials of degree `N` in `n + 1` variables has `E[j i] = N/(n+1)` and
+  `E[binom (j i) 2] = N(N−1)/((n+1)(n+2))`, two binomial identities — and `exp (−t) ≤ 1 − t + t²/2`
+  turns them into the book's bound with one explicit error term `λ²/(2N(n+1))`. The book's
+  restriction `0 < λ ≤ n + 4` disappears, and `d` has to be large only to make that term small.
+* ⚠ **Layer 5.2's hypothesis on `m` is strict.** The book asks
+  `m ≥ 4 log (2 (n+1) |S|) / ((n+1)(n+2) η²)`, which leaves no room for that error term; the
+  strict inequality creates a positive slack and `D₀` is chosen against it. Replacing
+  `2 (n+1) |S|` by `4 (n+1) |S|` and keeping `≥` would do the same. ⚠ And `C₂`, `C₃` are allowed
+  to depend on `m`, `S` and `η` here: the `m`-dependence is the `O(log d)` term
+  `log #multiMons d`, and Layer 5.6 fixes `m` before it uses `C₂`.
+* ⚠ **The upper half of Layer 5.2's interval is free.** A Hasse derivative of a multihomogeneous
+  polynomial is multihomogeneous of multidegree `d h − ∑ i, I (h, i)`, so a nonzero coefficient
+  has `∑ i, ∑ h, J (h, i) / d h = m − ∑ h, (∑ i, I (h, i)) / d h`. If one exponent exceeds
+  `m/(n+1) + 2 n m η` the remaining `n` average below `m/(n+1) − 2 m η`, and the lower half
+  applies to one of them; `n ≥ 1` is load-bearing here as well as in the moment identity.
+* ⚠ **Layer 5.3's index is a weighted order, and the ideal of Definition 7.5.17 is mentioned
+  twice.** Solving `M h = X (h, i₀ h)` for one coordinate at which the form survives turns
+  `I(t; d; M)` into a **monomial** ideal, and membership in a monomial ideal is a condition on
+  each monomial separately. So the index along the forms is the weighted order of Layer 2.3 in
+  the transformed coordinates, for the weights that see only the coordinates `i₀ h` — a weight of
+  `0` elsewhere, which `MvPolynomial.weightedOrder` allows and which makes those variables
+  invisible rather than infinite. Only the *definition* keeps the ideal, because that is what
+  makes the index visibly independent of the choice of `i₀`.
+* ⚠ **Layer 5.3's variables have to be specialized one at a time.** Bombieri–Gubler divide out
+  the largest power of one variable, set it to `0`, and repeat; taking the componentwise minimum
+  of the exponents and slicing once instead does not work, because `X 1 + X 2` has no monomial in
+  which both exponents are minimal. The composite of the steps is a single slice, at an exponent
+  no direct formula produces. ⚠ And the forms must be truncated as the variables are dropped:
+  setting a variable to zero commutes with the change of coordinates only after the coefficient
+  of the form at that variable has been set to zero as well.
+* ⚠ **Only half of Layer 5.3's specialization claim is proved, and it is the half that is
+  needed.** The book asserts that the specialization leaves the index unchanged, which needs the
+  uniqueness of the decomposition in powers of the forms; what Lemma 7.5.19 consumes is that the
+  index does not *decrease*, and that needs nothing beyond the monomial-by-monomial description
+  of the ideal. ⚠ The book's "partial degrees at most `d`" has to be read as multihomogeneity of
+  multidegree at most `d`: the dehomogenization is injective on monomials only because of the
+  multidegree, and without it the index can jump — `x₁ + x₀² − x₀` is not divisible by `x₁`,
+  while its dehomogenization at `x₀ = 1` is `t`.
+* ⚠ **Layer 5.3's second kept coordinate need not be one where the form survives.** The book
+  arranges `b (j 1) ≠ 0` so as to have a genuine point `ξ j = −b (j 0) / b (j 1)`; here the point
+  is `−M h (i₁ h)` whatever that is, and the hypothesis on the heights passes to Layer 2.7
+  verbatim. The case `M h (i₁ h) = 0` cannot occur under that hypothesis, and the proof never has
+  to know it. ⚠ The factor `n` in the book's bound for the restricted form is the multiplication
+  table: after normalizing one coordinate to `1`, the tuple of ratios is a re-indexing of the
+  tuple of all products of subsets, whose height is the product of the heights of the pairs.
+
+* ⚠ **Layer 5.4's bound on the height of a wedge value is not the book's, and the book's is
+  false.** Bombieri–Gubler bound `h(L̂ (v i) (w))`, the height of a single number, by
+  `h(V(Q)) + C₇`; the left-hand side changes when `w` is rescaled and the right-hand side does
+  not, and over `ℚ` the vector `w = (N, 0)` has `h(V) = 0` and `h(w 0) = log N`. What Step III
+  needs, and what is true, is a product-formula inequality between the **local factor** of the
+  point and its **projective** height (`NumberField.InfinitePlace.iSup_mul_iSup_pow_mult_le`).
+  It is also stronger: summing it over `S` costs `|S| - 1` powers of `h(V(Q))` and not `|S|`.
+
+* ⚠ **Layer 5.4 has one exceptional subspace per pattern, not one exceptional subspace.** The
+  book writes "there is a linear space `W`, independent of `Π(Q)` and `ε`"; its proof fixes one
+  solution of a system that depends on the pattern — which indices survive at which place — and
+  the pattern moves with `Q`. What is true is that there are finitely many patterns and hence
+  finitely many exceptional subspaces, which is all Step IV consumes.
+
+* ⚠ **Layer 5.4's exceptional system is an intersection of spans of coefficient vectors.** Read
+  in the original coordinates, `L̂ (v i) (w) = 0` for `i` outside the pattern says that `w` lies
+  in the span of the coefficient vectors of the forms the pattern names
+  (`NumberField.patternSpace`). No Hodge star, no adjugate and no Laplace expansion of an
+  `(n+1) × (n+1)` determinant appears anywhere in Layer 5.4, and the estimate reads its
+  coefficients off that description.
+
+* ⚠ **Layer 5.4's chosen exceptional vector has to be scaled into the integers.** A nonzero
+  vector of a pattern space becomes integral at every finite place after multiplication by a
+  common denominator, and only then is the product formula confined to `S`. Scaling changes
+  neither the kernel nor the pattern, so nothing else is re-proved. ⚠ `n ≥ 1` is **not** needed:
+  in rank `0` the pattern is full, the weight along the chosen index is the weight of the
+  exponents, and every level falls in the exceptional branch.
+
+* ⚠ **Layer 5.5's one-variable grid lemma is a count of roots, not a divisibility.** Bombieri
+  and Gubler argue that a polynomial of degree at most `e` cannot be divisible by
+  `(∏_{|b| ≤ B} (x − b)) ^ (e/B + 1)`; an induction on the variables applies that over a
+  polynomial ring in the remaining ones, where it needs the factors to be pairwise coprime.
+  Counting roots **with multiplicity** — which `Polynomial.roots` already carries — needs no
+  coprimality and no unique factorization, and the whole lemma is then the inequality
+  `(2B + 1) (e/B + 1) > e`.
+
+* ⚠ **Layer 5.5 needs no chain rule, and the induction on the variables needs no substitution.**
+  The book reads the derivative in the parameters back through the parametrization by the chain
+  rule; what the argument consumes is only which orders can occur, and that is multihomogeneity:
+  the parametrization preserves the degree in each block. The two evaluations become two
+  coefficient extractions from the same shifted polynomial
+  (`MvPolynomial.coeff_shift`, `MvPolynomial.shift_linSubst`). Likewise the induction carries
+  "does not vanish identically on the affine subspace where the variables already handled sit at
+  their grid values", so no Hasse derivative ever has to be commuted past a partial substitution.
+
+* ⚠ **Layer 5.6 needs no chain rule either, for the third time.** Layer 5.3 measures the index
+  in the coordinates in which the forms are the variables, Layer 5.5 wants a derivative in the
+  original ones, and the change of coordinates **is** a block-wise linear substitution
+  (`MvPolynomial.substFormInv_eq_linSubst`). Layer 5.5's own transport lemmas then carry a
+  surviving coefficient between the two systems with the same degree in every block, which is
+  exactly what makes the two weighted orders agree.
+
+* ⚠ **Layer 5.6 needs two invariants of the system of exponents, not one.** Besides
+  `NumberField.approxWeight`, which is negative, Step VI needs `NumberField.approxAbsWeight`,
+  the weight of the `|c v i|`. It is the quantity the parameter `η` is chosen against, and it is
+  the only place in the whole development where the size of the exponents rather than their sum
+  enters.
+
+* ⚠ **Layer 5.6 uses that `S` contains every archimedean place, and uses it exactly once.**
+  Away from `S` the local bound of Step VI carries no constant and the point is integral, so the
+  product formula is applied with `Sinf = univ`. This is the convention of Layers 4 and 5.4, and
+  it is what makes the reference family of the estimate finite.
+
+* ⚠ **Layer 6.1 needs no pigeonhole and no subsequence.** Bombieri–Gubler argue along an
+  unbounded family of levels and extract a subfamily on which `k` and the rounded exponents of the
+  wedge domain are constant. Neither is needed: the rounding is a **function** of the level
+  (`NumberField.roundExponent`), its range is finite because the exponents stay in a box, and the
+  finite set of subspaces is the union over that range. Layer 3.1's cells are not used, and
+  neither is any infinite set of solutions.
+
+* ⚠ **Layer 6.1's penultimate rank is not a separate case.** The book treats rank `#ι - 1` by
+  Theorem 7.5.13 directly and the lower ranks by the exterior power. Here rank `#ι - 1` is the
+  case `k = #ι - 1`, `p = 1` of the same construction — the wedge domain in `⋀^1 Kⁱ` is the
+  domain re-indexed by the one-element subsets — so one mechanism covers every rank from `1` to
+  `#ι - 1`, and Layer 5.6 is applied only through it.
+
+* ⚠ **Layer 6.1 needs the minima confined between `Q ^ (-B)` and `Q ^ B`, and Layer 4.2 does not
+  give it.** Minkowski's second theorem over `K` bounds the *product* of the minima from both
+  sides, which bounds the first from above and the last from below — the two useless directions.
+  The missing bound is the product formula: a nonzero point of `Λ ∩ t B` has height at least `1`
+  and at most a constant times `t ^ d` times `Q` to the sum of the largest exponents, so `t` is at
+  least a fixed negative power of `Q` (`NumberField.exists_pos_forall_rpow_le_successiveMinimum`).
+  The upper bound then follows from Minkowski's.
+
+* ⚠ **Layer 6.1 returns subspaces that contain the spans, not the spans.** `T` collects the spans
+  of the first `k` minimal vectors, which contain `V(Q)`; whether the `V(Q)` themselves are finite
+  in number is not claimed, and Layer 6.2 does not need it.
+
+* ⚠ **Layer 6.2 is Layer 5.1 and Layer 6.1 and nothing else.** The Subspace Theorem over `K` adds
+  no analysis to the two layers below it: Layer 5.1 turns the inequality, for a solution of large
+  height, into membership in one of finitely many approximation domains of negative weight, Layer
+  6.1 covers each of those by finitely many proper subspaces, and what is left is the solutions on
+  the kernel of a form and the solutions of small height. One file, `…/SubspaceTheorem.lean`,
+  and one theorem.
+
+* ⚠ **Layer 6.3 is the Galois closure and nothing else.** Bombieri–Gubler's Remark 7.2.3 is the
+  whole proof: pass to the Galois closure `E / K`, extend the chosen absolute value over each `v`,
+  and put at every place of `E` above `v` the conjugate of the system at `v` under the
+  automorphism that moves the chosen absolute value there. A point of `Kⁱ` is fixed by those
+  automorphisms, so it sees the *same* local factor at every place above `v`, and the local
+  degrees sum to `[E : K]` — the same degree by which the height grows. The transfer is therefore
+  an **equality**, not an inequality (`NumberField.approxProd_conjSystem`).
+
+* ⚠ **Conjugation and base change are one operation.** A linear form on `Fⁱ` is its vector of
+  coefficients, so any ring homomorphism `f : F →+* E` carries it
+  (`Module.Dual.compRingHom`); the base change is `f = algebraMap F E`, the conjugation is
+  `f = σ`, and a conjugated base change is the single homomorphism `σ ∘ algebraMap F E`. No
+  semilinear map and no tensor product appears in Layer 6.3. That independence survives the
+  carrying is a determinant statement — the family is square, so independence is invertibility of
+  the coefficient matrix and `RingHom.map_det` does the rest.
+
+* ⚠ **Mathlib's finite places are normalized, and Layer 0.2 is not about them.** A finite place of
+  `E` above a finite place `v` of `K` restricts to `v ^ (e f)`, not to `v`, so it is not an
+  absolute value over `v` and Layer 0.2's orbit statement does not apply to it directly; its
+  `(e f)`-th root is, and that root is an absolute value only because the place is nonarchimedean
+  (`AbsoluteValue.nonarchRpow`). The `(e f)` then cancels against
+  `NumberField.FinitePlace.sum_localDegree` exactly as `mult` cancels against
+  `NumberField.InfinitePlace.sum_mult`, which is why both halves produce the same exponent.
+
+* ⚠ **Layer 6.2's small-height solutions are collected as lines, not as points.** There is no
+  Northcott property for `Height.mulHeight` on tuples — a whole line sits at one height — so the
+  finitely many solutions below the threshold of Layer 5.1 do not exist; what is finite is the set
+  of *projective* points, and each contributes the line it spans
+  (`Projectivization.finite_setOfPred_mulHeight_le`, `ArithmeticHeights` 1.1). This is where
+  `[Nontrivial ι]` earns its keep: a line is proper only for `2 ≤ #ι`, and at `#ι = 1` the theorem
+  is false, the solutions being the roots of unity of `K`.
+
+* ⚠ **Layer 6.4 is Layer 6.3 plus the `S`-part of the height, and no new estimate.** The affine
+  inequality drops the `#ι` local denominators of `approxProd`; their product over the infinite
+  places and `S` is exactly the part of the height that those places carry, so `affineProd` is
+  `approxProd` times that part to the power `#ι`, and the exponent `-ε` of Corollary 7.2.5 does
+  the work of the `-#ι - ε` of Theorem 7.2.2. Nothing is estimated anywhere in the passage.
+
+* ⚠ **`S`-integrality suffices in one direction and does not suffice in the other.** At an
+  `S`-integral point the `S`-part of the height can *exceed* the height — the factor lost at a
+  place of `S` that the coordinates do not fill — so the affine inequality is the stronger of the
+  two, which is the direction the milestone needs. The converse has to normalise to an
+  `S`-primitive point, where Layer 0.3 makes the two equal. That asymmetry is why Bombieri–Gubler
+  state Corollary 7.2.5 for `S`-integers and Theorem 7.2.6 for primitive points.
+
+* ⚠ **The converse enlarges three things at once, one per layer below it.** Every infinite place
+  has to be present and every finite place outside `S` harmless, which is Layer 5.1's coordinate
+  forms; `S` has to be large enough for a primitive multiple to exist, which is Layer 0.3's
+  localisation; and `w` has to be defined and to lie over `v` at the added places, which is Layer
+  0.1's fibre. The last is why the converse returns a *new* family `w'` rather than reusing `w`:
+  the affine statement asks for an absolute value of `F` at **every** infinite place, and the
+  projective one only on `Sinf`.
+
+* ⚠ **Layer 6.5 is one local observation and one partition, and no new arithmetic.** At a place
+  where the forms are in general position, the `#ι` *smallest* values at a point come from
+  linearly independent forms — that is what general position says — and the discarded values are
+  bounded below, because the chosen forms are a basis and a basis bounds the coordinates. So the
+  local factor of the chosen system is within a constant of the local factor of the whole family,
+  and Layer 6.3 finishes. The families of fewer than `#ι` forms are the opposite case: there the
+  family is independent outright and is *completed* by coordinate forms, whose factors are at most
+  `1`, so the completion costs nothing.
+
+* ⚠ **The two cases cannot be merged.** A family extended by the coordinate forms is not in
+  general position — one of its members may already be a coordinate form — so "take the `#ι`
+  smallest" is wrong for the extended family. Steinitz is used in the small case and the ordering
+  argument in the large one, and neither covers the other.
+
+* ⚠ **The chosen system has to range over a `Fintype`, and that is what fixes the signature.**
+  The forms are `L : AbsoluteValue K ℝ → κ → Dual F (ι → F)` with a `B : AbsoluteValue K ℝ →
+  Finset κ` for their number at each place, rather than a family of index *types* `κ v`: the
+  systems chosen at the places of `S` are index maps `ι → κ ⊕ ι`, and they have to form one finite
+  type for the partition into classes to be finite. Nothing is lost — take `κ` large enough — and
+  `κ` is required finite for this reason and for no other.
+
+* ⚠ **The constant is removed by halving `ε`, so Northcott reappears.** Layer 6.3 is applied with
+  `ε / 2`, and only above a height threshold; below it the solutions are finite in projective space
+  and are collected as lines, exactly as in Layer 6.2. That is the second and last appearance of
+  Northcott in the Subspace Theorem.
 
 Every height below is Mathlib's **relative** height over the fixed number field, the local factor
 at an infinite place carries the exponent `InfinitePlace.mult`, and a finite set of places is a
@@ -2646,12 +2948,622 @@ example [LinearOrder ι] : ∃ C : ℝ, 0 < C ∧
                 (Fintype.card ι - finrank K (approxSpan Sfin L c Q))) :=
   NumberField.exists_successiveMinimum_wedge_pow K ι
 
-/-- **Layer 6.3** (Schmidt; Schlickewei; Evertse; Bombieri–Gubler, Theorem 7.2.2 with Remark
-7.2.3). The Subspace Theorem: points in `K`, coefficients in a finite extension `F`. With `F = K`
-and `w = id` it is the number-field form of Layer 6.2; with `K = ℚ` it is Schmidt's theorem for
-forms with algebraic coefficients. `[Nontrivial ι]` is `n ≥ 1`, without which the statement is
-false. -/
-theorem exists_finset_submodule_of_approxProd_le [Nontrivial ι]
+/-! ### Layer 5.1 — landed
+
+Discharged by `DiophantineApproximation/{UnitNormalization,SubspaceReduction}.lean`. Nothing of
+5.1 was prototyped here, so every statement below is prototyped for the first time. ⚠ The
+approximation classes of 7.5.6 are cells of a cube and reuse nothing from Layer 3.1; see the
+preamble. -/
+
+/-- **Layer 5.1**, landed: **Bombieri–Gubler, Theorem 7.2.6** — after enlarging `S₀` every nonzero
+point has a **primitive** multiple, one whose local sup norms are `1` at every finite place
+outside `S₀`. -/
+example (Sfin : Finset (FinitePlace K)) :
+    ∃ Sfin' : Finset (FinitePlace K), Sfin ⊆ Sfin' ∧
+      ∀ {ι : Type*} [Finite ι] (x : ι → K), x ≠ 0 →
+        ∃ t : K, t ≠ 0 ∧ ∀ v : FinitePlace K, v ∉ Sfin' → ⨆ i, v ((t • x) i) = 1 :=
+  NumberField.exists_finset_superset_forall_exists_iSup_eq_one Sfin
+
+/-- **Layer 5.1**, landed: **the height of a primitive point** is the product of its local sup
+norms over the infinite places and `S₀`. -/
+example {ι : Type*} (Sfin : Finset (FinitePlace K)) {x : ι → K} (hx : x ≠ 0)
+    (h : ∀ v : FinitePlace K, v ∉ Sfin → ⨆ i, v (x i) = 1) :
+    mulHeight x = (∏ w : InfinitePlace K, (⨆ i, w (x i)) ^ w.mult) * ∏ v ∈ Sfin, ⨆ i, v (x i) :=
+  NumberField.mulHeight_eq_prod_of_forall_iSup_eq_one hx h
+
+/-- **Layer 5.1**, landed: **Bombieri–Gubler, Lemma 7.5.4** — a primitive point has an `S₀`-unit
+multiple whose affine height exceeds its projective height by at most a constant depending only on
+`K` and `S₀`. ⚠ The constant comes before the index type: it does not depend on `n`. -/
+example (Sfin : Finset (FinitePlace K)) :
+    ∃ C : ℝ, 0 ≤ C ∧ ∀ {ι : Type*} [Finite ι] (x : ι → K), x ≠ 0 →
+      (∀ v : FinitePlace K, v ∉ Sfin → ⨆ i, v (x i) = 1) →
+      ∃ u : K, u ≠ 0 ∧ (∀ v : FinitePlace K, v ∉ Sfin → v u = 1) ∧
+        logHeight x ≤ logHeightAff (u • x) ∧ logHeightAff (u • x) ≤ logHeight x + C :=
+  NumberField.exists_forall_logHeightAff_smul_le Sfin
+
+/-- **Layer 5.1**, landed: **Bombieri–Gubler, Corollary 7.5.5** — the values of the forms at the
+normalized point have height `h(x) + O(1)`. ⚠ No independence of the forms is needed. -/
+example [Finite ι] (Sfin : Finset (FinitePlace K))
+    (L : AbsoluteValue K ℝ → ι → Dual K (ι → K)) :
+    ∃ C : ℝ, 0 ≤ C ∧ ∀ x : ι → K, x ≠ 0 →
+      (∀ v : FinitePlace K, v ∉ Sfin → ⨆ i, v (x i) = 1) →
+      ∃ u : K, u ≠ 0 ∧ (∀ v : FinitePlace K, v ∉ Sfin → v u = 1) ∧
+        (∀ (w : InfinitePlace K) (i : ι), logHeight₁ (L w.1 i (u • x)) ≤ logHeight x + C) ∧
+        ∀ v ∈ Sfin, ∀ i : ι, logHeight₁ (L v.1 i (u • x)) ≤ logHeight x + C :=
+  NumberField.exists_forall_logHeight₁_apply_smul_le Sfin L
+
+/-- **Layer 5.1**, landed: **the book's (7.19)** — the fundamental inequality at one place, which
+turns Corollary 7.5.5 into two-sided bounds on the local factors. -/
+example (w : InfinitePlace K) {α : K} (hα : α ≠ 0) :
+    |(w.mult : ℝ) * Real.log (w α)| ≤ logHeight₁ α :=
+  NumberField.InfinitePlace.abs_mult_mul_log_le_logHeight₁ w hα
+
+/-- **Layer 5.1**, landed: **Bombieri–Gubler, 7.5.6** — the approximation classes. Every solution
+of large height with no vanishing form has a multiple in the approximation domain, at its own
+height, of one of finitely many exponent systems, each of weight at most `-ε/2`. -/
+example (Sfin : Finset (FinitePlace K))
+    (hS : ∀ x : ι → K, x ≠ 0 → ∃ t : K, t ≠ 0 ∧
+      ∀ v : FinitePlace K, v ∉ Sfin → ⨆ i, v ((t • x) i) = 1)
+    (L : AbsoluteValue K ℝ → ι → Dual K (ι → K)) {ε : ℝ} (hε : 0 < ε) :
+    ∃ 𝒞 : Finset (AbsoluteValue K ℝ → ι → ℝ), (∀ c ∈ 𝒞, approxWeight Sfin c ≤ -ε / 2) ∧
+      ∃ Q₀ : ℝ, ∀ x : ι → K, x ≠ 0 →
+        (∀ (w : InfinitePlace K) (i : ι), L w.1 i x ≠ 0) → (∀ v ∈ Sfin, ∀ i, L v.1 i x ≠ 0) →
+        approxProd Finset.univ Sfin (fun v ↦ v) L x ≤
+          mulHeight x ^ (-(Fintype.card ι : ℝ) - ε) →
+        Q₀ ≤ mulHeight x →
+        ∃ c ∈ 𝒞, ∃ t : K, t ≠ 0 ∧ t • x ∈ approxDomain Sfin L c (mulHeight x) :=
+  NumberField.exists_finset_forall_exists_smul_mem_approxDomain Sfin hS L hε
+
+/-- **Layer 5.1**, landed: **the reduction as a whole** — what Layer 6.2 consumes. Every solution
+of large height lies on the kernel of one of the forms, which are the given ones at the given
+places and the coordinate forms elsewhere, or has a multiple in one of finitely many approximation
+domains of negative weight. -/
+example (Sinf : Finset (InfinitePlace K)) (Sfin : Finset (FinitePlace K))
+    (L : AbsoluteValue K ℝ → ι → Dual K (ι → K))
+    (hLInf : ∀ v ∈ Sinf, LinearIndependent K (L v.1))
+    (hLFin : ∀ v ∈ Sfin, LinearIndependent K (L v.1)) {ε : ℝ} (hε : 0 < ε) :
+    ∃ Sfin' : Finset (FinitePlace K), Sfin ⊆ Sfin' ∧
+      ∃ L' : AbsoluteValue K ℝ → ι → Dual K (ι → K),
+        (∀ v ∈ Sinf, L' v.1 = L v.1) ∧ (∀ v ∈ Sfin, L' v.1 = L v.1) ∧
+        (∀ w : InfinitePlace K, LinearIndependent K (L' w.1)) ∧
+        (∀ v ∈ Sfin', LinearIndependent K (L' v.1)) ∧
+        ∃ 𝒞 : Finset (AbsoluteValue K ℝ → ι → ℝ), (∀ c ∈ 𝒞, approxWeight Sfin' c ≤ -ε / 2) ∧
+          ∃ Q₀ : ℝ, ∀ x : ι → K, x ≠ 0 →
+            approxProd Sinf Sfin (fun v ↦ v) L x ≤ mulHeight x ^ (-(Fintype.card ι : ℝ) - ε) →
+            Q₀ ≤ mulHeight x →
+            (∃ (w : InfinitePlace K) (i : ι), L' w.1 i x = 0) ∨
+              (∃ v ∈ Sfin', ∃ i, L' v.1 i x = 0) ∨
+              ∃ c ∈ 𝒞, ∃ t : K, t ≠ 0 ∧ t • x ∈ approxDomain Sfin' L' c (mulHeight x) :=
+  NumberField.exists_forall_approxProd_le_imp Sinf Sfin L hLInf hLFin hε
+
+/-! ### Layer 5.2 — landed
+
+Discharged by `DiophantineApproximation/{MultiHomogeneous,MonomialDeviation,
+SubspaceAuxiliary}.lean`. Nothing of 5.2 was prototyped here, so every statement below is
+prototyped for the first time. ⚠ The chain rule is the content of the vanishing, the book's volume
+computation is avoidable, the hypothesis on `m` is strict, and the upper half of the book's
+interval is free; see the preamble. -/
+
+/-- **Layer 5.2**, landed: **multihomogeneity and its monomials** (Bombieri–Gubler 7.5.14). A
+polynomial in `m` blocks of `n + 1` variables is multihomogeneous of multidegree `d` when every
+monomial has degree `d h` in the `h`-th block; those monomials are `MvPolynomial.multiMons d`, a
+product over the blocks of the monomials of one degree, whence the dimension
+`∏ h, (d h + n).choose n`. -/
+example {κ : Type*} [Fintype κ] [DecidableEq κ] [DecidableEq ι] (d : κ → ℕ) :
+    (MvPolynomial.multiMons (ι := ι) d).card
+      = (Fintype.piFinset fun h ↦ Finset.finsuppAntidiag (Finset.univ : Finset ι) (d h)).card :=
+  MvPolynomial.card_multiMons d
+
+/-- **Layer 5.2**, landed: **the block substitution is contravariant and preserves the
+multidegree**, which is why the expansion coefficients `a(L v; J; I)` are read through `(A v)⁻¹`
+and not through `A v`. -/
+example {κ : Type*} [Finite κ] [DecidableEq ι] {d : κ → ℕ} {P : MvPolynomial (κ × ι) K}
+    (hP : MvPolynomial.IsMultiHomogeneous d P) (A : Matrix ι ι K) (hA : IsUnit A.det) :
+    MvPolynomial.IsMultiHomogeneous d (MvPolynomial.blockSubst A⁻¹ P) ∧
+      MvPolynomial.blockSubst A (MvPolynomial.blockSubst A⁻¹ P) = P :=
+  ⟨hP.blockSubst _, MvPolynomial.blockSubst_blockSubst (Matrix.nonsing_inv_mul _ hA) P⟩
+
+/-- **Layer 5.2**, landed: **the key vanishing statement**, the chain rule in the only form the
+milestone uses. A coefficient of the expansion of `∂_I P` vanishes as soon as the coefficients of
+`P` read in the transformed coordinates vanish at every order `J + I'` with `I'` of the same block
+degrees as `I`. ⚠ Characteristic zero is needed. -/
+example {κ : Type*} [Fintype κ] [DecidableEq ι] {A M : Matrix ι ι K} (hAM : A * M = 1)
+    (I : κ × ι →₀ ℕ) (Q : MvPolynomial (κ × ι) K) (J : κ × ι →₀ ℕ)
+    (h : ∀ I' : κ × ι →₀ ℕ, (∀ h, ∑ i, I' (h, i) = ∑ i, I (h, i)) → Q.coeff (J + I') = 0) :
+    (MvPolynomial.blockSubst M
+        (MvPolynomial.hasseDeriv I (MvPolynomial.blockSubst A Q))).coeff J = 0 :=
+  MvPolynomial.coeff_blockSubst_hasseDeriv_eq_zero hAM _ I rfl Q J h
+
+/-- **Layer 5.2**, landed: **the counting** — the monomials of multidegree `d` whose exponent of
+one variable lies below `m/(n+1) − m η` are fewer than the total by a factor
+`exp (−(n+1)(n+2) η² m / 4)`, up to one explicit error term. ⚠ The book's volume computation is
+not needed and the restriction `0 < λ ≤ n + 4` disappears. -/
+example {κ : Type*} [Fintype κ] [DecidableEq κ] [DecidableEq ι] {n : ℕ} (hn : 1 ≤ n)
+    (hcard : Fintype.card ι = n + 1) (i₀ : ι) {d : κ → ℕ} (hd : ∀ h, 1 ≤ d h) {η : ℝ}
+    (hη : 0 ≤ η) (E : Finset (κ × ι →₀ ℕ)) (hE : E ⊆ MvPolynomial.multiMons d)
+    (hEθ : ∀ N ∈ E, ∑ h, (N (h, i₀) : ℝ) / (d h : ℝ)
+      ≤ Fintype.card κ / ((n : ℝ) + 1) - Fintype.card κ * η) :
+    (E.card : ℝ) ≤ (MvPolynomial.multiMons (ι := ι) d).card *
+      Real.exp (-(((n : ℝ) + 1) * ((n : ℝ) + 2) * η ^ 2 * Fintype.card κ / 4)
+        + (η * ((n : ℝ) + 1) * ((n : ℝ) + 2) / 2) ^ 2 / (2 * ((n : ℝ) + 1))
+          * ∑ h, ((d h : ℝ))⁻¹) :=
+  MvPolynomial.card_le_of_subset_multiMons hn hcard i₀ hd hη E hE hEθ
+
+/-- **Layer 5.2**, landed: **Siegel's lemma in the multihomogeneous setting**. At most half as
+many linear conditions as monomials give a nonzero multihomogeneous polynomial satisfying them
+all, of logarithmic height a constant times `∑ h, d h`. ⚠ With coefficients in `K` the book's
+`r = [F : K]` is `1` and its relative Siegel lemma is the absolute one; `y` is one reference tuple
+dominating the entries of every matrix and `1`. -/
+example {κ : Type*} [Fintype κ] [DecidableEq κ] [DecidableEq ι] [Nonempty ι] {d : κ → ℕ}
+    {Row ρ : Type*} [Fintype Row] [Finite ρ] (Mat : Row → Matrix ι ι K)
+    (Nrow : Row → (κ × ι →₀ ℕ)) {y : ρ → K} (hy : y ≠ 0)
+    (hMy : ∀ (r : Row) (w : AbsoluteValue K ℝ),
+      (⨆ p : ι × ι, w (Mat r p.1 p.2)) ⊔ 1 ≤ ⨆ s, w (y s))
+    (hrow : 2 * (Fintype.card Row : ℝ) ≤ (MvPolynomial.multiMons (ι := ι) d).card) :
+    ∃ P : MvPolynomial (κ × ι) K, P ≠ 0 ∧ MvPolynomial.IsMultiHomogeneous d P ∧
+      (∀ r : Row, (MvPolynomial.blockSubst (Mat r) P).coeff (Nrow r) = 0) ∧
+      P.logHeight ≤ 2⁻¹ * Real.log |(NumberField.discr K : ℝ)|
+        + ((Module.finrank ℚ K : ℝ) / 2 * Fintype.card ι
+            + Height.totalWeight K * Real.log (Fintype.card ι)
+            + Real.log (Height.mulHeight y)) * ∑ h, (d h : ℝ) :=
+  MvPolynomial.exists_ne_zero_isMultiHomogeneous_coeff_blockSubst_eq_zero Mat Nrow hy hMy hrow
+
+/-- **Layer 5.2**, landed: **the milestone** (Bombieri–Gubler, Lemma 7.5.15). For every
+multidegree all of whose entries are large enough there is a nonzero multihomogeneous polynomial
+of logarithmic height `O (∑ h, d h)` whose Hasse derivatives, read in any of the coordinate
+systems `A v`, again have logarithmic height `O (∑ h, d h)` and have a vanishing coefficient at
+`J` whenever the order is small and one exponent of `J` is far from its mean. ⚠ The hypothesis on
+`m` is strict, and `C₂`, `C₃` may depend on `m`, `S` and `η`. -/
+example {κ : Type*} [Fintype κ] [Nonempty κ] [DecidableEq ι] [Nonempty ι] {n : ℕ} (hn : 1 ≤ n)
+    (hcard : Fintype.card ι = n + 1) {S : Type*} [Fintype S] [Nonempty S]
+    (A : S → Matrix ι ι K) (hA : ∀ v, IsUnit (A v).det) {η : ℝ} (hη : 0 < η)
+    (hm : 4 * Real.log (2 * ((n : ℝ) + 1) * Fintype.card S)
+      < ((n : ℝ) + 1) * ((n : ℝ) + 2) * η ^ 2 * Fintype.card κ) :
+    ∃ C₂ C₃ : ℝ, ∃ D₀ : ℕ, ∀ d : κ → ℕ, (∀ h, D₀ ≤ d h) →
+      ∃ P : MvPolynomial (κ × ι) K, P ≠ 0 ∧ MvPolynomial.IsMultiHomogeneous d P ∧
+        P.logHeight ≤ C₂ * ∑ h, (d h : ℝ) ∧
+        (∀ (v : S) (I : κ × ι →₀ ℕ),
+          (MvPolynomial.blockSubst (A v)⁻¹ (MvPolynomial.hasseDeriv I P)).logHeight
+            ≤ C₃ * ∑ h, (d h : ℝ)) ∧
+        ∀ (v : S) (I J : κ × ι →₀ ℕ),
+          ∑ h, (∑ i, (I (h, i) : ℝ)) / (d h : ℝ) ≤ Fintype.card κ * η →
+          (∃ i, ∑ h, (J (h, i) : ℝ) / (d h : ℝ)
+                ≤ Fintype.card κ / ((n : ℝ) + 1) - 2 * Fintype.card κ * η ∨
+              Fintype.card κ / ((n : ℝ) + 1) + 2 * (n : ℝ) * Fintype.card κ * η
+                ≤ ∑ h, (J (h, i) : ℝ) / (d h : ℝ)) →
+          (MvPolynomial.blockSubst (A v)⁻¹ (MvPolynomial.hasseDeriv I P)).coeff J = 0 :=
+  MvPolynomial.exists_ne_zero_isMultiHomogeneous_forall_coeff_blockSubst_hasseDeriv_eq_zero
+    hn hcard A hA hη hm
+
+/-! ### Layer 5.3 — landed
+
+Discharged by `DiophantineApproximation/{FormIndex,FormSpecialization,
+GeneralizedRothLemma}.lean`. Nothing of 5.3 was prototyped here, so every statement below is
+prototyped for the first time. ⚠ The index along the forms is a weighted order, the variables
+have to be specialized one at a time, only half of the book's specialization claim is proved and
+only half is needed, and the second kept coordinate need not be one where the form survives; see
+the preamble. -/
+
+/-- **Layer 5.3**, landed: **the index along the forms is a weighted order** (Bombieri–Gubler,
+Definition 7.5.17). Solving `M h = X (h, i₀ h)` for one coordinate at which the form survives
+turns the ideal `I(t; d; M)` into a monomial ideal, and the index becomes the weighted order of
+Layer 2.3 for the weights that see only the coordinates `i₀ h`. -/
+example {κ : Type*} [Fintype κ] [DecidableEq ι] {d : κ → ℝ} (hd : ∀ h, 0 ≤ d h) {i₀ : κ → ι}
+    {M : κ → ι → K} (hM : ∀ h, M h (i₀ h) ≠ 0) (P : MvPolynomial (κ × ι) K) :
+    MvPolynomial.formIndex d M P
+      = MvPolynomial.weightedOrder (MvPolynomial.formWeight i₀ d)
+          (MvPolynomial.substFormInv i₀ M P) :=
+  MvPolynomial.formIndex_eq_weightedOrder hd hM P
+
+/-- **Layer 5.3**, landed: **the index is a valuation**, as in Layer 2.3 — here multiplicativity,
+which over a field needs nothing but the nonvanishing of the forms. -/
+example {κ : Type*} [Fintype κ] [DecidableEq ι] {d : κ → ℝ} (hd : ∀ h, 0 ≤ d h)
+    {M : κ → ι → K} (hM : ∀ h, M h ≠ 0) (P Q : MvPolynomial (κ × ι) K) :
+    MvPolynomial.formIndex d M (P * Q)
+      = MvPolynomial.formIndex d M P + MvPolynomial.formIndex d M Q :=
+  MvPolynomial.formIndex_mul hd hM P Q
+
+/-- **Layer 5.3**, landed: **Bombieri–Gubler 7.5.18** — for `n = 1` and the forms
+`M h = X (h, 1) − α h * X (h, 0)` the index along the forms is the index of Layer 2.3 at the
+point `α` of the dehomogenization. -/
+example {m : ℕ} (α : Fin (m + 1) → K) {d : Fin (m + 1) → ℝ} (hd : ∀ h, 0 ≤ d h)
+    {r : Fin (m + 1) → ℕ} {Q : MvPolynomial (Fin (m + 1) × Fin 2) K}
+    (hQ : MvPolynomial.IsMultiHomogeneous r Q) :
+    MvPolynomial.formIndex d (fun h ↦ ![-(α h), 1]) Q
+      = MvPolynomial.index d α (MvPolynomial.deHom (fun _ ↦ 1) (fun _ ↦ 0) Q) := by
+  have hvac : ∀ i : Fin 2, i ≠ 1 → i ≠ 0 → False := by decide
+  have key := MvPolynomial.formIndex_eq_index_deHom (M := fun h ↦ ![-(α h), (1 : K)])
+    (fun _ : Fin (m + 1) ↦ (1 : Fin 2)) (fun _ ↦ (0 : Fin 2)) hd (fun _ ↦ by decide)
+    (fun _ ↦ by simp) (fun _ i h0 h1 ↦ (hvac i h0 h1).elim) hQ
+    (fun _ i h0 h1 ↦ (hvac i h0 h1).elim)
+  have hα : (fun h ↦ -((![-(α h), (1 : K)] : Fin 2 → K) 0)) = α := by
+    funext h
+    simp
+  rw [hα] at key
+  exact key
+
+/-- **Layer 5.3**, landed: **the specialization to two coordinates in every block**. Dividing out
+the largest power of a variable and setting it to zero, one variable at a time, leaves a nonzero
+multihomogeneous polynomial of a smaller multidegree whose coefficients are coefficients of `P`
+— so its height cannot go up — and whose index along the truncated forms is at least that of
+`P`. ⚠ The book's equality of indices is not proved and is not needed. -/
+example {κ : Type*} [Fintype κ] [DecidableEq κ] [DecidableEq ι] {d : κ → ℝ} (hd : ∀ h, 0 ≤ d h)
+    {i₀ : κ → ι} (T : Finset (κ × ι)) (hT : ∀ t ∈ T, t.2 ≠ i₀ t.1) (M : κ → ι → K)
+    (hM : ∀ h, M h (i₀ h) ≠ 0) (r : κ → ℕ) (P : MvPolynomial (κ × ι) K) (hP0 : P ≠ 0)
+    (hP : MvPolynomial.IsMultiHomogeneous r P) :
+    ∃ (k : κ × ι →₀ ℕ) (Q : MvPolynomial (κ × ι) K),
+      (∀ s, s ∉ T → k s = 0) ∧ Q ≠ 0 ∧
+        (∀ ν, Q.coeff ν ≠ 0 → Q.coeff ν = P.coeff (ν + k)) ∧
+        (∀ t ∈ T, ∀ ν ∈ Q.support, ν t = 0) ∧
+        (∃ r' : κ → ℕ, (∀ h, r' h ≤ r h) ∧ MvPolynomial.IsMultiHomogeneous r' Q) ∧
+        MvPolynomial.formIndex d M P
+          ≤ MvPolynomial.formIndex d (MvPolynomial.zeroOut T M) Q :=
+  MvPolynomial.exists_elimination hd T hT M hM r P hP0 hP
+
+/-- **Layer 5.3**, landed: **the milestone** (Bombieri–Gubler, Lemma 7.5.19). A nonzero
+multihomogeneous polynomial of multidegree at most `d`, with degrees dropping by a factor `σ` at
+every step and forms whose heights are large against its own, has index at most
+`2 (m + 1) σ ^ ((1/2) ^ m)` along the forms. ⚠ Heights are Mathlib's relative ones, so the
+constant term carries `totalWeight K`, exactly as in Layer 2.7. -/
+example [DecidableEq ι] {n m : ℕ} (hn : 1 ≤ n) (hcard : Fintype.card ι = n + 1)
+    {d : Fin (m + 1) → ℕ} (hd1 : ∀ h, 1 ≤ d h) {σ : ℝ} (hσ0 : 0 < σ) (hσ1 : σ ≤ 1 / 2)
+    (hratio : ∀ h : Fin m, (d h.succ : ℝ) ≤ σ * d h.castSucc)
+    {r : Fin (m + 1) → ℕ} {P : MvPolynomial (Fin (m + 1) × ι) K} (hP0 : P ≠ 0)
+    (hP : MvPolynomial.IsMultiHomogeneous r P) (hrd : ∀ h, r h ≤ d h)
+    {M : Fin (m + 1) → ι → K} (hM : ∀ h, M h ≠ 0)
+    (hheight : ∀ h, (n : ℝ) * σ⁻¹ * (P.logHeight + 4 * (m + 1) * d 0 * Height.totalWeight K)
+      ≤ d h * Height.logHeight (M h)) :
+    MvPolynomial.formIndex (fun h ↦ (d h : ℝ)) M P
+      ≤ ENNReal.ofReal (2 * ((m : ℝ) + 1) * σ ^ ((1 / 2 : ℝ) ^ m)) :=
+  MvPolynomial.formIndex_le_of_degree_ratio hn hcard hd1 hσ0 hσ1 hratio hP0 hP hrd hM hheight
+
+/-! ### Layer 5.4 — landed
+
+Discharged by `DiophantineApproximation/{LinearFormValue,SubspaceNormal,SubspaceHeightBounds,
+ExceptionalSubspace}.lean`. Nothing of 5.4 was prototyped here, so every statement below is
+prototyped for the first time. ⚠ The book's bound on the height of the single number
+`L̂_{v i}(w)` is false as stated and is replaced by a product-formula inequality that is
+stronger; there is one exceptional subspace **per pattern**, not one; and the pattern is an
+intersection of spans of coefficient vectors, so no Hodge star and no adjugate appears. See the
+preamble. -/
+
+/-- **Layer 5.4**, landed: **Liouville's inequality for the value of a linear form**. This
+replaces Bombieri–Gubler's `h(L̂_{v i}(w)) ≤ h(V(Q)) + C₇`, which compares a scale-dependent
+left-hand side with a scale-invariant right-hand side and is false: over `ℚ` the vector
+`w = (N, 0)` has `h(V) = 0` and `h(w 0) = log N`. What is true, and what Step III needs, is that
+the **local factor** of the point is controlled by its **projective** height. -/
+example {σ : Type*} [Fintype σ] [Nonempty σ] (w : InfinitePlace K) (a z : σ → K)
+    (hD : ∑ s, a s * z s ≠ 0) :
+    ((⨆ s, w (a s)) * ⨆ s, w (z s)) ^ w.mult
+      ≤ (Fintype.card σ : ℝ) ^ Height.totalWeight K
+        * (Height.mulHeight a * Height.mulHeight z) * w (∑ s, a s * z s) ^ w.mult :=
+  NumberField.InfinitePlace.iSup_mul_iSup_pow_mult_le w a z hD
+
+/-- **Layer 5.4**, landed: **the normal vector of a hyperplane and its vanishing dictionary**.
+A subspace of `Kⁿ⁺¹` of dimension `n` is the kernel of a single vector, and the Plücker
+coordinate of a basis at the `n`-subset omitting `i` vanishes exactly when the `i`-th coordinate
+of that vector does. This is Layer 3.5's Plücker duality at the ranks `n` and `1`, and it is what
+identifies the pattern of `V(Q)` with the pattern of its normal vector. -/
+example [LinearOrder ι] {n : ℕ} {V : Submodule K (ι → K)} {y : Fin n → ι → K}
+    (hy : LinearIndependent K y) (hVy : Submodule.span K (Set.range y) = V)
+    (hlk : 1 + n = Fintype.card ι) :
+    ∃ ζ : ι → K, ζ ≠ 0 ∧ (∀ x, x ∈ V ↔ ζ ⬝ᵥ x = 0) ∧
+      ∀ k : ι, (exteriorPower.plucker n y (Set.powersetCard.omitOne hlk k) = 0 ↔ ζ k = 0) :=
+  Submodule.exists_normal hy hVy hlk
+
+/-- **Layer 5.4**, landed: **the exceptional alternative**. The exceptional subspaces are the
+kernels of vectors chosen one per **pattern** — the family, over the places of `S`, of the sets
+of indices at which the wedge of the other forms survives on the Plücker point. There are
+finitely many patterns, so finitely many exceptional subspaces, and each is fixed before `Q` is
+chosen. ⚠ The book's "a linear space `W`" is one space per pattern. -/
+example [LinearOrder ι] [Nonempty ι] {n : ℕ} {S₀ : Finset (FinitePlace K)}
+    {L : AbsoluteValue K ℝ → ι → Module.Dual K (ι → K)} {c : AbsoluteValue K ℝ → ι → ℝ}
+    (hlk : 1 + n = Fintype.card ι)
+    (hLinf : ∀ w : InfinitePlace K, LinearIndependent K (L w.1))
+    (hLfin : ∀ w ∈ S₀, LinearIndependent K (L w.1)) {ε : ℝ} (hε : 0 < ε) :
+    ∃ (𝒲 : Set (Submodule K (ι → K))) (C₄ : ℝ), 𝒲.Finite ∧
+      ∀ Q : ℝ, 1 ≤ Q → C₄ / ε ≤ Real.log Q →
+      ∀ y : Fin n → ι → K, LinearIndependent K y →
+        (∀ j, y j ∈ NumberField.approxDomain S₀ L c Q) →
+        ∀ k : AbsoluteValue K ℝ → ι,
+          (∀ (w : InfinitePlace K) (i : ι),
+             exteriorPower.plucker n (fun j i' ↦ L w.1 i' (y j))
+               (Set.powersetCard.omitOne hlk i) ≠ 0 → c w.1 i ≤ c w.1 (k w.1)) →
+          (∀ w ∈ S₀, ∀ i : ι,
+             exteriorPower.plucker n (fun j i' ↦ L w.1 i' (y j))
+               (Set.powersetCard.omitOne hlk i) ≠ 0 → c w.1 i ≤ c w.1 (k w.1)) →
+          NumberField.weightAt S₀ c k < -ε / 4 →
+          Submodule.span K (Set.range y) ∈ 𝒲 :=
+  NumberField.exists_finite_forall_mem_of_weightAt_lt hlk hLinf hLfin hε
+
+/-- **Layer 5.4**, landed: **the milestone** (Bombieri–Gubler, Lemma 7.5.21). For exponents of
+weight at most `−ε/2` there are a finite set of subspaces and three constants, none of them
+depending on `Q`, such that at every level of rank `n` with `log Q ≥ C₄/ε` the span of the domain
+is exceptional or its height is a positive multiple of `ε log Q` up to a constant, and at most a
+multiple of `log Q`. ⚠ The lower bound's `(4 |S|)⁻¹` counts the places of `S` without
+multiplicity: in Mathlib's normalization the local degrees sit inside the local factors, and the
+upper bound reads `n ∑_{v ∈ S} d_v c_max(v)` where the book reads `n c_max |S|`. -/
+example [LinearOrder ι] [Nonempty ι] {n : ℕ} {S₀ : Finset (FinitePlace K)}
+    {L : AbsoluteValue K ℝ → ι → Module.Dual K (ι → K)} {c : AbsoluteValue K ℝ → ι → ℝ}
+    (hlk : 1 + n = Fintype.card ι)
+    (hLinf : ∀ w : InfinitePlace K, LinearIndependent K (L w.1))
+    (hLfin : ∀ w ∈ S₀, LinearIndependent K (L w.1))
+    {ε : ℝ} (hε : 0 < ε) (hweight : NumberField.approxWeight S₀ c ≤ -ε / 2) :
+    ∃ (𝒲 : Set (Submodule K (ι → K))) (C₄ C₅ C₆ : ℝ), 𝒲.Finite ∧
+      ∀ Q : ℝ, 1 ≤ Q → C₄ / ε ≤ Real.log Q →
+        Module.finrank K (NumberField.approxSpan S₀ L c Q) = n →
+          NumberField.approxSpan S₀ L c Q ∈ 𝒲 ∨
+            (ε * Real.log Q / (4 * (Fintype.card (InfinitePlace K) + S₀.card : ℕ))
+                  - C₅ ≤ (NumberField.approxSpan S₀ L c Q).logHeight ∧
+              (NumberField.approxSpan S₀ L c Q).logHeight
+                ≤ (n : ℝ) * (∑ w : InfinitePlace K, (w.mult : ℝ) * NumberField.cMax c w.1
+                    + ∑ w ∈ S₀, NumberField.cMax c w.1) * Real.log Q + C₆) :=
+  NumberField.exists_finite_forall_logHeight_approxSpan hlk hLinf hLfin hε hweight
+
+/-! ### Layer 5.5 — landed
+
+Discharged by `DiophantineApproximation/{PolynomialGrid,SmallPoint}.lean`. Nothing of 5.5 was
+prototyped here, so every statement below is prototyped for the first time. ⚠ The one-variable
+grid lemma is a count of roots with multiplicity and not a divisibility, and the chain rule the
+book invokes to read the derivative back through the parametrization is not needed: only the
+block degrees of the orders that can occur, which is multihomogeneity. See the preamble. -/
+
+/-- **Layer 5.5**, landed: **the grid lemma** (Bombieri–Gubler, Lemma 7.5.24). A nonzero
+polynomial over a field of characteristic zero, of degree at most `e j` in the variable `X j`,
+has a Hasse derivative of order at most `e j / B` in each variable that does not vanish at some
+point of the grid of integers `|z j| ≤ B`. -/
+example {k : Type*} [Field k] [CharZero k] {σ : Type*} [Finite σ]
+    {f : MvPolynomial σ k} (hf : f ≠ 0) {e : σ → ℕ} (he : ∀ j, f.degreeOf j ≤ e j)
+    {B : ℕ} (hB : 0 < B) :
+    ∃ z : σ → ℤ, (∀ j, (z j).natAbs ≤ B) ∧ ∃ i : σ →₀ ℕ, (∀ j, B * i j ≤ e j) ∧
+      MvPolynomial.eval (fun j ↦ ((z j : k))) (MvPolynomial.hasseDeriv i f) ≠ 0 :=
+  MvPolynomial.exists_eval_hasseDeriv_ne_zero hf he hB
+
+/-- **Layer 5.5**, landed: **non-vanishing at a small point** (Bombieri–Gubler, 7.5.23 and Lemma
+7.5.25 (a)). If a derivative of `P` does not vanish identically on the product of the spans of
+the families `y h` — which is what the nonvanishing of the parametrized polynomial says
+(`MvPolynomial.eval_linSubst`) — then a further derivative, of order at most `(card ρ) d h / B`
+in each block, does not vanish at a point of the product whose coordinates in those families are
+integers bounded by `B`. -/
+example {k : Type*} [Field k] [CharZero k] {κ σ ρ : Type*} [Fintype σ] [Fintype ρ] [Finite κ]
+    {d : κ → ℕ} {P : MvPolynomial (κ × σ) k} (hP : MvPolynomial.IsMultiHomogeneous d P)
+    (y : κ → ρ → σ → k) (I : κ × σ →₀ ℕ)
+    (hne : MvPolynomial.linSubst y (MvPolynomial.hasseDeriv I P) ≠ 0) {B : ℕ} (hB : 0 < B) :
+    ∃ z : κ → ρ → ℤ, (∀ h l, (z h l).natAbs ≤ B) ∧ ∃ I' : κ × σ →₀ ℕ,
+      (∀ h, B * ∑ i, I' (h, i) ≤ Fintype.card ρ * d h) ∧
+      MvPolynomial.eval (fun p : κ × σ ↦ ∑ l, (z p.1 l : k) * y p.1 l p.2)
+        (MvPolynomial.hasseDeriv (I + I') P) ≠ 0 :=
+  MvPolynomial.exists_eval_hasseDeriv_add_ne_zero hP y I hne hB
+
+/-- **Layer 5.5**, landed: **the milestone** (Bombieri–Gubler's (7.37)). With the grid
+`B = 2 n / η` of Lemma 7.5.25, a derivative of weighted order at most `m η / 2` that does not
+vanish identically on the product is replaced by one of weighted order at most `m η` that does
+not vanish at an explicit point of it. ⚠ The bound on the coordinates of the point is
+`2 n / η + 1` and not the book's `2 n / η`, because `B` is rounded up. -/
+example {k : Type*} [Field k] [CharZero k] {κ σ ρ : Type*} [Fintype σ] [Fintype ρ] [Fintype κ]
+    {d : κ → ℕ} {P : MvPolynomial (κ × σ) k} (hP : MvPolynomial.IsMultiHomogeneous d P)
+    (y : κ → ρ → σ → k) {η : ℝ} (hη : 0 < η) (I : κ × σ →₀ ℕ)
+    (hI : ∑ h, (∑ i, (I (h, i) : ℝ)) / (d h : ℝ) ≤ Fintype.card κ * η / 2)
+    (hne : MvPolynomial.linSubst y (MvPolynomial.hasseDeriv I P) ≠ 0) :
+    ∃ z : κ → ρ → ℤ, (∀ h l, ((z h l).natAbs : ℝ) ≤ 2 * Fintype.card ρ / η + 1) ∧
+      ∃ I' : κ × σ →₀ ℕ, I ≤ I' ∧
+        ∑ h, (∑ i, (I' (h, i) : ℝ)) / (d h : ℝ) ≤ Fintype.card κ * η ∧
+        MvPolynomial.eval (fun p : κ × σ ↦ ∑ l, (z p.1 l : k) * y p.1 l p.2)
+          (MvPolynomial.hasseDeriv I' P) ≠ 0 :=
+  MvPolynomial.exists_eval_hasseDeriv_ne_zero_of_sum_div_le hP y hη I hI hne
+
+/-! ### Layer 5.6 — landed
+
+Discharged by `DiophantineApproximation/{FormIndexSubspace,SubspaceValueBound,
+SubspaceKeyInequality,PenultimateMinimum}.lean`, with `LogComparison.lean` shared out of
+`RothTheorem.lean`. Nothing of 5.6 was prototyped here, so every statement below is prototyped
+for the first time. ⚠ No chain rule is needed between Layers 5.3 and 5.5; the vanishing pattern
+of Layer 5.2 enters only as a two-sided bound on the exponents of the surviving monomials; and
+the estimate needs a second invariant of the system of exponents, `approxAbsWeight`. See the
+preamble. -/
+
+/-- **Layer 5.6**, landed: **the bridge from the index along the forms to a derivative surviving
+on the product of the kernels**. This is the whole of the dictionary between Layer 5.3, which
+measures the index in the coordinates in which the forms are the variables, and Layer 5.5, which
+wants a derivative in the original ones. -/
+example [DecidableEq ι] {κ ρ : Type*} [Fintype κ] [Fintype ρ]
+    {d : κ → ℝ} (hd : ∀ h, 0 ≤ d h) {M : κ → ι → K} (hM : ∀ h, M h ≠ 0)
+    {y : κ → ρ → ι → K}
+    (hy : ∀ (h : κ) (x : ι → K), ∑ i, M h i * x i = 0 →
+      x ∈ Submodule.span K (Set.range (y h)))
+    {P : MvPolynomial (κ × ι) K} (hP : P ≠ 0) {t : ℝ} (ht0 : 0 ≤ t)
+    (ht : MvPolynomial.formIndex d M P ≤ ENNReal.ofReal t) :
+    ∃ I : κ × ι →₀ ℕ, ∑ h, (∑ i, (I (h, i) : ℝ)) / d h ≤ t ∧
+      MvPolynomial.linSubst y (MvPolynomial.hasseDeriv I P) ≠ 0 :=
+  MvPolynomial.exists_linSubst_hasseDeriv_ne_zero_of_formIndex_le hd hM hy hP ht0 ht
+
+/-- **Layer 5.6**, landed: **the height of `V(Q)` against the level, at every level**
+(Bombieri–Gubler, the upper half of Lemma 7.5.21 without its hypothesis that `Q` be large). This
+is what covers a bounded range of levels in the milestone. -/
+example [LinearOrder ι] [Nonempty ι] {n : ℕ} {Sfin : Finset (FinitePlace K)}
+    {L : AbsoluteValue K ℝ → ι → Module.Dual K (ι → K)} {cf : AbsoluteValue K ℝ → ι → ℝ}
+    (hLinf : ∀ w : InfinitePlace K, LinearIndependent K (L w.1))
+    (hLfin : ∀ w ∈ Sfin, LinearIndependent K (L w.1)) :
+    ∃ C₆ : ℝ, ∀ Q : ℝ, 1 ≤ Q → Module.finrank K (NumberField.approxSpan Sfin L cf Q) = n →
+      (NumberField.approxSpan Sfin L cf Q).logHeight
+        ≤ (n : ℝ) * (∑ w : InfinitePlace K, (w.mult : ℝ) * NumberField.cMax cf w.1
+            + ∑ w ∈ Sfin, NumberField.cMax cf w.1) * Real.log Q + C₆ :=
+  NumberField.logHeight_approxSpan_le hLinf hLfin
+
+/-- **Layer 5.6**, landed: **Steps IV and VI** (Bombieri–Gubler, 7.5.22 and 7.5.26). There is no
+chain of `m + 1` levels of rank `n`, with `log Q` bounded below and growing at the rate `2 σ⁻¹`,
+whose spans all have height at least a positive multiple of `ε log Q`. Everything in Layer 5 is
+consumed here: 5.2 supplies the auxiliary polynomial at the multidegrees `d h ≈ D / log (Q h)`,
+5.3 turns the heights into a small index, the bridge above and 5.5 turn that into a nonzero
+value at an explicit point of small height, and the product formula against the local bounds
+closes the contradiction as `D → ∞`. -/
+example [DecidableEq ι] [LinearOrder ι] [Nonempty ι] {n : ℕ} (hn : 1 ≤ n)
+    (hcard : Fintype.card ι = n + 1) {Sfin : Finset (FinitePlace K)}
+    {L : AbsoluteValue K ℝ → ι → Module.Dual K (ι → K)} {cf : AbsoluteValue K ℝ → ι → ℝ}
+    (hLinf : ∀ w : InfinitePlace K, LinearIndependent K (L w.1))
+    (hLfin : ∀ w ∈ Sfin, LinearIndependent K (L w.1))
+    {ε : ℝ} (hε : 0 < ε) (hweight : NumberField.approxWeight Sfin cf ≤ -ε / 2) (C₅ : ℝ) :
+    ∃ (m : ℕ) (σ Qlow : ℝ), 0 < σ ∧
+      ∀ Q : Fin (m + 1) → ℝ, (∀ h, 1 < Q h) → (∀ h, Qlow ≤ Real.log (Q h)) →
+        (∀ h : Fin m, 2 * σ⁻¹ * Real.log (Q h.castSucc) ≤ Real.log (Q h.succ)) →
+        (∀ h, Module.finrank K (NumberField.approxSpan Sfin L cf (Q h)) = n) →
+        (∀ h, ε * Real.log (Q h)
+              / (4 * ((Fintype.card (InfinitePlace K) + Sfin.card : ℕ) : ℝ)) - C₅
+            ≤ (NumberField.approxSpan Sfin L cf (Q h)).logHeight) → False :=
+  NumberField.exists_forall_not_chain hn hcard hLinf hLfin hε hweight C₅
+
+/-- **Layer 5.6**, landed: **the milestone**, the penultimate-minimum theorem
+(Bombieri–Gubler, Theorem 7.5.13). For forms independent at every place of `S` and exponents of
+weight at most `−ε/2`, the spans of the approximation domains of rank `n` are finite in number.
+⚠ Levels above a threshold land in the finite set of exceptional subspaces of Layer 5.4
+(`NumberField.exists_forall_approxSpan_mem`); the levels below it contribute finitely many spans
+by the height bound above and Northcott for subspaces, which the book leaves to the reader. -/
+example [DecidableEq ι] [LinearOrder ι] [Nonempty ι] {n : ℕ} (hn : 1 ≤ n)
+    (hcard : Fintype.card ι = n + 1) {Sfin : Finset (FinitePlace K)}
+    {L : AbsoluteValue K ℝ → ι → Module.Dual K (ι → K)} {cf : AbsoluteValue K ℝ → ι → ℝ}
+    (hLinf : ∀ w : InfinitePlace K, LinearIndependent K (L w.1))
+    (hLfin : ∀ w ∈ Sfin, LinearIndependent K (L w.1))
+    {ε : ℝ} (hε : 0 < ε) (hweight : NumberField.approxWeight Sfin cf ≤ -ε / 2) :
+    {V : Submodule K (ι → K) | ∃ Q : ℝ, 1 ≤ Q ∧
+      Module.finrank K (NumberField.approxSpan Sfin L cf Q) = n ∧
+      V = NumberField.approxSpan Sfin L cf Q}.Finite :=
+  NumberField.finite_setOf_approxSpan hn hcard hLinf hLfin hε hweight
+
+/-! ### Layer 6.1 — landed
+
+Discharged by `DiophantineApproximation/{WedgeRecovery,MinimaBounds,ExponentGrid,
+WedgeExponentBound,ParametricSubspace}.lean`. The milestone below was prototyped here and
+**survived verbatim**; everything else in this section is prototyped for the first time. ⚠ No
+pigeonhole and no subsequence are needed, the penultimate rank is not a separate case, and the
+minima have to be confined between two powers of `Q` — a bound Layer 4.2 does not give. See the
+preamble. -/
+
+/-- **Layer 6.1**, landed: **the minima of an approximation domain lie between two powers of the
+level** (Bombieri–Gubler, Step IX). The lower bound is the product formula, not geometry of
+numbers; the upper bound is then Minkowski's second theorem over `K` from above. -/
+example [LinearOrder ι] [Nonempty ι] {Sfin : Finset (FinitePlace K)}
+    {L : AbsoluteValue K ℝ → ι → Dual K (ι → K)}
+    (hLInf : ∀ w : InfinitePlace K, LinearIndependent K (L w.1))
+    (hLFin : ∀ v ∈ Sfin, LinearIndependent K (L v.1)) (c : AbsoluteValue K ℝ → ι → ℝ) :
+    ∃ B : ℝ, 0 < B ∧ ∃ Q₁ : ℝ, 1 ≤ Q₁ ∧ ∀ Q : ℝ, Q₁ ≤ Q → ∀ j < Fintype.card ι,
+      Q ^ (-B) ≤ NumberField.successiveMinimum (NumberField.approxModule Sfin L c Q)
+          (NumberField.approxBody L c Q) j ∧
+        NumberField.successiveMinimum (NumberField.approxModule Sfin L c Q)
+          (NumberField.approxBody L c Q) j ≤ Q ^ B :=
+  NumberField.exists_pos_forall_rpow_le_successiveMinimum_le hLInf hLFin c
+
+/-- **Layer 6.1**, landed: **the exponents of the wedge domain stay in a box** around the sums of
+the original exponents over each `p`-subset, uniformly in the level, in the bijections of Evertse's
+lemma and in `k`. This is what makes the grid finite. -/
+example [LinearOrder ι] {c : AbsoluteValue K ℝ → ι → ℝ}
+    {π : AbsoluteValue K ℝ → Fin (Fintype.card ι) ≃ ι} {μ : ℕ → ℝ} {C Q B : ℝ} {k p : ℕ}
+    (hQ : 1 < Q) (hCQ : C ≤ Q) (hQC : 1 ≤ C * Q) (hB : 0 ≤ B)
+    (hk : k < Fintype.card ι) (hp : p ≤ Fintype.card ι)
+    (hμlow : ∀ j, j < Fintype.card ι → Q ^ (-B) ≤ μ j)
+    (hμhigh : ∀ j, j < Fintype.card ι → μ j ≤ Q ^ B)
+    (v : AbsoluteValue K ℝ) (T : Set.powersetCard ι p) :
+    |NumberField.wedgeExponent c π μ C Q k p v T - ∑ t ∈ (T : Finset ι), c v t|
+      ≤ 1 + B * Fintype.card ι + 2 * B :=
+  NumberField.abs_wedgeExponent_sub_sum_le hQ hCQ hQC hB hk hp hμlow hμhigh v T
+
+/-- **Layer 6.1**, landed: **Lemma 7.5.33 as a function of the subspace**. The span of the first
+`k` members of a basis is recovered from the span of the wedges that meet them by a map that does
+not mention the basis, which is what carries finiteness from `⋀^p Kⁱ` back to `Kⁱ`. -/
+example [LinearOrder ι] {x : Fin (Fintype.card ι) → ι → K} (hx : LinearIndependent K x)
+    {k p : ℕ} (h : k + p = Fintype.card ι) :
+    exteriorPower.recoverSpan p (exteriorPower.wedgeSpan k p x)
+      = Submodule.span K (x '' {j | (j : ℕ) < k}) :=
+  exteriorPower.recoverSpan_wedgeSpan hx h
+
+/-- **Layer 6.1**, landed: **the milestone**, the parametric Subspace Theorem (Bombieri–Gubler
+7.5.30–7.5.32, Steps VIII and IX; Evertse–Schlickewei for the formulation). For exponents of
+negative weight, finitely many proper subspaces contain every approximation domain of large level.
+This is the statement the quantitative theory strengthens by counting `T`. -/
+example [Nontrivial ι] (Sfin : Finset (FinitePlace K))
+    (L : AbsoluteValue K ℝ → ι → Dual K (ι → K))
+    (hLInf : ∀ v : InfinitePlace K, LinearIndependent K (L v.1))
+    (hLFin : ∀ v ∈ Sfin, LinearIndependent K (L v.1))
+    (c : AbsoluteValue K ℝ → ι → ℝ) (hc : approxWeight Sfin c < 0) :
+    ∃ T : Finset (Submodule K (ι → K)), (∀ W ∈ T, W ≠ ⊤) ∧
+      ∃ Q₀ : ℝ, ∀ Q ≥ Q₀, ∃ W ∈ T, approxDomain Sfin L c Q ⊆ W :=
+  NumberField.exists_finset_submodule_forall_approxDomain_subset hLInf hLFin hc
+
+/-! ### Layer 6.2 — landed
+
+Discharged by `DiophantineApproximation/SubspaceTheorem.lean`. Nothing of 6.2 was prototyped here
+under its own name — it is Layer 6.3 at `F = K` and `w = id` — so both statements below are
+prototyped for the first time. ⚠ The layer adds no analysis to Layers 5.1 and 6.1; all it
+contributes is the kernels and, for the small heights, Northcott **on projective space**. See the
+preamble. -/
+
+/-- **Layer 6.2**, landed: **the Subspace Theorem with coefficients in `K`** (Schmidt 1972 for
+`K = ℚ` and `S = {∞}`; Schlickewei 1977 with finite places; Bombieri–Gubler, Theorem 7.2.2 with
+`F = K`). Finitely many proper subspaces of `Kⁱ` contain every nonzero solution of the fundamental
+inequality. `[Nontrivial ι]` is `n ≥ 1`, without which the statement is false. -/
+example [Nontrivial ι] (Sinf : Finset (InfinitePlace K)) (Sfin : Finset (FinitePlace K))
+    (L : AbsoluteValue K ℝ → ι → Dual K (ι → K))
+    (hLInf : ∀ v ∈ Sinf, LinearIndependent K (L v.1))
+    (hLFin : ∀ v ∈ Sfin, LinearIndependent K (L v.1)) {ε : ℝ} (hε : 0 < ε) :
+    ∃ T : Finset (Submodule K (ι → K)), (∀ W ∈ T, W ≠ ⊤) ∧
+      ∀ x : ι → K, x ≠ 0 →
+        approxProd Sinf Sfin (fun v ↦ v) L x ≤ mulHeight x ^ (-(Fintype.card ι : ℝ) - ε) →
+        ∃ W ∈ T, x ∈ W :=
+  NumberField.exists_finset_submodule_of_approxProd_le Sinf Sfin L hLInf hLFin hε
+
+/-- **Layer 6.2**, landed: **the same as an inclusion**, the shape the literature states — the
+solutions lie in a finite union of proper subspaces. -/
+example [Nontrivial ι] (Sinf : Finset (InfinitePlace K)) (Sfin : Finset (FinitePlace K))
+    (L : AbsoluteValue K ℝ → ι → Dual K (ι → K))
+    (hLInf : ∀ v ∈ Sinf, LinearIndependent K (L v.1))
+    (hLFin : ∀ v ∈ Sfin, LinearIndependent K (L v.1)) {ε : ℝ} (hε : 0 < ε) :
+    ∃ T : Finset (Submodule K (ι → K)), (∀ W ∈ T, W ≠ ⊤) ∧
+      {x : ι → K | x ≠ 0 ∧ approxProd Sinf Sfin (fun v ↦ v) L x ≤
+          mulHeight x ^ (-(Fintype.card ι : ℝ) - ε)} ⊆ ⋃ W ∈ T, (W : Set (ι → K)) :=
+  NumberField.exists_finset_submodule_setOf_approxProd_le_subset Sinf Sfin L hLInf hLFin hε
+
+/-! ### Layer 6.3 — landed
+
+Discharged by `DiophantineApproximation/{FormBaseChange,PlaceConjugation,ExtensionApproxProd,
+SubspaceAlgebraic}.lean`. The milestone below was prototyped here and **survived verbatim**;
+everything else in this section is prototyped for the first time. ⚠ The layer is the Galois
+closure and nothing else, conjugation and base change are one operation, and Mathlib's
+normalization of finite places is what forces the `(e f)`-th root. See the preamble. -/
+
+/-- **Layer 6.3**, landed: **a linear form carried along a ring homomorphism**, which is at once
+the base change of a system of forms to a larger field and its conjugation by an automorphism. -/
+example {E : Type*} [Field E] [Algebra F E] [DecidableEq ι] (M : Dual F (ι → F)) (f : F →+* E)
+    (y : ι → F) : M.compRingHom f (fun i ↦ f (y i)) = f (M y) :=
+  Module.Dual.compRingHom_comp M f y
+
+/-- **Layer 6.3**, landed: **every finite place of a Galois extension above `v` is a conjugate of
+one chosen absolute value over `v`, raised to the local degree.** The exponent is the price of
+Mathlib's normalization of finite places; at an infinite place there is none. -/
+example [IsGalois K F] (v : FinitePlace K) (u : AbsoluteValue F ℝ) [u.LiesOver v.1]
+    (V : FinitePlace F) (hV : V.LiesOver v) :
+    ∃ σ : F ≃ₐ[K] F, ∀ z : F, V (σ z) = u z ^ V.localDegree K :=
+  NumberField.FinitePlace.exists_algEquiv_apply_eq v u V hV
+
+open scoped Classical in
+/-- **Layer 6.3**, landed: **the transfer of the central quantity to the Galois closure**
+(Bombieri–Gubler, Remark 7.2.3). At a point of `Kⁱ` it is an equality, because the point sees the
+same local factor at every place above `v`. -/
+example [IsGalois K F] [Nonempty ι] [DecidableEq ι] (Sinf : Finset (InfinitePlace K))
+    (Sfin : Finset (FinitePlace K)) (u : AbsoluteValue K ℝ → AbsoluteValue F ℝ)
+    (L : AbsoluteValue K ℝ → ι → Dual F (ι → F))
+    (huInf : ∀ v ∈ Sinf, (u v.1).LiesOver v.1) (huFin : ∀ v ∈ Sfin, (u v.1).LiesOver v.1)
+    (x : ι → K) :
+    approxProd (Sinf.biUnion (NumberField.InfinitePlace.placesOverFinset F))
+        (Sfin.biUnion (NumberField.FinitePlace.placesOverFinset F)) (fun V ↦ V)
+        (NumberField.conjSystem Sinf Sfin u L) (fun j ↦ algebraMap K F (x j))
+      = approxProd Sinf Sfin u L x ^ Module.finrank K F :=
+  NumberField.approxProd_conjSystem huInf huFin x
+
+/-- **Layer 6.3**, landed (Schmidt; Schlickewei; Evertse; Bombieri–Gubler, Theorem 7.2.2 with
+Remark 7.2.3). The Subspace Theorem: points in `K`, coefficients in a finite extension `F`. With
+`F = K` and `w = id` it is the number-field form of Layer 6.2; with `K = ℚ` it is Schmidt's
+theorem for forms with algebraic coefficients. `[Nontrivial ι]` is `n ≥ 1`, without which the
+statement is false. -/
+example [Nontrivial ι]
     (Sinf : Finset (InfinitePlace K)) (Sfin : Finset (FinitePlace K))
     (w : AbsoluteValue K ℝ → AbsoluteValue F ℝ)
     (hwInf : ∀ v ∈ Sinf, (w v.1).LiesOver v.1) (hwFin : ∀ v ∈ Sfin, (w v.1).LiesOver v.1)
@@ -2663,13 +3575,35 @@ theorem exists_finset_submodule_of_approxProd_le [Nontrivial ι]
       ∀ x : ι → K, x ≠ 0 →
         approxProd Sinf Sfin w L x ≤ mulHeight x ^ (-(Fintype.card ι : ℝ) - ε) →
         ∃ W ∈ T, x ∈ W :=
-  sorry
+  NumberField.exists_finset_submodule_of_approxProd_le_extension Sinf Sfin w hwInf hwFin
+    L hLInf hLFin hε
 
-/-- **Layer 6.4** (Bombieri–Gubler, Corollary 7.2.5). The affine form, for points with
+/-! ### Layer 6.4 — landed
+
+Discharged by `DiophantineApproximation/{AffineProd,SubspaceAffine}.lean`. The milestone below was
+prototyped here and **survived verbatim**, display for display; its left-hand side has since been
+given the name `NumberField.affineProd`, and the second example states it in both shapes at once.
+⚠ The layer is Layer 6.3 plus the `S`-part of the height, `S`-integrality suffices in one
+direction and not in the other, and the converse is proved as well, so that the library carries
+one Subspace Theorem and not two. See the preamble. -/
+
+open scoped Classical in
+/-- **Layer 6.4**, landed: **the affine quantity is the projective one times the `S`-part of the
+height, `#ι` times over**. This identity is the whole dictionary between Bombieri–Gubler's
+Corollary 7.2.5 and their Theorem 7.2.2: the `#ι` local denominators that the affine form drops
+are the `#ι` copies of the height that separate the two exponents. -/
+example (S : Finset (HeightOneSpectrum (𝓞 K))) (w : AbsoluteValue K ℝ → AbsoluteValue F ℝ)
+    (L : AbsoluteValue K ℝ → ι → Dual F (ι → F)) {x : ι → K} (hx : x ≠ 0) :
+    affineProd S w L x = approxProd Finset.univ (S.image FinitePlace.mk) w L x *
+      ((∏ v : InfinitePlace K, (⨆ i, v (x i)) ^ v.mult) *
+        ∏ v ∈ S, ⨆ i, FinitePlace.mk v (x i)) ^ Fintype.card ι :=
+  NumberField.affineProd_eq_approxProd_mul S w L hx
+
+/-- **Layer 6.4**, landed (Bombieri–Gubler, Corollary 7.2.5). **The affine form**, for points with
 `S`-integral coordinates; `S` is Mathlib's carrier for `S`-integers, finite places only, and every
-infinite place is present. -/
-theorem exists_finset_submodule_of_integer_of_prod_le [Nontrivial ι]
-    (S : Finset (HeightOneSpectrum (𝓞 K)))
+infinite place is present. The left-hand side is `NumberField.affineProd S w L x` written out,
+which is how the milestone is stated in the library. -/
+example [Nontrivial ι] (S : Finset (HeightOneSpectrum (𝓞 K)))
     (w : AbsoluteValue K ℝ → AbsoluteValue F ℝ)
     (hwInf : ∀ v : InfinitePlace K, (w v.1).LiesOver v.1)
     (hwFin : ∀ v ∈ S, (w (FinitePlace.mk v).1).LiesOver (FinitePlace.mk v).1)
@@ -2684,19 +3618,102 @@ theorem exists_finset_submodule_of_integer_of_prod_le [Nontrivial ι]
           ∏ v ∈ S, ∏ i, w (FinitePlace.mk v).1
             (L (FinitePlace.mk v).1 i fun j ↦ algebraMap K F (x j)) ≤ mulHeight x ^ (-ε) →
         ∃ W ∈ T, x ∈ W :=
-  sorry
+  NumberField.exists_finset_submodule_of_integer_of_affineProd_le S w hwInf hwFin L hLInf hLFin hε
 
-/-- **Layer 6.1.** The parametric Subspace Theorem: for exponents of negative weight, finitely
-many proper subspaces contain every approximation domain of large level. This is the statement
-the quantitative theory strengthens by counting `T`. -/
-theorem exists_finset_submodule_forall_approxDomain_subset [Nontrivial ι]
-    (Sfin : Finset (FinitePlace K)) (L : AbsoluteValue K ℝ → ι → Dual K (ι → K))
-    (hLInf : ∀ v : InfinitePlace K, LinearIndependent K (L v.1))
-    (hLFin : ∀ v ∈ Sfin, LinearIndependent K (L v.1))
-    (c : AbsoluteValue K ℝ → ι → ℝ) (hc : approxWeight Sfin c < 0) :
+/-- **Layer 6.4**, landed (Bombieri–Gubler, Theorem 7.2.6): **the normalisation the converse runs
+on**. Every finite set of finite places is contained in one over which every nonzero point has an
+`S`-primitive scalar multiple — the point at which the `S`-part of the height *is* the height. -/
+example (S : Finset (HeightOneSpectrum (𝓞 K))) :
+    ∃ S' : Finset (HeightOneSpectrum (𝓞 K)), S ⊆ S' ∧
+      ∀ x : ι → K, x ≠ 0 → ∃ c : K, c ≠ 0 ∧
+        (S' : Set (HeightOneSpectrum (𝓞 K))).IsPrimitive (c • x) :=
+  NumberField.exists_finset_superset_forall_exists_isPrimitive_smul S
+
+/-- **Layer 6.4**, landed: **the converse — the affine form catches every solution of the general
+one**, so the two are equivalent and the library carries one theorem. The data is enlarged (every
+infinite place, more finite places, an absolute value of `F` at each) and the solution is scaled
+to be `S`-primitive; neither the subspaces nor the general inequality sees the scaling. -/
+example (Sinf : Finset (InfinitePlace K)) (Sfin : Finset (FinitePlace K))
+    (w : AbsoluteValue K ℝ → AbsoluteValue F ℝ)
+    (hwInf : ∀ v ∈ Sinf, (w v.1).LiesOver v.1) (hwFin : ∀ v ∈ Sfin, (w v.1).LiesOver v.1)
+    (L : AbsoluteValue K ℝ → ι → Dual F (ι → F))
+    (hLInf : ∀ v ∈ Sinf, LinearIndependent F (L v.1))
+    (hLFin : ∀ v ∈ Sfin, LinearIndependent F (L v.1)) (ε : ℝ) :
+    ∃ (S : Finset (HeightOneSpectrum (𝓞 K))) (w' : AbsoluteValue K ℝ → AbsoluteValue F ℝ)
+        (L' : AbsoluteValue K ℝ → ι → Dual F (ι → F)),
+      (∀ v : InfinitePlace K, (w' v.1).LiesOver v.1) ∧
+      (∀ v ∈ S, (w' (FinitePlace.mk v).1).LiesOver (FinitePlace.mk v).1) ∧
+      (∀ v : InfinitePlace K, LinearIndependent F (L' v.1)) ∧
+      (∀ v ∈ S, LinearIndependent F (L' (FinitePlace.mk v).1)) ∧
+      ∀ x : ι → K, x ≠ 0 →
+        approxProd Sinf Sfin w L x ≤ mulHeight x ^ (-(Fintype.card ι : ℝ) - ε) →
+        ∃ c : K, c ≠ 0 ∧ (S : Set (HeightOneSpectrum (𝓞 K))).IsPrimitive (c • x) ∧
+          affineProd S w' L' (c • x) ≤ mulHeight (c • x) ^ (-ε) :=
+  NumberField.exists_finset_forall_exists_smul_affineProd_le Sinf Sfin w hwInf hwFin
+    L hLInf hLFin ε
+
+/-! ### Layer 6.5 — landed
+
+Discharged by `DiophantineApproximation/{GeneralPosition,SubspaceGeneralPosition}.lean`. Nothing
+was prototyped here, so the statements below are the library's own, written out. ⚠ The layer is
+Layer 6.3 plus one local observation and one partition; the families of forms may have any finite
+sizes, general position is `Module.Dual.IsGeneralPosition`, and the last example is Layer 6.3
+recovered as the case of equal sizes, so that the two are equivalent. See the preamble. -/
+
+open scoped Classical in
+/-- **Layer 6.5**, landed (Vojta 1987; Bombieri–Gubler, Theorem 7.2.9): **the Subspace Theorem
+for forms in general position**, in the book's display. At every place the forms are indexed by a
+finset `B v` of one carrier type, so their number varies from place to place; general position
+asks that every `#ι` of them be linearly independent. -/
+example {κ : Type*} [Finite κ] [Nontrivial ι] (Sinf : Finset (InfinitePlace K))
+    (Sfin : Finset (FinitePlace K)) (w : AbsoluteValue K ℝ → AbsoluteValue F ℝ)
+    (hwI : ∀ v ∈ Sinf, (w v.1).LiesOver v.1) (hwF : ∀ v ∈ Sfin, (w v.1).LiesOver v.1)
+    (B : AbsoluteValue K ℝ → Finset κ) (L : AbsoluteValue K ℝ → κ → Dual F (ι → F))
+    (hLI : ∀ v ∈ Sinf, Module.Dual.IsGeneralPosition F (B v.1) (L v.1))
+    (hLF : ∀ v ∈ Sfin, Module.Dual.IsGeneralPosition F (B v.1) (L v.1))
+    {ε : ℝ} (hε : 0 < ε) :
     ∃ T : Finset (Submodule K (ι → K)), (∀ W ∈ T, W ≠ ⊤) ∧
-      ∃ Q₀ : ℝ, ∀ Q ≥ Q₀, ∃ W ∈ T, approxDomain Sfin L c Q ⊆ W :=
-  sorry
+      ∀ x : ι → K, x ≠ 0 →
+        (∏ v ∈ Sinf, (∏ k ∈ B v.1, w v.1 (L v.1 k fun j ↦ algebraMap K F (x j)) /
+              ⨆ j, v (x j)) ^ v.mult) *
+          ∏ v ∈ Sfin, ∏ k ∈ B v.1, w v.1 (L v.1 k fun j ↦ algebraMap K F (x j)) / ⨆ j, v (x j)
+          ≤ mulHeight x ^ (-(Fintype.card ι : ℝ) - ε) →
+        ∃ W ∈ T, x ∈ W :=
+  NumberField.exists_finset_submodule_of_generalProd_le Sinf Sfin w hwI hwF B L hLI hLF hε
+
+open scoped Classical in
+/-- **Layer 6.5**, landed: **the same as an inclusion**, with the left-hand side under its own
+name `NumberField.generalProd`. -/
+example {κ : Type*} [Finite κ] [Nontrivial ι] (Sinf : Finset (InfinitePlace K))
+    (Sfin : Finset (FinitePlace K)) (w : AbsoluteValue K ℝ → AbsoluteValue F ℝ)
+    (hwI : ∀ v ∈ Sinf, (w v.1).LiesOver v.1) (hwF : ∀ v ∈ Sfin, (w v.1).LiesOver v.1)
+    (B : AbsoluteValue K ℝ → Finset κ) (L : AbsoluteValue K ℝ → κ → Dual F (ι → F))
+    (hLI : ∀ v ∈ Sinf, Module.Dual.IsGeneralPosition F (B v.1) (L v.1))
+    (hLF : ∀ v ∈ Sfin, Module.Dual.IsGeneralPosition F (B v.1) (L v.1))
+    {ε : ℝ} (hε : 0 < ε) :
+    ∃ T : Finset (Submodule K (ι → K)), (∀ W ∈ T, W ≠ ⊤) ∧
+      {x : ι → K | x ≠ 0 ∧ NumberField.generalProd Sinf Sfin w B L x ≤
+          mulHeight x ^ (-(Fintype.card ι : ℝ) - ε)} ⊆ ⋃ W ∈ T, (W : Set (ι → K)) :=
+  NumberField.exists_finset_submodule_setOf_generalProd_le_subset Sinf Sfin w hwI hwF B L
+    hLI hLF hε
+
+/-- **Layer 6.5**, landed: **Layer 6.3 is the case of equal sizes**. With `#ι` forms at every
+place, general position is linear independence and the two central quantities are the same
+product — `NumberField.generalProd_univ_eq_approxProd` is `rfl` — so Vojta's refinement contains
+the theorem it is proved from, and the two are equivalent. -/
+example [Nontrivial ι] (Sinf : Finset (InfinitePlace K)) (Sfin : Finset (FinitePlace K))
+    (w : AbsoluteValue K ℝ → AbsoluteValue F ℝ)
+    (hwI : ∀ v ∈ Sinf, (w v.1).LiesOver v.1) (hwF : ∀ v ∈ Sfin, (w v.1).LiesOver v.1)
+    (L : AbsoluteValue K ℝ → ι → Dual F (ι → F))
+    (hLI : ∀ v ∈ Sinf, LinearIndependent F (L v.1))
+    (hLF : ∀ v ∈ Sfin, LinearIndependent F (L v.1)) {ε : ℝ} (hε : 0 < ε) :
+    ∃ T : Finset (Submodule K (ι → K)), (∀ W ∈ T, W ≠ ⊤) ∧
+      ∀ x : ι → K, x ≠ 0 →
+        approxProd Sinf Sfin w L x ≤ mulHeight x ^ (-(Fintype.card ι : ℝ) - ε) →
+        ∃ W ∈ T, x ∈ W :=
+  NumberField.exists_finset_submodule_of_generalProd_le Sinf Sfin w hwI hwF
+    (fun _ ↦ Finset.univ) L (fun v hv ↦ .of_linearIndependent _ (hLI v hv))
+    (fun v hv ↦ .of_linearIndependent _ (hLF v hv)) hε
 
 /-- **Layer 7.1** (Bombieri–Gubler, Theorem 7.3.2). One linear form with algebraic coefficients,
 in integer points. The hypothesis is that the value is nonzero, not that the coefficients are

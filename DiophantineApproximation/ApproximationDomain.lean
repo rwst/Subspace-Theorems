@@ -322,6 +322,19 @@ theorem mem_smul_approxBody_iff {L : AbsoluteValue K ℝ → ι → Dual K (ι �
     simp only [Pi.smul_apply, mul_smul_comm, Finset.smul_sum]
   rw [this, normAtPlace_smul, abs_of_pos (inv_pos.2 ht), inv_mul_le_iff₀ ht]
 
+omit [NumberField K] in
+/-- **The form of the body evaluated on the mixed embedding of a point of `Kⁱ`**: the condition
+of the body at an infinite place is a condition on the value of the form there. -/
+theorem normAtPlace_sum_mixedEmbedding (l : Dual K (ι → K)) (w : InfinitePlace K) (x : ι → K) :
+    normAtPlace w (∑ j, mixedEmbedding K (l (Pi.basisFun K ι j)) * mixedEmbedding K (x j)) =
+      w (l x) := by
+  rw [← normAtPlace_apply w]
+  congr 1
+  simp_rw [← map_mul, ← map_sum]
+  congr 1
+  conv_rhs => rw [← (Pi.basisFun K ι).sum_repr x]
+  simp [map_sum, mul_comm]
+
 open scoped Classical in
 /-- **The body of an approximation domain is bounded**, when the forms are independent at every
 infinite place: a domain with no condition at some infinite place would be unbounded there. -/

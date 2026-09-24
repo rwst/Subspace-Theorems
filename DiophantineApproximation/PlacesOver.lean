@@ -109,6 +109,21 @@ theorem finite_nonempty_setOf_liesOver (v : AbsoluteValue K ℝ)
   · obtain ⟨v', rfl⟩ := (isFinitePlace_iff v).mp h
     exact ⟨finite_setOf_liesOver_finitePlace v', exists_liesOver_finitePlace (F := F) v'⟩
 
+/-- **An infinite place and a finite place never have the same underlying absolute value.** The
+infinite one takes the value `2` at `2`, the finite one at most `1`. -/
+theorem InfinitePlace.val_ne_finitePlace_val (v : InfinitePlace K) (u : FinitePlace K) :
+    v.1 ≠ u.1 := by
+  intro hcon
+  have h1 : v.1 (((2 : ℕ) : K)) = 2 := by
+    rw [← NumberField.InfinitePlace.coe_apply, NumberField.InfinitePlace.map_natCast]
+    norm_num
+  have h2 : u.1 (((2 : ℕ) : K)) ≤ 1 := by
+    rw [← NumberField.FinitePlace.coe_apply,
+      show (((2 : ℕ) : K)) = (((2 : ℤ) : K)) by push_cast; ring]
+    exact NumberField.FinitePlace.apply_intCast_le_one u 2
+  rw [hcon] at h1
+  linarith
+
 /-- **An absolute value over a place is nonarchimedean exactly when the place is finite.** -/
 theorem isNonarchimedean_iff_isFinitePlace (v : AbsoluteValue K ℝ)
     (hv : IsInfinitePlace v ∨ IsFinitePlace v) (w : AbsoluteValue F ℝ) [w.LiesOver v] :

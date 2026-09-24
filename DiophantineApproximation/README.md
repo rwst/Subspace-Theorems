@@ -186,8 +186,69 @@ any field whose places admit such an approximation, then read over a number fiel
 ⚠ **4.5 took two, and the seam is the number field**: `…/WedgeForm.lean` is the exterior algebra
 of forms over any field — Laplace's identity, independence, Lemma 7.5.33 and two bounds for a
 determinant at a place — and knows no domain; `…/WedgeDomain.lean` is Step VIII and Lemma 7.5.31.
-Layers 0, 1.1, 1.2, 1.3, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 3.1–3.8 and 4.1–4.5 together stand at
-**seventy-nine** files, and nothing suggests the pattern stops.
+⚠ **5.1 took two, and the seam is between a point and a family**: `…/UnitNormalization.lean`
+normalizes one point — the primitive multiple, the unit multiple, the heights of the form values —
+and knows no exponent system; `…/SubspaceReduction.lean` sorts the normalized solutions into
+finitely many approximation domains.
+⚠ **5.2 took three, and the seams are the field and the arithmetic**:
+`…/MultiHomogeneous.lean` is the algebra of multidegrees and the block substitution over any
+commutative ring, with the chain rule and the vanishing statement over a field of characteristic
+zero; `…/MonomialDeviation.lean` is the counting, and is pure combinatorics and real analysis with
+no polynomial in it; `…/SubspaceAuxiliary.lean` is the heights and Siegel's lemma.
+⚠ **5.3 took three, and the seams are the same two**: `…/FormIndex.lean` is the index along the
+forms and its valuation properties, over any field and with no height in it;
+`…/FormSpecialization.lean` is the specialization and the dehomogenization, still with no
+height; `…/GeneralizedRothLemma.lean` is the two height statements and the reduction to 2.7, and
+is the only one of the three that needs a number field.
+⚠ **5.4 took four, and the seams are three**: `…/LinearFormValue.lean` is Liouville's inequality
+for the value of a linear form and knows no subspace; `…/SubspaceNormal.lean` is the normal
+vector of a hyperplane and the transformed Plücker coordinates, over any field and with no height
+in it; `…/SubspaceHeightBounds.lean` is the two bounds on the height of a domain basis;
+`…/ExceptionalSubspace.lean` is the pattern, the exceptional set and the milestone.
+⚠ **5.5 took two, and the seam is the oldest one**: `…/PolynomialGrid.lean` is the grid lemma,
+which is about a polynomial over a field and knows nothing of blocks; `…/SmallPoint.lean` is the
+block-wise parametrization and the milestone.
+⚠ **5.6 took five, and the seams are the field, the place and the number field**:
+`…/LogComparison.lean` is one elementary comparison of logarithms, shared out of
+`…/RothTheorem.lean` because both Roth and the Subspace Theorem choose a degree against it;
+`…/FormIndexSubspace.lean` is the bridge from Layer 5.3's index to Layer 5.5's non-vanishing
+hypothesis, over any infinite field and with no height in it; `…/SubspaceValueBound.lean` is the
+local estimate at one absolute value and knows no place; `…/SubspaceKeyInequality.lean` is Step
+VI, the product formula against those estimates; `…/PenultimateMinimum.lean` is Steps IV and VI
+together and the milestone.
+⚠ **6.1 took five as well, and for once none of the seams is a new one**:
+`…/WedgeRecovery.lean` is Lemma 7.5.33 read as a function of the subspace, linear algebra with no
+height in it; `…/MinimaBounds.lean` is the one estimate on the minima that Layer 4 does not state,
+and it is the product formula rather than geometry of numbers; `…/ExponentGrid.lean` is the
+rounding device, stated for an arbitrary index type and an arbitrary system of exponents;
+`…/WedgeExponentBound.lean` is the box and the negative weight of the wedge exponents, the one
+file that knows what a wedge domain is; `…/ParametricSubspace.lean` is Steps VIII and IX and the
+milestone.
+⚠ **6.2 broke the pattern and took one**: `…/SubspaceTheorem.lean`, and there is no seam in it
+because there is nothing to separate — the Subspace Theorem over `K` is Layer 5.1 and Layer 6.1
+put together, with the kernels and Northcott on projective space for what those two leave over,
+and every one of those four ingredients is imported. It is the shortest milestone of Layer 5 or 6
+and the only file in either that introduces no object of its own.
+⚠ **6.3 took four, and the seams are three different kinds at once**:
+`…/FormBaseChange.lean` is linear algebra over a commutative ring — a linear form carried along a
+ring homomorphism — with no place, no height and no number field in it; `…/PlaceConjugation.lean`
+is Layer 0.2 restated for *typed* places, which is where Mathlib's normalization of finite places
+has to be undone, and it knows nothing about linear forms; `…/ExtensionApproxProd.lean` is the one
+file that knows both, and it is the transfer identity; `…/SubspaceAlgebraic.lean` is the Galois
+closure and the milestone.
+⚠ **6.4 took two, and the seam is between one point and all of them**: `…/AffineProd.lean` is the
+affine quantity and its dictionary with the projective one, arithmetic at a single point with no
+subspace anywhere in it; `…/SubspaceAffine.lean` is the milestone, four lines on 6.3, and its
+converse, which is the rest of the file. It is the first milestone of Layer 6 whose proof is
+shorter than its statement, and the only one whose converse is longer than its forward half.
+⚠ **6.5 took two as well, and the seam is between linear algebra and arithmetic**:
+`…/GeneralPosition.lean` is the local observation — which `n + 1` of the forms to keep at a point
+and what keeping them costs — and has no place, no height and no number field in it;
+`…/SubspaceGeneralPosition.lean` is the partition into finitely many classes and the appeal to
+6.3. It is the only layer of 6 whose first file is pure linear algebra.
+Layers 0, 1.1,
+1.2, 1.3, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 3.1–3.8, 4.1–4.5, 5.1–5.6, 6.1, 6.2, 6.3, 6.4 and 6.5
+together stand at **one hundred and twelve** files, and nothing suggests the pattern stops.
 
 **This roadmap stands on [`ArithmeticHeights`](../ArithmeticHeights/README.md).** That roadmap's
 long-horizon section names the Subspace Theorem, Roth's theorem and unit equations as what its
@@ -252,7 +313,7 @@ successive minimum used below is consumed from there by milestone number and non
   directions: the finiteness of the exceptional set of lines for two linearly independent forms
   at each place of `S`, and the recovery of Roth's theorem from it for the forms `X₀` and
   `X₁ − α v X₀`. This is the interface Layers 8.1, 8.3, 8.4 and 8.6 consume, and the central
-  quantity `NumberField.approxProd` that Layer 6.3 will state the Subspace Theorem with lives
+  quantity `NumberField.approxProd` that Layer 6.3 states the Subspace Theorem with lives
   here. And **Mahler's theorem** on the fractional parts of `(p/q)^k` — **also landed**, with
   the finite part of the product formula under it. And **Thue's theorem** over `ℤ`, the first
   Diophantine equation — **also landed**, from Roth's theorem over `ℚ` at one place, with the
@@ -268,9 +329,14 @@ successive minimum used below is consumed from there by milestone number and non
   for them — **landed** — the rank of a domain and its drop below `n + 1` for negative weight —
   **landed** — **Evertse's lemma** — **landed** — and the passage to **exterior powers**.
 - The **Subspace Theorem** — the summit — for a number field and a finite set of places: the
-  **parametric** form, the projective form with coefficients in the field, the form with
-  **algebraic coefficients**, the **affine** form for `S`-integral points, and **Vojta's
-  general-position** form.
+  **parametric** form — **landed** — the projective form with coefficients in the field — **also
+  landed** — the form with **algebraic coefficients**, points in `K` and coefficients in a
+  finite extension, which is the form the applications quote — **also landed** — and the
+  **affine** form for `S`-integral points, the form Layer 8 consumes, with the equivalence
+  between it and the projective form proved in **both** directions — **also landed** — and
+  **Vojta's general-position** form, for families of forms of any finite sizes, with Layer 6.3
+  recovered from it as the case of equal sizes — **also landed**. Left: the discharge of the
+  consistency with Layer 3.4.
 - The **elementary half of the quantitative theory**: systems of inequalities, the **gap
   principle** for subspaces, the count of **small solutions**, and the reduction of a count of
   subspaces to an interval result.
@@ -296,6 +362,9 @@ successive minimum used below is consumed from there by milestone number and non
     `NumberField.mulHeight₁_pow_finrank` is what puts the exponent `[F : K]` into Liouville's
     inequality, and without it the statement would have to be written in absolute heights;
   - 0.5, the affine height — Lemma 7.5.4's normalization of a solution is a statement about it;
+    ⚠ **5.1 consumed it and 2.4 together**: the affine height of the coefficient tuple of a form
+    and `Height.logHeight₁_sum_mul_le` are what bound the height of a form's value, which is
+    Corollary 7.5.5;
   - 1.1 and 1.3, Northcott on projective space and with varying degree — every "all but finitely
     many" below is an appeal to one of them; 3.7, Northcott for subspaces — Layer 5.6;
   - 1.2, height and Mahler measure — the base case of Roth's lemma and the comparison
@@ -305,6 +374,13 @@ successive minimum used below is consumed from there by milestone number and non
     of linear forms and matrices;
   - 3.1–3.5, the Plücker point, the height of a subspace, Cauchy–Binet and duality — `h(V(Q))` in
     Layer 5.4 is a subspace height, and Layer 4.5 works in the exterior power that 3.1 builds;
+    ⚠ **5.4 is the first consumer of 3.5, and it consumes the coordinate statement, not the
+    theorem**: `Submodule.exists_plucker_eq_plucker_compl` at the ranks `n` and `1` is exactly the
+    dictionary between the Plücker coordinates of a basis of a hyperplane and the coordinates of
+    its normal vector, signs and a common factor included, and 5.4 compares only their *supports*,
+    so Schmidt's involution `τ` is harmless. It also consumes 3.2's
+    `Submodule.mulHeight_span_range` — the height of a subspace is the height of the tuple of
+    maximal minors of any basis — which is what turns `h(V(Q))` into a height of a point;
   - 4.1, 4.2 and 4.4, successive minima, Minkowski's second theorem and the extraction lemma —
     Layer 4.2 is assembled from these three and proves no geometry of numbers of its own, which
     held: ⚠ **4.2 consumed all three as stated**, Cassels' Lemma 1 in its gauge form, both halves
@@ -319,11 +395,23 @@ successive minimum used below is consumed from there by milestone number and non
   - 5.5, 5.6 and 5.7, Siegel's lemma with entry heights, its relative version and the
     auxiliary-polynomial form — the *only* source of auxiliary polynomials in Layers 2.5 and 5.2;
   - 6.4 and 6.5, heights of `S`-units and the `S`-unit theorem with the `S`-logarithmic lattice —
-    Layers 5.1 and 8, and **Layer 0.3**, which is where the dependence on `ArithmeticHeights`
-    begins: 6.4 *is* 0.3's membership dictionary, 6.5's product formula *is* 0.3's in logarithmic
-    form, and 6.5's `NumberField.exists_mem_asIdeal_iff_eq` — a nonzero algebraic integer lying in
-    one prime and in no other, the one use either layer makes of the finiteness of the class group
-    — supplies the denominators that make `S.integer K` a localization.
+    Layers 5.1 and 8; ⚠ **5.1 consumed 6.5 as the full lattice it is**: the one thing Lemma 7.5.4
+    needs is that every trace-zero vector is within a bounded distance of the `S`-logarithmic
+    image, which is `IsZLattice` plus a fundamental domain, and the `S`-regulator itself is never
+    named. It also needed one new lemma there, `NumberField.SUnit.mem_unitLattice_iff`, because
+    the module system hides the body of `unitLattice`. And **Layer 0.3**, which is where the
+    dependence on `ArithmeticHeights` begins: 6.4 *is* 0.3's membership dictionary, 6.5's product
+    formula *is* 0.3's in logarithmic form, and 6.5's `NumberField.exists_mem_asIdeal_iff_eq` — a
+    nonzero algebraic integer lying in one prime and in no other, the one use either layer makes
+    of the finiteness of the class group — supplies the denominators that make `S.integer K` a
+    localization.
+
+⚠ **5.5 consumes nothing from `ArithmeticHeights`, and it is the only landed layer of 5 that
+does not.** The grid lemma and the small point are statements about a polynomial over a field of
+characteristic zero with no height, no place and no lattice in them; what they consume beyond
+Mathlib is Layer 2.1 — the several-variable Hasse derivative and its substitution formula — and
+Layer 5.2's multidegrees. Mathlib supplies the rest, and the one-variable case is `Polynomial`'s
+own `roots`, `rootMultiplicity` and `taylor`.
 
 ### Not owned here
 
@@ -343,8 +431,8 @@ successive minimum used below is consumed from there by milestone number and non
   7.3.9) is an application of Layer 6.4 to a basis of a Riemann–Roch space. The Riemann–Roch
   theory belongs to [`AlgebraicCurves`](../AlgebraicCurves/README.md), and the
   [`EllipticCurves`](../EllipticCurves/README.md) roadmap records Siegel's theorem as out of its
-  scope for want of exactly the approximation theorem built here. Layer 6.4 is stated so that
-  either can consume it; the curve-side argument is not in this roadmap.
+  scope for want of exactly the approximation theorem built here. Layer 6.4 **is landed** and is
+  stated so that either can consume it; the curve-side argument is not in this roadmap.
 - **Tori and the Mordell–Lang circle**: Laurent's theorem (Bombieri–Gubler 7.4.7), unit equations
   over an arbitrary field of characteristic zero by specialization, linear recurrences and the
   Skolem–Mahler–Lech theorem. Layer 8.2 is stated over a number field, for `S`-units and for
@@ -472,11 +560,18 @@ the rest are the difference between a theorem a consumer can apply and one they 
   `ClassGroup.mk0_surjective` and `Ideal.finite_factors` are what it consumes to do so.
 - **Polynomials.** `Polynomial.hasseDeriv` with its Leibniz and Taylor API
   (`Mathlib/Algebra/Polynomial/HasseDeriv.lean`, `…/Taylor.lean`); `MvPolynomial.pderiv`;
-  `MvPolynomial.IsHomogeneous` and `degreeOf`; `Polynomial.wronskian` for **two** polynomials
+  `MvPolynomial.IsHomogeneous`, `MvPolynomial.IsWeightedHomogeneous` — which Layer 5.2's
+  multidegree is an instance of, for the weight `Pi.single h 1` — and `degreeOf`;
+  `MvPolynomial.divMonomial` and `MvPolynomial.modMonomial`, which are Layer 5.3's "divide out
+  the largest power of a variable"; `Polynomial.wronskian` for **two** polynomials
   (`Mathlib/RingTheory/Polynomial/Wronskian.lean`, built for Mason–Stothers);
   `Polynomial.rootMultiplicity`; `Polynomial.gaussNorm`.
 - **Siegel's lemma over `ℤ`.** `Int.Matrix.exists_ne_zero_int_vec_norm_le`. Layers 2.5 and 5.2 do
   not use it directly; they use the number-field forms `ArithmeticHeights` builds on top of it.
+- **Heights of products of tuples.** `Height.mulHeight_fun_prod_eq` — the height of the
+  multiplication table of a family of tuples is the product of their heights — and
+  `Height.mulHeight_comp_le`, monotonicity under re-indexing. Layer 5.3's `h(M̃) ≥ h(M)/n` is
+  those two and nothing else.
 - **Exterior powers and geometry of numbers**, as inventoried in `ArithmeticHeights`:
   `⋀[R]^n M`, `exteriorPower.ιMulti`, `Module.Basis.exteriorPower`, the pairing with the dual;
   `ZLattice`, `ZLattice.covolume`, `NumberField.mixedEmbedding`.
@@ -1659,7 +1754,7 @@ and this is where that shows up.
 
 ### Layer 3: Roth's theorem
 
-**3.1 Approximation classes** (Bombieri–Gubler 6.4.2–6.4.4; reused at 7.5.6) — **landed**. For a
+**3.1 Approximation classes** (Bombieri–Gubler 6.4.2–6.4.4) — **landed**. For a
 finite index set `A` and a family of maps `φ a : X → [0, 1]` with `∑ a, φ a x ≤ 1`, the partition
 of `X` by the cell of side `1/N` containing `(φ a x)_a`: the number of nonempty cells is at most
 `(N + |A|).choose |A|` (Lemma 6.4.3) — `Set.ncard_image_cellIndex_le`, and the count of *labels*
@@ -1668,7 +1763,8 @@ every `N`, `Set.Infinite.exists_cellIndex_eq`. With it: `(L, M)`-**independent**
 `h(β 0) ≥ L` and `h(β (j + 1)) ≥ M h(β j)`, exist inside every infinite subset of `K`, by
 Northcott — `NumberField.exists_isHeightIndependent`, and the two reductions together are
 `NumberField.exists_cellIndex_eq_and_isHeightIndependent`. Stated once, abstractly, because
-Layers 3.2, 3.7 and 5.1 each use it for a different family `φ`. In
+Layers 3.2 and 3.7 each use it for a different family `φ`. ⚠ **5.1 does not use it**: its cells
+are cells of a cube, not of the simplex; see 5.1. In
 `DiophantineApproximation/{ApproximationClass,IndependentHeights}.lean`.
 
 ⚠ **Lemma 6.4.3 is an equality, and the slack is a coordinate.** The book writes "the number of
@@ -2341,7 +2437,10 @@ but the last are at most `1`, and the last is at least a constant times `μ k / 
 book's (7.41)), so the last minimum to the power `d (n + 1)(n + 1 − R)` is at least a constant times
 `Q ^ (−weight)`, a positive power of `Q` for negative weight
 (`NumberField.exists_successiveMinimum_wedge_pow`). What Step IX adds — the minima between
-`Q ^ (−C)` and `Q ^ C`, rounding the wedge exponents to a grid, 5.6 in `⋀^p` — belongs to 6.1.
+`Q ^ (−C)` and `Q ^ C`, rounding the wedge exponents to a grid, 5.6 in `⋀^p` — belongs to 6.1 and
+is landed there. ⚠ 6.1 uses the *weight* of the wedge domain and not its last minimum, so of the
+two conclusions of Lemma 7.5.31 only `rpow_approxWeight_wedgeExponent_le` is consumed; the
+packaged `exists_successiveMinimum_wedge_pow` records the book's own form.
 
 ⚠ **The exterior power is read in coordinates, and its determinant is never computed.** 6.1 applies
 4.2, 4.3 and 5.6 to domains in `⋀^p Kⁿ⁺¹`, and those live on `κ → K`, so the wedge of forms is a
@@ -2385,115 +2484,622 @@ Bombieri–Gubler's Theorem 7.5.13 — the Subspace Theorem under the extra hypo
 penultimate minimum is small — by the Roth machinery of Layer 2 in multihomogeneous form.
 Coefficients in `K` throughout, as in Layer 4.
 
-**5.1 Reductions** (Bombieri–Gubler, Theorem 7.2.6, Lemma 7.5.4, Corollary 7.5.5, 7.5.6).
-*Projective to affine:* by 0.3, after enlarging `S₀` every projective solution has a primitive
-`S₀`-integral representative, for which `mulHeight x` equals the product of the local sup norms
-over the infinite places and `S₀`. *Unit normalization* (Lemma 7.5.4): a primitive `x` has an
-`S₀`-unit multiple `u • x` whose **affine** height (`ArithmeticHeights` 0.5) exceeds the
-projective height of `x` by at most a constant depending on `K` and `S₀`, because the
-`S₀`-logarithmic image of the `S₀`-units is a full lattice in the trace-zero hyperplane
-(`ArithmeticHeights` 6.5); consequently (Corollary 7.5.5) each `log (v (L v i (u • x)))` is
-`O(h(x))`, from 0.4. *Classes* (7.5.6): by 3.1, every solution of the inequality of 6.2 with no
-`L v i x = 0`, so normalized, lies in `approxDomain S₀ L c (mulHeight x)` for one of finitely
-many exponent systems `c` on a grid of mesh `1/N`, each of weight at most `−ε/2`.
+**5.1 Reductions** (Bombieri–Gubler, Theorem 7.2.6, Lemma 7.5.4, Corollary 7.5.5, 7.5.6) —
+**landed**, in `DiophantineApproximation/UnitNormalization.lean` and
+`DiophantineApproximation/SubspaceReduction.lean`. *Projective to affine:* by 0.3, after enlarging
+`S₀` every nonzero point has a **primitive** multiple — one whose local sup norms are `1` at every
+finite place outside `S₀` — (`NumberField.exists_finset_superset_forall_exists_iSup_eq_one`), and
+the height of a primitive point is the product of its local sup norms over the infinite places and
+`S₀` (`NumberField.mulHeight_eq_prod_of_forall_iSup_eq_one`). *Unit normalization* (Lemma 7.5.4):
+a primitive `x` has an `S₀`-unit multiple `u • x` whose **affine** height (`ArithmeticHeights` 0.5)
+exceeds the projective height of `x` by at most a constant depending only on `K` and `S₀`
+(`NumberField.exists_forall_logHeightAff_smul_le`), because the `S₀`-logarithmic image of the
+`S₀`-units is a full lattice in the trace-zero hyperplane (`ArithmeticHeights` 6.5) —
+`NumberField.SUnit.exists_forall_abs_log_sub_le`. Consequently (Corollary 7.5.5) the value of every
+form at the normalized point has height `h(x) + O(1)`
+(`NumberField.exists_forall_logHeight₁_apply_smul_le`), so by 0.4 at one place each
+`log (v (L v i (u • x)))` is `O(h(x))`, the book's (7.19) —
+`NumberField.InfinitePlace.abs_mult_mul_log_le_logHeight₁`. *Classes* (7.5.6): every solution of
+the inequality of 6.2 with no `L v i x = 0`, so normalized, lies in
+`approxDomain S₀ L c (mulHeight x)` for one of finitely many exponent systems `c` on a grid of
+mesh `1/N`, each of weight at most `−ε/2` —
+`NumberField.exists_finset_forall_exists_smul_mem_approxDomain`. The three together, with the
+enlargement of the places and the coordinate forms at the added ones, are
+`NumberField.exists_forall_approxProd_le_imp`, which is what 6.2 consumes.
 
-**5.2 The multihomogeneous auxiliary polynomial** (Bombieri–Gubler 7.5.14, Lemma 7.5.15). For
-`m` blocks of variables `X h : ι → K` and a multidegree `d : Fin m → ℕ`, the space of
-multihomogeneous polynomials of multidegree `d`, of dimension `∏ h, (d h + n).choose n`; the
-expansion of `hasseDeriv I P` in the monomials `∏ h, ∏ i, (L v i (X h)) ^ (J h i)` for each `v`,
-with coefficients `a(L v; J; I)`; and the lemma: for `0 < η ≤ 2/(n+1)` and
-`m ≥ 4 log (2 (n+1) |S|) / ((n+1)(n+2) η²)` there are constants `C₂`, `C₃` depending only on `K`
-and the forms such that for all sufficiently large `d` there is a nonzero `P` of multidegree `d`
-with `h(P) ≤ C₂ ∑ d h`, `h(a(L v; ·; I)) ≤ C₃ ∑ d h`, and `a(L v; J; I) = 0` for every `v`
-whenever `∑ h, (∑ i, I h i) / d h ≤ m η` and some `i` has `∑ h, J h i / d h` outside
-`(m/(n+1) − 2 m η, m/(n+1) + 2 n m η)`. Route: `ArithmeticHeights` 5.7 with the third estimate
-of 2.5. With coefficients in `K` the book's `r = [F : K]` is `1` and its relative Siegel lemma is
+⚠ **The unit normalization is balanced, and its constant does not depend on `n`.** The book picks
+one nonzero coordinate `x 0` and asks the unit to make `|u x 0|_v` at least `e^(−C)` at every
+`v ∈ S`; the target of the lattice approximation here is the trace-zero vector
+`(mult v / D) h(x) − mult v log |x|_v`, with `D` the number of places of `S` counted with
+multiplicity, so every place is handled at once, no coordinate and no distinguished infinite place
+is chosen, and summing the positive parts gives `h_aff(u x) ≤ h(x) + R |S|` with no case
+distinction. The constant is quantified **before** the index type, which is the book's "depending
+only on `S` and `K`". ⚠ Without the unit the lemma is false for every constant: over `ℚ` with
+`S₀` the `2`-adic place the one-point tuples `(2 ^ k)` are primitive, of projective height `1` and
+affine height `2 ^ k`.
+
+⚠ **Corollary 7.5.5 needs no independence of the forms.** The book compares `h_aff(L v (x))` with
+`h_aff(x)` in both directions, which is where the independence of `L v` enters; only the upper
+bound is needed, and it is the height of the single number `L v i x` against the affine height of
+`x` (`ArithmeticHeights` 0.5, `Height.logHeight₁_sum_mul_le`). The two-sided bound on
+`log v (L v i x)` is then the fundamental inequality of 0.4 applied at one place to that single
+nonzero number, and it is sharp: at the `2`-adic place of `ℚ`, `|log |2|₂| = log H(2)`.
+
+⚠ **The classes of 7.5.6 are cells of a cube, and reuse nothing from 3.1.** Layer 3.1's cells index
+points of the unit **simplex**, because in Roth's theorem every local factor is at most `1`; the
+exponents `log v (L v i y) / log H(x)` of 7.5.6 have both signs and are merely bounded, by
+Corollary 7.5.5, so the classes are the cells of edge `1/N` of the cube `[−2, 2]`, as the book says
+in 7.5.6 itself, and their finiteness is that of a set of functions supported on finitely many
+places with values in a finite grid. The book's pigeonhole along an infinite sequence of solutions
+is not needed either: the statement proved is parametric in the solution, as 4.3's was.
+
+⚠ **A level `Q₀` is part of the statement, and the kernels are not avoided.** The weight of the
+class is `log (approxProd y · H(x) ^ n) / log H(x) + n D / N ≤ −ε + ε/2`, and the exponents lie in
+`[−2, 2]`, only once `log H(x)` exceeds the constant of Corollary 7.5.5; the solutions of small
+height are 6.2's business, and — as 6.2 found — they are *not* finite in number, only finite in
+number projectively, so what 6.2 adds for them is a line and not a point. A point on the kernel of some
+`L v i` meets that condition of a domain at **every** exponent, so it could be given a very
+negative one, but nothing then bounds the other exponents — `approxProd` vanishes and says nothing
+— and, as in the book, those points are left to 6.2, which puts them in the kernels.
+
+⚠ **The enlargement of `S₀` and the missing infinite places carry the coordinate forms.** Their
+local factor `∏ᵢ |x i|_v / |x|_v` is at most `1`, so the inequality of 6.2 survives both
+enlargements (`NumberField.approxProd_le_approxProd_of_subset`,
+`NumberField.prod_proj_div_iSup_le_one`), and they are linearly independent, which is what 4.1's
+domains and 6.1 need at every infinite place. This is the one place where an infinite place and a
+finite place have to be told apart as absolute values.
+
+⚠ **Three acceptance tests.** The unit is load-bearing (the `(2 ^ k)` above); the height identity
+is load-bearing (over `ℚ` with `S₀ = ∅` the point `(2, 2)` has height `1` and sup-norm product `2`,
+because it is not primitive at `2`); and the bound (7.19) is sharp.
+
+**5.2 The multihomogeneous auxiliary polynomial** (Bombieri–Gubler 7.5.14, Lemma 7.5.15) —
+**landed**, in `DiophantineApproximation/MultiHomogeneous.lean`,
+`DiophantineApproximation/MonomialDeviation.lean` and
+`DiophantineApproximation/SubspaceAuxiliary.lean`. For `m` blocks of variables `X h : ι → K` and a
+multidegree `d : κ → ℕ`, the multihomogeneous polynomials of multidegree `d`
+(`MvPolynomial.IsMultiHomogeneous`), whose monomials are `MvPolynomial.multiMons d`, a product
+over the blocks of the monomials of one degree (`MvPolynomial.card_multiMons`), so of dimension
+`∏ h, (d h + n).choose n`; the change of coordinates `X (h, j) ↦ ∑ i, A j i • X (h, i)`
+(`MvPolynomial.blockSubst`), under which the expansion coefficients `a(L v; J; I)` of 7.5.14 are
+the coefficients of `blockSubst (A v)⁻¹ (hasseDeriv I P)`; and the lemma
+(`MvPolynomial.exists_ne_zero_isMultiHomogeneous_forall_coeff_blockSubst_hasseDeriv_eq_zero`):
+for `0 < η` and `4 log (2 (n+1) |S|) < (n+1)(n+2) η² m` there are constants `C₂`, `C₃` and a
+degree threshold `D₀` such that for every `d` with `D₀ ≤ d h` for all `h` there is a nonzero `P`
+of multidegree `d` with `h(P) ≤ C₂ ∑ d h`, `h(a(L v; ·; I)) ≤ C₃ ∑ d h`, and `a(L v; J; I) = 0`
+for every `v` whenever `∑ h, (∑ i, I h i) / d h ≤ m η` and some `i` has `∑ h, J h i / d h`
+outside `(m/(n+1) − 2 m η, m/(n+1) + 2 n m η)`. Route: `ArithmeticHeights` 5.5 — Siegel's lemma in
+height form — applied to the matrix whose rows are the conditions and whose columns are
+`multiMons d`, with the counting of the omitted monomials supplied by a Chernoff bound over the
+blocks. With coefficients in `K` the book's `r = [F : K]` is `1` and its relative Siegel lemma is
 the absolute one.
 
+⚠ **The book's volume computation is avoidable, and so is most of its "sufficiently large `d`".**
+Bombieri–Gubler estimate the number of monomials whose exponent of one variable is small by the
+volume of a region and then majorize the characteristic function by an exponential, truncating a
+MacLaurin series, which forces `0 < λ ≤ n + 4`. The exponential moment is *exact* on the lattice:
+the uniform distribution on the monomials of degree `N` in `n + 1` variables has `E[j i] = N/(n+1)`
+and `E[binom (j i) 2] = N(N−1)/((n+1)(n+2))` — two binomial identities, proved here from an
+upper-index Vandermonde convolution — and `exp (−t) ≤ 1 − t + t²/2`, valid for every `t ≥ 0`,
+turns them into the book's bound with one explicit error term `λ²/(2N(n+1))`. The restriction on
+`λ` disappears and `d` has to be large only to make that term small. `1 ≤ n` is load-bearing in the
+moment identity: the convolution splits off the variable `i` and counts the remaining `n`, which
+is the wrong thing at `n = 0`.
+
+⚠ **The chain rule is the whole content of the vanishing statement.** The coefficient
+`a(L v; J; I)` is *not* `binom (J + I) I · a(L v; J + I; 0)`: the book differentiates in the
+original coordinates and expands in the transformed ones, so a coefficient of `∂_I P` is a
+combination, over all orders with the same block degrees, of coefficients of `P` read in the
+transformed coordinates. `MvPolynomial.coeff_blockSubst_hasseDeriv_eq_zero` proves exactly what is
+needed by induction on the order and never names the combination. It needs **characteristic
+zero**, because `hasseDeriv_comp` produces a positive integer factor that has to be inverted.
+
+⚠ **The conditions imposed are at order `0` only.** For each `v`, each coordinate `i` and each
+monomial `N` of multidegree `d` with `∑ h, N (h, i) / d h ≤ m/(n+1) − m η`, the condition is
+`(blockSubst (A v)⁻¹ P).coeff N = 0`. That this gives the vanishing at every small order `I` and
+every `J` below `m/(n+1) − 2 m η` is where the factor `2` in the book's `2 m η` is spent:
+`N = J + I'` moves the threshold by at most `m η`.
+
+⚠ **The upper half of the book's interval is free.** A Hasse derivative of a multihomogeneous
+polynomial is multihomogeneous of multidegree `d h − ∑ i, I (h, i)`
+(`MvPolynomial.IsMultiHomogeneous.hasseDeriv`), so a nonzero coefficient has
+`∑ i, ∑ h, J (h, i) / d h = m − ∑ h, (∑ i, I (h, i)) / d h`. If one exponent exceeds
+`m/(n+1) + 2 n m η`, the remaining `n` average below `m/(n+1) − 2 m η`, and the lower half applies
+to one of those. This is the second place `n ≥ 1` is load-bearing.
+
+⚠ **The hypothesis on `m` is strict here.** The book's `m ≥ 4 log (2 (n+1) |S|) / ((n+1)(n+2) η²)`
+leaves no room for the error term of the Chernoff bound, which is positive for every `d`; the
+strict inequality creates a positive slack and `D₀` is chosen against it. Replacing `2 (n+1) |S|`
+by `4 (n+1) |S|` and keeping `≥` would do the same. ⚠ **And `η ≤ 2/(n+1)` is not needed**: the
+book uses it only to keep its interval inside `[0, m]`, and nothing in the proof does.
+
+⚠ **`C₂` and `C₃` depend on `m`, `S` and `η` here.** The book claims they depend only on `K` and
+the forms. That is true — the `m`-dependence is the `O(log d)` term `log #multiMons d`, which
+could be absorbed into `D₀` — but Layer 5.6 fixes `m` before it uses `C₂`, so nothing downstream
+needs the stronger form and the crude bound `log #multiMons d ≤ #ι · ∑ h, d h` keeps the height
+estimate linear.
+
+⚠ **Mathlib's finiteness of the nonarchimedean local factors is private.** `Height.mulHeight` is a
+`finprod` over the nonarchimedean absolute values, and that the local factors of a nonzero tuple
+differ from `1` at only finitely many of them is a `private lemma` there. It is reproved as
+`Height.hasFiniteMulSupport_iSup`; `fun_prop` cannot be used for it across the module boundary,
+because it would have to name the private lemma. ⚠ And only the `≤` direction of the height
+transport is available: `Finsupp.mulHeight_le_of_forall_iSup_le` needs *equality* at the
+nonarchimedean places, so the archimedean product and the nonarchimedean `finprod` are compared
+separately (`Height.mulHeight_le_pow_mul_mul_pow`).
+
 **5.3 The index along linear forms and the generalized Roth lemma** (Bombieri–Gubler, Definition
-7.5.17, 7.5.18, Lemma 7.5.19). For nonzero linear forms `M h` in the `h`-th block, the ideal
-`I(t; d; M)` generated by the monomials `∏ h, (M h (X h)) ^ (j h)` with `∑ h, j h / d h ≥ t`, and
-`ind(P; d; M) = sup {t | P ∈ I(t; d; M)}`, with the valuation properties of 2.3 and agreement
-with 2.3 for `n = 1`, `M h = X h 1 − α h X h 0`. Then: if `P` is multihomogeneous and nonzero of
+7.5.17, 7.5.18, Lemma 7.5.19) — **landed**, in `DiophantineApproximation/FormIndex.lean`,
+`DiophantineApproximation/FormSpecialization.lean` and
+`DiophantineApproximation/GeneralizedRothLemma.lean`. For nonzero linear forms `M h` in the
+`h`-th block, the ideal `I(t; d; M)` generated by the products `∏ h, (M h (X h)) ^ (j h)` with
+`∑ h, j h / d h ≥ t` (`MvPolynomial.formIdeal`), and
+`ind(P; d; M) = sup {t | P ∈ I(t; d; M)}` (`MvPolynomial.formIndex`), with the valuation
+properties of 2.3 (`MvPolynomial.formIndex_eq_top_iff`, `MvPolynomial.le_formIndex_add`,
+`MvPolynomial.formIndex_mul`) and agreement with 2.3 for `n = 1`, `M h = X h 1 − α h X h 0`
+(`MvPolynomial.formIndex_eq_index_deHom`). Then
+(`MvPolynomial.formIndex_le_of_degree_ratio`): if `P` is multihomogeneous and nonzero of
 multidegree at most `d`, `0 < σ ≤ 1/2`, `d (h+1)/d h ≤ σ`, and
 `n σ⁻¹ (h(P) + 4 m d 0) ≤ d h · h(M h)` for all `h`, then
-`ind(P; d; M) ≤ 2 m σ ^ ((1/2)^(m−1))`. By specializing all but two variables of each block to
-`0` without killing `P`, losing at most the factor `n` in `h(M h)`, and applying 2.7.
+`ind(P; d; M) ≤ 2 m σ ^ ((1/2)^(m−1))`. Route: specialize all but two variables of each block to
+`0` without killing `P` (`MvPolynomial.exists_elimination`), losing at most the factor `n` in
+`h(M h)` (`Height.exists_logHeight_le_mul_logHeight₁_div`), dehomogenize
+(`MvPolynomial.deHom`), and apply 2.7.
 
-**5.4 The height of `V(Q)` and the exceptional subspaces** (Bombieri–Gubler, Lemma 7.5.21). For
-the domains of 4.1 with `c` of weight at most `−ε/2` there are a **finite set** `𝒲` of
-`n`-dimensional subspaces of `Kⁿ⁺¹`, depending only on the forms, and constants `C₄`, `C₅`,
-`C₆` depending only on `K`, `S₀`, the forms and `c` and **not on `Q`**, such that for every `Q`
-with `log Q ≥ C₄ ε⁻¹` and rank `n`, either `V(Q) ∈ 𝒲` or
-`(4 |S|)⁻¹ ε log Q − C₅ ≤ h(V(Q)) ≤ n c_max |S| log Q + C₆`, where `h(V(Q))` is the height of a
-subspace of `ArithmeticHeights` 3.2 — equivalently, by its duality theorem 3.5, the height of a
-linear form cutting out `V(Q)`. The displayed constants are the book's, in its absolute
-normalization; in Mathlib's they change by factors of `d`, and what Layer 5.6 uses is that the
-lower bound is a positive multiple of `ε log Q` and that nothing depends on `Q`. Route: the upper bound is Hadamard's inequality
-for `y 1 ∧ ⋯ ∧ y n`; the lower bound is 0.4 applied to a nonvanishing
-`L̂ v k ((y 1 ∧ ⋯ ∧ y n)^*)`, which Laplace's identity (4.5) expresses as a determinant of the
-small numbers `L v i (y j)`; when no admissible choice of nonvanishing `L̂ v (i v)` exists, the
-vector `(y 1 ∧ ⋯ ∧ y n)^*` is annihilated by the forms `L̂ v i` with `i` outside certain sets
-`I v`, and `V(Q)` is then the kernel of a solution `w` of that system fixed in advance. ⚠ The
-book says "a linear space `W`"; its proof fixes one `w` for each pattern `(I v)_v`, and the
-pattern can change with `Q`, so the true statement has one exceptional subspace **per pattern** —
-finitely many, all determined by the forms. A formal statement with a single `W` is not what the
-proof gives. ⚠ Without the exceptional alternative the lower bound is false.
+⚠ **The index along the forms is a weighted order, and the ideal is mentioned twice.** Choosing
+in each block a coordinate `i₀ h` at which `M h` does not vanish and solving `M h = X (h, i₀ h)`
+for that one variable (`MvPolynomial.substForm`, `MvPolynomial.substFormInv`) turns `I(t; d; M)`
+into a **monomial** ideal, and membership in a monomial ideal is a condition on each monomial
+separately. So the index along the forms is the weighted order of 2.3 in the transformed
+coordinates, for the weights that see only the coordinates `i₀ h`, and every property of it is a
+property of that order. A weight of `0` on the other variables is what makes this work: 2.3's
+weighted order allows one and makes the variable invisible to the order rather than infinite.
+The ideal stays in the *definition* because it is the book's, and because it is what makes the
+index visibly independent of the choice of `i₀`.
 
-**5.5 Non-vanishing at a small point** (Bombieri–Gubler, Lemmas 7.5.24 and 7.5.25). *The grid
-lemma:* a nonzero `f : MvPolynomial (Fin N) k` over a field of characteristic zero, with
-`degreeOf j f ≤ e j`, and `B > 0`: there are integers `z j` with `|z j| ≤ B` and orders
-`i j ≤ e j / B` with `(hasseDeriv i f)(z) ≠ 0`. *The small point:* if `hasseDeriv I P` does not
-vanish identically on `V(Q 1) × ⋯ × V(Q m)`, each of rank `n` with a basis `y h l` in the domain
-of level `Q h`, then some `hasseDeriv I' P`, with the order of `I'` exceeding that of `I` by at
-most `m n / B` in the weighted sense, is nonzero at a point `x h = ∑ l, z h l • y h l` with
-integers `|z h l| ≤ B`; with `B = 2 n / η` this is the polynomial `T` of Lemma 7.5.25, with its
-four properties (a)–(d).
+⚠ **The change of coordinates is a row replacement, not a matrix.** 5.2's `blockSubst` applies
+one matrix to every block, which is what the Subspace Theorem's forms need; here the forms
+differ from block to block and only one row of each block is touched. Written directly as
+substitutions, `substForm` and `substFormInv` are mutually inverse in four lines on the
+generators — no family of matrices, no determinant and no matrix inverse.
 
-**5.6 The penultimate-minimum theorem** (Bombieri–Gubler, Theorem 7.5.13, Steps IV and VI). For
-forms with coefficients in `K` and `c` of negative weight, the set of subspaces
-`{V(Q) | 1 ≤ Q, rank = n}` is finite. Route: otherwise, by Northcott for subspaces
-(`ArithmeticHeights` 3.7) and 5.4, there are `V(Q 1), …, V(Q m)`, none in `𝒲`, with
-`log Q 1` large and `log Q (h+1) ≥ 2 σ⁻¹ log Q h`; take `d h ≈ D / log Q h`, `P` from 5.2, and
-the forms `M h` cutting out `V(Q h)`, whose heights 5.4 controls; 5.3 gives a derivative of small
-order not vanishing on `∏ V(Q h)`, 5.5 a point `X'` of small height where a further derivative
-`T` does not vanish; bound `T(X')` above at each place of `S` by the vanishing pattern of 5.2
-and the inequalities defining the domains, and below by the product formula; let `D → ∞`.
+⚠ **The variables have to be specialized one at a time, and the forms truncated with them.**
+Dividing out the largest power of one variable and setting it to `0` is, on coefficients, a
+single shift — Mathlib's `MvPolynomial.divMonomial` followed by `MvPolynomial.modMonomial` —
+so the result has a *subfamily* of the coefficients of `P` and its height cannot go up. Taking
+the componentwise minimum of the exponents and slicing once instead does not work: `X 1 + X 2`
+has no monomial in which both exponents are minimal, and that slice is `0`. The composite of the
+steps *is* a single slice, at an exponent no direct formula produces. And setting a variable to
+zero commutes with the change of coordinates only after the coefficient of the form at that
+variable has been set to zero as well (`MvPolynomial.evalZeroAt_substFormInv`); going through
+the untruncated forms gives the inequality in the wrong direction.
+
+⚠ **Only half of the book's specialization claim is proved, and it is the half that is needed.**
+Bombieri–Gubler assert that the specialization leaves the index unchanged, which is true and
+needs the uniqueness of the decomposition of a polynomial in powers of the forms. What Lemma
+7.5.19 consumes is that the index does not *decrease*, and that needs nothing beyond the
+monomial-by-monomial description of the ideal.
+
+⚠ **"Partial degrees at most `d`" has to be read as multihomogeneity of multidegree at most
+`d`.** The dehomogenization `X (h, i₀ h) ↦ X h`, `X (h, i₁ h) ↦ 1` is injective on monomials
+only because the multidegree determines the second exponent from the first; without it the
+height could drop by cancellation and the index could jump. In one block with variables `x₀`,
+`x₁` and the form `M = x₁`, the polynomial `x₁ + x₀² − x₀` is not divisible by `M`, so its index
+along `M` is `0`, while its dehomogenization at `x₀ = 1` is `t`, whose index at `0` is `1`.
+
+⚠ **The second kept coordinate need not be one where the form survives.** The book arranges
+`b_{j1} ≠ 0` so as to have a genuine point `ξ j = −b_{j0}/b_{j1}`; here the point is
+`−M h (i₁ h)` whatever that is, and the hypothesis on the heights passes to 2.7 verbatim. The
+case `M h (i₁ h) = 0` cannot occur under that hypothesis — it would force `h(M h) = 0` against
+`h(P) + 4 m d 0 > 0` — but the proof never has to know it.
+
+⚠ **The factor `n` in `h(M̃ h) ≥ h(M h)/n` is the multiplication table.** After normalizing one
+nonvanishing coordinate to `1` (`MvPolynomial.formIndex_smul` says the index does not see the
+normalization, and the projective height of a form does not either), each local factor of the
+tuple is a maximum of numbers one of which is `1`, hence at most the product of the `n` local
+factors of the pairs; and the product of the heights of the pairs is the height of the tuple of
+all products of subsets, which is Mathlib's `Height.mulHeight_fun_prod_eq`. The tuple of ratios
+is a re-indexing of that table, so `Height.mulHeight_comp_le` finishes and no local inequality
+is transported by hand. ⚠ `n ≥ 1` is load-bearing and is used exactly once, as the nonemptiness
+of the set of coordinates other than `i₀ h`.
+
+**5.4 The height of `V(Q)` and the exceptional subspaces** (Bombieri–Gubler, Lemma 7.5.21) —
+**landed**, in `DiophantineApproximation/LinearFormValue.lean`,
+`DiophantineApproximation/SubspaceNormal.lean`,
+`DiophantineApproximation/SubspaceHeightBounds.lean` and
+`DiophantineApproximation/ExceptionalSubspace.lean`. For the domains of 4.1 with `c` of weight at
+most `−ε/2` there are a **finite set** `𝒲` of subspaces of `Kⁿ⁺¹`, depending only on the forms
+and on `S`, and constants `C₄`, `C₅`, `C₆` depending only on `K`, `S₀`, the forms and `c` and
+**not on `Q`**, such that for every `Q ≥ 1` with `log Q ≥ C₄ ε⁻¹` at which the domain has rank
+`n`, either `V(Q) ∈ 𝒲` or
+
+```text
+ε log Q / (4 |S|) − C₅  ≤  h(V(Q))  ≤  n (∑_{v ∈ S} d_v c_max(v)) log Q + C₆ ,
+```
+
+where `h(V(Q))` is the height of a subspace of `ArithmeticHeights` 3.2 and `|S|` counts the
+places of `S` **without** multiplicity — `NumberField.exists_finite_forall_logHeight_approxSpan`.
+The dichotomy is on the **pattern** of `V(Q)`: at each place of `S` the set `I v` of indices `i`
+for which the wedge of the forms `L v i'`, `i' ≠ i`, does not vanish at the Plücker point of a
+basis of `V(Q)` drawn from the domain; `k v` is the index of `I v` with the largest exponent, and
+the two branches are `∑_{v ∈ S} d_v c v (k v) ≥ −ε/4` or `< −ε/4`
+(`NumberField.weightAt`, `NumberField.cMax`).
+
+*Liouville for the value of a linear form* (`…/LinearFormValue.lean`): for tuples `a`, `z` with
+`∑ s, a s * z s ≠ 0`, at every place
+`(⨆ |a s|_v)(⨆ |z s|_v) ≤ #ρ^{[K:ℚ]} H(a) H(z) |∑ a s z s|_v`
+(`NumberField.InfinitePlace.iSup_mul_iSup_pow_mult_le`,
+`NumberField.FinitePlace.iSup_mul_iSup_le`), proved by dividing the tuple by the value — which
+leaves the height unchanged, and *that* invariance is the product formula — and reading off that
+every local factor of the normalized tuple is at least `(#t)⁻¹` at an infinite place and at least
+`1` at a finite one. With it: `NumberField.FinitePlace.hasFiniteMulSupport_iSup`, which Mathlib
+proves only for the `nonarchAbsVal` indexing and privately, and the two comparisons
+`NumberField.prod_le_finprod_of_one_le` and `NumberField.finprod_le_prod_of_le_one_outside`
+between a `finprod` over the finite places and a subproduct.
+
+*The normal vector* (`…/SubspaceNormal.lean`): a subspace of dimension `n` is the kernel of one
+vector, and the Plücker coordinate of a basis at the `n`-subset omitting `i`
+(`Set.powersetCard.omitOne`) vanishes exactly when the `i`-th coordinate of that vector does
+(`Submodule.exists_normal`). Beside it `Submodule.exists_linearIndependent_fin`, the extraction of
+a basis of a rank-`n` span from the set it is spanned by; `exteriorPower.plucker_pi_apply`, that
+the Plücker coordinates of the family transformed by a system of forms are the values of the
+wedges of the forms at the Plücker point — a transpose away from Laplace's identity;
+`exteriorPower.wedgeFormCoeff` and `wedgeCoeff_ne_zero`; and `exteriorPower.apply_plucker_le` with its
+transformed and nonarchimedean companions.
+
+*The two bounds* (`…/SubspaceHeightBounds.lean`):
+`NumberField.exists_one_le_forall_mulHeight_plucker_le` is the upper bound, through
+`LinearMap.exists_inverse_forms` — an independent system of `#ι` forms is invertible — and
+`NumberField.mulHeight_plucker_le_prod`, that the height of an `S`-integral tuple is at most the
+product of its local factors over `S`. `NumberField.exists_pos_forall_prod_le` is the lower bound
+over all of `S`, `NumberField.prod_apply_plucker_pi_le` the upper bound on the same product from
+the domain. `Finset.exists_pos_forall_le` and `Finset.exists_one_le_forall_le` are the device
+that makes every constant uniform over a finite family, and therefore independent of `Q`.
+
+*The exceptional subspaces* (`…/ExceptionalSubspace.lean`): `NumberField.patternSpace`,
+`NumberField.mem_span_vec_of_normal`, `NumberField.one_le_mul_rpow_weightAt` — the product formula
+against the bounds at `S` — and `NumberField.exists_finite_forall_mem_of_weightAt_lt`. Two
+elementary tools live there: `exists_smul_eq_of_forall_dotProduct_eq_zero`, that vectors with
+nested kernels are proportional, and `NumberField.exists_smul_apply_le_one`, that every tuple has
+a nonzero multiple integral at every finite place.
+
+⚠ **The book's bound on the height of a wedge value is false as stated, and the true one is
+stronger.** Bombieri–Gubler bound `h(D_{vi}) = h(L̂_{vi}(w))`, the height of a single number, by
+`h(V(Q)) + C₇`. The left-hand side changes when `w` is rescaled and the right-hand side does not,
+so no constant can repair it: over `ℚ` the vector `w = (N, 0)` has `h(V) = 0` and `h(w_0) = log N`.
+What Step III needs is the product-formula inequality above, between the **local factor** of the
+Plücker point and its **projective** height. It is also stronger than what the book extracts:
+summing it over `S` costs `|S| − 1` powers of `h(V(Q))` and not `|S|`, because the local factors
+of an `S`-integral tuple over the places of `S` multiply to at least its height. The statement is
+recorded in the book's form because the constant is existential and `h(V(Q)) ≥ 0`.
+
+⚠ **The counterexample is machine-checked.** `…/LinearFormValue.lean` ends with an acceptance
+test over `ℚ`: the tuple `![N, 0]` has projective height `1` for every nonzero `N`, while the
+value `N` of the first coordinate form has height `|N|`.
+
+⚠ **There is one exceptional subspace per pattern, and the book's "a linear space `W`" is not
+what its proof gives.** The system the book solves depends on the pattern `(I_v)`, and the
+pattern moves with `Q`; its proof fixes one solution *per pattern*. There are finitely many
+patterns — a function from the places of `S` to the subsets of `ι` — so finitely many exceptional
+subspaces, which is all Step IV consumes. ⚠ Without the exceptional alternative the lower bound
+is false.
+
+⚠ **The exceptional system is an intersection of spans of coefficient vectors, and no star
+operator appears.** Read in the original coordinates, `L̂_{vi}(w) = 0` for `i ∉ I_v` says exactly
+that `w` lies in the span of the coefficient vectors of the forms `L v i` with `i ∈ I_v`. That
+description is manifestly independent of `Q`, it hands the estimate its coefficients
+(`w ⬝ᵥ x = ∑_{i ∈ I_v} β_i L v i (x)`, each term small because `x` is in the domain), and it needs
+no Hodge star, no adjugate and no Laplace expansion of an `(n+1) × (n+1)` determinant. Nothing in
+5.4 expands a cofactor.
+
+⚠ **That the pattern of `V(Q)` is the pattern of its normal vector is `ArithmeticHeights` 3.5 at
+the ranks `n` and `1`.** `Submodule.exists_normal` is Plücker duality read where the annihilator
+is a line and its one Plücker coordinate is a coordinate. Applying it to the family transformed by
+the forms at `v` turns "the wedge omitting `i` kills the Plücker point" into "the `i`-th
+coordinate of the normal vector of the transformed subspace vanishes", and the two normal vectors
+are proportional because their kernels agree — which is `exists_smul_eq_of_forall_dotProduct_eq_zero`
+and not a dimension count of an annihilator.
+
+⚠ **The chosen exceptional vector has to be scaled into the integers, and that is a scaling, not a
+normalization.** Multiplying by a common denominator makes a vector integral at *every* finite
+place, and only then is `|w ⬝ᵥ x|_v ≤ 1` outside `S`, which is what confines the product formula
+to `S`. Scaling changes neither the kernel nor the pattern, so nothing else is re-proved; no unit
+and no `S`-class group enters, unlike in 5.1.
+
+⚠ **`n ≥ 1` is not needed.** In rank `0` the single `n`-subset is the empty one, every wedge is
+the empty product `1`, the pattern is full, `k v` is the only index, the weight along `k` *is* the
+weight of the exponents, and the hypothesis `weight ≤ −ε/2` puts every level in the exceptional
+branch. The statement is then vacuously true there and the proof never divides by `n`.
+
+⚠ **The constants are the book's in its absolute normalization and not in Mathlib's.** `|S|` here
+counts the places of `S` without multiplicity, because the local degrees `d_v` sit inside the
+local factors; correspondingly the upper bound reads `n ∑_{v ∈ S} d_v c_max(v)` where the book
+reads `n c_max |S|`. What 5.6 uses is that the lower bound is a positive multiple of `ε log Q` and
+that nothing depends on `Q`, and both survive the change of normalization.
+
+**5.5 Non-vanishing at a small point** (Bombieri–Gubler, Lemmas 7.5.24 and 7.5.25) —
+**landed**, in `DiophantineApproximation/PolynomialGrid.lean` and
+`DiophantineApproximation/SmallPoint.lean`. *The grid lemma*
+(`MvPolynomial.exists_eval_hasseDeriv_ne_zero`): a nonzero `f : MvPolynomial σ k` over a field of
+characteristic zero, with `degreeOf j f ≤ e j`, and `B ≥ 1` — there are integers `z j` with
+`|z j| ≤ B` and an order `i` with `B * i j ≤ e j` such that `(hasseDeriv i f)(z) ≠ 0`. *The small
+point* (`MvPolynomial.exists_eval_hasseDeriv_add_ne_zero`): if `hasseDeriv I P` does not vanish
+identically on the product of the spans of families `y h l` — one family per block, as many
+vectors as one likes — then a further derivative `hasseDeriv (I + I') P`, with
+`B * ∑ i, I' (h, i) ≤ n * d h` in every block, is nonzero at the point
+`x h = ∑ l, z h l • y h l` with integers `|z h l| ≤ B`. With `B = 2 n / η` this is
+Bombieri–Gubler's (7.37) — `MvPolynomial.exists_eval_hasseDeriv_ne_zero_of_sum_div_le`: a
+derivative of weighted order at most `m η / 2` is replaced by one of weighted order at most `m η`
+that does not vanish at an explicit point, which is the polynomial `T` of Lemma 7.5.25. Route:
+one variable at a time, with the univariate case a count of roots.
+
+Beside them: `MvPolynomial.toPolynomial`, the specialization of every variable but one, with
+`MvPolynomial.natDegree_toPolynomial_le` and `MvPolynomial.eval_hasseDeriv_toPolynomial` — the
+only bridge between `Polynomial.hasseDeriv` and `MvPolynomial.hasseDeriv` the induction needs;
+`MvPolynomial.shift` and `MvPolynomial.coeff_shift`, the shift `X j ↦ X j + c j`, whose
+coefficients are the Hasse derivatives at `c`; and `MvPolynomial.linSubst`, the block-wise linear
+parametrization, with `MvPolynomial.eval_linSubst`, `MvPolynomial.shift_linSubst`,
+`MvPolynomial.IsMultiHomogeneous.linSubst` and
+`MvPolynomial.exists_coeff_ne_zero_of_coeff_linSubst_ne_zero`.
+
+⚠ **The one-variable grid lemma is a count of roots, not a divisibility.** Bombieri–Gubler argue
+that `f` cannot be divisible by `(∏_{|b| ≤ B} (x − b)) ^ (e/B + 1)`, whose degree exceeds `e`.
+Inside an induction on the variables that argument runs over a polynomial ring in the remaining
+variables, where what is known is that each factor `(x − b) ^ (e/B + 1)` divides `f` and what is
+wanted is that their product does — a unique-factorization statement over that ring. Counting
+roots **with multiplicity**, which
+`Polynomial.roots` already carries and `Polynomial.card_roots'` bounds by the degree, needs
+neither: each of the `2 B + 1` grid points is a root of multiplicity at least `e/B + 1`, and
+`(2 B + 1) (e/B + 1) > e`.
+
+⚠ **The induction on the variables never substitutes a variable.** What it carries is that the
+derivative taken so far does not vanish *identically on the affine subspace* on which the
+variables already handled sit at their grid values; the step specializes all the other variables,
+at an arbitrary point of the field, and applies the one-variable lemma to what is left. Carrying
+instead the substituted polynomial — the obvious formulation — would force a lemma commuting
+`hasseDeriv` past a partial substitution, and that lemma is never needed.
+
+⚠ **The chain rule is not needed either.** The book reads the derivative in the parameters back
+through the parametrization by the chain rule, "∂_J R is a linear combination of derivatives
+∂_{I'} P". What the argument consumes is only the *support* of that combination — that the orders
+occurring have the block degrees of `J` — and that is multihomogeneity: the parametrization takes
+a monomial of block degrees `(∑ i, μ (h, i))` to a polynomial multihomogeneous of the same
+multidegree. This is the same economy as 5.2's, where the expansion coefficients `a(L v; J; I)`
+were never written down.
+
+⚠ **The bridge between the two derivatives is the shift.** `MvPolynomial.coeff_shift` turns "the
+derivative of order `μ` does not vanish at `c`" into "the coefficient at `μ` of `P (X + c)` is
+nonzero", and the shift commutes with the parametrization (`MvPolynomial.shift_linSubst`). The
+two evaluations — one in the parameters, one in the original variables — thereby become two
+coefficient extractions from the *same* polynomial, and the proof is that identity.
+
+⚠ **Nothing in 5.5 knows about `V(Q)`, heights or places, and `n ≥ 1` is not needed.** The
+hypothesis is that the derivative does not vanish identically on the product of the spans of the
+*given* families, which is what `MvPolynomial.eval_linSubst` says the nonvanishing of the
+parametrized polynomial means; that those spans are the `V(Q h)` and that the families lie in the
+approximation domains is 5.6's business, and it is what turns `|z h l| ≤ B` into a height bound
+for the point. Properties (b), (c) and (d) of Lemma 7.5.25 are 5.2's conclusions read at the new
+order `I'` and are not restated. With no parameters at all the grid still has to contain a point,
+which is why `B` is `⌈2 n / η⌉ ⊔ 1`; the rounding costs the book's `|z h l| ≤ 2 n / η` an additive
+`1`, in a constant 5.6 does not look at.
+
+⚠ **The hypothesis that the `x j` be algebraically independent over `k` is the hypothesis that
+`f` lives in a polynomial ring**, and `B` is a natural number here where the book takes a positive
+real: `B * i j ≤ e j` is `i j ≤ e j / B` without a floor, and a caller with a real bound takes its
+ceiling.
+
+**5.6 The penultimate-minimum theorem** (Bombieri–Gubler, Theorem 7.5.13, Steps IV and VI) —
+**landed**, in `DiophantineApproximation/{LogComparison,FormIndexSubspace,SubspaceValueBound,
+SubspaceKeyInequality,PenultimateMinimum}.lean`. For forms with coefficients in `K`, independent
+at every place of `S`, and `c` of weight at most `−ε/2`, the set of subspaces
+`{V(Q) | 1 ≤ Q, rank Π(Q) = n}` is finite: `NumberField.finite_setOf_approxSpan`. Beyond a
+level every such `V(Q)` is one of 5.4's exceptional subspaces
+(`NumberField.exists_forall_approxSpan_mem`), and the levels below contribute finitely many
+spans by `NumberField.logHeight_approxSpan_le` — 5.4's upper bound restated without its
+hypothesis that `Q` be large — and Northcott for subspaces (`ArithmeticHeights` 3.7).
+
+The contradiction is `NumberField.exists_forall_not_chain`: there are `m`, `σ > 0` and `Qlow`
+such that no `m + 1` levels with `log Q h ≥ Qlow`, growing at the rate `2 σ⁻¹`, can all have
+rank `n` and height at least `ε log Q h / (4 |S|) − C₅`. Given such a chain, take
+`d h ≈ D / log Q h` — so the multidegrees decrease at the rate `σ` — let `P` be 5.2's auxiliary
+polynomial and `M h` the form cutting out `V(Q h)`, whose height 5.4 bounds below. Then 5.3 makes
+the index of `P` along the `M h` at most `2 (m+1) σ^((1/2)^m) = (m+1) η / 2`;
+`MvPolynomial.exists_linSubst_hasseDeriv_ne_zero_of_formIndex_le` turns that into a derivative
+`∂_I P` of weighted order at most `(m+1) η / 2` not vanishing identically on `∏ V(Q h)`; 5.5
+replaces it by `∂_{I'} P` of weighted order at most `(m+1) η` and a point
+`X (h, i) = ∑ l, z h l · y h l i` with `y h l` in the domain and `|z h l| ≤ ⌈2 n/η + 1⌉` at which
+it is nonzero. `NumberField.subspace_key_inequality` bounds that value above at every place of
+`S` and below by the product formula, giving
+
+```text
+0 ≤ tw · log ((∏ (d h + 1))² (2 (n+1) n)^|d|) + h(P) + 2 |d| ∑_θ log H₁(β θ)
+      + D (mean · w(c) + Δ · w(|c|)) + (∑ log Q h) · w(|c|),
+```
+
+with `mean = (m+1)/(n+1)` and `Δ = 2 n (m+1) η`; letting `D → ∞` against a fixed `m` closes it.
+
+Beside them: `Submodule.exists_basis_subset`, a spanning set contains a `Fin n`-indexed basis;
+`Submodule.logHeight_eq_logHeight_of_forall_dotProduct`, the height of a hyperplane is the height
+of its normal vector (the book's (7.28)); `NumberField.formMatrix` and `NumberField.refFamily`,
+the matrix of a system of forms and the family the product formula charges;
+`NumberField.approxAbsWeight`, the weight of the absolute values of a system of exponents;
+`MvPolynomial.zeroCoords` and `MvPolynomial.formCoordInv`, with
+`MvPolynomial.substFormInv_eq_linSubst`; and the five arithmetic lemmas of
+`NumberField.PenultimateMinimum`.
+
+⚠ **The chain rule is not needed a third time.** 5.3 measures the index in the coordinates in
+which the forms are the variables, and 5.5 wants a derivative in the original ones. The change of
+coordinates **is** a block-wise linear substitution (`MvPolynomial.substFormInv_eq_linSubst`), so
+5.5's own `MvPolynomial.shift_linSubst` and
+`MvPolynomial.exists_coeff_ne_zero_of_coeff_linSubst_ne_zero` transport a surviving coefficient
+between the two systems *with the same degree in every block*, which is exactly what makes the
+two weighted orders agree. After 5.2 and 5.5, this is the third place where the book invokes the
+chain rule and the third where only multihomogeneity is consumed.
+
+⚠ **The transverse part of a monomial is its own derivative order.** To turn "the coefficient of
+`substFormInv P` at `ν` is nonzero" into "some derivative does not vanish on the coordinate
+subspace", differentiate to the order `J = ν` restricted to the transverse coordinates. The
+binomial factor of `∂_J` is then a product of `choose k k` and `choose k 0`, hence `1`: no
+characteristic hypothesis is needed, only that `K` be infinite, for `MvPolynomial.funext`.
+
+⚠ **The vanishing pattern of 5.2 enters only as a two-sided bound.** Step VI consumes
+`|ρ j − mean| ≤ Δ` for the exponents `ρ j = ∑_h J (h, j)/d h` of every monomial that survives in
+every coordinate system; 5.2's interval `(m/(n+1) − 2 m η, m/(n+1) + 2 n m η)` is asymmetric, and
+`n ≥ 1` absorbs it into `Δ = 2 n (m+1) η`. Which end is wider is the caller's business, which is
+why 5.2 is not restated symmetrically.
+
+⚠ **Two invariants of the system of exponents, not one.** Besides `approxWeight`, which is
+negative, the estimate needs `approxAbsWeight = ∑_v d_v ∑_i |c v i| + ∑_{v ∈ S₀} ∑_i |c v i|`,
+because the local bound at `v` is `Q^{mean ∑ c v i}` only up to `Q^{Δ ∑ |c v i|}`. It is the
+quantity `η` is chosen against — `η ≤ ε / (8 (n+1)² (w(|c|) + 1))` — and it is the only place in
+the development where the size of the exponents rather than their sum enters.
+
+⚠ **`S` must contain every archimedean place, and that is where it is used.** Away from `S` the
+local bound carries no constant and the point is integral, so the product formula is applied with
+`Sinf = univ` (`NumberField.one_le_of_forall_apply_le`). This is the same convention as Layers 4
+and 5.4, and it is what makes the reference family finite.
+
+⚠ **The reference family is charged with exponent `2 |d|`.** The entries of the inverse matrices
+`(L v)⁻¹` and the integers `z h l` of the grid are bounded by the *same* product of truncated
+local factors `∏_θ max(v(β θ), 1)`, so one family `refFamily` carries both and the expansion of a
+value of `∂_{I'} P` costs `H(β)^{2|d|}` rather than two separate heights.
+
+⚠ **The heartbeat budget is per declaration, which is why the arithmetic is factored out.**
+`exists_forall_not_chain` constructs a dozen parameters before it can even state 5.3's
+hypothesis, and every `field_simp`, `positivity` and `linarith` on the way spends from the same
+200 000 heartbeats. The five lemmas of `NumberField.PenultimateMinimum` carry every inequality
+that has a division in it; inside the main proof only `linarith only` appears, on goals whose
+atoms are already in normal form. Raising `maxHeartbeats` would have been the other way, and this
+repository forbids `set_option` in library files.
+
+⚠ **The milestone is stated for `1 ≤ Q`, and the bounded range is covered separately.** 5.4
+states its dichotomy only for `log Q ≥ C₄/ε`, but its *upper* bound needs no such hypothesis;
+restating it for every level and appealing to Northcott makes the levels below the threshold
+contribute finitely many spans, which the book leaves to the reader. Layer 6.1, as landed, wants
+neither: it is stated for `Q ≥ Q₀` and uses 5.6 only through the wedge domains. The large-`Q`
+form, `NumberField.exists_forall_approxSpan_mem`, which names the finite set as 5.4's own `𝒲`, is
+there for a consumer that wants the threshold named.
 
 ### Layer 6: the Subspace Theorem (the summit)
 
 **6.1 The parametric Subspace Theorem** (Bombieri–Gubler 7.5.30–7.5.32, Steps VIII and IX;
-Evertse–Schlickewei for the formulation). For forms with coefficients in `K`, linearly
-independent at each place, and exponents `c` of negative weight, there are a finite set `T` of
-proper subspaces of `Kⁿ⁺¹` and `Q₀` such that for every `Q ≥ Q₀` the approximation domain
-`approxDomain S₀ L c Q` is contained in a member of `T`. Route: for rank `n` this is 5.6. For
-rank `R < n`, 4.5 turns an unbounded family of domains of rank `R`, along which `k` and the
-exponents of the wedge domain may be taken constant up to `γ` after a further use of 3.1, into
-domains in `⋀^{n+1−k}` of rank one less than the dimension and negative weight; 5.6 in that
-space makes their spans finite in number, and Lemma 7.5.33 recovers from each span the span of
-the first `k` minimal vectors of the original domain, which contains `V(Q)` and is proper
-because `k ≤ n`. A bounded range of `Q` contributes finitely many `V(Q)` by 4.3. ⚠ The book
-states its conclusion only along `Q = H(x_ν)` for a hypothetical sequence of solutions, because
-it is proving 6.2 by contradiction; but 7.5.32 opens with "let `(Q_ν)` be an unbounded family"
-and uses nothing else, and the statement above is what that argument proves. It is pinned as the
-primary form because it is the one the quantitative theory strengthens: Layer 9 and every
+Evertse–Schlickewei for the formulation) — **landed**, in
+`…/{WedgeRecovery,MinimaBounds,ExponentGrid,WedgeExponentBound,ParametricSubspace}.lean`. For
+forms with coefficients in `K`, linearly independent at every infinite place and at every place of
+`S₀`, and exponents `c` of negative weight, there are a finite set `T` of proper subspaces of
+`Kⁿ⁺¹` and a level `Q₀` such that for every `Q ≥ Q₀` the approximation domain
+`approxDomain S₀ L c Q` is contained in a member of `T`
+(`NumberField.exists_finset_submodule_forall_approxDomain_subset`). Route, at a level `Q` where
+the domain has rank `R`, which is at most `n` for large `Q` by 4.3: for `R = 0` the domain spans
+`⊥`; for `1 ≤ R ≤ n`, (7.41) chooses `k` in `[R, n]` where the jump of the minima is large, 4.4
+and 4.5 move the wedges of the `p`-subsets meeting the first `k` minimal vectors, `k + p = n + 1`,
+into a domain in `⋀^p Kⁿ⁺¹` whose exponents `NumberField.wedgeExponent` move with `Q`; those
+exponents are rounded up to a grid of mesh `γ`, the rounded system has negative weight and is one
+of finitely many, its domain has rank exactly `M − 1` because the wedges already span a
+hyperplane and 4.3 caps the rank, 5.6 in `⋀^p` makes those spans finite in number, and Lemma
+7.5.33 — read as the function `exteriorPower.recoverSpan` — recovers from each span the span of
+the first `k` minimal vectors, which contains `V(Q)` and is proper because `k ≤ n`.
+⚠ The book states its conclusion only along `Q = H(x_ν)` for a hypothetical sequence of solutions,
+because it is proving 6.2 by contradiction; but 7.5.32 opens with "let `(Q_ν)` be an unbounded
+family" and uses nothing else, and the statement above is what that argument proves. It is pinned
+as the primary form because it is the one the quantitative theory strengthens: Layer 9 and every
 quantitative Subspace Theorem in print count the members of `T`.
 
-**6.2 The Subspace Theorem, coefficients in `K`** (Schmidt 1972 for `K = ℚ`, `S = {∞}`;
-Schlickewei 1977 with finite places; Bombieri–Gubler, Theorem 7.2.2 with `F = K`). For
-`[Nontrivial ι]`, forms `L v i : Module.Dual K (ι → K)` linearly independent for each `v` in
-`S∞` and `S₀`, and `ε > 0`, there is a finite set `T` of proper subspaces of `Kⁿ⁺¹` containing
-every `x ≠ 0` with `approxProd S∞ S₀ L x ≤ mulHeight x ^ (−(n+1) − ε)`. From 6.1 and 5.1: an
-infinite place missing from `S∞` is added with the coordinate forms, whose local factor is at
-most `1`, so the hypothesis survives; the solutions with some `L v i x = 0` lie in the kernels; the others, normalized, lie in finitely
-many parametric families, each covered by 6.1 once `mulHeight x ≥ Q₀`; and the projective points
-of height below `Q₀` are finite in number by Northcott (`ArithmeticHeights` 1.1) and lie on that
-many lines, which are proper because `n ≥ 1`.
+⚠ **No pigeonhole, no subsequence and no bounded range.** The book argues along an unbounded
+family of levels and extracts a subfamily on which `k` and the rounded exponents are constant.
+None of that is needed: the rounding is a **function** of the level
+(`NumberField.roundExponent`), its range is finite because the exponents stay in a box, and the
+finite set of subspaces is the union over that range — a union over a finite index set, not over a
+subsequence. Layer 3.1's cells are not used. And because the conclusion is stated for `Q ≥ Q₀`
+only, 4.3's finiteness over a bounded range of levels is not used either.
 
-**6.3 Algebraic coefficients** (Bombieri–Gubler, Theorem 7.2.2 in full and Remark 7.2.3). The
-same with `L v i : Module.Dual F (ι → F)` over a finite extension `F/K`, linearly independent
-over `F`, measured by `w v` over `v`: the solutions `x ∈ Kⁿ⁺¹` lie in finitely many proper
-subspaces of `Kⁿ⁺¹`. Route: by 0.1 pass to the Galois closure `F'` of `F/K`; at each place `w'`
+⚠ **The penultimate rank is not a separate case.** The book treats rank `n` by Theorem 7.5.13
+directly and the lower ranks by the exterior power. Here rank `n` is the case `k = n`, `p = 1` of
+the same construction — the wedge domain in `⋀^1 Kⁿ⁺¹` is the original domain re-indexed by the
+one-element subsets, with the exponents shifted by the minima and a constant — so one mechanism
+covers every rank from `1` to `n`, and 5.6 is applied only through it. This is the one place where
+the formalization is visibly shorter than the book.
+
+⚠ **The minima have to be confined between `Q^{−B}` and `Q^{B}`, and Layer 4.2 does not give
+it.** Minkowski's second theorem over `K` bounds the *product* of the minima from both sides,
+which bounds the first minimum from above and the last from below — the two directions that do not
+confine anything. The missing bound is arithmetic, not geometry of numbers: a nonzero point of
+`Λ ∩ t B` has height at least `1` by the product formula, and at most a constant times `t^d` times
+`Q` to the sum of the largest exponents, so `t` is at least a fixed negative power of `Q`
+(`NumberField.exists_pos_forall_rpow_le_successiveMinimum`); the upper bound is then Minkowski's,
+with the others replaced by that lower bound
+(`NumberField.exists_pos_forall_rpow_le_successiveMinimum_le`). Every constant is absorbed into
+one extra unit of exponent above a threshold, which keeps the grid free of constants.
+
+⚠ **The grid is indexed by the infinite places, not by absolute values.** A system of exponents is
+a function on `AbsoluteValue K ℝ`, of which there are infinitely many, and a domain reads it at
+the infinite places and at `S₀` only; rounding at *every* absolute value would leave infinitely
+many systems. `NumberField.gridExponent` therefore carries an integer per infinite place and per
+`p`-subset and selects with `∑ w, if w.1 = v then … else 0`. Nothing is rounded at the finite
+places, where the exponent of the wedge domain is exact.
+
+⚠ **`T` contains subspaces containing the spans, not the spans.** The wedge route recovers the
+span of the first `k` minimal vectors, which contains `V(Q)`; whether the `V(Q)` themselves are
+finite in number for `R < n` is not claimed and is not what 6.2 consumes. For `R = n` it is 5.6,
+which does say so.
+
+⚠ **Lemma 7.5.33 has to become a function.** Finiteness is transported from `⋀^p Kⁿ⁺¹` back to
+`Kⁿ⁺¹` by taking an image, so the map has to be defined on subspaces and not on bases:
+`exteriorPower.recoverSpan p U` is the span of the vectors all of whose wedges lie in `U`, and
+`exteriorPower.recoverSpan_wedgeSpan` is Lemma 7.5.33 saying that it inverts `wedgeSpan`. It is
+defined as a span rather than as a carrier because the carrier is a submodule only by
+multilinearity of the Plücker coordinates, an API nothing else here wants.
+
+**6.2 The Subspace Theorem, coefficients in `K`** (Schmidt 1972 for `K = ℚ`, `S = {∞}`;
+Schlickewei 1977 with finite places; Bombieri–Gubler, Theorem 7.2.2 with `F = K`) — **landed**,
+in `…/SubspaceTheorem.lean`. For `[Nontrivial ι]`, forms `L v i : Module.Dual K (ι → K)` linearly
+independent for each `v` in `S∞` and `S₀`, and `ε > 0`, there is a finite set `T` of proper
+subspaces of `Kⁿ⁺¹` containing every `x ≠ 0` with
+`approxProd S∞ S₀ L x ≤ mulHeight x ^ (−(n+1) − ε)`
+(`NumberField.exists_finset_submodule_of_approxProd_le`, with
+`NumberField.exists_finset_submodule_setOf_approxProd_le_subset` the same read as an inclusion of
+the solution set in a finite union of proper subspaces). From 6.1 and 5.1: an infinite place
+missing from `S∞` is added with the coordinate forms, whose local factor is at most `1`, so the
+hypothesis survives; the solutions with some `L v i x = 0` lie in the kernels; the others,
+normalized, lie in finitely many parametric families, each covered by 6.1 once
+`mulHeight x ≥ Q₀`; and the projective points of height below `Q₀` are finite in number by
+Northcott (`ArithmeticHeights` 1.1) and lie on that many lines, which are proper because `n ≥ 1`.
+
+⚠ **The route in print is the route that was formalized, and it needed nothing new.** 6.2 is the
+only milestone of Layers 4, 5 and 6 whose file introduces no definition and proves no auxiliary
+lemma: every ingredient — the enlargement of `S₀`, the exponent classes, the parametric theorem,
+Northcott on projective space — is consumed from a layer below by name. What the book presents as
+the last page of a forty-page proof really is one page.
+
+⚠ **Northcott is a property of the projective height, so the small-height solutions are lines.**
+The obvious reading of "the solutions of height below `Q₀` are finitely many, and finitely many
+points lie on finitely many lines" is wrong as stated: `Height.mulHeight` is constant on a line,
+so the solutions of bounded height are never finite in number. What is finite is the set of
+points of `Projectivization K (ι → K)` of bounded height — this repository's
+`Projectivization.finite_setOfPred_mulHeight_le` (`ArithmeticHeights` 1.1) — and each contributes
+the line it spans. This is also the one step where `n ≥ 1` is used for more than bookkeeping: a
+line is a proper subspace only when `n ≥ 1`, and at `n = 0` the theorem is false, the solutions
+being the roots of unity of `K`, finite in number but spanning everything.
+
+⚠ **The normalizing scalar never has to be undone.** 5.1 puts a multiple `t·x` in a domain and
+6.1 puts `t·x` in a subspace; since a subspace is closed under `t⁻¹·−`, the conclusion is about
+`x` although every intermediate statement is about a multiple of it. Nothing in 6.2 has to track
+`t`, and in particular the exponent systems need not be made invariant under scaling.
+
+⚠ **The two thresholds are combined by one `max` and no uniformity is needed.** 5.1 gives one
+level above which every solution is classified; 6.1 gives, for each of the finitely many exponent
+systems, a level above which its domains are covered, and those levels are not uniform in the
+system. `Finset.exists_le` bounds finitely many reals, which is all that is wanted — a uniform
+`Q₀` over the class of exponent systems is never needed and was not proved.
+
+**6.3 Algebraic coefficients** (Bombieri–Gubler, Theorem 7.2.2 in full and Remark 7.2.3) —
+**landed**, in
+`…/{FormBaseChange,PlaceConjugation,ExtensionApproxProd,SubspaceAlgebraic}.lean`. The same with
+`L v i : Module.Dual F (ι → F)` over a finite extension `F/K`, linearly independent over `F`,
+measured by `w v` over `v`: the solutions `x ∈ Kⁿ⁺¹` lie in finitely many proper subspaces of
+`Kⁿ⁺¹` (`NumberField.exists_finset_submodule_of_approxProd_le_extension`, with
+`NumberField.exists_finset_submodule_setOf_approxProd_le_extension_subset` the inclusion form).
+Route, exactly the book's: by 0.1 pass to the Galois closure `F'` of `F/K`; at each place `w'`
 of `F'` above `v` put the conjugate system `σ(L v)`, where `σ` carries the chosen absolute value
 to `w'` (0.2); for `x ∈ Kⁿ⁺¹` the local factors at all `w'` above `v` are equal, so by the local
 extension formula of 0.2 and `ArithmeticHeights` 0.3 the inequality over `F'` is the inequality
@@ -2506,23 +3112,153 @@ genuinely different statements about rational points: the height of `x ∈ ℚ�
 is its `d`-th power, so 6.2 over `K` applied to rational points loses a factor `d` in the
 exponent, and only 6.3 over `ℚ` gives the sharp statement.
 
-**6.4 The affine form** (Bombieri–Gubler, Corollary 7.2.5 and Theorem 7.2.6). For
-`S : Finset (HeightOneSpectrum (𝓞 K))`, forms as in 6.3 at every infinite place and every place
-of `S`, and `ε > 0`: the `x ≠ 0` with coordinates in `S.integer K` and
+⚠ **The transfer is an equality, and that is the point of the conjugates.** The reason the book
+conjugates the forms rather than leaving the other places above `v` empty is not bookkeeping: a
+point of `Kⁿ⁺¹` is fixed by every element of `Gal(F'/K)`, so the conjugated system gives it the
+*same* local factor at every place above `v`, and the local degrees there sum to `[F' : K]` —
+which is the same degree by which the relative height grows. `NumberField.approxProd_conjSystem`
+is therefore an identity, not an estimate, and the exponent `−n−1−ε` survives untouched. Putting
+the coordinate forms at the other places, the device Layer 5.1 uses for the places it adds, would
+not do: their local factor is at most `1`, which weakens the inequality in the wrong direction.
+
+⚠ **Conjugation and base change are one operation.** A linear form on `Fⁿ⁺¹` is its vector of
+coefficients, so a ring homomorphism `f : F → E` carries it: `Module.Dual.compRingHom`. The base
+change to the Galois closure is `f = algebraMap`, the conjugation is `f = σ`, and a conjugated
+base change is the single homomorphism `σ ∘ algebraMap`. Layer 6.3 needs no semilinear map and no
+tensor product. ⚠ That linear independence survives the carrying is, however, **not** formal: it
+is false for a general ring map and for a non-square family. Here the family is square, so
+independence is invertibility of the coefficient matrix, and `RingHom.map_det` carries that along
+any homomorphism of fields.
+
+⚠ **Mathlib's finite places are normalized, so Layer 0.2 does not apply to them.** A finite place
+of `F'` above a finite place `v` of `K` restricts to `v^{ef}` and not to `v`, so it is not an
+absolute value over `v` and the orbit statement of 0.2 is not about it; its `(ef)`-th root is, and
+that root exists as an absolute value only because a finite place is nonarchimedean (Layer 0.1's
+`AbsoluteValue.nonarchRpow`, which is there for exactly this reason). The `ef` then cancels
+against `NumberField.FinitePlace.sum_localDegree` precisely as `mult` cancels against
+`NumberField.InfinitePlace.sum_mult` at the infinite places, which is why the two halves produce
+the same exponent `[F' : K]` and the identity is uniform.
+
+⚠ **The place of `K` under a place of `F'` is recovered from a relation, not from a map.** The
+system of forms on `F'ⁿ⁺¹` must be a function of an *absolute value*, because that is what
+`approxProd` reads; it is defined by choosing, for each absolute value, a triple (place of `K`,
+place of `F'`, automorphism) with the right relation. That the place of `K` so chosen is the one
+wanted is proved — both restrict the same absolute value to `K` — rather than built in. This
+avoids a contraction map on finite places, which Mathlib does not have, and avoids needing that
+distinct places of `K` are inequivalent, which nothing in this roadmap proves.
+
+⚠ **Intersecting the subspaces back with `Kⁿ⁺¹` is a `comap`, and properness is the standard
+basis.** `W ∩ Kⁿ⁺¹` is `(W.restrictScalars K).comap φ` for the `K`-linear `φ : Kⁿ⁺¹ → F'ⁿ⁺¹`; if
+that is everything then `W` contains every `e_j`, which span `F'ⁿ⁺¹` over `F'`, so `W = ⊤`. The
+degree plays no part in this step, and neither does `n ≥ 1`.
+
+**6.4 The affine form** (Bombieri–Gubler, Corollary 7.2.5 and Theorem 7.2.6) — **landed**, in
+`…/{AffineProd,SubspaceAffine}.lean`. For `S : Finset (HeightOneSpectrum (𝓞 K))`, forms as in 6.3
+at every infinite place and every place of `S`, and `ε > 0`: the `x ≠ 0` with coordinates in
+`S.integer K` and
 
 ```text
 (∏ v : InfinitePlace K, (∏ i, w v (L v i x)) ^ v.mult) * ∏ v ∈ S, ∏ i, w v (L v i x)  ≤  mulHeight x ^ (−ε)
 ```
 
-lie in finitely many proper subspaces of `Kⁿ⁺¹`. Prove the equivalence with 6.3 in both
-directions (0.3). This is the form every application in Layer 8 uses.
+lie in finitely many proper subspaces of `Kⁿ⁺¹`
+(`NumberField.exists_finset_submodule_of_integer_of_affineProd_le`, with
+`NumberField.exists_finset_submodule_setOf_integer_of_affineProd_le_subset` the inclusion form).
+The left-hand side is `NumberField.affineProd S w L x`, the affine quantity. **This is the form
+every application in Layer 8 uses**, and the equivalence with 6.3 is proved in both directions:
+forwards by `NumberField.approxProd_le_of_affineProd_le`, after which the milestone is four lines
+on 6.3; backwards by `NumberField.exists_finset_forall_exists_smul_affineProd_le`, which produces
+the enlarged data the affine form asks for and the scaling that makes a solution `S`-integral, and
+which with the milestone recovers 6.3.
 
-**6.5 General position** (Vojta 1987; Bombieri–Gubler, Definition 7.2.8, Theorem 7.2.9). A family of
-linear forms is in **general position** if every subfamily of at most `n + 1` of them is linearly
-independent. For families `L v : κ v → Module.Dual F (ι → F)` in general position, of any finite
-sizes, the conclusion of 6.3 holds for the product over all of `κ v`. By splitting the solutions
-according to the order of the `w v (L v i x)` and discarding all but the `n + 1` smallest, which
-by general position form a basis and bound `⨆ j, v (x j)` from below.
+⚠ **The layer is one identity and no estimate.** The affine quantity drops the `n + 1` local
+denominators `‖x‖_v` of `approxProd`; their product over the infinite places and `S` is exactly
+the part of the height those places carry, so
+`affineProd = approxProd · (that part)^{n+1}` (`NumberField.affineProd_eq_approxProd_mul`) and
+the exponent `−ε` of Corollary 7.2.5 does the work of the `−n−1−ε` of Theorem 7.2.2. The `n + 1`
+is the number of *forms*, not a dimension count: each local factor divides by `‖x‖_v` once per
+form. Nothing anywhere in the passage is estimated.
+
+⚠ **`S`-integrality suffices forwards and does not suffice backwards.** At an `S`-integral point
+the `S`-part of the height can *exceed* the height — the factor lost at a place of `S` that the
+coordinates do not fill — so the affine inequality is the **stronger** of the two, which is the
+direction the milestone needs, and 0.3's inequality `H(x) ≤ Hs(x)` is all it uses. The converse
+has to normalise to an `S`-**primitive** point, where 0.3 makes the two equal. That asymmetry is
+why Bombieri–Gubler state Corollary 7.2.5 for `S`-integers and Theorem 7.2.6 for primitive points,
+and it is the whole difference between the two statements.
+
+⚠ **The converse enlarges three things at once, one per layer below it.** Every infinite place
+must be present and every finite place outside `S` harmless, which is 5.1's coordinate forms,
+whose local factor is at most `1` (`NumberField.prod_proj_div_iSup_le_one`, reused verbatim);
+`S` must be large enough for a primitive multiple to exist, which is 0.3's localisation; and `w`
+must be defined and lie over `v` at the added places, which is 0.1's fibre. The third is why the
+converse returns a **new** family `w'` and does not reuse `w`: the affine statement asks for an
+absolute value of `F` at *every* infinite place, and the projective one only on `S∞`.
+
+⚠ **Scaling is invisible to both statements and not to the passage between them.** The projective
+inequality and the subspaces are invariant under `x ↦ c·x`; the affine inequality is not, and a
+point satisfies it only after being scaled to be primitive. So the converse hands back the
+multiple, and the subspace it lands in is the subspace of the original point — the same
+observation that made 6.2's normalizing scalar free.
+
+⚠ **The two statements do not index their finite places by the same object.** The affine form
+indexes them by height-one primes of `𝓞 K`, because that is Mathlib's carrier for `S`-integers
+and `S`-units and therefore what Layer 8 will hold; the projective form indexes them by
+`NumberField.FinitePlace`. The translation is `FinitePlace.mk`, and its injectivity is a small
+Mathlib gap — Mathlib has `FinitePlace.maximalIdeal_injective`, the other direction of the same
+equivalence — filled here as `NumberField.FinitePlace.mk_injective`.
+
+**6.5 General position** (Vojta 1987; Bombieri–Gubler, Definition 7.2.8, Theorem 7.2.9) —
+**landed**, in `DiophantineApproximation/GeneralPosition.lean` and
+`DiophantineApproximation/SubspaceGeneralPosition.lean`. A family of linear forms is in **general
+position** if every subfamily of at most `n + 1` of them is linearly independent
+(`Module.Dual.IsGeneralPosition`). For families in general position, **of any finite sizes**, the
+conclusion of 6.3 holds for the product over the whole family:
+
+```text
+(∏ v ∈ S∞, (∏ k ∈ B v, w v (L v k x) / ‖x‖_v) ^ v.mult) * ∏ v ∈ S₀, ∏ k ∈ B v, w v (L v k x) / ‖x‖_v
+      ≤  mulHeight x ^ (−n−1−ε)
+```
+
+(`NumberField.exists_finset_submodule_of_generalProd_le`, with
+`NumberField.exists_finset_submodule_setOf_generalProd_le_subset` the inclusion form). The
+left-hand side is `NumberField.generalProd Sinf Sfin w B L x`.
+
+⚠ **The layer is one local observation and one partition, and no new arithmetic.** At a place
+where the forms are in general position, keep the `n + 1` *smallest* values `w v (L v k x)`:
+general position makes the forms that produce them a basis, a basis bounds `⨆ j, v (x j)` from
+above by the largest of those values, and so every *discarded* value is bounded **below** by
+`‖x‖_v` over a constant. Dropping them therefore costs a constant, the chosen system is one of
+finitely many, and 6.3 finishes — which is Bombieri–Gubler's proof, executed.
+
+⚠ **The families of fewer than `n + 1` forms are the opposite case, and the two cannot be
+merged.** There the family is linearly independent outright and is *completed* to a basis by
+coordinate forms, whose local factors are at most `1`, so the completion costs nothing at all.
+One cannot simply extend every family by the coordinate forms and select the smallest of the
+extended family: the extension need not be in general position — one of the given forms may
+already be a coordinate form — and the `n + 1` smallest of it need not be independent. So the
+large case is the ordering argument and the small case is Steinitz, and neither covers the other.
+`Module.Dual.exists_index_extendProj` is the Steinitz step, on Mathlib's `Basis.extendLe`.
+
+⚠ **The number of forms varies by a `Finset`, not by a family of types.** The signature is
+`L : AbsoluteValue K ℝ → κ → Module.Dual F (ι → F)` together with
+`B : AbsoluteValue K ℝ → Finset κ`, one carrier type `κ` for all places and a finset per place for
+which of its members are used. A family of index *types* `κ v` would be the book's phrasing, but
+the chosen system at a place is an index map `ι → κ ⊕ ι` and those have to form **one** finite
+type for the partition into classes to be finite. Nothing is lost — take `κ` large enough — and
+`[Finite κ]` is required for this reason and no other.
+
+⚠ **The constant is removed by halving `ε`, so Northcott reappears.** 6.3 is applied with `ε / 2`
+and only above a height threshold; below it the solutions are finite in projective space and are
+collected as the lines they span, exactly as in 6.2. That is the second and last appearance of
+Northcott in the Subspace Theorem, and both are for the same reason: a constant in front of
+`H(x)^{−n−1−ε}`.
+
+⚠ **6.3 comes back out of 6.5, so the two are equivalent.** With `n + 1` forms at every place,
+general position *is* linear independence (`Module.Dual.IsGeneralPosition.of_linearIndependent`)
+and the two central quantities are literally the same product —
+`NumberField.generalProd_univ_eq_approxProd` is `rfl`. So Vojta's refinement contains the theorem
+it is proved from, and the library carries one Subspace Theorem here too.
 
 **6.6 Consistency with Layer 3.** For `Fintype.card ι = 2`, 6.3 is 3.4. ⚠ **3.4 is landed**, and
 it is stated for an arbitrary index type with `Fintype.card ι = 2` and with `approxProd` — the
@@ -2606,7 +3342,10 @@ equivalence is formal from 0.3 and is to be proved dimension by dimension so tha
 needs Layers 0, 2 and 3 only. ⚠ **3.4 is landed**, so what stands between this milestone and its
 proof is the affine equivalence and the split by largest coordinate, not the Subspace Theorem:
 `NumberField.exists_finset_submodule_of_approxProd_le_card_two` is the input, and its conclusion
-is already the "finitely many lines through the origin" this route asks for.
+is already the "finitely many lines through the origin" this route asks for. ⚠ **6.4 is landed
+too**, so the affine equivalence no longer has to be proved dimension by dimension: it is
+`NumberField.affineProd_le_iff_of_isPrimitive` at any `#ι`, and 8.1 may take either route — the
+cheap one through 3.4, which needs no layer above 3, or the direct one through 6.4.
 
 **8.2 The unit equation in `n` variables** (Evertse; van der Poorten–Schlickewei;
 Bombieri–Gubler, Theorem 7.4.2 and Corollary 7.4.3). For `a : ι → Kˣ`, finitely many
@@ -2959,6 +3698,13 @@ Tau Ceti test files beside the milestones named.
   choice of `k`: for the minima `1/2, 2, 2, 8` of a domain of rank `1` the jump at `k = 2` fails
   (7.41) and the jump at `k = 1` meets it, so the choice matters; and for the minima `4, 8` of a
   domain of rank `0` no `k` meets it, so the rank has to be positive.
+- **5.1.** **Landed**, three tests. Two **rejection** tests: over `ℚ` with `S₀` the `2`-adic
+  place the primitive one-point tuples `(2 ^ k)` have projective height `1` and affine height
+  `2 ^ k`, so Lemma 7.5.4 fails for every constant without the unit multiple; and over `ℚ` with
+  `S₀ = ∅` the point `(2, 2)`, which is not primitive at `2`, has height `1` while the product of
+  its local sup norms over the infinite places and `S₀` is `2`, so the height identity needs
+  primitivity. One **conformance** test: at the `2`-adic place of `ℚ`, `|log |2|₂| = log H(2)`,
+  so the bound (7.19) is sharp.
 - **6.3.** Schmidt's example that the conclusion cannot be finiteness of points: with
   `L 1 = X 1 + √2 X 2 + √3 X 3`, `L 2 = X 1 − √2 X 2 + √3 X 3`, `L 3 = X 1 − √2 X 2 − √3 X 3` at
   `∞`, every solution of `x 1 ² − 2 x 2 ² = 1`, `x 3 = 0` satisfies
@@ -3219,19 +3965,148 @@ coordinates, so that 6.1 can apply Layers 4.2–5.6 inside it; Lemma 7.5.33 took
 no pairing; and `S(Q)` became an approximation domain whose exponents move with `Q`, whose weight
 is computed exactly — the form 6.1 consumes, rather than the last minimum the book states.
 
-The next milestone off that path is **8.1**, the two-variable unit equation, which 3.4 unblocked
-and which is the first application resting on the projective interface rather than on the affine
-one. Beside it, the `w > 2` criterion of **7.4** is reachable from 3.3 alone. On the path, the
-next is **Layer 5**: 5.1's reductions, which land in 4.1's domains, and 5.2's multihomogeneous
-auxiliary polynomial, which needs nothing of Layer 4, can start now.
+⚠ **5.1 is landed, in two files, and Layer 5 has begun.** Its three reductions cost less than
+expected — the unit normalization is one lattice approximation in the trace-zero hyperplane, and
+Corollary 7.5.5 needed no independence of the forms — and what the milestone did not say is where
+the classes come from: they are cells of a cube, not of 3.1's simplex, and the statement is
+parametric in the solution rather than taken along an infinite sequence.
 
-The path to the summit is Layer 4 → Layer 5 → 6.1 → 6.2 → 6.3. Layer 4 needs
-`ArithmeticHeights` 4.1–4.4, 3.1 and 3.4, and is independent of Layers 2 and 3 here; it can be built
-in parallel with them by someone who prefers lattices to polynomials. Within Layer 5, 5.2 and 5.3
-are Layer 2 in multihomogeneous dress and 5.5 is elementary; **5.4 is the delicate one**, because
-its statement is easy to get wrong (the exceptional subspaces) and everything in 5.6 is
-calibrated against its constants. 6.1 is where Layers 4 and 5 meet. After 6.3: 6.4–6.6, all of
-Layer 7, 8.2, 8.6 and 8.7.
+⚠ **5.2 is landed, in three files, and it cost less analysis and more algebra than the book
+suggests.** The counting lost its volume computation entirely: the exponential moment of the
+exponent of one variable is exact on the lattice, two binomial identities give it, and the book's
+restriction `0 < λ ≤ n + 4` and most of its "sufficiently large `d`" go with the volume. What cost
+more is the vanishing: `a(L v; J; I)` is not a multiple of `a(L v; J + I; 0)`, because the
+derivatives are taken in one coordinate system and the expansion is read in another, so the
+statement has to be proved by an induction on the order through the chain rule — and that
+induction is where characteristic zero enters. Two smaller corrections: the hypothesis on `m` has
+to be strict, or its constant raised, because the Chernoff error term is positive at every `d`;
+and `η ≤ 2/(n+1)` is never used.
+
+⚠ **5.3 is landed, in three files, and it is shorter than 5.2 because it is not analysis.** The
+index along the forms looked like a new object and is not one: solving `M h = X (h, i₀ h)` for a
+single coordinate turns the book's ideal into a monomial ideal, and the index becomes the
+weighted order of 2.3 with a weight of `0` on every other variable — after which the valuation
+properties are 2.3's and nothing has to be proved twice. What did cost something is the
+specialization: the variables have to be killed one at a time, because a single slice at the
+componentwise minimum of the exponents can be zero, and the coefficients of the forms have to be
+truncated in step with them, or the index inequality comes out backwards. Two corrections to the
+book: only the inequality between the indices is needed, not the equality it asserts; and its
+`b_{j1} ≠ 0` is unnecessary, because the hypothesis on the heights passes to 2.7 whatever the
+second coordinate is.
+
+⚠ **5.4 is landed, in four files, and the book's statement of it is wrong in two places.** The
+first is the inequality Step III rests on: Bombieri–Gubler bound the height of the single number
+`L̂_{vi}(w)` by `h(V(Q)) + C₇`, which compares a scale-dependent quantity with a scale-invariant
+one and is false; what is true, and what the proof needs, is a product-formula inequality between
+the local factor of the Plücker point and its projective height, and it is stronger than what the
+book extracts, by one power of the height. The second is the exceptional subspace: the book writes
+"a linear space `W`", and its proof fixes one solution per **pattern** of surviving indices, a
+pattern that moves with `Q`; the true statement has finitely many exceptional subspaces, one per
+pattern, which is all Step IV consumes. The rest of 5.4 is shorter than it looks: the exceptional
+system, read in the original coordinates, is an intersection of spans of coefficient vectors of
+the forms, so no Hodge star, no adjugate and no cofactor expansion appears anywhere, and the
+dictionary between "the wedge omitting `i` kills the Plücker point" and "the `i`-th coordinate of
+the normal vector vanishes" is `ArithmeticHeights` 3.5 read at the ranks `n` and `1`.
+
+⚠ **5.5 is landed, in two files, and it is elementary as promised — but not by the book's
+argument.** Its one-variable core is a count of roots with multiplicity, because the book's
+divisibility by a product of `2 B + 1` linear factors is, inside an induction on the variables, a
+unique-factorization statement over a polynomial ring. Two things the book spends and 5.5 does
+not: the chain rule for the parametrization, of which only the block degrees of the surviving
+orders are used, and any commutation of a Hasse derivative past a substitution, which disappears
+once the induction carries "does not vanish identically on the affine subspace" instead of the
+substituted polynomial. What is left is one identity between two coefficient extractions from the
+same shifted polynomial.
+
+⚠ **5.6 is landed, in five files, and it needed no chain rule either.** Steps IV and VI assemble
+5.2, 5.3, 5.4 and 5.5 into the finiteness of `{V(Q)}`, and **Layer 5 is complete**. The seam
+between 5.3, which measures the index in the coordinates where the forms are the variables, and
+5.5, which wants a derivative in the original ones, turned out to be a block-wise linear
+substitution and nothing more: the third time in Layer 5 that the book's chain rule is replaced
+by multihomogeneity. Two things the estimate needs that the book does not name: a *second*
+invariant of the system of exponents, the weight of the absolute values `|c v i|`, which is what
+the parameter `η` is measured against; and a single reference family carrying both the inverse
+matrices of the forms and the integers of the grid, charged at exponent `2 |d|`. Bounded ranges
+of `Q` the book leaves to the reader; they are covered by 5.4's upper bound, restated without its
+hypothesis that `Q` be large, and Northcott for subspaces.
+
+⚠ **6.1 is landed, in five files, and it is shorter than the book.** Steps VIII and IX turn the
+geometry of numbers of Layer 4 and the penultimate-minimum theorem of Layer 5 into finitely many
+proper subspaces covering every domain of large level, and **Layer 6 is begun**. Three things the
+book spends and 6.1 does not: the pigeonhole along an unbounded family of levels, which a rounding
+*function* with finite range replaces; the separate treatment of rank `n`, which is the case
+`p = 1` of the exterior-power construction; and the bounded range of levels, which the parametric
+statement never mentions. One thing it needs that no earlier layer states: the minima of a domain
+lie between two fixed powers of the level, which is the product formula and not geometry of
+numbers — Layer 4.2 bounds their product, and that is exactly the wrong direction at both ends.
+And Lemma 7.5.33 had to become a function of the subspace, since finiteness travels back from the
+exterior power as an image.
+
+⚠ **6.2 is landed, in one file, and it is the summit over `K`.** The Subspace Theorem with
+coefficients in the field — Schmidt's theorem in the `S`-adic form of Schlickewei — is 5.1 and 6.1
+put together and nothing else: one theorem, in `…/SubspaceTheorem.lean`, which defines no object
+and proves no lemma of its own. It is worth recording how little is left at this point, because it
+is the opposite of what the length of Chapter 7 suggests. Two things were not what the prose says:
+Northcott has to be applied on *projective* space, since the height is constant on a line and the
+small-height solutions are therefore never finitely many — they contribute the lines they span,
+which is also the only place where `n ≥ 1` does real work; and the normalizing scalar of 5.1 never
+has to be undone, because a subspace is closed under scaling. **The path to the summit over `K` is
+complete.**
+
+⚠ **6.3 is landed, in four files, and it is the Subspace Theorem in the form its consumers
+apply.** Points in `K`, coefficients in any finite extension `F` — and with it **the summit is
+reached**. The layer is Remark 7.2.3 and nothing else: the Galois closure, an extension of the
+chosen absolute value, and the conjugated systems at the places above each `v`. Three things the
+book does not say. The transfer is an **equality**, not an estimate, and that is the whole reason
+for the conjugates: a point of `Kⁿ⁺¹` is fixed by the Galois group, so it sees the same local
+factor at every place above `v`, and the local degrees there sum to the same `[F' : K]` by which
+the height grows. Conjugation and base change are the **same operation**, a ring homomorphism
+applied to the coefficients, so neither a semilinear map nor a tensor product is needed — though
+the survival of linear independence is a determinant statement and not a formal one. And Mathlib's
+normalization of finite places means Layer 0.2's orbit statement is about the `(ef)`-th **root** of
+a finite place, not about the place; the `ef` cancels afterwards against 0.2's own
+`sum_localDegree`, exactly as `mult` does at the infinite places.
+
+⚠ **6.4 is landed, in two files, and it is the summit in the shape Layer 8 quotes.** The affine
+form costs one identity and no estimate: the `n + 1` local denominators that the affine inequality
+drops are the `n + 1` copies of the height separating its exponent `−ε` from 6.3's `−n−1−ε`, so
+the milestone is four lines on 6.3 once the factorization is written down. What the layer teaches
+is where the two statements are *not* interchangeable. `S`-integrality is enough in one direction
+only — the `S`-part of the height can exceed the height, which makes the affine inequality the
+stronger of the two — and the converse has to scale to an `S`-primitive point, where 0.3 makes
+them equal. That converse is proved here as well, so the library carries one Subspace Theorem and
+not two; it costs more than the milestone does, and it consumes one thing from each of the three
+layers below: 5.1's coordinate forms, 0.3's localization and 0.1's fibre.
+
+⚠ **6.5 is landed, in two files, and it is the summit in the shape the deepest applications
+want.** Vojta's refinement asks nothing new of the arithmetic: at a place where the forms are in
+general position the `n + 1` smallest values come from a basis, the discarded ones are bounded
+below because a basis bounds the coordinates, and dropping them costs a constant that halving `ε`
+absorbs. What the layer teaches is that the two directions of the reduction are genuinely
+different arguments — the ordering argument for a family with at least `n + 1` members, Steinitz
+for a family with fewer — and that neither covers the other, because a family extended by the
+coordinate forms is no longer in general position. 6.3 comes back out of 6.5 as the case of equal
+sizes, and the recovery is `rfl` on the central quantity.
+
+The next milestone off the path is **8.1**, the two-variable unit equation, which 3.4 unblocked
+and which is the first application resting on the projective interface rather than on the affine
+one. Beside it, the `w > 2` criterion of **7.4** is reachable from 3.3 alone. On the path, what is
+left of Layer 6 is **6.6** alone (consistency with 3.4), and after it the whole
+of Layer 7 is open — every milestone of which is 6.3 over `ℚ` with an algebraic coefficient,
+followed by an induction on the dimension.
+
+The path to the summit was Layer 4 → Layer 5 → 6.1 → 6.2 → 6.3 → 6.4 → 6.5, and **it is
+walked**.
+Layer 4 needed `ArithmeticHeights` 4.1–4.4, 3.1 and 3.4, and was independent of Layers 2 and 3
+here. Within Layer 5, 5.2 and 5.3 were Layer 2 in multihomogeneous dress, 5.5 was elementary and
+5.6 was bookkeeping over the four before it; **5.4 was the delicate one**, and its statement did
+turn out to be easy to get wrong — the book's is, in two places (see 5.4). 6.1 was where Layers 4
+and 5 met, and it cost five files of which only one knows what a wedge is; 6.2 cost one, and the
+five layers below it carry all of its content; 6.3 cost four, of which two are about places and
+one is about linear algebra, and only the last is about the Subspace Theorem; 6.4 cost two, and
+the larger half of the second file is the converse that no consumer has to use; 6.5 cost two, of
+which the first knows nothing about number fields at all. Remaining:
+6.6, all of Layer 7, 8.2, 8.6 and 8.7.
 
 Register an intention before a substantial push; the layers are deliberately claimable
 separately.
@@ -3278,8 +4153,8 @@ of Layer 2 and all of Layer 3 — **Roth's theorem, the classical forms of it th
 applications quote, the Subspace Theorem in two variables, Mahler's theorem on `(p/q)^k`,
 Thue's theorem, the count of approximations and Roth's theorem with moving targets** — and
 the approximation domains, the successive minima over `K`, the rank, Evertse's lemma and the
-exterior powers — all of Layer 4 — are proved in this repository and nothing else of Layers 4–9
-is. What
+exterior powers — all of Layer 4 — and the reductions of 5.1 are proved in this repository and
+nothing else of Layers 5–9 is. What
 exists elsewhere, in
 [`rwst/lean-code`](https://github.com/rwst/lean-code)
 (CC0), is the *other side* of the interface — statements of the Subspace Theorem recorded as

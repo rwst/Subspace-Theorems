@@ -122,21 +122,8 @@ theorem InfinitePlace.not_isNonarchimedean (w : InfinitePlace K) : ¬ IsNonarchi
   norm_num at h2
 
 omit [NumberField K] [LinearOrder ι] in
-/-- The form of the body evaluated on the mixed embedding of a point of `Kⁱ`. -/
-private theorem normAtPlace_sum_mixedEmbedding (l : Dual K (ι → K)) (w : InfinitePlace K)
-    (x : ι → K) :
-    normAtPlace w (∑ j, mixedEmbedding K (l (Pi.basisFun K ι j)) * mixedEmbedding K (x j)) =
-      w (l x) := by
-  rw [← normAtPlace_apply w]
-  congr 1
-  simp_rw [← map_mul, ← map_sum]
-  congr 1
-  conv_rhs => rw [← (Pi.basisFun K ι).sum_repr x]
-  simp [map_sum, mul_comm]
-
-omit [NumberField K] [LinearOrder ι] in
 /-- **A unitriangular change of a basis is a basis.** -/
-private theorem linearIndependent_add_sum_smul {x : Fin (Fintype.card ι) → ι → K}
+theorem linearIndependent_add_sum_smul {x : Fin (Fintype.card ι) → ι → K}
     (hx : LinearIndependent K x) (ξ : Fin (Fintype.card ι) → Fin (Fintype.card ι) → K) :
     LinearIndependent K fun j ↦ x j + ∑ l ∈ Finset.Iio j, ξ j l • x l := by
   set y := fun j ↦ x j + ∑ l ∈ Finset.Iio j, ξ j l • x l
