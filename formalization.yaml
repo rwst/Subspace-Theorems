@@ -1,0 +1,517 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/mathlib-initiative/formalization.yaml/main/schema/formalization.schema.json
+version: "v0.4"
+
+project:
+  name: "Heights, Siegel's lemma, Roth's theorem and the Subspace Theorems in Lean"
+  description: >-
+    A Lean 4 / Mathlib development of Schmidt's Subspace Theorem and the
+    theory beneath it, following Bombieri–Gubler, Heights in Diophantine
+    Geometry (Chapters 1–7), and Schmidt's route in general. Two libraries,
+    sorry-free and within Lean's three standard axioms. ArithmeticHeights
+    builds heights of points, polynomials, matrices and linear subspaces,
+    Northcott and Kronecker, Minkowski's second theorem, Siegel's lemma and
+    the Bombieri–Vaaler theorems. DiophantineApproximation builds on it
+    Roth's theorem over a number field with several places (and Ridout, the
+    p-adic form, targets at infinity, moving targets), the geometry of
+    numbers of approximation domains, and the Subspace Theorem: parametric,
+    with coefficients in K, with algebraic coefficients, for S-integral
+    points, and in Vojta's general-position form. It then proves the
+    applications — Schmidt's simultaneous approximation, a transcendence
+    criterion, unit equations, decomposable-form, Thue–Mahler, hyperelliptic
+    and norm-form equations, the Corvaja–Zannier gcd bound — and Evertse's
+    quantitative steps: systems of inequalities, the gap principles, the
+    count of small solutions, and the passage from height intervals to
+    subspaces. Twenty-six headline statements are compared: seven forms of
+    Siegel's lemma and Bombieri–Vaaler, seven of Roth's theorem, seven of the
+    Subspace Theorem, and five of Evertse's counting of the subspaces.
+  authors:
+    - "Ralf Stephan"
+  license: "Apache-2.0"
+  responsible_maintainers:
+    - "Ralf Stephan"
+
+classification:
+  arxiv: [math.NT]
+  msc2020: ["11J87", "11J68", "11G50", "11J25", "11H06", "11D61", "11D57", "11D59"]
+
+status:
+  scope: >-
+    The twenty-six declarations named in comparator/std3-flat.json, listed
+    under main_results, are Siegel's lemma and Bombieri–Vaaler (ArithmeticHeights
+    Layer 5), Roth's theorem (DiophantineApproximation Layer 3), the Subspace
+    Theorem (Layers 3.4 and 6) and Evertse's counting of the subspaces (Layer 9).
+    The repository proves more than is compared, all within the same three
+    axioms: the applications of Layers 7 and 8, and the rest of
+    ArithmeticHeights (Northcott, Kronecker, Gelfond, Hadamard, Minkowski's
+    second theorem, Vaaler's cube slicing, the unit and S-unit theorems). They
+    are left out of the challenge for size, since a challenge is capped at
+    1000 lines. Layers 5.3 and 5.4, the basis-of-the-kernel forms of
+    Bombieri–Vaaler over a number field, and everything else stated with the
+    height of a subspace (Northcott for subspaces, the duality theorem) cannot
+    be compared as the development stands: that height's definition reaches
+    private lemmas whose names embed their module, which no challenge file can
+    reproduce. Evertse's Theorem 2.1 on the large solutions is not proved in
+    general: Layer 9.4 takes his interval result as a hypothesis, and that
+    hypothesis is discharged only for two variables, through Roth's theorem
+    (NumberField.exists_finset_submodule_of_card_eq_two).
+  sorry_count: 0
+  sorry_in_definitions: 0
+  axioms: ["propext", "Classical.choice", "Quot.sound"]
+  main_results:
+    - declaration: "Int.Matrix.exists_ne_zero_mulVec_eq_zero_iSup_abs_le"
+      file: "ArithmeticHeights/Siegel.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/std3-flat.json"
+      literature_dependencies: []
+    - declaration: "NumberField.exists_forall_exists_ne_zero_mulVec_eq_zero_absMulHeight_le"
+      file: "ArithmeticHeights/Siegel.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/std3-flat.json"
+      literature_dependencies: []
+    - declaration: "Int.Matrix.exists_linearIndependent_mulVec_eq_zero_prod_iSup_abs_le"
+      file: "ArithmeticHeights/BombieriVaaler.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/std3-flat.json"
+      literature_dependencies: []
+    - declaration: "Int.Matrix.exists_ne_zero_mulVec_eq_zero_iSup_abs_le_det_rpow"
+      file: "ArithmeticHeights/BombieriVaaler.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/std3-flat.json"
+      literature_dependencies: []
+    - declaration: "NumberField.exists_ne_zero_mem_ker_absMulHeight_le"
+      file: "ArithmeticHeights/BombieriVaalerEntries.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/std3-flat.json"
+      literature_dependencies: []
+    - declaration: "NumberField.exists_linearIndependent_mem_ker_prod_absMulHeight_le"
+      file: "ArithmeticHeights/BombieriVaalerRelative.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/std3-flat.json"
+      literature_dependencies: []
+    - declaration: "MvPolynomial.exists_ne_zero_mem_ker_mulHeight_rpow_le"
+      file: "ArithmeticHeights/AuxiliaryPolynomial.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/std3-flat.json"
+      literature_dependencies: []
+    - declaration: "NumberField.finite_setOf_prod_min_one_le"
+      file: "DiophantineApproximation/RothTheorem.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/std3-flat.json"
+      literature_dependencies: []
+    - declaration: "Real.irrationalityExponent_eq_two"
+      file: "DiophantineApproximation/RothRational.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/std3-flat.json"
+      literature_dependencies: []
+    - declaration: "Rat.finite_setOf_ridout"
+      file: "DiophantineApproximation/Ridout.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/std3-flat.json"
+      literature_dependencies: []
+    - declaration: "Rat.finite_setOf_apply_intCast_sub_le"
+      file: "DiophantineApproximation/Ridout.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/std3-flat.json"
+      literature_dependencies: []
+    - declaration: "NumberField.finite_setOf_prod_onePointApprox_le"
+      file: "DiophantineApproximation/RothInfinity.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/std3-flat.json"
+      literature_dependencies: []
+    - declaration: "NumberField.finite_setOf_prod_min_one_le_card_two"
+      file: "DiophantineApproximation/RothProjective.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/std3-flat.json"
+      literature_dependencies: []
+    - declaration: "NumberField.finite_setOf_prod_min_one_le_of_isLittleO"
+      file: "DiophantineApproximation/MovingTargets.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/std3-flat.json"
+      literature_dependencies: []
+    - declaration: "NumberField.exists_finset_submodule_of_approxProd_le_card_two"
+      file: "DiophantineApproximation/RothProjective.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/std3-flat.json"
+      literature_dependencies: []
+    - declaration: "NumberField.exists_finset_submodule_forall_approxDomain_subset"
+      file: "DiophantineApproximation/ParametricSubspace.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/std3-flat.json"
+      literature_dependencies: []
+    - declaration: "NumberField.exists_finset_submodule_of_approxProd_le"
+      file: "DiophantineApproximation/SubspaceTheorem.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/std3-flat.json"
+      literature_dependencies: []
+    - declaration: "NumberField.exists_finset_submodule_of_approxProd_le_extension"
+      file: "DiophantineApproximation/SubspaceAlgebraic.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/std3-flat.json"
+      literature_dependencies: []
+    - declaration: "NumberField.exists_finset_submodule_of_integer_of_affineProd_le"
+      file: "DiophantineApproximation/SubspaceAffine.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/std3-flat.json"
+      literature_dependencies: []
+    - declaration: "NumberField.exists_finset_submodule_of_generalProd_le"
+      file: "DiophantineApproximation/SubspaceGeneralPosition.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/std3-flat.json"
+      literature_dependencies: []
+    - declaration: "NumberField.exists_finset_submodule_of_approxProd_le_card_two_of_extension"
+      file: "DiophantineApproximation/SubspaceConsistency.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/std3-flat.json"
+      literature_dependencies: []
+    - declaration: "NumberField.exists_finset_submodule_of_systemWeight_neg"
+      file: "DiophantineApproximation/SubspaceSystem.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/std3-flat.json"
+      literature_dependencies: []
+    - declaration: "NumberField.exists_finset_submodule_of_not_isLargeSolution"
+      file: "DiophantineApproximation/SubspaceSmall.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/std3-flat.json"
+      literature_dependencies: []
+    - declaration: "Rat.exists_finset_submodule_of_not_isLargeSolution"
+      file: "DiophantineApproximation/SubspaceSmall.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/std3-flat.json"
+      literature_dependencies: []
+    - declaration: "NumberField.exists_finset_submodule_of_forall_mem_interval"
+      file: "DiophantineApproximation/SubspaceIntervals.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/std3-flat.json"
+      literature_dependencies: []
+    - declaration: "NumberField.exists_finset_submodule_of_card_eq_two"
+      file: "DiophantineApproximation/RothSubspaceCount.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/std3-flat.json"
+      literature_dependencies: []
+
+fidelity:
+  divergences: >-
+    Absolute values and places are Mathlib's (infinite places of a number
+    field, finite places as a finite set S), not the book's abstract set of
+    places; Evertse's systems are indexed by InfinitePlace K ⊕ S, and the
+    exponents are the same numbers in his normalization and Mathlib's. The
+    Subspace Theorem is stated through named quantities, approxProd for the
+    projective forms, affineProd for S-integral points and generalProd for
+    Vojta's form, each defined in the development and compared by value.
+    Where a statement is stronger than the book's the module doc records
+    it; for instance, the decomposable-form theorem assumes no pairwise
+    non-proportionality, since none is used. In Layer 9 the
+    intermediate count below n^(2n/δ) of Evertse's Theorem 2.2 is replaced
+    by a cruder one that his final constants still absorb, and over ℚ the
+    lattice-point lemma he quotes (Evertse 2000, Lemma 5) is proved by a
+    pigeonhole on the minima of an approximation domain. The 9.4 statement
+    takes Evertse's interval result (his Theorem 3.1) as a hypothesis; see
+    status.scope.
+    The single-file challenge differs from the development in presentation
+    only, and COMPARATOR.md records why. Its Mathlib imports follow the
+    development's load order, because Lean breaks ties between instances of
+    equal priority by load order. In the parts copied from modules that
+    descend from DiophantineApproximation/ApproxProd.lean (and from
+    ArithmeticHeights/BombieriVaaler.lean), local attribute commands lower
+    the priority of FaithfulSMul and Nontrivial instances, because those
+    modules load Mathlib in a different order from the rest of the
+    development. These are instances of propositions, so the attribute
+    commands change which proof a statement carries, never what it says.
+    Each part also opens with a run_cmd that clears Lean's module-local
+    cache of auxiliary proofs, as a module boundary does. The per-module
+    challenge tree Challenge/, which needs none of this, passes the same
+    comparison.
+    Lemma names follow the development, not the book's numbering.
+
+sources:
+  - title: "Heights in Diophantine Geometry"
+    authors: ["Enrico Bombieri", "Walter Gubler"]
+    type: book
+    location: >-
+      New Mathematical Monographs 4, Cambridge University Press 2006;
+      Chapters 1–2 (heights, Siegel's lemma), 6 (Roth's theorem) and 7
+      (the Subspace Theorem and its applications), Appendix C (geometry of
+      numbers)
+    relationship: formalizes
+    author_endorsement: not-contacted
+    note: >-
+      The main source. The milestones and most proofs follow it; the module
+      docs cite it by theorem number.
+
+  - title: "Diophantine Approximation"
+    authors: ["Wolfgang M. Schmidt"]
+    type: book
+    location: "Lecture Notes in Mathematics 785, Springer 1980"
+    relationship: adapts
+    author_endorsement: "n/a"
+    note: >-
+      Schmidt's proof of the Subspace Theorem, which Bombieri–Gubler's
+      Chapter 7 presents over number fields and which the development
+      follows in general, together with his theorems on simultaneous
+      approximation (Chapter VI). Schmidt's Lemma 4, the composite Gram
+      determinant, is proved in the development as
+      NumberField.mixedEmbedding.norm_det_gram.
+
+  - title: "On Siegel's lemma"
+    authors: ["Enrico Bombieri", "Jeffrey D. Vaaler"]
+    type: paper
+    location: "Invent. Math. 73 (1983), 11–32; Theorems 1 and 2"
+    relationship: formalizes
+    author_endorsement: not-contacted
+    note: "Layer 5.2 of ArithmeticHeights."
+
+  - title: "On the Quantitative Subspace Theorem"
+    authors: ["Jan-Hendrik Evertse"]
+    type: paper
+    location: >-
+      Zap. Nauchn. Sem. POMI 377 (2010), 217–240; J. Math. Sci. 171 (2010),
+      824–837; arXiv:1008.2268. §2, Theorem A, Propositions 4.1–4.2,
+      Lemmas 4.3–4.5, Theorem 2.2 and the proof of Theorem 2.1
+    relationship: formalizes
+    author_endorsement: not-contacted
+    note: >-
+      Layer 9 of DiophantineApproximation. Theorem 2.1 is proved only from
+      the interval result taken as a hypothesis, and for two variables
+      unconditionally; see status.scope.
+
+  - title: "The ArithmeticHeights and DiophantineApproximation roadmaps"
+    authors: ["Ralf Stephan"]
+    type: blueprint
+    location: >-
+      ArithmeticHeights/README.md and DiophantineApproximation/README.md in
+      this repository
+    relationship: other
+    author_endorsement: participated
+    note: >-
+      The milestone plan the libraries implement, layer by layer, written
+      from Bombieri–Gubler by the Fable-5 agent under the releaser's
+      direction. The mathematics is that of the sources above; the roadmaps
+      fix the order, the Lean shapes of the statements and the milestone
+      numbering the module docs refer to. Not reviewed.
+
+automation:
+  methods:
+    - method: agent
+      models: ["claude-fable-5"]
+      framework: "Claude Code"
+      role: >-
+        The roadmaps: the two README.md files that split Bombieri–Gubler into
+        layered milestones with suggested Lean statements, under the
+        releaser's direction.
+    - method: agent
+      models: ["claude-opus-5"]
+      framework: "Claude Code"
+      role: >-
+        Most of the formalization: the Lean text of both libraries, driven
+        milestone by milestone from the roadmaps under the releaser's
+        direction, which fixed the targets and the gates.
+    - method: agent
+      models: ["claude-opus-5-5"]
+      framework: "Claude Code"
+      role: >-
+        Part of the formalization, among it the Roth interval result for two
+        variables and its link into Layer 9.4, and the comparator setup: the
+        generator scripts/make-challenge.py, the challenge and solution
+        modules and the configurations.
+    - method: manual
+      models: []
+      role: >-
+        Direction and release. Ralf Stephan chose the target, the sources
+        and the Tau Ceti conventions the libraries follow, set the
+        axiom-hygiene gates, steered the agents turn by turn, selected which
+        outputs to keep, and releases the repository.
+  spend_usd: "subscription-based Claude Code usage; per-project spend not recorded separately"
+  notes: >-
+    The libraries are held to Tau Ceti's rules by scripts/check.sh, adapted
+    from Tau Ceti's CI (scripts/PROVENANCE.md): a build with Mathlib's linter
+    set as errors, an axiom audit of every declaration against the three
+    standard axioms, the module-system check, environment linters, and
+    textual guards against sorry-allowed or challenge imports, set_option and
+    import Mathlib. On the tree as submitted it reports 203 library files and
+    5048 declarations within the allowlist. lake test runs
+    leanprover/comparator over two configurations stating the same
+    twenty-six theorems: comparator/std3.json against the per-module
+    challenge tree, and comparator/std3-flat.json against the single
+    Mathlib-only file ChallengeFlat.lean, which is the one submitted. Both
+    are generated from comparator/theorems.txt by scripts/make-challenge.py,
+    which copies every definition in the compared closure verbatim and
+    refuses any theorem whose closure reaches a private constant. Both pass.
+    Three negative controls were confirmed to bite: a weakened hypothesis,
+    the removal of the cache resets, and the removal of the instance
+    attribute commands. Roadmap/Suggested.lean holds sorry-allowed target
+    signatures; it is not a default target, and no library file or challenge
+    imports it. Wall time and hardware were not recorded.
+
+review:
+  status: unchecked
+  notes: >-
+    No human or external review of the Lean text or of the fidelity of the
+    statements has been performed. The releaser directed the work and chose
+    which outputs to keep. The roadmaps are marked in the repository as
+    preliminary and unreviewed. What is established is mechanical:
+    comparator compares each named statement against the challenge file
+    constant by constant, checks the axiom list, and replays the export
+    through the Lean kernel.
+
+limitations:
+  - >-
+    The compared theorems depend on propext, Classical.choice and Quot.sound
+    and nothing else. The libraries contain no sorry and no native_decide.
+    The sorries in the challenge file are the placeholders comparator
+    expects, and the configuration fixes no definition holes.
+  - >-
+    The Subspace Theorem is qualitative. Layer 9 gives Evertse's count of
+    the small solutions and turns height intervals into a count of
+    subspaces; the interval result for the large solutions is proved only
+    for two variables, so no quantitative Subspace Theorem in n variables is
+    claimed.
+  - >-
+    Not compared, though proved: Layers 5.3 and 5.4 and the other statements
+    about the height of a subspace, which reach private constants, and, for
+    size, the applications of Layers 7 and 8 and the rest of
+    ArithmeticHeights. The flat challenge is 823 lines and 41 KiB, within the
+    hard limits and above the warning thresholds.
+  - >-
+    The degenerate case of Schmidt's norm-form theorem is proved only up to
+    finitely many families inside subfields; the families themselves, which
+    need orders and their unit theorem, are located but not described.
+  - >-
+    Everything proved here is classical and in print; no novelty is
+    claimed. The value offered is the machine-checked account.
+
+alignment:
+  namespace: "NumberField, Int.Matrix, MvPolynomial, Real, Rat"
+  statements:
+    - source: "Siegel's lemma over ℤ (BG Lemma 2.9.1)"
+      lean: "Int.Matrix.exists_ne_zero_mulVec_eq_zero_iSup_abs_le"
+      module: "ChallengeFlat (statement), Solution / ArithmeticHeights.Siegel (proof)"
+      status: proved
+    - source: "Siegel's lemma over a number field (BG Corollary 2.9.2)"
+      lean: "NumberField.exists_forall_exists_ne_zero_mulVec_eq_zero_absMulHeight_le"
+      module: "ChallengeFlat (statement), Solution / ArithmeticHeights.Siegel (proof)"
+      status: proved
+    - source: "Bombieri–Vaaler, Theorem 2: a basis of small vectors (BG §2.9)"
+      lean: "Int.Matrix.exists_linearIndependent_mulVec_eq_zero_prod_iSup_abs_le"
+      module: "ChallengeFlat (statement), Solution / ArithmeticHeights.BombieriVaaler (proof)"
+      status: proved
+    - source: "Bombieri–Vaaler, Theorem 1: one small vector (BG §2.9)"
+      lean: "Int.Matrix.exists_ne_zero_mulVec_eq_zero_iSup_abs_le_det_rpow"
+      module: "ChallengeFlat (statement), Solution / ArithmeticHeights.BombieriVaaler (proof)"
+      status: proved
+    - source: "One small solution over a number field (BG Corollary 2.9.9)"
+      lean: "NumberField.exists_ne_zero_mem_ker_absMulHeight_le"
+      module: "ChallengeFlat (statement), Solution / ArithmeticHeights.BombieriVaalerEntries (proof)"
+      status: proved
+    - source: "The relative Siegel lemma (BG Theorem 2.9.19)"
+      lean: "NumberField.exists_linearIndependent_mem_ker_prod_absMulHeight_le"
+      module: "ChallengeFlat (statement), Solution / ArithmeticHeights.BombieriVaalerRelative (proof)"
+      status: proved
+    - source: "The auxiliary polynomial (ArithmeticHeights Layer 5.7)"
+      lean: "MvPolynomial.exists_ne_zero_mem_ker_mulHeight_rpow_le"
+      module: "ChallengeFlat (statement), Solution / ArithmeticHeights.AuxiliaryPolynomial (proof)"
+      status: proved
+    - source: "Roth's theorem over a number field, several places (BG Theorem 6.4.1)"
+      lean: "NumberField.finite_setOf_prod_min_one_le"
+      module: "ChallengeFlat (statement), Solution / DiophantineApproximation.RothTheorem (proof)"
+      status: proved
+    - source: "Roth's theorem over ℚ (BG Theorem 6.2.3)"
+      lean: "Real.irrationalityExponent_eq_two"
+      module: "ChallengeFlat (statement), Solution / DiophantineApproximation.RothRational (proof)"
+      status: proved
+      note: "Stated as: the irrationality exponent of a real algebraic irrational is 2."
+    - source: "Ridout's theorem (BG Theorem 6.2.4)"
+      lean: "Rat.finite_setOf_ridout"
+      module: "ChallengeFlat (statement), Solution / DiophantineApproximation.Ridout (proof)"
+      status: proved
+    - source: "Roth's theorem, p-adic form (BG Corollary 6.2.6)"
+      lean: "Rat.finite_setOf_apply_intCast_sub_le"
+      module: "ChallengeFlat (statement), Solution / DiophantineApproximation.Ridout (proof)"
+      status: proved
+    - source: "Roth's theorem with targets at infinity (BG Remark 6.2.5)"
+      lean: "NumberField.finite_setOf_prod_onePointApprox_le"
+      module: "ChallengeFlat (statement), Solution / DiophantineApproximation.RothInfinity (proof)"
+      status: proved
+    - source: "Roth's theorem on the projective line (BG Theorem 7.2.2 for n = 1)"
+      lean: "NumberField.finite_setOf_prod_min_one_le_card_two"
+      module: "ChallengeFlat (statement), Solution / DiophantineApproximation.RothProjective (proof)"
+      status: proved
+    - source: "Roth's theorem with moving targets (BG Theorem 6.5.2)"
+      lean: "NumberField.finite_setOf_prod_min_one_le_of_isLittleO"
+      module: "ChallengeFlat (statement), Solution / DiophantineApproximation.MovingTargets (proof)"
+      status: proved
+    - source: "The Subspace Theorem in two variables (BG Theorem 7.2.2 for n = 1)"
+      lean: "NumberField.exists_finset_submodule_of_approxProd_le_card_two"
+      module: "ChallengeFlat (statement), Solution / DiophantineApproximation.RothProjective (proof)"
+      status: proved
+    - source: "The parametric Subspace Theorem (BG §7.5, Theorem 7.5.13 and Lemma 7.5.33)"
+      lean: "NumberField.exists_finset_submodule_forall_approxDomain_subset"
+      module: "ChallengeFlat (statement), Solution / DiophantineApproximation.ParametricSubspace (proof)"
+      status: proved
+    - source: "The Subspace Theorem, coefficients in K (BG Theorem 7.2.2 with F = K)"
+      lean: "NumberField.exists_finset_submodule_of_approxProd_le"
+      module: "ChallengeFlat (statement), Solution / DiophantineApproximation.SubspaceTheorem (proof)"
+      status: proved
+    - source: "The Subspace Theorem, algebraic coefficients (BG Theorem 7.2.2 and Remark 7.2.3)"
+      lean: "NumberField.exists_finset_submodule_of_approxProd_le_extension"
+      module: "ChallengeFlat (statement), Solution / DiophantineApproximation.SubspaceAlgebraic (proof)"
+      status: proved
+    - source: "The Subspace Theorem for S-integral points (BG Corollary 7.2.5, Theorem 7.2.6)"
+      lean: "NumberField.exists_finset_submodule_of_integer_of_affineProd_le"
+      module: "ChallengeFlat (statement), Solution / DiophantineApproximation.SubspaceAffine (proof)"
+      status: proved
+    - source: "Vojta's general-position form (BG Theorem 7.2.9)"
+      lean: "NumberField.exists_finset_submodule_of_generalProd_le"
+      module: "ChallengeFlat (statement), Solution / DiophantineApproximation.SubspaceGeneralPosition (proof)"
+      status: proved
+    - source: "On P¹ the Subspace Theorem is Roth's theorem (BG Theorem 7.2.2 for n = 1, Example 7.2.7)"
+      lean: "NumberField.exists_finset_submodule_of_approxProd_le_card_two_of_extension"
+      module: "ChallengeFlat (statement), Solution / DiophantineApproximation.SubspaceConsistency (proof)"
+      status: proved
+    - source: "Evertse 2010, Theorem A (systems of inequalities, §2)"
+      lean: "NumberField.exists_finset_submodule_of_systemWeight_neg"
+      module: "ChallengeFlat (statement), Solution / DiophantineApproximation.SubspaceSystem (proof)"
+      status: proved
+    - source: "Evertse 2010, Theorem 2.2 (the small solutions)"
+      lean: "NumberField.exists_finset_submodule_of_not_isLargeSolution"
+      module: "ChallengeFlat (statement), Solution / DiophantineApproximation.SubspaceSmall (proof)"
+      status: proved
+    - source: "Evertse 2010, Theorem 2.2 over ℚ, with Lemmas 4.4–4.5"
+      lean: "Rat.exists_finset_submodule_of_not_isLargeSolution"
+      module: "ChallengeFlat (statement), Solution / DiophantineApproximation.SubspaceSmall (proof)"
+      status: proved
+    - source: "Evertse 2010, proof of Theorem 2.1: from height intervals to subspaces"
+      lean: "NumberField.exists_finset_submodule_of_forall_mem_interval"
+      module: "ChallengeFlat (statement), Solution / DiophantineApproximation.SubspaceIntervals (proof)"
+      status: proved
+      note: "The intervals are a hypothesis; Evertse's Theorem 3.1 is not proved."
+    - source: "Evertse's Theorem 2.1 for two variables, through Roth's intervals (BG 6.5.6–6.5.7)"
+      lean: "NumberField.exists_finset_submodule_of_card_eq_two"
+      module: "ChallengeFlat (statement), Solution / DiophantineApproximation.RothSubspaceCount (proof)"
+      status: proved
+      note: "Normalized systems in two variables; uniform in the forms."

@@ -1,0 +1,38 @@
+{
+  "challenge_module": "ChallengeFlat",
+  "solution_module": "Solution",
+  "theorem_names": [
+    "Int.Matrix.exists_ne_zero_mulVec_eq_zero_iSup_abs_le",
+    "NumberField.exists_forall_exists_ne_zero_mulVec_eq_zero_absMulHeight_le",
+    "Int.Matrix.exists_linearIndependent_mulVec_eq_zero_prod_iSup_abs_le",
+    "Int.Matrix.exists_ne_zero_mulVec_eq_zero_iSup_abs_le_det_rpow",
+    "NumberField.exists_ne_zero_mem_ker_absMulHeight_le",
+    "NumberField.exists_linearIndependent_mem_ker_prod_absMulHeight_le",
+    "MvPolynomial.exists_ne_zero_mem_ker_mulHeight_rpow_le",
+    "NumberField.finite_setOf_prod_min_one_le",
+    "Real.irrationalityExponent_eq_two",
+    "Rat.finite_setOf_ridout",
+    "Rat.finite_setOf_apply_intCast_sub_le",
+    "NumberField.finite_setOf_prod_onePointApprox_le",
+    "NumberField.finite_setOf_prod_min_one_le_card_two",
+    "NumberField.finite_setOf_prod_min_one_le_of_isLittleO",
+    "NumberField.exists_finset_submodule_of_approxProd_le_card_two",
+    "NumberField.exists_finset_submodule_forall_approxDomain_subset",
+    "NumberField.exists_finset_submodule_of_approxProd_le",
+    "NumberField.exists_finset_submodule_of_approxProd_le_extension",
+    "NumberField.exists_finset_submodule_of_integer_of_affineProd_le",
+    "NumberField.exists_finset_submodule_of_generalProd_le",
+    "NumberField.exists_finset_submodule_of_approxProd_le_card_two_of_extension",
+    "NumberField.exists_finset_submodule_of_systemWeight_neg",
+    "NumberField.exists_finset_submodule_of_not_isLargeSolution",
+    "Rat.exists_finset_submodule_of_not_isLargeSolution",
+    "NumberField.exists_finset_submodule_of_forall_mem_interval",
+    "NumberField.exists_finset_submodule_of_card_eq_two"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Quot.sound",
+    "Classical.choice"
+  ],
+  "enable_nanoda": false
+}

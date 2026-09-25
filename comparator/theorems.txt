@@ -1,0 +1,37 @@
+# The theorems `lake test` certifies, in the order the configs list them.
+# `scripts/make-challenge.py` reads this file and regenerates `Challenge/`, `Challenge.lean`,
+# `ChallengeFlat.lean` and the two configs from it. `#` starts a comment. See `COMPARATOR.md`.
+
+# Siegel's lemma and Bombieri–Vaaler (`ArithmeticHeights`, Layer 5)
+Int.Matrix.exists_ne_zero_mulVec_eq_zero_iSup_abs_le                  # 5.1, over ℤ
+NumberField.exists_forall_exists_ne_zero_mulVec_eq_zero_absMulHeight_le  # 5.1, over a number field
+Int.Matrix.exists_linearIndependent_mulVec_eq_zero_prod_iSup_abs_le   # 5.2, Bombieri–Vaaler Thm 2
+Int.Matrix.exists_ne_zero_mulVec_eq_zero_iSup_abs_le_det_rpow         # 5.2, Bombieri–Vaaler Thm 1
+NumberField.exists_ne_zero_mem_ker_absMulHeight_le                    # 5.5, one small solution
+NumberField.exists_linearIndependent_mem_ker_prod_absMulHeight_le     # 5.6, relative form
+MvPolynomial.exists_ne_zero_mem_ker_mulHeight_rpow_le                 # 5.7, auxiliary polynomial
+
+# Roth's theorem (`DiophantineApproximation`, Layer 3)
+NumberField.finite_setOf_prod_min_one_le                              # 3.2, over a number field
+Real.irrationalityExponent_eq_two                                     # 3.3, over ℚ
+Rat.finite_setOf_ridout                                               # 3.3, Ridout
+Rat.finite_setOf_apply_intCast_sub_le                                 # 3.3, p-adic
+NumberField.finite_setOf_prod_onePointApprox_le                       # 3.3, targets at infinity
+NumberField.finite_setOf_prod_min_one_le_card_two                     # 3.4, projective line
+NumberField.finite_setOf_prod_min_one_le_of_isLittleO                 # 3.8, moving targets
+
+# The Subspace Theorem (Layers 3.4 and 6)
+NumberField.exists_finset_submodule_of_approxProd_le_card_two         # 3.4, two variables
+NumberField.exists_finset_submodule_forall_approxDomain_subset        # 6.1, parametric
+NumberField.exists_finset_submodule_of_approxProd_le                  # 6.2, coefficients in K
+NumberField.exists_finset_submodule_of_approxProd_le_extension        # 6.3, algebraic coefficients
+NumberField.exists_finset_submodule_of_integer_of_affineProd_le       # 6.4, affine, S-integers
+NumberField.exists_finset_submodule_of_generalProd_le                 # 6.5, Vojta
+NumberField.exists_finset_submodule_of_approxProd_le_card_two_of_extension  # 6.6, n = 1
+
+# Counting the subspaces (Layer 9, Evertse)
+NumberField.exists_finset_submodule_of_systemWeight_neg               # 9.1, Theorem A
+NumberField.exists_finset_submodule_of_not_isLargeSolution            # 9.3, small solutions
+Rat.exists_finset_submodule_of_not_isLargeSolution                    # 9.3, over ℚ
+NumberField.exists_finset_submodule_of_forall_mem_interval            # 9.4, intervals
+NumberField.exists_finset_submodule_of_card_eq_two                    # 3.7 into 9.4, N = 2

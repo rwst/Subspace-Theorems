@@ -1,0 +1,39 @@
+/-
+Copyright (c) 2026 Ralf Stephan. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Ralf Stephan
+-/
+import Challenge.ArithmeticHeights.Arakelov
+import Challenge.ArithmeticHeights.Absolute
+import Challenge.ArithmeticHeights.Affine
+import Challenge.ArithmeticHeights.Plucker
+import Challenge.ArithmeticHeights.Matrix
+import Challenge.ArithmeticHeights.BombieriVaalerEntries
+import Challenge.ArithmeticHeights.BombieriVaalerRelative
+import Challenge.ArithmeticHeights.Polynomial
+import Challenge.ArithmeticHeights.MonomialIndex
+import Challenge.ArithmeticHeights.AuxiliaryPolynomial
+import Challenge.ArithmeticHeights.Siegel
+import Challenge.ArithmeticHeights.BombieriVaaler
+import Challenge.DiophantineApproximation.RothTheorem
+import Challenge.DiophantineApproximation.RothInfinity
+import Challenge.DiophantineApproximation.ApproxProd
+import Challenge.DiophantineApproximation.AffineProd
+import Challenge.DiophantineApproximation.ApproximationDomain
+import Challenge.DiophantineApproximation.RationalPlaces
+import Challenge.DiophantineApproximation.GeneralPosition
+import Challenge.DiophantineApproximation.IrrationalityExponent
+import Challenge.DiophantineApproximation.MovingTargets
+import Challenge.DiophantineApproximation.ParametricSubspace
+import Challenge.DiophantineApproximation.RothRational
+import Challenge.DiophantineApproximation.Ridout
+import Challenge.DiophantineApproximation.RothProjective
+import Challenge.DiophantineApproximation.SubspaceTheorem
+import Challenge.DiophantineApproximation.SubspaceAlgebraic
+import Challenge.DiophantineApproximation.SubspaceAffine
+import Challenge.DiophantineApproximation.SubspaceSystem
+import Challenge.DiophantineApproximation.SubspaceIntervals
+import Challenge.DiophantineApproximation.RothSubspaceCount
+import Challenge.DiophantineApproximation.SubspaceGeneralPosition
+import Challenge.DiophantineApproximation.SubspaceConsistency
+import Challenge.DiophantineApproximation.SubspaceSmall

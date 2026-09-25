@@ -319,7 +319,15 @@ DiophantineApproximation/  the second library, same rules, also a default build 
 Roadmap/
   Suggested.lean        the roadmap's target signatures: sorry-allowed, NOT a default target;
                         imports the library, so the landed milestones are checked against it
-scripts/                the gates (see scripts/PROVENANCE.md); a few ignored reference copies
+scripts/                the gates (see scripts/PROVENANCE.md); a few ignored reference copies;
+                        make-challenge.py generates the comparator statements of record
+Challenge.lean, Challenge/  comparator's statements of record, one module per owning module:
+                        generated, sorry-proved, NOT a default target (see COMPARATOR.md)
+ChallengeFlat.lean      the same statements in one Mathlib-only file, Palomar's shape
+Solution.lean           the development re-exported for comparator
+comparator/             theorems.txt (the certified list) and the two configs `lake test` runs
+COMPARATOR.md           what `lake test` certifies, how to regenerate it, and why it looks so
+formalization.yaml      Palomar's metadata for the std3-flat submission (draft)
 TauCeti/                [gitignored] Tau Ceti's contract and configuration, verbatim, to read
 *.pdf                   [gitignored] literature (Bombieri–Gubler)
 ```
@@ -330,6 +338,8 @@ scripts/check.sh            # every gate, in one round
 scripts/check.sh --quick    # only the gates that need no build
 lake build Roadmap          # optional: check the target signatures still elaborate, and that
                             # the landed milestones still match the library
+lake test                   # optional: comparator certifies Siegel, Roth and the Subspace
+                            # Theorem against Challenge and ChallengeFlat (see COMPARATOR.md)
 ```
 
 `check.sh` runs, cheapest first: the four textual **guards**; **`lint-style.sh`** (copyright
@@ -358,9 +368,8 @@ by 15 environment linters with no violations, headers and text linters clean.
 
 ## Still to settle
 
-1. **No `formalization.yaml`.** Tau Ceti's is copied in `TauCeti/` as the model; ours would say:
-   source = Bombieri–Gubler plus the two roadmaps, single human author, `sorry_count: 0`, the three
-   allowlisted axioms — all of it now machine-checked by the gates rather than asserted.
+1. **`formalization.yaml` is a draft.** It is written for the Palomar submission of
+   `comparator/std3-flat.json` (see `COMPARATOR.md`) and has not been reviewed.
 2. **The shim ledger.** `ArithmeticHeights` Layers 0.3 and 6.5 both deliberately shadow an open
    Mathlib PR (mathlib4#41606, mathlib4#40791), which is exactly what `mathlib-shims.json` and
    `check-expired-mathlib-shims.py` exist to track, so that the vendored copy is deleted when

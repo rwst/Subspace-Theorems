@@ -39,6 +39,15 @@ for LIB in "${LIBRARY_ROOTS[@]}"; do
     echo "guards: $LIB/ must not import Roadmap (the sorry-allowed target signatures)." >&2
     status=1
   fi
+  # The same boundary for the comparator statements of record (`Challenge`, `ChallengeFlat`), which
+  # are `sorry`-proved by design, and for `Solution`, which exists to import the libraries.
+  record_re='^[[:space:]]*(public[[:space:]]+)?import[[:space:]]+'
+  record_re+='(Challenge|ChallengeFlat|Solution)\b'
+  if grep -nE "$record_re" "${files[@]}"; then
+    echo "guards: $LIB/ must not import Challenge, ChallengeFlat or Solution" \
+      "(see COMPARATOR.md)." >&2
+    status=1
+  fi
 
   # 2. No `set_option` in library source. It is an escape hatch: it can raise `maxHeartbeats`,
   # silence a linter, bump `maxRecDepth`. Upstream's wording, upstream's rule.
