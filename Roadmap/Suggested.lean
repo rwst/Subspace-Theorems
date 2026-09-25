@@ -63,6 +63,7 @@ import DiophantineApproximation.BinaryForm -- Layer 3.6, binary forms and their 
 import DiophantineApproximation.ThueEquation -- Layer 3.6, Thue's equation
 import DiophantineApproximation.GapPrinciple -- Layer 3.7, the strong gap principle
 import DiophantineApproximation.CountingApproximations -- Layer 3.7, counting approximations
+import DiophantineApproximation.RothIntervals -- Layer 3.7 as an interval result, for 9.4
 import DiophantineApproximation.MovingTargets -- Layer 3.8, moving targets
 import DiophantineApproximation.FinitePlaceValues -- Layer 4.1, the values of a finite place
 import DiophantineApproximation.ModuleCovolume -- Layer 4.1, the covolume of an `𝓞 K`-lattice
@@ -126,6 +127,16 @@ import DiophantineApproximation.UnitEquationSeveral -- Layer 8.2, the unit equat
 import DiophantineApproximation.DecomposableForm -- Layer 8.3, triangularly connected decomposable forms
 import DiophantineApproximation.SIntegerExtension -- Layer 8.4, `S`-integers in an extension
 import DiophantineApproximation.ThueMahler -- Layer 8.4, Thue and Thue–Mahler
+import DiophantineApproximation.SIntegerSquares -- Layer 8.5, square classes of `S`-integers
+import DiophantineApproximation.Hyperelliptic -- Layer 8.5, the hyperelliptic equation
+import DiophantineApproximation.NormForm -- Layer 8.6, norm-form equations
+import DiophantineApproximation.GcdBound -- Layer 8.7, the Corvaja–Zannier gcd bound
+import DiophantineApproximation.SubspaceSystem -- Layer 9.1, systems of inequalities
+import DiophantineApproximation.SubspaceGap -- Layer 9.2, the gap principle
+import DiophantineApproximation.SubspaceSmall -- Layer 9.3, the small solutions
+import DiophantineApproximation.DetCount -- Layer 9.3, Evertse's Lemmas 4.4 and 4.5 over ℚ
+import DiophantineApproximation.SubspaceIntervals -- Layer 9.4, from intervals to subspaces
+import DiophantineApproximation.RothSubspaceCount -- Layers 3.7 and 9.4 linked, for n = 2
 
 /-!
 # Diophantine approximation and the Subspace Theorem: target signatures
@@ -159,8 +170,8 @@ milestone that `DiophantineApproximation/` proves is one whose signature has sto
 the `example` is what certifies that the shape pinned here is the shape that was proved. Layers
 0.1, 0.2, 0.3, 0.4, 1.1, 1.2, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7,
 3.8, 4.1, 4.2, 4.3, 4.4, 4.5, 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 7.1,
-7.2, 7.3, 7.4, 7.5, 8.1, 8.2, 8.3 and 8.4 are landed —
-Layers 3, 4, 5 and 6 are complete, and **the Subspace Theorem is proved, in the form its
+7.2, 7.3, 7.4, 7.5, 8.1, 8.2, 8.3, 8.4, 8.5, 8.6, 8.7, 9.1, 9.2, 9.3 and 9.4 are landed —
+Layers 3, 4, 5, 6, 7, 8 and 9 are complete, and **the Subspace Theorem is proved, in the form its
 consumers apply**: points in `K`, coefficients in a finite extension, in the affine form every
 application of Layer 8 quotes, and for families of forms in general position of any finite
 sizes, and on the projective line it is Roth's theorem and nothing else; **and it has begun to
@@ -185,8 +196,8 @@ RothDeterminant,RothBaseCase,RothEstimates,RothLemma,ApproximationClass,
 IndependentHeights,GlobalBound,MvPolynomialEvalBound,RothLocalBound,RothClass,
 RothKeyInequality,RothAuxiliary,RothTheorem,RationalPlaces,RothInfinity,RothRational,
 Ridout,ProjectiveTarget,ApproxProd,RothProjective,PrimeProducts,MahlerPowers,BinaryForm,
-ThueEquation,GapPrinciple,CountingApproximations,MovingTargets,FinitePlaceValues,ModuleCovolume,
-ApproximationDomain,ApproximationVolume,FieldMinima,FieldMinkowski,ApproximationRank,
+ThueEquation,GapPrinciple,CountingApproximations,RothIntervals,MovingTargets,FinitePlaceValues,
+ModuleCovolume,ApproximationDomain,ApproximationVolume,FieldMinima,FieldMinkowski,ApproximationRank,
 SIntegerApproximation,EvertseLemma,WedgeForm,WedgeDomain,UnitNormalization,
 SubspaceReduction,MultiHomogeneous,MonomialDeviation,SubspaceAuxiliary,FormIndex,
 FormSpecialization,GeneralizedRothLemma,LinearFormValue,SubspaceNormal,SubspaceHeightBounds,
@@ -198,7 +209,9 @@ GeneralPosition,SubspaceGeneralPosition,SubspaceConsistency,LinearFormSubspaces,
 OneLinearForm,BoundedDegreeApproximation,SchmidtExponents,SimultaneousSubspaces,
 SimultaneousApproximation,StammeringWords,DigitExpansions,RepetitionSubspaces,
 TranscendenceCriterion,FactorComplexity,ComplexityTranscendence,UnitEquation,
-UnitEquationSeveral,DecomposableForm,SIntegerExtension,ThueMahler}.lean`;
+UnitEquationSeveral,DecomposableForm,SIntegerExtension,ThueMahler,SIntegerSquares,Hyperelliptic,
+NormForm,GcdBound,SubspaceSystem,SubspaceGap,DetPartition,SubspaceSmall,DetCount,
+SubspaceIntervals,RothSubspaceCount}.lean`;
 0.1's three signatures below survived verbatim, 1.1's definition survived verbatim and one of its
 five theorems lost a hypothesis, 1.2's two definitions survived and its `naiveHeight` abbreviation
 did not, 1.3's two elementary signatures survived up to a **name collision**, 2.1's definition
@@ -231,8 +244,9 @@ exponents vanish and so does `min 0 (D - 1)` — **8.1's one prototyped theorem 
 the sixth to do so and the first of Layer 8, **and 8.2's two prototyped theorems survived
 verbatim**, the seventh and eighth — and 0.2, 0.3, 0.4, 2.5, 2.6, 2.7,
 3.1, 3.6, 3.7, 3.8, 4.2,
-4.3, 4.4, 4.5, 5.1 5.2, 5.3, 5.4, 5.5, 5.6, 6.5, 6.6, 7.2, 7.4, 7.5, 8.3 and 8.4 had none to
-survive: they are
+4.3, 4.4, 4.5, 5.1 5.2, 5.3, 5.4, 5.5, 5.6, 6.5, 6.6, 7.2, 7.4, 7.5, 8.3, 8.4, 8.5, 8.6, 8.7,
+9.1, 9.2, 9.3 and 9.4 had none
+to survive: they are
 prototyped here for the first time — 2.6, 2.7 and 4.2 deliberately, since the preamble above
 judged their statements unstateable without the `ArithmeticHeights` objects, which was true until
 those objects landed, 3.1 because it is elementary and was expected not to drift, 4.3 because its
@@ -2704,6 +2718,28 @@ example (Sinf : Finset (InfinitePlace K)) (Sfin : Finset (FinitePlace K))
         ¬ ∀ j a, NumberField.localApprox Sinf Sfin w α a (β j) ≤ mulHeight₁ (β j) ^ (-κ * lam a) :=
   NumberField.roth_no_chain Sinf Sfin w hwInf hwFin α hκ
 
+/-- **Layer 3.7, restated for `N = 2`** as Layer 9.4 asks, landed in
+`DiophantineApproximation/RothIntervals.lean`: **Roth's theorem as an interval result.** Above a
+threshold `L' ≥ L`, the solutions have absolute height in at most `m (N + s).choose s` intervals
+`[Q, Q ^ M)`, all with `Q > exp L'`. It is fed to 9.4 in
+`DiophantineApproximation/RothSubspaceCount.lean`, with targets at infinity allowed. -/
+example (Sinf : Finset (InfinitePlace K)) (Sfin : Finset (FinitePlace K))
+    (w : AbsoluteValue K ℝ → AbsoluteValue F ℝ)
+    (hwInf : ∀ v ∈ Sinf, (w v.1).LiesOver v.1) (hwFin : ∀ v ∈ Sfin, (w v.1).LiesOver v.1)
+    (α : AbsoluteValue K ℝ → F) {κ : ℝ} (hκ : 2 < κ) :
+    ∃ L : ℝ, ∀ L' : ℝ, L ≤ L' → ∃ k : ℕ,
+      k ≤ NumberField.rothChainLength κ (Sinf.card + Sfin.card) (finrank K F) *
+        (NumberField.rothClassSize κ (Sinf.card + Sfin.card) + (Sinf.card + Sfin.card)).choose
+          (Sinf.card + Sfin.card) ∧
+      ∃ Q : Fin k → ℝ, (∀ i, Real.exp L' < Q i) ∧
+        ∀ β : K, (∏ v ∈ Sinf, min 1 (w v.1 (algebraMap K F β - α v.1)) ^ v.mult) *
+            ∏ v ∈ Sfin, min 1 (w v.1 (algebraMap K F β - α v.1)) ≤ mulHeight₁ β ^ (-κ) →
+          L' < absLogHeight₁ β →
+          ∃ i, Q i ≤ mulHeight₁ β ^ ((finrank ℚ K : ℝ)⁻¹) ∧
+            mulHeight₁ β ^ ((finrank ℚ K : ℝ)⁻¹) <
+              Q i ^ NumberField.rothRatio κ (Sinf.card + Sfin.card) (finrank K F) :=
+  NumberField.exists_forall_mem_interval_of_prod_min_one_le Sinf Sfin w hwInf hwFin α hκ
+
 /-! ### Layer 3.8 — landed
 
 Discharged by `DiophantineApproximation/MovingTargets.lean`, with the core of Roth's proof
@@ -4380,7 +4416,260 @@ example {g : ℤ[X]} {d : ℕ} (hd : g.natDegree ≤ d)
         ∏ i, (p i : ℕ) ^ t.2 i}.Finite :=
   Polynomial.finite_setOf_natAbs_eval_homogenize_eq_prod_pow hd hroots p
 
+/-- **Layer 8.5** (Siegel 1926; Bombieri–Gubler, Theorem 5.3.5), landed in
+`DiophantineApproximation/Hyperelliptic.lean` and prototyped here for the first time: the
+hyperelliptic equation `b y ^ 2 = f (x)` has finitely many solutions in `S`-integers when `f` has
+at least three distinct roots of **odd multiplicity** in an algebraically closed field — stronger
+than the book's squarefree hypothesis, which is the next example. ⚠ **Nothing above 8.1**: Siegel's
+identity among the square roots of `x - αᵢ` is one unit equation, and its ratio determines `x`. -/
+example {Ω : Type*} [Field Ω] [IsAlgClosed Ω] [Algebra K Ω] [DecidableEq Ω]
+    (S : Finset (HeightOneSpectrum (𝓞 K))) {f : K[X]}
+    (h3 : 3 ≤ ((f.map (algebraMap K Ω)).roots.toFinset.filter
+      fun r ↦ Odd ((f.map (algebraMap K Ω)).roots.count r)).card)
+    {b : K} (hb : b ≠ 0) :
+    {p : K × K | p.1 ∈ (S : Set (HeightOneSpectrum (𝓞 K))).integer K ∧
+      p.2 ∈ (S : Set (HeightOneSpectrum (𝓞 K))).integer K ∧ b * p.2 ^ 2 = f.eval p.1}.Finite :=
+  NumberField.finite_setOf_mul_sq_eq_eval S h3 hb
+
+/-- **Layer 8.5**, landed: the book's form, for squarefree `f` of degree at least `3`. -/
+example (S : Finset (HeightOneSpectrum (𝓞 K))) {f : K[X]} (hf : Squarefree f)
+    (hdeg : 3 ≤ f.natDegree) {b : K} (hb : b ≠ 0) :
+    {p : K × K | p.1 ∈ (S : Set (HeightOneSpectrum (𝓞 K))).integer K ∧
+      p.2 ∈ (S : Set (HeightOneSpectrum (𝓞 K))).integer K ∧ b * p.2 ^ 2 = f.eval p.1}.Finite :=
+  NumberField.finite_setOf_mul_sq_eq_eval_of_squarefree S hf hdeg hb
+
+/-- **Layer 8.6** (Schmidt 1971–1972; Bombieri–Gubler §7.4), landed in
+`DiophantineApproximation/NormForm.lean` and prototyped here for the first time: **Schmidt's
+theorem** — if the `ℚ`-span of a finitely generated `ℤ`-submodule `M` of `K` is non-degenerate,
+the norm equation `N_{K/ℚ}(μ) = c` has finitely many solutions in `M`. ⚠ Non-degenerate is stated
+with embeddings: every subfield `F` with `α F` in the span, `α ≠ 0`, has one infinite place — all
+embeddings of `K` into `ℂ` have the same absolute value on `F` — so `F` is `ℚ` or imaginary
+quadratic. -/
+example (M : Submodule ℤ K) (hM : M.FG)
+    (hnd : NumberField.IsNondegenerate (Submodule.span ℚ (M : Set K))) (c : ℚ) :
+    {μ : K | μ ∈ M ∧ Algebra.norm ℚ μ = c}.Finite :=
+  NumberField.finite_setOf_norm_eq M hM hnd c
+
+/-- **Layer 8.6**, landed: the general case — the solutions lie in a finite set or in finitely
+many sets `α F` inside the span, `F` a subfield with more than one infinite place. ⚠ Only
+located: the book's description of each `α F` as finitely many orbits of units of norm `1` of an
+order is not built. -/
+example (M : Submodule ℤ K) (hM : M.FG) (c : ℚ) :
+    ∃ Φ : Set K, Φ.Finite ∧ ∃ P : Set (K × IntermediateField ℚ K), P.Finite ∧
+      (∀ p ∈ P, p.1 ≠ 0 ∧ (∀ x ∈ p.2, p.1 * x ∈ Submodule.span ℚ (M : Set K)) ∧
+        ∃ φ ψ : K →+* ℂ, ∃ x ∈ p.2, ‖φ x‖ ≠ ‖ψ x‖) ∧
+      ∀ μ ∈ M, Algebra.norm ℚ μ = c → μ ∈ Φ ∨ ∃ p ∈ P, μ / p.1 ∈ p.2 :=
+  NumberField.exists_finite_forall_mem_or_div_mem M hM c
+
+/-- **Layer 8.7** (Corvaja–Zannier; Bombieri–Gubler, Theorem 7.4.10), landed in
+`DiophantineApproximation/GcdBound.lean` and prototyped here for the first time: **the
+Corvaja–Zannier gcd bound** over `ℤ`. Pairs of nonzero integers with prime factors in `P` and
+`gcd (u − 1) (v − 1) ≥ (max |u| |v|) ^ ε` are bounded or lie on one of finitely many curves
+`u ^ a * v ^ b = 1`, `(a, b) ≠ (0, 0)`. ⚠ The gcd is the ordinary one, not its part prime to `P`. -/
+example (P : Finset ℕ) {ε : ℝ} (hε : 0 < ε) :
+    ∃ R : ℤ, ∃ E : Finset (ℤ × ℤ), (0, 0) ∉ E ∧ ∀ u v : ℤ, u ≠ 0 → v ≠ 0 →
+      u.natAbs.primeFactors ⊆ P → v.natAbs.primeFactors ⊆ P →
+      ((max |u| |v| : ℤ) : ℝ) ^ ε ≤ (Int.gcd (u - 1) (v - 1) : ℝ) →
+      max |u| |v| ≤ R ∨ ∃ e ∈ E, (u : ℚ) ^ e.1 * (v : ℚ) ^ e.2 = 1 :=
+  Int.exists_forall_of_rpow_le_gcd_sub_one P hε
+
+/-- **Layer 8.7**, landed: Corvaja–Zannier's corollary — the greatest prime factor of
+`(a b + 1)(a c + 1)` tends to infinity with `a`, for `a > b > c ≥ 1`, stated as the finiteness
+of the `a` for which it stays in a finite set `P`. -/
+example (P : Finset ℕ) :
+    {a : ℕ | ∃ b c : ℕ, 1 ≤ c ∧ c < b ∧ b < a ∧
+      ((a * b + 1) * (a * c + 1)).primeFactors ⊆ P}.Finite :=
+  Nat.finite_setOf_primeFactors_subset P
+
 end UnitEquation
+
+/-! ## Layer 9: counting subspaces
+
+### Layer 9.1 — landed
+
+Evertse's systems of inequalities, in `DiophantineApproximation/SubspaceSystem.lean`, prototyped
+here for the first time. The places of a system are indexed by `InfinitePlace K ⊕ S`, and the
+local value at an infinite place carries its multiplicity, so the exponents are Evertse's own. -/
+
+section CountingSubspaces
+
+variable {K F : Type*} [Field K] [NumberField K] [Field F] [NumberField F] [Algebra K F]
+  {ι : Type*} [Fintype ι]
+
+/-- **Layer 9.1** (Evertse 2010, Theorem A), landed: the nonzero solutions of a system of negative
+weight lie in finitely many proper subspaces. -/
+example [Nontrivial ι] (S : Finset (HeightOneSpectrum (𝓞 K)))
+    (w : AbsoluteValue K ℝ → AbsoluteValue F ℝ)
+    (hwInf : ∀ v : InfinitePlace K, (w v.1).LiesOver v.1)
+    (hwFin : ∀ v ∈ S, (w (FinitePlace.mk v).1).LiesOver (FinitePlace.mk v).1)
+    (L : AbsoluteValue K ℝ → ι → Dual F (ι → F))
+    (hLInf : ∀ v : InfinitePlace K, LinearIndependent F (L v.1))
+    (hLFin : ∀ v ∈ S, LinearIndependent F (L (FinitePlace.mk v).1))
+    {C : InfinitePlace K ⊕ S → ℝ} (hC : ∀ p, 0 ≤ C p) {c : InfinitePlace K ⊕ S → ι → ℝ}
+    (hc : systemWeight c < 0) :
+    ∃ T : Finset (Submodule K (ι → K)), (∀ W ∈ T, W ≠ ⊤) ∧
+      ∀ x ∈ systemSet S w L C c, x ≠ 0 → ∃ W ∈ T, x ∈ W :=
+  exists_finset_submodule_of_systemWeight_neg S w hwInf hwFin L hLInf hLFin hC hc
+
+/-- **Layer 9.1**, landed: **the reduction to finitely many systems**. ⚠ It is stated against the
+affine height, Evertse's (2.2), which is why it needs no unit and no independence of the forms;
+the constants are arbitrary and the grid of exponents does not depend on them. -/
+example (S : Finset (HeightOneSpectrum (𝓞 K))) (w : AbsoluteValue K ℝ → AbsoluteValue F ℝ)
+    (hwInf : ∀ v : InfinitePlace K, (w v.1).LiesOver v.1)
+    (hwFin : ∀ v ∈ S, (w (FinitePlace.mk v).1).LiesOver (FinitePlace.mk v).1)
+    (L : AbsoluteValue K ℝ → ι → Dual F (ι → F)) {δ : ℝ} (hδ : 0 < δ) :
+    ∃ 𝒞 : Finset (InfinitePlace K ⊕ S → ι → ℝ), (∀ c ∈ 𝒞, systemWeight c ≤ -δ / 2) ∧
+      ∀ C : InfinitePlace K ⊕ S → ℝ, (∀ p, 0 < C p) → ∃ Q₀ : ℝ, ∀ x : ι → K,
+        (∀ j, x j ∈ (S : Set (HeightOneSpectrum (𝓞 K))).integer K) →
+        affineProd S w L x ≤ mulHeightAff x ^ (-δ) → Q₀ ≤ mulHeightAff x →
+        ∃ c ∈ 𝒞, x ∈ systemSet S w L C c :=
+  exists_finset_forall_exists_mem_systemSet S w hwInf hwFin L hδ
+
+/-- **Layer 9.1**, landed: under Evertse's normalization (2.4) a system implies Schmidt's
+normalized inequality `|L₁(x) ⋯ Lₙ(x)| ≤ |det| · H(x) ^ (-δ)`. -/
+example [Nonempty ι] {S : Finset (HeightOneSpectrum (𝓞 K))}
+    {w : AbsoluteValue K ℝ → AbsoluteValue F ℝ} {L : AbsoluteValue K ℝ → ι → Dual F (ι → F)}
+    {C : InfinitePlace K ⊕ S → ℝ} {c : InfinitePlace K ⊕ S → ι → ℝ} {H : ℝ} {D R : ℕ} {δ : ℝ}
+    (hN : IsNormalizedSystem S w L C c H D R δ) {x : ι → K} (hx : x ∈ systemSet S w L C c) :
+    affineProd S w L x ≤ systemDet S w L * mulHeightAff x ^ (-δ) :=
+  affineProd_le_systemDet_mul_rpow hN hx
+
+/-! ### Layer 9.2 — landed
+
+Evertse's first gap principle, in `DiophantineApproximation/SubspaceGap.lean`, prototyped here for
+the first time. ⚠ The window is in the absolute affine height, as in `IsLargeSolution`, and the
+determinant is bounded by Leibniz rather than Hadamard; the hypothesis on `Q` is Evertse's. -/
+
+/-- **Layer 9.2** (Evertse 2010, Proposition 4.1), landed: **the gap principle**. Under the
+normalization and for `Q ≥ n ^ (2 n / δ)`, the solutions of absolute affine height in
+`[Q, Q ^ (1 + δ / (2 n)))` lie in a single proper subspace. -/
+example [Nonempty ι] (S : Finset (HeightOneSpectrum (𝓞 K)))
+    (w : AbsoluteValue K ℝ → AbsoluteValue F ℝ)
+    (hwInf : ∀ v : InfinitePlace K, (w v.1).LiesOver v.1)
+    (hwFin : ∀ v ∈ S, (w (FinitePlace.mk v).1).LiesOver (FinitePlace.mk v).1)
+    {L : AbsoluteValue K ℝ → ι → Dual F (ι → F)} {C : InfinitePlace K ⊕ S → ℝ}
+    {c : InfinitePlace K ⊕ S → ι → ℝ} {H : ℝ} {D R : ℕ} {δ : ℝ}
+    (hN : IsNormalizedSystem S w L C c H D R δ) {Q : ℝ}
+    (hQ : (Fintype.card ι : ℝ) ^ (2 * Fintype.card ι / δ) ≤ Q) :
+    ∃ U : Submodule K (ι → K), U ≠ ⊤ ∧ ∀ x ∈ systemSet S w L C c,
+      Q ≤ mulHeightAff x ^ ((finrank ℚ K : ℝ)⁻¹) →
+      mulHeightAff x ^ ((finrank ℚ K : ℝ)⁻¹) < Q ^ (1 + δ / (2 * Fintype.card ι)) → x ∈ U :=
+  exists_submodule_ne_top_of_window S w hwInf hwFin hN hQ
+
+/-! ### Layer 9.3 — landed
+
+Evertse's second gap principle and Theorem 2.2, in `DiophantineApproximation/SubspaceSmall.lean`
+with Lemma 4.3 in `DiophantineApproximation/DetPartition.lean` and Lemmas 4.4 and 4.5 in
+`DiophantineApproximation/DetCount.lean`, prototyped here for the first time. ⚠ `n ≥ 2` is forced
+by the normalization. -/
+
+/-- **Layer 9.3** (Evertse 2010, Proposition 4.2), landed: **the second gap principle**. -/
+example (S : Finset (HeightOneSpectrum (𝓞 K))) (w : AbsoluteValue K ℝ → AbsoluteValue F ℝ)
+    (hwInf : ∀ v : InfinitePlace K, (w v.1).LiesOver v.1)
+    (hwFin : ∀ v ∈ S, (w (FinitePlace.mk v).1).LiesOver (FinitePlace.mk v).1)
+    {L : AbsoluteValue K ℝ → ι → Dual F (ι → F)} {C : InfinitePlace K ⊕ S → ℝ}
+    {c : InfinitePlace K ⊕ S → ι → ℝ} {H : ℝ} {D R : ℕ} {δ : ℝ}
+    (hN : IsNormalizedSystem S w L C c H D R δ) {Q : ℝ} (hQ : 1 ≤ Q) :
+    ∃ T : Finset (Submodule K (ι → K)),
+      (T.card : ℝ) ≤ (90 * Fintype.card ι) ^ (Fintype.card ι * finrank ℚ K) ∧
+      (∀ U ∈ T, U ≠ ⊤) ∧ ∀ x ∈ systemSet S w L C c,
+        Q ≤ mulHeightAff x ^ ((finrank ℚ K : ℝ)⁻¹) →
+        mulHeightAff x ^ ((finrank ℚ K : ℝ)⁻¹) < 2 * Q ^ (1 + δ / (2 * Fintype.card ι)) →
+        ∃ U ∈ T, x ∈ U :=
+  exists_finset_submodule_of_window_two_mul S w hwInf hwFin hN hQ
+
+/-- **Layer 9.3** (Evertse 2010, Theorem 2.2), landed: **the small solutions** lie in at most
+`δ⁻¹ ((10³ n) ^ (n d) + 4 n log log (4 H))` proper subspaces. -/
+example (S : Finset (HeightOneSpectrum (𝓞 K))) (w : AbsoluteValue K ℝ → AbsoluteValue F ℝ)
+    (hwInf : ∀ v : InfinitePlace K, (w v.1).LiesOver v.1)
+    (hwFin : ∀ v ∈ S, (w (FinitePlace.mk v).1).LiesOver (FinitePlace.mk v).1)
+    {L : AbsoluteValue K ℝ → ι → Dual F (ι → F)} {C : InfinitePlace K ⊕ S → ℝ}
+    {c : InfinitePlace K ⊕ S → ι → ℝ} {H : ℝ} {D R : ℕ} {δ : ℝ}
+    (hN : IsNormalizedSystem S w L C c H D R δ) :
+    ∃ T : Finset (Submodule K (ι → K)),
+      (T.card : ℝ) ≤ δ⁻¹ * ((10 ^ 3 * Fintype.card ι) ^ (Fintype.card ι * finrank ℚ K) +
+        4 * Fintype.card ι * Real.log (Real.log (4 * H))) ∧
+      (∀ U ∈ T, U ≠ ⊤) ∧
+      ∀ x ∈ systemSet S w L C c, ¬ IsLargeSolution H δ x → ∃ U ∈ T, x ∈ U :=
+  exists_finset_submodule_of_not_isLargeSolution S w hwInf hwFin hN
+
+open scoped Classical in
+/-- **Layer 9.3** (Evertse 2010, Lemma 4.4), landed: integral points of `ℚⁿ` any `n` of which have
+determinant at most `D` lie in at most `100 ^ n max (1, D) ^ (1 / (n - 1))` proper subspaces. -/
+example (hn : 2 ≤ Fintype.card ι) {T : Set (ι → ℚ)} (hT : ∀ x ∈ T, ∀ j, ∃ z : ℤ, x j = z)
+    {D : ℝ} (hD : ∀ y : ι → ι → ℚ, (∀ j, y j ∈ T) → |((Pi.basisFun ℚ ι).det y : ℝ)| ≤ D) :
+    ∃ U : Finset (Submodule ℚ (ι → ℚ)),
+      (U.card : ℝ) ≤ 100 ^ Fintype.card ι * max 1 D ^ (((Fintype.card ι - 1 : ℕ) : ℝ)⁻¹) ∧
+      (∀ W ∈ U, W ≠ ⊤) ∧ ∀ x ∈ T, ∃ W ∈ U, x ∈ W :=
+  Rat.exists_finset_submodule_of_abs_det_le hn hT hD
+
+/-- **Layer 9.3** (Evertse 2010, Theorem 2.2 for `K = ℚ`), landed: the small solutions lie in at
+most `δ⁻¹ (10 ^ (3 n) + 4 n log log (4 H))` proper subspaces of `ℚⁿ`. -/
+example (S : Finset (HeightOneSpectrum (𝓞 ℚ))) (w : AbsoluteValue ℚ ℝ → AbsoluteValue F ℝ)
+    (hwInf : ∀ v : InfinitePlace ℚ, (w v.1).LiesOver v.1)
+    (hwFin : ∀ v ∈ S, (w (FinitePlace.mk v).1).LiesOver (FinitePlace.mk v).1)
+    {L : AbsoluteValue ℚ ℝ → ι → Dual F (ι → F)} {C : InfinitePlace ℚ ⊕ S → ℝ}
+    {c : InfinitePlace ℚ ⊕ S → ι → ℝ} {H : ℝ} {D R : ℕ} {δ : ℝ}
+    (hN : IsNormalizedSystem S w L C c H D R δ) :
+    ∃ T : Finset (Submodule ℚ (ι → ℚ)),
+      (T.card : ℝ) ≤ δ⁻¹ * (10 ^ (3 * Fintype.card ι) +
+        4 * Fintype.card ι * Real.log (Real.log (4 * H))) ∧
+      (∀ U ∈ T, U ≠ ⊤) ∧
+      ∀ x ∈ systemSet S w L C c, ¬ IsLargeSolution H δ x → ∃ U ∈ T, x ∈ U :=
+  Rat.exists_finset_submodule_of_not_isLargeSolution S w hwInf hwFin hN
+
+/-! ### Layer 9.4 — landed
+
+Evertse's covering of intervals by windows of the gap principle, in
+`DiophantineApproximation/SubspaceIntervals.lean`, prototyped here for the first time. The
+intervals are a hypothesis, so that any interval result can be fed to it. -/
+
+/-- **Layer 9.4** (Evertse 2010, proof of Theorem 2.1), landed: **from intervals to subspaces**.
+If the solutions outside `U₀` have height in `⋃_{i < m} [Q i, Q i ^ ω)` with
+`Q i ≥ n ^ (2 n / δ)`, they lie in at most `m (1 + log ω / log (1 + δ / (2 n)))` proper
+subspaces. -/
+example (S : Finset (HeightOneSpectrum (𝓞 K))) (w : AbsoluteValue K ℝ → AbsoluteValue F ℝ)
+    (hwInf : ∀ v : InfinitePlace K, (w v.1).LiesOver v.1)
+    (hwFin : ∀ v ∈ S, (w (FinitePlace.mk v).1).LiesOver (FinitePlace.mk v).1)
+    {L : AbsoluteValue K ℝ → ι → Dual F (ι → F)} {C : InfinitePlace K ⊕ S → ℝ}
+    {c : InfinitePlace K ⊕ S → ι → ℝ} {H : ℝ} {D R : ℕ} {δ : ℝ}
+    (hN : IsNormalizedSystem S w L C c H D R δ) (U₀ : Submodule K (ι → K)) {m : ℕ}
+    (Q : Fin m → ℝ) (hQ : ∀ i, (Fintype.card ι : ℝ) ^ (2 * Fintype.card ι / δ) ≤ Q i) {ω : ℝ}
+    (hω : 1 ≤ ω)
+    (hint : ∀ x ∈ systemSet S w L C c, x ∉ U₀ → ∃ i, Q i ≤ mulHeightAff x ^ ((finrank ℚ K : ℝ)⁻¹) ∧
+      mulHeightAff x ^ ((finrank ℚ K : ℝ)⁻¹) < Q i ^ ω) :
+    ∃ T : Finset (Submodule K (ι → K)),
+      (T.card : ℝ) ≤ m * (1 + Real.log ω / Real.log (1 + δ / (2 * Fintype.card ι))) ∧
+      (∀ U ∈ T, U ≠ ⊤) ∧ ∀ x ∈ systemSet S w L C c, x ∉ U₀ → ∃ U ∈ T, x ∈ U :=
+  exists_finset_submodule_of_forall_mem_interval S w hwInf hwFin hN U₀ Q hQ hω hint
+
+/-- **Layers 3.7 and 9.4 linked**, landed in `DiophantineApproximation/RothSubspaceCount.lean`:
+for a normalized system in two variables, the solutions above an (ineffective) height `X₀` lie in
+at most `s + 1 + m (N + s).choose s · (1 + log (3 r s M) / log (1 + δ / 4))` proper subspaces,
+with Roth's parameters at `2 + δ / 2`, `s` places and `r = [F : K]`: the count depends on `δ`,
+`s` and `r` alone. -/
+example (hι : Fintype.card ι = 2) (S : Finset (HeightOneSpectrum (𝓞 K)))
+    (w : AbsoluteValue K ℝ → AbsoluteValue F ℝ)
+    (hwInf : ∀ v : InfinitePlace K, (w v.1).LiesOver v.1)
+    (hwFin : ∀ v ∈ S, (w (FinitePlace.mk v).1).LiesOver (FinitePlace.mk v).1)
+    {L : AbsoluteValue K ℝ → ι → Dual F (ι → F)} {C : InfinitePlace K ⊕ S → ℝ}
+    {c : InfinitePlace K ⊕ S → ι → ℝ} {H : ℝ} {D R : ℕ} {δ : ℝ}
+    (hN : IsNormalizedSystem S w L C c H D R δ) :
+    ∃ X₀ : ℝ, ∃ T : Finset (Submodule K (ι → K)),
+      (T.card : ℝ) ≤ ((Fintype.card (InfinitePlace K) + S.card + 1 : ℕ) : ℝ) +
+        ((rothChainLength (2 + δ / 2) (Fintype.card (InfinitePlace K) + S.card) (finrank K F) *
+          (rothClassSize (2 + δ / 2) (Fintype.card (InfinitePlace K) + S.card) +
+            (Fintype.card (InfinitePlace K) + S.card)).choose
+              (Fintype.card (InfinitePlace K) + S.card) : ℕ) : ℝ) *
+          (1 + Real.log (3 * ((finrank K F * (Fintype.card (InfinitePlace K) + S.card) : ℕ) : ℝ) *
+            rothRatio (2 + δ / 2) (Fintype.card (InfinitePlace K) + S.card) (finrank K F)) /
+            Real.log (1 + δ / 4)) ∧
+      (∀ U ∈ T, U ≠ ⊤) ∧
+      ∀ x ∈ systemSet S w L C c, X₀ ≤ mulHeightAff x ^ ((finrank ℚ K : ℝ)⁻¹) →
+        ∃ U ∈ T, x ∈ U :=
+  exists_finset_submodule_of_card_eq_two hι S w hwInf hwFin hN
+
+end CountingSubspaces
 
 end
 

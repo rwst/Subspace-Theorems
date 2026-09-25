@@ -159,7 +159,10 @@ form and none of it about `S`.
 and counts nothing; `…/CountingApproximations.lean` is two combinatorial lemmas that know no
 heights — points with a gap in a window, chains in a finite set — and the two counts. It also
 restructured `…/RothTheorem.lean`, which now proves the core of Roth's proof as a statement of its
-own.
+own. Its restatement for 9.4, `…/RothIntervals.lean`, is a third file: a greedy covering and the
+interval result, with no gap principle, and with targets at infinity by 3.3's Möbius map; the
+link into 9.4, `…/RothSubspaceCount.lean`, is a fourth, which reads a normalized system in two
+variables as Roth's inequality.
 ⚠ **3.8 took one file, and the work went into the files it stands on**: `…/MovingTargets.lean` is
 the theorem and its acceptance tests. The core of Roth's proof in `…/RothTheorem.lean` is now
 stated for targets that change along the chain, Steps I to V in `…/RothAuxiliary.lean`,
@@ -291,9 +294,27 @@ induction in two steps around it.
 ⚠ **8.4 took two, and the seam is between the extension and the form**: `…/SIntegerExtension.lean`
 is the passage from `S` to the primes above it, in both directions, and knows no Diophantine
 equation; `…/ThueMahler.lean` is the binary forms, 8.3 in the splitting field, the descent and
-Thue–Mahler over `ℚ`. The first file is what 8.5 will quote.
+Thue–Mahler over `ℚ`. The first file is what 8.5 quotes.
+⚠ **8.5 took two, and the seam is between the square classes and the curve**:
+`…/SIntegerSquares.lean` is ring theory over a principal ring of `S`-integers — the enlargement of
+`S`, the square classes of `S`-units and the coprime-factor lemma — and knows no polynomial;
+`…/Hyperelliptic.lean` is the roots, the square-root extension, Siegel's identity and the descent.
+⚠ **8.6 took one**: `…/NormForm.lean` quotes 8.2's Corollary 7.4.3 once per step of an induction
+on the dimension, and is otherwise linear algebra over the normal closure.
+⚠ **8.7 took one**: `…/GcdBound.lean` is a single appeal to 6.4 over `ℚ`, on a box of monomials
+with two families of forms, and 8.6's homogeneous Corollary 7.4.3 once.
+⚠ **9.1 took one**: `…/SubspaceSystem.lean` is the systems of inequalities, the reduction to
+them and Theorem A, and quotes 6.4 only for Theorem A.
+⚠ **9.2 took one**: `…/SubspaceGap.lean` is the gap principle, the Leibniz bound at every place
+and the product formula for one determinant, and quotes nothing above Layer 0.
+⚠ **9.3 took three**: `…/DetPartition.lean` is Lemma 4.3, a partition of `ℂⁿ` that knows nothing
+about number fields, `…/DetCount.lean` is Lemmas 4.4 and 4.5, a lattice-point count over `ℚ` on
+Layer 4's approximation domains, and `…/SubspaceSmall.lean` is the second gap principle and
+Theorem 2.2, over `K` and over `ℚ`.
+⚠ **9.4 took one**: `…/SubspaceIntervals.lean` is the covering of intervals by windows of the gap
+principle, on a chain lemma now shared with 9.3 in `…/SubspaceGap.lean`.
 Layers 0, 1.1, 1.2, 1.3, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 3.1–3.8, 4.1–4.5, 5.1–5.6, 6.1–6.6,
-7.1–7.5 and 8.1–8.4 together stand at **one hundred and thirty** files,
+7.1–7.5, 8.1–8.7 and 9.1–9.4 together stand at **one hundred and forty-two** files,
 and nothing suggests the pattern stops.
 
 **This roadmap stands on [`ArithmeticHeights`](../ArithmeticHeights/README.md).** That roadmap's
@@ -2205,6 +2226,55 @@ class only those bounds, so the book's first step — shrinking `S` to the place
 solutions leaves at most `m` blocks in each class, and `m + 1` is the number of variables of the
 auxiliary polynomial; the book's `m` is its number of variables.
 
+**3.7 restated for `N = 2`**, as 9.4 asks — **landed**, in
+`DiophantineApproximation/RothIntervals.lean`. Above a threshold `L' ≥ L`, the solutions of 3.2's
+inequality have absolute height `mulHeight₁ β ^ (1 / [K : ℚ])` in at most `m (N + |S|).choose |S|`
+intervals `[Q, Q ^ M)`, all with `Q > exp L'`
+(`NumberField.exists_forall_mem_interval_of_prod_min_one_le`); `m`, `M` and `N` are Roth's
+parameters, so the number of intervals depends on `κ`, `|S|` and `[F : K]` alone. The blocks of
+6.5.7 become the intervals: the lowest solution of a class, the lowest at least `M` times higher,
+and so on, are at most `m` points (`Finset.exists_subset_card_le_of_not_exists_chain`, the greedy
+grouping with its starting points kept), and no gap principle is needed.
+
+With targets in `OnePoint F` and a constant in front of the height it holds in logarithmic
+heights with a bounded shift, windows `[t - e, M t + e)` at Roth's parameters for
+`(κ + 2) / 2` (`NumberField.exists_forall_mem_interval_of_prod_onePointApprox_le`): 3.3's Möbius
+map `β ↦ (β - c)⁻¹` moves the height by at most `e`.
+
+**And it is fed to 9.4** — **landed**, in `DiophantineApproximation/RothSubspaceCount.lean`. For a
+normalized system in two variables, the solutions above a height `X₀` lie in at most
+`s + 1 + m (N + s).choose s · (1 + log (3 r s M) / log (1 + δ / 4))` proper subspaces
+(`NumberField.exists_finset_submodule_of_card_eq_two`), with `s` the number of places of the
+system, `r = [F : K]` and Roth's parameters at `2 + δ / 2`: a count depending on `δ`, `s` and `r`
+alone. The link is three steps.
+
+* **The system is Roth's inequality.** At each place one form attains `s(v)` and the other, the
+  *small* form, carries the weight: the small exponents sum to at most `-1 - δ`. With
+  `β = x₁ / x₀`, the product of the small forms divided by the local sizes of `x` is at most a
+  constant times `H(β) ^ (-2 - δ)`, since the local sizes of an `S`-integral point multiply to at
+  least its height; the zero of each small form is a target in `OnePoint F` (3.4's `formRoot`).
+  No split over the `2 ^ s` choices of 3.4 is needed: the exponents choose the form.
+* **The affine height is a power of `H(β)`.** The multiples of `x` by integers have the same `β`,
+  and the system bounds the multiplier: each small form is at least `H(β) ^ (-r)` by Liouville's
+  inequality at one place (0.4), and their product is at most a constant times
+  `mulHeightAff x ^ (-1 - δ)`, so `mulHeightAff x ≤ C H(β) ^ (r s)`.
+* **Windows, then subspaces.** The windows `[t - e, M t + e)` of `h(β)` become windows `[Q, Q ^ ω)`
+  of the absolute affine height with `ω = 3 r s M`, above `2 ^ (4 / δ)`, and 9.4 — now stated for
+  any set of solutions (`NumberField.exists_finset_submodule_of_forall_mem_interval_of_mem`) —
+  covers them.
+
+⚠ **The lines where a small form vanishes are counted apart**, `s` of them, and the line
+`x₀ = 0`: on such a line the affine height is not bounded by `H(β)` and there can be infinitely
+many solutions, all in one subspace. That is why 9.4 had to take a set of solutions rather than
+the complement of one `U₀`.
+
+⚠ **The threshold is ineffective and the count is not Evertse's.** `X₀` comes from Roth's
+theorem and depends on the forms; Evertse's Theorem 2.1 counts above `max (2 H, n ^ (2 n / δ))`
+with `δ⁻¹`-shaped bounds from his Theorem 3.1. Roth's parameters are astronomically worse. What
+is proved is the link: an interval result, fed to 9.4, gives a count uniform in the forms.
+
+No acceptance or rejection tests were written for the restatement or the link.
+
 **3.8 Moving targets** (Vojta; Bombieri–Gubler, Theorem 6.5.2) — **landed**, in
 `DiophantineApproximation/MovingTargets.lean`, with the core of Roth's proof restated for moving
 targets in `…/RothTheorem.lean`. For a sequence of pairs `(α_j, β_j)` with `α_j : S → F`,
@@ -3931,36 +4001,176 @@ among them `(2, 1, 1, 1)`. Rejection: without coprimality `(2 ^ k, 0)` solves
 `x³ − 2 y³ = 2 ^ (3 k)` for every `k`; and `x² − 2 y² = ± 1`, with two linear factors, has the
 infinitely many coprime solutions of Pell's equation, so "three" cannot be lowered.
 
-**8.5 The hyperelliptic equation** (Siegel 1926; Bombieri–Gubler, Theorem 5.3.5). For
-`f ∈ (S.integer K)[X]` of degree at least `3` without multiple roots and `b ≠ 0`, finitely many
-`(x, y)` in `S.integer K` satisfy `b y² = f(x)`. Route, as in the book: adjoin three roots of
-`f`, enlarge `S` until the discriminant is a unit and the ring of `S`-integers principal (0.3),
-so that each `x − α i` is a square times one of finitely many unit representatives; over the
-extension generated by the square roots of those representatives the differences
-`α j − α i` factor into units, and Siegel's identity among the three differences is a unit
-equation (8.1). Qualitative only; the book's
-count rests on the Beukers–Schlickewei bound, which is not built here.
+**8.5 The hyperelliptic equation** (Siegel 1926; Bombieri–Gubler, Theorem 5.3.5) — **landed**,
+in `DiophantineApproximation/{SIntegerSquares,Hyperelliptic}.lean`. For `f ∈ K[X]` with at least
+three distinct roots of **odd multiplicity** in an algebraically closed `Ω ⊇ K`, `b ≠ 0` and a
+finite set `S` of primes of `𝓞 K`, finitely many `(x, y)` in `S.integer K` satisfy
+`b y² = f(x)` (`NumberField.finite_setOf_mul_sq_eq_eval`); the book's statement — `f` squarefree
+of degree at least `3` — is a corollary (`NumberField.finite_setOf_mul_sq_eq_eval_of_squarefree`),
+and so is the split case over `K` (`NumberField.finite_setOf_mul_sq_eq_eval_of_splits`). `f` is
+not asked to have `S`-integral coefficients, nor `b` to be an `S`-unit: both are absorbed by the
+enlargement of `S`.
 
-**8.6 Norm-form equations** (Schmidt 1971–1972; Bombieri–Gubler 7.4.4–7.4.6). For a finitely
-generated `ℤ`-submodule `M` of `K` and `c ∈ ℚˣ`, the solution set of `N_{K/ℚ}(μ) = c`, `μ ∈ M`,
-is a finite union of **families**: sets `μ₀ • U` where `M'` is a full module in a subfield
-`K' ⊆ K` with `α M' ⊆ M` for some `α ∈ Kˣ`, `μ₀ ∈ α M'` is a solution, and `U` is the group of
-units of the order of `M'` of norm `1` over `ℚ`. (When `[K : K']` is even the units of norm `−1`
-also preserve the equation; the book counts the two cosets as two families, and so does this
-statement.) Consequently: if no such `K'` other than `ℚ` and the
-imaginary quadratic fields occurs — `M` is **non-degenerate** — the equation has finitely many
-solutions. Owned with it: full modules and their orders, the unit theorem for an order (finite
-index in `(𝓞 K)ˣ`), and the finiteness of the solutions of a full module modulo units. From
-Corollary 7.4.3 (8.2) applied to a linear relation among the conjugates of `μ`, by induction on
-`[K : ℚ]`.
+Route: for three roots `α₁, α₂, α₃` of odd multiplicity in the splitting field, enlarge `S` until
+the leading coefficient, `b`, the nonzero roots and the nonzero differences of roots are units and
+the `S`-integers are principal (0.3; `NumberField.exists_finite_superset_forall_mem_unit`). At a
+solution `x − αᵢ` is coprime to the other linear factors of `f(x)`, so it is one of finitely many
+constants times a square (`NumberField.exists_eq_mul_sq_of_pow_mul_prod_eq`,
+`NumberField.exists_finset_forall_eq_mul_sq`). Over the splitting field of `∏ₑ (X² − e)`,
+`x − αᵢ = δᵢ²` with `δᵢ` integral above `S`, and `(δᵢ − δⱼ)(δᵢ + δⱼ) = αⱼ − αᵢ` makes both factors
+units; Siegel's identity `(δ₁ − δ₂)/(δ₁ − δ₃) + (δ₂ − δ₃)/(δ₁ − δ₃) = 1` is a unit equation (8.1),
+and each `x` carries at most two `y`.
+
+⚠ **No ideal is factored and no valuation is counted.** The book shows that `x − α` has even
+valuation outside `S` and takes a square root of the ideal it generates, which wants fractional
+ideal factorization and the class group of `S.integer K`. Instead the argument runs in the
+principal ring `S.integer K` that 0.3 builds: the factors are coprime there because their
+differences are units — a Bézout identity written in `K` — and Mathlib's
+`exists_associated_pow_of_mul_eq_pow'` does the rest. No prime of `S.integer K` is ever named, and
+0.3's open converse (the prime correspondence of the localization) is not needed.
+
+⚠ **The square classes are finite by two theorems already in hand**: the `S`-units are finitely
+generated (`ArithmeticHeights` 6.5, `Set.unit_fg`), and in a finitely generated commutative group
+the squares have finite index (Mathlib's `Subgroup.finiteIndex_range_powMonoidHom_of_fg`). The
+finiteness of Mathlib's Selmer group `K⟮S, 2⟯`, a TODO there, is not proved and not needed.
+
+⚠ **Odd multiplicity is the right hypothesis, and costs nothing over squarefree.** The coprimality
+asks nothing of the other roots, and an odd power `z ^ (2k+1) = v d²` gives `z = v (d / z ^ k)²` —
+the square root lives in `K`, not in `S.integer K`, and the `δᵢ` are integral anyway because their
+squares are. So `y² = x³ (x² − 2)`, which the book's statement does not cover, is finite too.
+
+⚠ **One unit equation, not three, and one ratio determines `x`.** With `t = (δ₁ − δ₂)/(δ₁ − δ₃)`,
+`(δ₁ − δ₃)² = (t (α₃ − α₁) − (α₂ − α₁)) / (t (t − 1))` and
+`2 (δ₁ − δ₃) δ₁ = (δ₁ − δ₃)² + (α₃ − α₁)`, so `x = α₁ + δ₁²` is a rational function of `t`: the
+finite set of `x` is the image of the solutions of one unit equation. `t ≠ 0, 1` because the three
+roots are distinct.
+
+⚠ **8.4's passage to an extension is quoted in the forward direction only**, twice: once from `K`
+to the splitting field of `f`, once from there to the square roots. No degree is computed.
+**Nothing above 8.1 is used**: no 8.2, no Subspace Theorem, no heights. Qualitative only; the
+book's count rests on the Beukers–Schlickewei bound, which is not built here.
+
+Acceptance criteria: in every number field and for every finite `S`, `y² = x³ − 2` (Mordell) and
+`y² = x³ (x² − 2)` (not squarefree) have finitely many `S`-integral solutions; `(3, 5)` is an
+integral solution of the first. Rejection: `y² = x² (x − 1)`, of degree `3` with one root of odd
+multiplicity, has the integral solutions `(t² + 1, t (t² + 1))` for every `t`; and
+`y² = 2 x² + 1`, with two simple roots, has the infinitely many integral solutions of Pell's
+equation — so neither "odd" nor "three" can be dropped.
+
+**8.6 Norm-form equations** (Schmidt 1971–1972; Bombieri–Gubler §7.4) — **landed**, in
+`DiophantineApproximation/NormForm.lean`. For a finitely generated `ℤ`-submodule `M` of `K` and
+`c ∈ ℚ`, the solutions of `N_{K/ℚ}(μ) = c`, `μ ∈ M`, lie in a finite set or in finitely many sets
+`α F` inside `ℚ M`, where `α ≠ 0` and `F` is a subfield with more than one infinite place
+(`NumberField.exists_finite_forall_mem_or_div_mem`). Call a `ℚ`-subspace `V` of `K`
+**non-degenerate** when every subfield `F` with a nonzero multiple `α F ⊆ V` has a single
+infinite place — all embeddings of `K` into `ℂ` have the same absolute value on `F`, which means
+`F` is `ℚ` or imaginary quadratic (`NumberField.IsNondegenerate`). If `ℚ M` is non-degenerate the
+equation has finitely many solutions (`NumberField.finite_setOf_norm_eq`, **Schmidt's theorem**).
+In a field of prime degree every subspace of smaller dimension is non-degenerate
+(`NumberField.isNondegenerate_of_finrank_lt`). Route, by induction on the dimension of a subspace
+`V ≤ ℚ M`, inside `K` and one normal closure `G`:
+
+* **the solutions have `S`-unit conjugates** for one finite `S` of `G`: a common denominator `D`
+  makes `D μ` integral (`NumberField.exists_forall_isIntegral_mul`), its cofactor
+  `N(D μ) / (D μ)` is the product of the other conjugates and so integral
+  (`NumberField.isIntegral_norm_div`), and the two multiply to `D ^ d c`
+  (`NumberField.exists_finset_forall_mem_unit`, with 8.5's `exists_mem_unit_of_mul_eq`);
+* choose a maximal set `R` of embeddings `K → G` pairwise **non-proportional** on `V` — no
+  `i = γ j` there (`NumberField.exists_finset_pairwise_not_isProportional`);
+* **the step**: if `R` is linearly dependent on `V`, the relation `∑ r, g r * r μ = 0` is a
+  homogeneous unit equation, and **Corollary 7.4.3** (8.2), in its homogeneous form
+  `NumberField.exists_finite_forall_exists_div_mem`, gives `r μ = γ r₀ μ` with `r ≠ r₀` and `γ`
+  in a finite set; each such equation cuts `V` properly, since `r` and `r₀` are not proportional
+  (`NumberField.exists_finite_forall_exists_mem_lt`);
+* **the leaf**: if `R` is independent, `#R ≤ dim V`; the ratios `v / w₀` generate a subfield `F`
+  whose embeddings are restrictions of those in `R`, so `[F : ℚ] ≤ #R ≤ dim V ≤ [F : ℚ]` and
+  `V = w₀ F` (`NumberField.exists_eq_mul_intermediateField`). If `F` has one infinite place, all
+  conjugates of `μ / w₀` have one absolute value, the norm fixes it, and the conjugates of `μ` are
+  bounded (`NumberField.finite_setOf_norm_eq_of_forall_norm_eq`); otherwise `w₀ F` is recorded.
+
+⚠ **Non-degeneracy is stated with embeddings, not with a list of fields.** "Every `F` with
+`α F ⊆ V` is `ℚ` or imaginary quadratic" becomes "has one infinite place", and that is read as
+equal absolute values under every embedding of `K` — the property the leaf uses, with no
+classification of fields in the statement. The book's `α M' ⊆ M` for a full module `M'` of `F`
+is `α F ⊆ ℚ M`, since `M` is a lattice in its span.
+
+⚠ **Everything happens inside `K`.** The route above used to say "by induction on `[K : ℚ]`",
+passing to the subfield and its own normal closure. The induction is on `dim V` instead: the
+degenerate case is detected as `V = w₀ F` for a subfield of `K`, the embeddings of `F` are
+counted as restrictions (`AlgHom.card_of_splits`, extended by `exists_algHom_of_splits`), and one
+normal closure serves every step, so no field changes type.
+
+⚠ **The families are not built.** The book describes the solutions in `α F` as finitely many
+orbits `μ₀ U` of the units of norm `1` of the order of a full module of `F`, which needs full
+modules, their orders and the unit theorem for an order. Here the degenerate part is only
+*located*: it lies in finitely many sets `α F`. Nothing downstream asks for more, and Schmidt's
+finiteness theorem does not need it.
+
+⚠ **Corollary 7.4.3 is used once per step and nothing above it.** No Subspace Theorem, no heights:
+the file quotes `exists_finite_forall_exists_mul_mem`, `exists_finset_le_unit` and
+`exists_mem_unit_of_mul_eq`, and is otherwise linear algebra and embeddings.
+
+Acceptance criteria: for `θ = 2 ^ (1/5)`, the norm from `ℚ(θ)` takes every value finitely often on
+`ℤ + ℤ θ + ℤ θ ²`, a norm form in three variables and so beyond Thue, and `θ` is a solution of
+norm `2`; in `ℚ(i)` the full module `ℤ + ℤ i` is non-degenerate, so `x ² + y ² = c` has finitely
+many solutions. Rejection: in `ℚ(√2)` the full module `ℤ + ℤ √2` is degenerate, and its norm
+`x ² − 2 y ²` takes the value `1` at the infinitely many units `(1 + √2) ^ (2 k)`.
 
 **8.7 The Corvaja–Zannier gcd bound** (Corvaja–Zannier; Bombieri–Gubler, Theorem 7.4.10 and
-Corollary 7.4.11). For a finite set of primes and `ε > 0`, the pairs `(u, v)` of integers whose
-prime factors lie in the set and with `gcd (u − 1) (v − 1) ≥ (max |u| |v|)^ε` lie in the union of
-a finite set and finitely many sets `{u^a * v^b = 1}` with `(a, b) ≠ (0, 0)` in `ℤ²`; in
-particular only finitely many of them are multiplicatively independent. Corollary: the greatest prime factor of `(a b + 1)(a c + 1)` tends
-to infinity with `a`, for `a > b > c ≥ 1`. The acceptance test for 6.4 over `ℚ` with a number of
-variables that grows with `1/ε`.
+Corollary 7.4.11) — **landed**, in `DiophantineApproximation/GcdBound.lean`. For a finite set `P`
+of primes and `ε > 0` there are a bound `R` and a finite set `E ∌ (0, 0)` of exponent pairs such
+that every pair `(u, v)` of nonzero integers with prime factors in `P` and
+`gcd (u − 1) (v − 1) ≥ (max |u| |v|) ^ ε` has `max |u| |v| ≤ R` or satisfies `u ^ a * v ^ b = 1`
+for some `(a, b) ∈ E` (`Int.exists_forall_of_rpow_le_gcd_sub_one`); in particular only finitely
+many of them are multiplicatively independent (`Int.finite_setOf_rpow_le_gcd_sub_one`).
+Corollaries: the greatest prime factor of `(a b + 1)(a c + 1)` tends to infinity with `a`, for
+`a > b > c ≥ 1` (`Nat.finite_setOf_primeFactors_subset`, Corvaja–Zannier 2003); and
+`gcd (a ^ n − 1) (b ^ n − 1) < exp (ε n)` for all large `n`, for multiplicatively independent
+`a, b ≥ 2` (`Nat.finite_setOf_exp_le_gcd_pow_sub_one`, Bugeaud–Corvaja–Zannier 2003). Route, with
+`d` the gcd, `m = ⌈4 / ε⌉` and `N = m + 2`:
+
+* **the point** `z (i, j) = (u ^ (i + 1) v ^ j − 1) / d` for `i, j < N`, integral because
+  `u ≡ v ≡ 1` modulo `d` (`Int.dvd_pow_mul_pow_sub_one`);
+* **the forms**: the coordinates at the infinite place, and at every prime of `P` the forms
+  `z (i, j) − z top` and `z top`, where `top` is the monomial `u ^ N v ^ (N − 1)`, the
+  `p`-adically smallest. Each is at most `|d|_p` times the `p`-adic size of one monomial
+  (`NumberField.FinitePlace.apply_sub_le_mul`), and by the product formula for the `S`-units
+  `u ^ a v ^ b` the central quantity is at most `(2 / d) ^ N² |u ^ N v ^ (N − 1)|`;
+* **6.4 with exponent `1`**: against a height at most `2 H ^ (2 N − 1)`, the `N²` powers of
+  `d ≥ H ^ ε` win once `ε N² ≥ 4 N − 1` and `H ≥ 2 ^ (N² + 1)`, so `z` lies in one of finitely
+  many proper subspaces;
+* **the relation** `∑ c (i, j) (u ^ (i + 1) v ^ j − 1) = 0` is a homogeneous unit equation, and
+  8.6's homogeneous Corollary 7.4.3 (`NumberField.exists_finite_forall_exists_div_mem`) puts the
+  ratio of two distinct monomials in a finite set. Ratio `1` is a curve `u ^ a v ^ b = 1`; a
+  ratio `r / s ≠ 1` forces `d ∣ r − s` (`Int.dvd_num_sub_den`), which bounds `d` and so `H`.
+
+⚠ **Order of vanishing one, and one application.** Every coordinate of the point is a polynomial
+vanishing at `(1, 1)` to order one; there is no filtration by higher order of vanishing, and no
+choice of forms depending on the solution: the same two families serve every solution, because
+`top` is the smallest monomial at every prime at once. The number of variables is
+`N² ≈ 16 / ε²` — the growth in `1 / ε` this milestone was to exercise 6.4 with.
+
+⚠ **The ordinary gcd, not its prime-to-`P` part.** At a prime `p ∈ P` dividing `d` the monomials
+are `p`-adic units, so dividing by `d` there is paid for by `d` dividing the numerators. The
+theorem is therefore stated with `Int.gcd`, as above, and not with the part of the gcd outside
+`S` in which the `S`-unit version is usually phrased.
+
+⚠ **No translate of a torus is treated separately.** A relation `u ^ a v ^ b = c` with `c ≠ 1`
+needs no second argument: `u ≡ v ≡ 1` modulo `d` makes `c ≡ 1`, so `d` divides the numerator of
+`c` minus its denominator.
+
+⚠ **The `(a b + 1)(a c + 1)` corollary meets the curves and leaves them through `ℕ`.** A pair
+`(a b + 1, a c + 1)` on a curve has a common power
+(`Nat.exists_pow_eq_pow_of_zpow_mul_zpow_eq_one`), so both are powers `t ^ q'`, `t ^ p'` of one
+integer with `p'`, `q'` coprime (Mathlib's `Nat.exists_eq_pow_of_pow_eq_pow`); then `a ∣ t − 1` by
+`Nat.pow_sub_one_gcd_pow_sub_one`, and `p' ≥ 2` because `v < u < v ²`, so
+`a c + 1 = t ^ p' ≥ (a + 1) ²`, which is impossible.
+
+Acceptance criteria: `gcd (2 ^ n − 1) (3 ^ n − 1) < exp (n / 100)` for all but finitely many `n`;
+the greatest prime factor of `(a b + 1)(a c + 1)` exceeds `7` for all large `a`. Rejection: the
+pairs `(2 ^ k, 2 ^ k)`, `k ≥ 2`, satisfy the gcd hypothesis with `ε = 1/2` and are infinitely
+many, so the curves are load-bearing; and with `b = c = 1`, `a = 2 ^ k − 1` makes
+`(a b + 1)(a c + 1)` a power of `2`, so `c < b` is.
 
 ### Layer 9: counting subspaces
 
@@ -3970,36 +4180,185 @@ from Layers 2–6**: it bounds how many subspaces the solutions in a range of he
 whether or not one knows the solutions are there. Write `N = Fintype.card ι`. Heights in this
 layer are **affine** (`ArithmeticHeights` 0.5), as in the source.
 
-**9.1 Systems of inequalities.** For `S`, forms as in 6.4, constants `C v > 0` and exponents
-`c v i`, the system `w v (L v i x) ≤ C v * H(x) ^ c v i` for all `v`, `i`, in `x` with
-`S`-integral coordinates. Its **normalization**, Evertse's (2.4): the coefficients have height at
-most `H` and degree at most `D` over `K`, the forms `L v i` range over a set of at most `R` forms
-in all, `∏ v, C v ≤ ∏ v, (v (det (L v))) ^ (1/N)`, `∑ v, ∑ i, c v i ≤ −δ` with `0 < δ ≤ 1`, and
-`max i, c v i` equal to the normalized local degree of `v` at the infinite places and `0` at the
-finite ones, all in the absolute normalization. The equivalence with 6.4 — every solution of the
-product inequality satisfies one of finitely many systems, and conversely — is 5.1 read as a
-statement; prove it as one. A solution is **large** if `H(x) ≥ max (2 H) (N ^ (2 N / δ))`.
+**9.1 Systems of inequalities** (Evertse, §2, systems (2.3) and normalization (2.4)) —
+**landed**, in `DiophantineApproximation/SubspaceSystem.lean`. For `S`, `w` and forms as in 6.4,
+constants `C p` and exponents `c p i` indexed by the places `p : InfinitePlace K ⊕ S`, the system
+`w p (L p i x) ^ mult p ≤ C p * H(x) ^ c p i` in `x` with `S`-integral coordinates, `H` the affine
+height (`NumberField.systemSet`, local values `NumberField.systemValue`). Its weight is
+`NumberField.systemWeight`, and its **normalization** (2.4) is `NumberField.IsNormalizedSystem`:
+coefficients of absolute height at most `H` and degree at most `D` over `K`, at most `R` distinct
+forms, `∏ C p ≤ (∏ |det L p|_p) ^ (1/N)` (`NumberField.systemDet`), weight at most `−δ` with
+`0 < δ ≤ 1`, and `max i, c p i` equal to `s(p)` (`NumberField.systemExponent`: `mult v / [K : ℚ]`
+at the infinite places, `0` at the finite ones). A solution is **large**
+(`NumberField.IsLargeSolution`) if `H(x) ^ (1 / [K : ℚ]) ≥ max (2 H) (N ^ (2 N / δ))`. The
+equivalence with the product inequality, in both directions:
+`NumberField.affineProd_le_of_mem_systemSet` (a solution of a system satisfies
+`affineProd ≤ (∏ C p) ^ N · H(x) ^ weight`, and under (2.4) Schmidt's normalized
+`affineProd ≤ ∏ |det L p|_p · H(x) ^ (−δ)`, `NumberField.affineProd_le_systemDet_mul_rpow`), and
+`NumberField.exists_finset_forall_exists_mem_systemSet` (finitely many exponent systems of weight
+at most `−δ/2` catch, for **any** positive constants and above a level, every `S`-integral
+solution of `affineProd ≤ H(x) ^ (−δ)`). With 6.4 this gives Evertse's **Theorem A**, the
+Subspace Theorem for one system of negative weight
+(`NumberField.exists_finset_submodule_of_systemWeight_neg`).
 
-**9.2 The gap principle** (Evertse, Proposition 4.1). Under the normalization of 9.1 and for
-`Q ≥ N ^ (2 N / δ)`, the solutions with `Q ≤ H(x) < Q ^ (1 + δ / (2 N))` lie in a **single**
-proper subspace. By Hadamard's inequality at the infinite places, the ultrametric inequality at
-the finite ones, and the product formula for `det (x 1, …, x N)`: any `N` such solutions are
-linearly dependent.
+⚠ **The exponents are Evertse's own numbers.** His absolute values are the `[K : ℚ]`-th roots of
+Mathlib's, the infinite ones raised to `mult v`, and his height is the `[K : ℚ]`-th root of
+`mulHeightAff`; both sides of every inequality are rooted by the same power, so the exponents
+`c p i` do not change and only the constants do, `C p` being his `C p ^ [K : ℚ]`. "All in the
+absolute normalization" costs nothing but the `mult v` on the infinite local values and the root
+in the definition of a large solution.
 
-**9.3 Small solutions** (Evertse, Theorem 2.2, Proposition 4.2, Lemmas 4.3–4.5). The solutions
-that are not large lie in at most `δ⁻¹ ((10³ N)^{N d} + 4 N log log (4 H))` proper subspaces, and
-over `ℚ` in at most `δ⁻¹ (10^{3 N} + 4 N log log (4 H))`. From 9.2 for heights above
-`N ^ (2 N / δ)` and from the second gap principle below it: a partition of `ℂ^N` into at most
-`(20 N)^N M²` classes on each of which `|det (y 1, …, y N)| ≤ M⁻¹ ∏ ‖y i‖`.
+⚠ **The reduction is not 5.1 read as a statement, and is easier.** 5.1 measured against the
+projective height and had to move the point by an `S`-unit and bound each exponent from both
+sides by the fundamental inequality. Evertse's product inequality (2.2) has the **affine** height
+on the right, and against it every local value is at most `A · H(x)` — a coordinate is at most
+the height at every place (`NumberField.exists_systemValue_le_mul_mulHeightAff`) — so the
+exponents are bounded above by `2` once `H(x) ≥ A`, with no unit, no fundamental inequality and no
+independence of the forms, and for forms over any extension `F`. (2.2) implies 6.4's inequality,
+since the projective height is at most the affine one, but not conversely, and the reduction is
+stated for (2.2), as the source states it.
 
-**9.4 From intervals to subspaces** (Evertse, proof of Theorem 2.1). If the solutions of a
-normalized system outside a subspace `U₀` have `H(x) ∈ ⋃_{i < m} [Q i, (Q i)^ω)` with
-`Q i ≥ N ^ (2 N / δ)`, then they lie in at most `m (1 + log ω / log (1 + δ / (2 N)))` proper
-subspaces. This is 9.2 and a covering of intervals; it is the step that turns an *interval
-result* — the form in which every quantitative Roth or Subspace theorem is actually proved —
-into a count, and it is stated with the interval hypothesis explicit so that whichever interval
-result is available can be fed to it. In this roadmap that is 3.7, recast in this form for
-`N = 2`.
+⚠ **Vanishing forms and very small values cost one clamp.** Every exponent is clamped below at
+`−M` with `M = 2 · #(places × forms) + δ + 1`: if one is clamped the rest are at most `2` and the
+weight is below `−δ` anyway; if none is, the weight is the logarithm of the product over
+`log H(x)`. The kernels of the forms need no separate case, unlike 5.1's classes, which left them
+to 6.2.
+
+⚠ **The constants are free and the last condition of (2.4) is not.** The grid of exponents does
+not depend on the constants, so `C p = |det L p|_p ^ (1/N)` meets the third condition of (2.4)
+with equality. `max i, c p i = s(p)` is not produced and cannot be without moving the point: at a
+finite `p ∈ S` it asks `|L p i x|_p ≤ C p` for all `i`, which the `S`-integral points
+`p ^ (−k) · y` violate for every constant. It normalizes the representative, by an `S`-unit with
+the weights `s(p)` (5.1's Lemma 7.5.4 with other weights), and 9.2 uses it, through
+`c p i ≤ s(p)`.
+
+⚠ **Theorem A is the one place Layer 9 touches Layers 2–6.** The definitions, the reduction and
+Schmidt's inequality use only heights and the triangle inequality; Theorem A quotes 6.4 for the
+solutions of large affine height and Northcott for the rest, which are finitely many because the
+affine height of a tuple bounds the height of every coordinate, each spanning a line.
+
+Acceptance criteria, none of which the roadmap asked for: the normalization is satisfiable — the
+coordinate forms of `ℚ²` with exponents `(1, −2)` satisfy (2.4) with `H = D = δ = 1`, `R = 2` —
+and that system has the infinitely many solutions `(k, 0)`, all on one line. Rejection: for
+`N = 1` Theorem A is false (`|x| ≤ H(x) ^ (−1)` has the solution `1`), so `[Nontrivial ι]` is
+load-bearing; and over `ℚ` with `S = {2}` the coordinate system with exponents `(1, 0)` at `∞` and
+`(−1, 0)` at `2` has weight `0` and the solutions `(2 ^ k, 1)`, no two on a proper subspace, so the
+strict weight is.
+
+**9.2 The gap principle** (Evertse, Proposition 4.1) — **landed**, in
+`DiophantineApproximation/SubspaceGap.lean`. Under the normalization of 9.1 and for
+`Q ≥ N ^ (2 N / δ)`, the solutions with `Q ≤ H(x) < Q ^ (1 + δ / (2 N))`, `H` the absolute affine
+height `mulHeightAff x ^ (1 / [K : ℚ])`, lie in a **single** proper subspace
+(`NumberField.exists_submodule_ne_top_of_window`), because any `N` of them have determinant `0`
+(`NumberField.det_eq_zero_of_window`). The determinant is an `S`-integer, so its local sizes over
+the places of the system multiply to at least `1` (`NumberField.one_le_prod_systemAbs_algebraMap`,
+the product formula through `mulHeight` of a one-element tuple), while in the window each local
+value is at most `C p · Q ^ (c p i + s(p) δ / (2 N))` (`NumberField.systemValue_le_rpow_of_window`,
+the one use of `c p i ≤ s(p)`), and the determinant of the forms at the points is bounded row by
+row (`NumberField.systemAbs_det_le`).
+
+⚠ **Leibniz instead of Hadamard, and it costs nothing.** The places are abstract absolute values
+of `F` over those of `K`, with no inner product, and the Leibniz expansion gives `N!` where
+Hadamard gives `N ^ (N / 2)` (`AbsoluteValue.apply_det_le_factorial_mul_prod`, and
+`AbsoluteValue.apply_det_le_prod_of_isNonarchimedean` at the finite places). Over the infinite
+places the factors multiply to `(N!) ^ [K : ℚ]`, and `Q ≥ N ^ (2 N / δ)` makes the saving
+`Q ^ ([K : ℚ] δ / 2) ≥ N ^ (N [K : ℚ])`, which beats it for `N ≥ 2`; for `N = 1` the window is
+nonempty only if `Q > 1`, and that is enough. Evertse's hypothesis on `Q` had room to spare.
+
+⚠ **Five fields of (2.4) are used and five are not.** The positivity of the constants and of `δ`,
+the bound on `∏ C p`, the weight and `c p i ≤ s(p)` are used; the heights, degrees and number of
+the forms, `δ ≤ 1` and the attained maximum are there for Theorem 3.1, the interval result. The
+forms are not assumed independent, since `∏ C p > 0` makes every determinant nonzero. **Nothing in
+the library yet produces a normalized system**: 9.1's reduction gives any constants but not
+`c p i ≤ s(p)`, which needs the point rescaled by an `S`-unit; 9.2 takes the normalization as its
+hypothesis, as the source does.
+
+No acceptance or rejection tests were written for 9.2.
+
+**9.3 Small solutions** (Evertse, Theorem 2.2, Proposition 4.2, Lemmas 4.3–4.5) — **landed**,
+in `DiophantineApproximation/DetPartition.lean`, `DiophantineApproximation/DetCount.lean` and
+`DiophantineApproximation/SubspaceSmall.lean`. The solutions that are not large
+(`¬ NumberField.IsLargeSolution`) lie in at most `δ⁻¹ ((10³ N)^{N d} + 4 N log log (4 H))` proper
+subspaces (`NumberField.exists_finset_submodule_of_not_isLargeSolution`), from 9.2 for heights
+above `N ^ (2 N / δ)` and from the second gap principle below it: for `Q ≥ 1` the solutions with
+`Q ≤ H(x) < 2 Q ^ (1 + δ / (2 N))` lie in at most `(90 N) ^ (N d)` proper subspaces
+(`NumberField.exists_finset_submodule_of_window_two_mul`). That rests on a partition of `ℂ^N`
+into at most `(20 N)^N M²` classes on each of which `|det (y 1, …, y N)| ≤ M⁻¹ ∏ ‖y i‖`
+(`Matrix.exists_det_partition`, Lemma 4.3), with Hadamard's inequality in the sup norm
+(`Matrix.norm_det_le_card_rpow_mul_prod_norm`) from `ArithmeticHeights`' complex Hadamard.
+**Over `ℚ`** the counts are Evertse's `200^N` per window
+(`Rat.exists_finset_submodule_of_window_two_mul`) and `δ⁻¹ (10^{3 N} + 4 N log log (4 H))`
+(`Rat.exists_finset_submodule_of_not_isLargeSolution`), from Lemma 4.5
+(`Rat.exists_finset_submodule_of_det_le`): `S`-integral points any `N` of which have determinant at
+most `D v` at every place lie in at most `3^N (4 N² + 2)² max (1, ∏ D v)^{1/(N-1)}` proper
+subspaces. Lemma 4.4, the integral case with `100^N`, is `Rat.exists_finset_submodule_of_abs_det_le`.
+
+⚠ **Lemmas 4.4 and 4.5 are proved, not quoted, and in the other order.** The source quotes 4.4
+from Lemma 5 of Evertse, *On the norm form inequality `|F(x)| ≤ h`* (Publ. Math. Debrecen **56**,
+2000) and deduces 4.5 through the lattice `⋂_v M_v`. Here 4.5 is proved directly and 4.4 is its
+case `S = ∅`. The dual of that lattice is an approximation module of Layer 4 — forms
+`h ↦ Y v i · h` for tuples `Y v` of nearly largest determinant at `v`, level `1`, exponents `0` —
+so Minkowski's second theorem (Layer 4.2) with the volume and covolume of Layer 4.1 gives
+`∏ μ k ≤ ∏ D v` with no loss. The minimal vectors take integer values of size `≤ 2 N μ k` on the
+points, by Cramer's rule, and a pigeonhole on a prefix of them
+(`Module.Dual.exists_finset_submodule_of_forall_eq_intCast`) finishes. `max (1, ·)` is needed: a
+set inside a proper subspace needs one subspace however small `D` is.
+
+⚠ **Over `ℚ` the infinite place carries `2^N N!`, not the source's `2 N^{N/2}`.** The window costs
+`2` per form, so `2^N`, where the source writes a single `2`; with `100^N` that would give `400^N`
+per window, not `200^N`. The sharper constant `3^N (4 N² + 2)²` of Lemma 4.5 recovers `200^N`.
+
+⚠ **`N ≥ 2` is forced by the normalization** (`NumberField.IsNormalizedSystem.two_le_card`): for
+`N = 1` the last condition of (2.4) makes the weight `∑ s(v) = 1`. Lemma 4.3 is false for `N = 1`,
+and this is its only use of the attained maximum.
+
+⚠ **The infinite places become complex embeddings.** An absolute value of `F` over an infinite
+place of `K` is `|φ ·|` for a `φ : F →+* ℂ` (Layer 0.1), and Evertse's vector `ϕ_v(x)` is taken
+as `(φ (L_i x) / t_i)_i`, `t_i` the `mult v`-th root of the bound for the `i`-th form, so that the
+window's points lie in the ball of radius `2`. With `M = (9/2)^{N/2}` Lemma 4.3 gains `M > 2^N`,
+the factor the doubled window costs, and 9.2's assembly by the product formula
+(`NumberField.det_eq_zero_of_systemAbs_det_le`, over `NumberField.prod_systemBound_le`, both now
+shared) does the rest.
+
+⚠ **The windows are counted differently below `N ^ (2 N / δ)`.** Above it, `4 N δ⁻¹ log log (4 H)`
+windows of 9.2, as in the source. Below it, the source's `4 N δ⁻¹ log (3 log N)` is not proved;
+the count is `δ⁻¹ (1 + 4 N (N - 1))`, from `log (1 + log₂ N) ≤ N - 1`, which
+`(10³ N / (90 N))^{N d} ≥ 11^N` absorbs over `K` and `10^{3 N} / 200^N = 5^N` over `ℚ`; so both
+final bounds are Evertse's. Theorem 2.2 is proved once, from any count per window
+(`NumberField.exists_finset_submodule_of_not_isLargeSolution_of_window`). Lemma 4.3's grid is
+`⌈3 K⌉` rather than `⌊2 √2 K⌋ + 1`, and the pivot coordinate is not gridded (the class type is
+`Σ i, ({j // j ≠ i} → Fin A × Fin A)`); gridding it would cost `A²`, which `(20 N)^N M²` cannot
+absorb.
+
+No acceptance or rejection tests were written for 9.3.
+
+**9.4 From intervals to subspaces** (Evertse, proof of Theorem 2.1) — **landed**, in
+`DiophantineApproximation/SubspaceIntervals.lean`. If the solutions of a normalized system
+outside a subspace `U₀` have `H(x) ∈ ⋃_{i < m} [Q i, (Q i)^ω)` with `Q i ≥ N ^ (2 N / δ)`, then
+they lie in at most `m (1 + log ω / log (1 + δ / (2 N)))` proper subspaces
+(`NumberField.exists_finset_submodule_of_forall_mem_interval`). This is 9.2 and a covering of
+intervals; it is the step that turns an *interval result* — the form in which every
+quantitative Roth or Subspace theorem is actually proved — into a count, and it is stated with
+the interval hypothesis explicit so that whichever interval result is available can be fed to
+it. In this roadmap that is 3.7, recast in this form for `N = 2` — landed, and fed to this step
+(`NumberField.exists_finset_submodule_of_card_eq_two`; see 3.7).
+
+⚠ **Each interval is `⌈log ω / log (1 + δ / (2 N))⌉` windows of 9.2**,
+`[Q ^ ((1 + e) ^ h), Q ^ ((1 + e) ^ (h + 1)))` with `e = δ / (2 N)`, each in one proper subspace,
+and a chain of windows is covered by the union of their subspaces
+(`NumberField.exists_finset_submodule_of_chain`, moved from 9.3 into `SubspaceGap.lean` so that
+both use it). The count is the source's. `ω ≥ 1` is a hypothesis, since for `ω < 1` the bound
+can be negative while the intervals are empty; the solutions in `U₀` are not counted, and an
+empty `ι` needs no case in the statement, every point being `0 ∈ U₀`.
+
+⚠ **The intervals are a hypothesis, and nothing here produces them.** The source feeds this step
+its Theorem 3.1, whose proof is the bulk of the paper and is outside this roadmap; so Evertse's
+Theorem 2.1 itself, the count of the large solutions, is not proved. For `N = 2` 3.7 supplies the
+intervals instead, above an ineffective height; see 3.7. The general form, for the solutions in
+any set `X`, is `NumberField.exists_finset_submodule_of_forall_mem_interval_of_mem`; the link
+needs it, because it removes `s + 1` lines rather than one subspace.
+
+No acceptance or rejection tests were written for 9.4.
 
 ## Relationship to Mathlib
 
@@ -4282,6 +4641,14 @@ Tau Ceti test files beside the milestones named.
   8.4 adds is the number field and the `S`-integers. ⚠ **Discharged**, in `…/ThueMahler.lean`, in
   every number field and for every finite `S`, with the unit version, Thue–Mahler for the primes
   `2, 3`, and two rejections: coprimality, and Pell's equation among coprime pairs.
+- **8.5.** `y² = x³ − 2` has finitely many `S`-integral solutions in every number field, among
+  them `(3, 5)` over `ℤ`; `y² = x² (x − 1)` and `y² = 2 x² + 1` have infinitely many integral
+  ones. ⚠ **Discharged**, in `…/Hyperelliptic.lean`, together with `y² = x³ (x² − 2)`, which is
+  not squarefree and is covered because its hypothesis counts roots of odd multiplicity.
+- **8.6.** For `θ = 2 ^ (1/5)` the norm form of `ℤ + ℤ θ + ℤ θ ²` takes every value finitely
+  often; in `ℚ(√2)` the norm of `ℤ + ℤ √2` takes the value `1` infinitely often. ⚠
+  **Discharged**, in `…/NormForm.lean`, with `θ` itself as a solution of norm `2` and the
+  imaginary quadratic exception `ℤ + ℤ i`.
 - **7.5.** The characteristic sequence of the powers of `2` has `p(n) ≤ 3 n + 1` — a window of
   length `n` starting beyond `2 n` contains at most one `1` — so `∑ k, 2^{−2^k}` is
   transcendental by 7.5. ⚠ **7.4 already proves the same kind of number transcendental, without
@@ -4447,7 +4814,7 @@ of 3.7 — and, since 3.8, the core of Roth's proof itself, which bounds the siz
 its height with the fundamental inequality read at one place. Step IV still does not use it.
 Now that 3.2 stands,
 **3.5–3.8, 8.1, 8.3, 8.4, 8.5 and
-the `w > 2` criterion of 7.4 are all within reach** (and the last of these is landed) — every
+the `w > 2` criterion of 7.4 are all within reach** (and all of them are now landed) — every
 classical application of
 Thue–Siegel–Roth,
 including Thue–Mahler and the two-variable unit equation, is available before any geometry of
@@ -4725,13 +5092,51 @@ two steps, a minimal subsum and then one fixed coordinate.
 ⚠ **8.3 is landed, in one file, and it is 8.1 once per triangle.** Connectivity makes every ratio
 of two forms take finitely many values; the unit version keeps its `S`-unit scaling because an
 `E`-th power that is a unit has a unit root, with no discreteness of valuations; the passage to
-an extension is moved to 8.4. **Layers 6 and 7 are complete**, and of Layer 8, 8.1–8.4 are
-landed.
+an extension is moved to 8.4. **Layers 6, 7 and 8 are complete.**
 
 ⚠ **8.4 is landed, in two files, and it is 8.3 in the splitting field.** At least three pairwise
 non-proportional binary forms are triangularly connected by Cramer's rule; the passage to the
 primes above `S` is one short file; the unit version descends because a scalar relating two
 `K`-points is itself in `K`; Thue–Mahler over `ℚ` adds only Bézout.
+
+⚠ **8.5 is landed, in two files, and it is 8.1 once.** Siegel's identity is a single unit
+equation whose ratio determines `x`; the square classes need no ideal factorization, only a
+principal ring of `S`-integers (0.3) and the finite generation of `S`-units (6.5); and the
+hypothesis is three roots of odd multiplicity, not squarefreeness.
+
+⚠ **8.6 is landed, in one file, and it is Corollary 7.4.3 once per step.** Schmidt's theorem is
+proved inside `K`, by induction on the dimension of a subspace rather than on the degree of the
+field: a dependent set of non-proportional embeddings gives a homogeneous unit equation and a
+proper subspace, an independent one makes the subspace a multiple of a subfield. The families of
+the degenerate case are located but not built.
+
+⚠ **8.7 is landed, in one file, and it is 6.4 once and Corollary 7.4.3 once.** The point is the
+box of monomials `u ^ (i + 1) v ^ j` less `1`, divided by the gcd; two fixed families of forms
+serve every solution, the product formula leaves the gcd to the power of the number of variables,
+and the homogeneous unit equation of 8.6 turns the subspace into a curve or a bounded gcd. It is
+stated for the ordinary gcd. **Layer 8 is complete.**
+
+⚠ **9.1 is landed, in one file, and it is easier than 5.1.** Against the affine height of
+Evertse's (2.2) every exponent is bounded above with no unit and no fundamental inequality, and
+one clamp below disposes of the vanishing forms. The last condition of Evertse's normalization is
+a normalization of the representative and is left to the layer that uses it.
+
+⚠ **9.2 is landed, in one file, and needs nothing above Layer 0.** Leibniz replaces Hadamard at
+the infinite places at no cost to the hypothesis on `Q`, the product formula is applied to a
+single `S`-integer, and a basis drawn from the window's solutions supplies the `N` points.
+
+⚠ **9.3 is landed, in three files, over `ℚ` too.** Lemma 4.3 is pure analysis on `ℂⁿ`; the
+second gap principle reuses 9.2's assembly with the saving `(2^N / M)^d < 1`; Theorem 2.2 is two
+chains of windows. Over `ℚ`, Lemmas 4.4 and 4.5 — which the source quotes from elsewhere — are a
+pigeonhole on the minimal vectors of a Layer 4 approximation domain, so the lattice-point count
+costs Minkowski's second theorem and nothing new.
+
+⚠ **9.4 is landed, in one file, and is 9.2 and arithmetic.** An interval `[Q, Q ^ ω)` is a chain
+of `⌈log ω / log (1 + δ / (2 N))⌉` windows of the gap principle, and the chain lemma of 9.3 does
+the rest. **Layer 9 is complete**, as far as this roadmap takes it: the interval result that
+would feed 9.4 is Evertse's Theorem 3.1 and is not a milestone. For two variables 3.7 feeds it
+(`…/RothSubspaceCount.lean`): a normalized system is Roth's inequality at its small forms, and
+Liouville's inequality at one place bounds the affine height by a power of the height of `β`.
 
 The path to the summit was Layer 4 → Layer 5 → 6.1 → 6.2 → 6.3 → 6.4 → 6.5 → 6.6, and **it is
 walked to the end**; the first five steps down the other side are 7.1–7.5, and all five are
@@ -4754,9 +5159,15 @@ and one is a single subspace and two cases; and 7.5 cost two, of which one is wo
 other thirty lines; and 8.1 cost one, a single appeal to 6.5 with no case split; and 8.2 cost
 one, the same appeal with `n + 1` forms and an induction around it; and 8.3 cost one, 8.1 once
 per triangle and valuations for the rest; and 8.4 cost two, of which the first is the passage to
-an extension and the second 8.3 in the splitting field. Remaining: 8.5–8.7 — 8.5, which stands on
-8.1 and will quote 8.4's passage to an extension, 8.6, which stands on 8.2's Corollary 7.4.3, and
-8.7 on the Subspace path.
+an extension and the second 8.3 in the splitting field; and 8.5 cost two, of which the first is
+ring theory with no polynomial in it and the second one unit equation; and 8.6 cost one,
+Corollary 7.4.3 once per step of an induction on the dimension; and 8.7 cost one, 6.4 once over
+`ℚ` and Corollary 7.4.3 once; and 9.1 cost one, with 6.4 quoted only for Theorem A; and 9.2
+cost one, a determinant and the product formula; and 9.3 cost three, of which the first is a
+partition of `ℂⁿ`, the second a pigeonhole on Layer 4's minima for `ℚ`, and the third the same
+product formula behind both; and 9.4 cost one, a chain of 9.2's windows per interval. **Every
+milestone of Layers 0–9 is landed** except Wirsing's first two inequalities of 1.3 and the
+optional 1.4.
 
 Register an intention before a substantial push; the layers are deliberately claimable
 separately.
@@ -4873,7 +5284,9 @@ ways.
 - H. P. Schlickewei, "The `p`-adic Thue–Siegel–Roth–Schmidt theorem", *Archiv der Mathematik*
   **29** (1977), 267–270. The Subspace Theorem with finite places.
 - J.-H. Evertse, "An improvement of the quantitative Subspace theorem", *Compositio Mathematica*
-  **101** (1996), 225–311. The lemma of 4.4. "The Subspace Theorem of W. M. Schmidt", in
+  **101** (1996), 225–311. The lemma of 4.4. "On the norm form inequality `|F(x)| ≤ h`", *Publ.
+  Math. Debrecen* **56** (2000), 337–374, Lemma 5, quoted as Lemma 4.4 of the 2010 paper and
+  proved in 9.3 afresh. "The Subspace Theorem of W. M. Schmidt", in
   *Diophantine Approximation and Abelian Varieties*, LNM 1566, 1993, 31–50, for a short account of
   the whole proof.
 - J.-H. Evertse, "On the Quantitative Subspace Theorem", *Journal of Mathematical Sciences*
@@ -4906,10 +5319,14 @@ ways.
   Advanced Mathematics 146, 2015. Layer 8: unit equations, Thue–Mahler, and Ch. 9 for
   decomposable form equations.
 - P. Corvaja and U. Zannier, "On the greatest prime factor of `(ab+1)(ac+1)`", *Proceedings of
-  the American Mathematical Society* **131** (2003), 1705–1709, for 8.7; "A subspace theorem
-  approach to integral points on curves", *C. R. Math. Acad. Sci. Paris* **334** (2002),
-  267–271, for the proof of Siegel's theorem named under *Not owned here*; *Applications of
-  Diophantine Approximation to Integral Points and Transcendence*, Cambridge Tracts 212, 2018.
+  the American Mathematical Society* **131** (2003), 1705–1709, and "A lower bound for the height
+  of a rational function at `S`-unit points", *Monatshefte für Mathematik* **144** (2005),
+  203–224, for 8.7; "A subspace theorem approach to integral points on curves", *C. R. Math.
+  Acad. Sci. Paris* **334** (2002), 267–271, for the proof of Siegel's theorem named under *Not
+  owned here*; *Applications of Diophantine Approximation to Integral Points and Transcendence*,
+  Cambridge Tracts 212, 2018.
+- Y. Bugeaud, P. Corvaja and U. Zannier, "An upper bound for the G.C.D. of `a ^ n − 1` and
+  `b ^ n − 1`", *Mathematische Zeitschrift* **243** (2003), 79–84, for the corollary of 8.7.
 - J.-H. Evertse, "On sums of `S`-units and linear recurrences", *Compositio Mathematica* **53**
   (1984), 225–244, for 8.2.
 - P. Vojta, *Diophantine Approximations and Value Distribution Theory*, LNM 1239, Springer, 1987,
