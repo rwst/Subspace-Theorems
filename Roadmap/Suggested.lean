@@ -108,6 +108,24 @@ import DiophantineApproximation.AffineProd -- Layer 6.4, the affine quantity
 import DiophantineApproximation.SubspaceAffine -- Layer 6.4, the affine Subspace Theorem
 import DiophantineApproximation.GeneralPosition -- Layer 6.5, forms in general position
 import DiophantineApproximation.SubspaceGeneralPosition -- Layer 6.5, Vojta's refinement
+import DiophantineApproximation.SubspaceConsistency -- Layer 6.6, consistency with Layer 3
+import DiophantineApproximation.LinearFormSubspaces -- Layer 7.1, the exceptional subspaces
+import DiophantineApproximation.OneLinearForm -- Layer 7.1, one linear form
+import DiophantineApproximation.BoundedDegreeApproximation -- Layer 7.2, bounded degree
+import DiophantineApproximation.SchmidtExponents -- Layer 7.3, the exponents
+import DiophantineApproximation.SimultaneousSubspaces -- Layer 7.3, two systems of forms
+import DiophantineApproximation.SimultaneousApproximation -- Layer 7.3, simultaneous approximation
+import DiophantineApproximation.StammeringWords -- Layer 7.4, stammering sequences
+import DiophantineApproximation.DigitExpansions -- Layer 7.4, expansions in an integer base
+import DiophantineApproximation.RepetitionSubspaces -- Layer 7.4, the primes of the base
+import DiophantineApproximation.TranscendenceCriterion -- Layer 7.4, the criterion
+import DiophantineApproximation.FactorComplexity -- Layer 7.5, the combinatorics
+import DiophantineApproximation.ComplexityTranscendence -- Layer 7.5, the theorem
+import DiophantineApproximation.UnitEquation -- Layer 8.1, the unit equation in two variables
+import DiophantineApproximation.UnitEquationSeveral -- Layer 8.2, the unit equation in n variables
+import DiophantineApproximation.DecomposableForm -- Layer 8.3, triangularly connected decomposable forms
+import DiophantineApproximation.SIntegerExtension -- Layer 8.4, `S`-integers in an extension
+import DiophantineApproximation.ThueMahler -- Layer 8.4, Thue and Thue–Mahler
 
 /-!
 # Diophantine approximation and the Subspace Theorem: target signatures
@@ -140,12 +158,19 @@ does not occupy Mathlib's root namespaces. In `TauCeti/` they take the names `RE
 milestone that `DiophantineApproximation/` proves is one whose signature has stopped drifting, and
 the `example` is what certifies that the shape pinned here is the shape that was proved. Layers
 0.1, 0.2, 0.3, 0.4, 1.1, 1.2, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7,
-3.8, 4.1, 4.2, 4.3, 4.4, 4.5, 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 6.1, 6.2, 6.3, 6.4 and 6.5 are
-landed —
-Layers 3, 4 and 5 are complete, and **the Subspace Theorem is proved, in the form its consumers
-apply**: points in `K`, coefficients in a finite extension, in the affine form every
+3.8, 4.1, 4.2, 4.3, 4.4, 4.5, 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 7.1,
+7.2, 7.3, 7.4, 7.5, 8.1, 8.2, 8.3 and 8.4 are landed —
+Layers 3, 4, 5 and 6 are complete, and **the Subspace Theorem is proved, in the form its
+consumers apply**: points in `K`, coefficients in a finite extension, in the affine form every
 application of Layer 8 quotes, and for families of forms in general position of any finite
-sizes — and 1.3 is
+sizes, and on the projective line it is Roth's theorem and nothing else; **and it has begun to
+say things about numbers** — one linear form with complex algebraic coefficients takes small
+values at only finitely many integer points, an algebraic number is approached by algebraic
+numbers of degree at most `D` to order at most `D + 1`, the two exponents of a real algebraic
+number of degree `D` are both `min n (D - 1)` at every degree bound `n`, Schmidt's two
+theorems on simultaneous approximation are proved, and a number whose digits stammer without
+repeating is transcendental, and so is one whose digits have at most `C n` blocks of length `n`
+infinitely often without repeating — and 1.3 is
 landed **except for Wirsing's first two inequalities, which are optional** — their only consumer is
 the optional Layer 1.4 — in
 `DiophantineApproximation/{Nonarchimedean,PlacesOverFinite,PlacesOverInfinite,
@@ -169,7 +194,11 @@ ExceptionalSubspace,PolynomialGrid,SmallPoint,LogComparison,FormIndexSubspace,
 SubspaceValueBound,SubspaceKeyInequality,PenultimateMinimum,WedgeRecovery,MinimaBounds,
 ExponentGrid,WedgeExponentBound,ParametricSubspace,SubspaceTheorem,FormBaseChange,
 PlaceConjugation,ExtensionApproxProd,SubspaceAlgebraic,AffineProd,SubspaceAffine,
-GeneralPosition,SubspaceGeneralPosition}.lean`;
+GeneralPosition,SubspaceGeneralPosition,SubspaceConsistency,LinearFormSubspaces,
+OneLinearForm,BoundedDegreeApproximation,SchmidtExponents,SimultaneousSubspaces,
+SimultaneousApproximation,StammeringWords,DigitExpansions,RepetitionSubspaces,
+TranscendenceCriterion,FactorComplexity,ComplexityTranscendence,UnitEquation,
+UnitEquationSeveral,DecomposableForm,SIntegerExtension,ThueMahler}.lean`;
 0.1's three signatures below survived verbatim, 1.1's definition survived verbatim and one of its
 five theorems lost a hypothesis, 1.2's two definitions survived and its `naiveHeight` abbreviation
 did not, 1.3's two elementary signatures survived up to a **name collision**, 2.1's definition
@@ -193,16 +222,33 @@ and in order, which is the third statement of this file to do so and the only su
 that was pinned before any of the machinery under it existed, **6.4's one prototyped theorem
 survived verbatim as well**, display for display — the fourth, and the two summit statements in a
 row — its left-hand side having since been given the name `NumberField.affineProd`, which the
-example below states in both shapes — and 0.2, 0.3, 0.4, 2.5, 2.6, 2.7, 3.1, 3.6, 3.7, 3.8, 4.2, 4.3,
-4.4, 4.5, 5.1 5.2, 5.3, 5.4, 5.5, 5.6 and 6.5 had none to survive: they are prototyped here for the
-first time — 2.6, 2.7 and 4.2 deliberately, since the preamble above judged their statements unstateable without the
-`ArithmeticHeights` objects, which was true until those objects landed, 3.1 because it is
-elementary and was expected not to drift, 4.3 because its rank is read from 4.2's minima, 4.4
-because its bijections and triangular vectors had no settled shape, 4.5 because its wedge domain
-is read from 4.4's output, 5.1 because the shape of its approximation classes was settled only by
-the weight computation, and 5.2 because the expansion coefficients `a(L; J; I)` have no shape at
-all until one decides that they are coefficients of `blockSubst A⁻¹ (∂_I P)`. What the proofs
-taught:
+example below states in both shapes — **7.1's one prototyped theorem survived verbatim too**,
+display for display, and changed only its name: `‖·‖` is a norm and not an absolute value, so
+`finite_setOf_abs_sum_mul_le` is `Complex.finite_setOf_norm_sum_mul_le_fin`, the fifth statement
+of this file to survive and the first outside Layers 3 to 6, **7.3's one prototyped theorem
+survived up to the loss of a hypothesis** — `1 ≤ n` is not needed, since at `n = 0` both
+exponents vanish and so does `min 0 (D - 1)` — **8.1's one prototyped theorem survived verbatim**,
+the sixth to do so and the first of Layer 8, **and 8.2's two prototyped theorems survived
+verbatim**, the seventh and eighth — and 0.2, 0.3, 0.4, 2.5, 2.6, 2.7,
+3.1, 3.6, 3.7, 3.8, 4.2,
+4.3, 4.4, 4.5, 5.1 5.2, 5.3, 5.4, 5.5, 5.6, 6.5, 6.6, 7.2, 7.4, 7.5, 8.3 and 8.4 had none to
+survive: they are
+prototyped here for the first time — 2.6, 2.7 and 4.2 deliberately, since the preamble above
+judged their statements unstateable without the `ArithmeticHeights` objects, which was true until
+those objects landed, 3.1 because it is elementary and was expected not to drift, 4.3 because its
+rank is read from 4.2's minima, 4.4 because its bijections and triangular vectors had no settled
+shape, 4.5 because its wedge domain is read from 4.4's output, 5.1 because the shape of its
+approximation classes was settled only by the weight computation, 5.2 because the expansion
+coefficients `a(L; J; I)` have no shape at all until one decides that they are coefficients of
+`blockSubst A⁻¹ (∂_I P)`, and 7.2 because the height in its exponent is the naive height of the
+primitive integer minimal polynomial of the approximant, an object Mathlib does not name and which
+is defined only up to sign, and 7.4 because its hypothesis is a property of words — `V ^ w` for real
+`w`, and prefixes of a sequence — that the roadmap's prose defined and nothing stated, and 7.5 because its complexity counts those
+words. **7.3 was
+prototyped in half**: its exponent identity was pinned and
+survived, while **Schmidt's two theorems on simultaneous approximation**, which the roadmap's
+prose names in the same paragraph, were not, and are stated below for the first time. What the
+proofs taught:
 
 * ⚠ **The archimedean half needs no finiteness at all.** `NumberField.isInfinitePlace_of_liesOver`
   is proved for an arbitrary field extension `F / K` — no `NumberField F`, no
@@ -1023,6 +1069,161 @@ taught:
   and are collected as lines, exactly as in Layer 6.2. That is the second and last appearance of
   Northcott in the Subspace Theorem.
 
+* ⚠ **Layer 6.6 is an equation between statements, and the converse needs nothing.** Layer 3.4 was
+  stated for an arbitrary index type with `Fintype.card ι = 2` and with `approxProd`, the very
+  quantity Layer 6.3 uses; the only difference between the two conclusions is that Layer 6.3 asks
+  for `[Nontrivial ι]`, which `Fintype.card ι = 2` supplies. So "Layer 6.3 at `card ι = 2` is no
+  stronger" is not an implication to be proved — the two are the *same* proposition — and the
+  library checks it with `rfl`, which is available because proof irrelevance is definitional.
+  Layer 6.5 specializes the same way, since general position for two forms in two variables is
+  linear independence.
+
+* ⚠ **On the projective line the Subspace Theorem is a count of points.** A proper subspace of a
+  plane holds at most one point of `ℙ¹`, so the finitely many exceptional subspaces of Layer 6.3
+  at `card ι = 2` pin finitely many *solutions* — and the count cannot be moved to tuples, since
+  both sides of the inequality are invariant under scaling and every solution has infinitely many
+  nonzero multiples.
+
+* ⚠ **Roth's theorem comes back out of Layer 6, and the library carries one of it.** Layer 3.4's
+  converse implication takes the Subspace Theorem as a hypothesis and uses nothing of Layer 3
+  besides Northcott, so discharging it from Layer 6.3 gives a second proof of Roth's theorem over
+  a number field. It is the same theorem as Layer 3.2's — `rfl` again — and the module graph does
+  not record the independence, since `SubspaceAlgebraic.lean` reaches `RothTheorem.lean` through
+  `ApproxProd.lean`, where the central quantity is defined.
+
+* ⚠ **Layer 7.1 needs `α j ≠ 0` and nothing else of the coefficients.** The system fed to Layer
+  6.3 is `∑ i, α i X i` together with the coordinate forms `X i` for `i ≠ j`, and it is linearly
+  independent exactly when the displaced coefficient `α j` is nonzero, whatever the others do.
+  Linear independence of the `α i` over `ℚ` is never used, which is Bombieri–Gubler's Remark
+  7.3.3 made visible.
+
+* ⚠ **The exponent drops by one for free, and `mulHeight x ≤ max |x i|` is the whole of it.** The
+  `n` coordinate forms contribute at most `M ^ n` against the denominator `M ^ (n+1)` of the
+  central quantity, so what is left is `‖∑ α i x i‖ / M`; the Subspace Theorem's exponent
+  `-(n+1) - ε` is then reached from `-n - ε` by the single inequality that the height of an
+  *integer* point is at most its sup norm. That inequality is false for rational points — the
+  height of `(1/2, 1/3)` is `3`, its sup norm `1/2` — and it makes the statement proved here
+  **stronger** than the
+  classical one, which reads the exponent against `max |x i|` rather than against the height.
+
+* ⚠ **The induction eliminates a variable and reserves no room.** A proper subspace lies in the
+  kernel of a nonzero form `∑ c i X i`; dropping a coordinate `k` with `c k ≠ 0` turns
+  `∑ α i x i` into `∑ i ≠ k, (α i - α k c i / c k) x i`, whose coefficients are again algebraic.
+  The restriction is injective on the subspace and does not raise the height, and the exponent
+  weakens by exactly one when the number of variables drops by one, so the same `ε` serves at
+  every step. The reduced index type is the subtype `{i // i ≠ k}`, never `Fin n`, and the
+  recursion runs on `Fintype.card ι ≤ n` so that ordinary induction suffices.
+
+* ⚠ **One variable is where the theorem degenerates.** Layer 6.3 is unavailable at
+  `card ι = 1` — it asks for `[Nontrivial ι]` — and unnecessary: the height of a one-coordinate
+  point is `1` by the product formula, so the inequality reads `‖α j‖ * |x j| ≤ 1` and bounds
+  `x j` outright. The case where every `α i` vanishes has to be separated as well, since the
+  Subspace step needs some `α j ≠ 0`.
+
+* ⚠ **Layer 7.2 counts polynomials first, and has to.** The approximants `ξ` are bounded in
+  number only through their minimal polynomials: a bounded set of complex numbers is not finite,
+  while the integer polynomials of bounded degree and bounded naive height are, which is how the
+  constant of the mean value theorem is disposed of. `‖f_ξ(α)‖ ≤ C * H ^ (-D - ε)` becomes
+  `‖f_ξ(α)‖ ≤ H ^ (-D - ε/2)` as soon as `H ≥ C ^ (2/ε)`, and below that height Northcott's
+  theorem for integer polynomials finishes the count. Bombieri–Gubler's "a familiar argument
+  already used at the end of Example 7.2.7" is that paragraph.
+
+* ⚠ **The mean value theorem had to be proved again over `ℂ`.** Layer 1.3's real one runs on
+  `Convex.norm_image_sub_le_of_norm_hasDerivWithin_le` over `Set.uIcc`, and there is no interval
+  between two complex numbers. The telescoping identity
+  `z ^ k - w ^ k = z * (z ^ (k-1) - w ^ (k-1)) + w ^ (k-1) * (z - w)` gives the same constant
+  `(n+1) ^ 2 * H(P) * max 1 (max ‖z‖ ‖w‖) ^ n` with no analysis at all, and the proof is shorter
+  than the real one.
+
+* ⚠ **The conjugates of `α` are the one family Layer 7.1 cannot see, and rigidity disposes of
+  them.** Layer 7.1 asks for `0 < ‖∑ α ^ i x i‖`, which fails exactly when the minimal polynomial
+  of the approximant vanishes at `α` — that is, when the approximant is a conjugate of `α`. Two
+  primitive irreducible integer polynomials with a common root are associated, so those
+  approximants are the roots of *one* polynomial and its height is a bound the Northcott branch
+  already carries. That rigidity lemma is Layer 1.3's, stated there for a real root; it holds
+  over any `ℚ`-algebra that is a domain, and Layer 7.2 generalized it in place rather than
+  restating it.
+
+* ⚠ **In the language of Layer 1.3, Layer 7.2 is `w_n^*(α) ≤ n` for algebraic `α`.** That is one
+  of the two upper bounds Layer 7.3 asks for — the other, `w_n^* ≤ deg α - 1`, is Liouville's
+  inequality and is landed in Layer 1.3 — and the library states it under that name as well.
+
+* ⚠ **Layer 7.3's missing bound is Layer 7.2's proof with its first step deleted.** The only
+  thing Layer 1 could not supply is `w_n(α) ≤ n`; it is Layer 7.1 applied to `1, α, …, α ^ n` and
+  to the coefficient vector of the polynomial directly, with no mean value theorem in front of
+  it. Everything else in the identity `w_n = w_n^* = min n (deg α - 1)` is assembly: Liouville's
+  inequality for `≤ deg α - 1`, the box principle for the lower bounds, and Wirsing's third
+  inequality — at the value the box principle forces — to carry them from Mahler's exponent to
+  Koksma's. The conjugates of `α` cost nothing here, because `Real.mahlerSet` asks for a nonzero
+  value in its definition, and with them go the rigidity lemma and the threshold height that
+  Layer 7.2 had to carry.
+
+* ⚠ **Schmidt's exponents are read against the product `∏ i, |q i|`, not against the sup norm.**
+  For a tuple with no vanishing coordinate the product is at least the sup norm and can be very
+  much smaller than its `n`-th power, so Layer 7.1's `Rat.approxProd_projWithSum_le`, which
+  bounds the coordinate forms by `M ^ n` and keeps only the one nontrivial form, throws away
+  exactly what these theorems are about. What Layer 7.3 needed instead is the Subspace Theorem
+  over `ℚ` with the hypothesis on the bare product of the values of a full system of forms, and
+  that is `Rat.exists_finset_submodule_of_prod_le`. The hypothesis that no coordinate vanishes is
+  then unremovable: with one the product is `0` and the inequality is free.
+
+* ⚠ **Two theorems, two inductions, and one of them feeds the other.** The linear form theorem
+  eliminates one variable on each exceptional subspace and recurses. The theorem on
+  `∑ i, q i * α i` has one variable more — the numerator — and its exceptional subspaces split in
+  two: a relation that does not involve the numerator eliminates one `q` and is the recursion,
+  while a relation that does involve it *determines* the numerator, and then the distance to `ℤ`
+  is a linear form with algebraic coefficients, which the first theorem finishes.
+
+* ⚠ **Simultaneous approximation needs no induction at all.** One exceptional subspace already
+  bounds `q`: its relation `c₀ q + ∑ i, c i p i = 0` with `p i = q α i - θ i`, `|θ i| ≤ 1/2`,
+  gives `q (c₀ + ∑ i, c i α i) = ∑ i, c i θ i`, and the left factor is nonzero *because*
+  `1, α 1, …, α n` are independent over `ℚ`. That is the one place where the independence
+  hypothesis is used as a nonvanishing statement rather than as an invariant of a recursion.
+
+* ⚠ **The distance to the nearest integer is written as an existential over the numerator.** The
+  numerator *is* a coordinate of the integer point the Subspace Theorem is applied to, so the
+  existential is what the proof produces; `Real.abs_sub_round_le` — the nearest integer is
+  nearest, which Mathlib does not state — says the two readings cut out the same set.
+
+* ⚠ **Layer 7.4 needs no induction on the subspace.** The roadmap's route ends in "an induction on
+  the subspace that uses non-periodicity"; what the proof found is one subspace and two cases. An
+  equation `z 0 X + z 1 Y + z 2 Z = 0` holding at infinitely many points
+  `(b ^ (r + s), b ^ r, p)` either does not involve `Z`, and then reads `z 0 b ^ s + z 1 = 0`,
+  which holds for at most one `s`; or it does, and then the approximation turns into
+  `|θ b ^ s + η| ≤ 1` with `θ = ξ + z 0 / z 2`, which forces `θ = 0`: `ξ` is rational.
+  Non-periodicity is used exactly once, as the irrationality of `ξ`, and
+  `Real.irrational_ofDigits` proves that without any uniqueness of expansions — the tails of the
+  given digits satisfy `b T k = a k + T (k + 1)` and take finitely many values.
+
+* ⚠ **Layer 7.4 went back to Layer 6 for the finite places.** Layer 7.3's Subspace step lives at
+  `∞` alone; the criterion's gain is at the primes of `b`, where the first two coordinates of the
+  point have size `b ^ (-(2 r + s))`. Without them the product is small only for
+  `w > 2 + 2 r / s`. `Rat.exists_finset_submodule_of_prod_mul_prod_padicNorm_le` is the step with
+  coordinate forms at a finite set of primes, and 7.3's step is its case `S = ∅`.
+
+* ⚠ **The weaker criterion puts the primes of `b` on the denominator: `S₂`, not `S₁`.** The
+  roadmap's prose had them the other way round. Ridout's theorem sees the approximant in lowest
+  terms, and reducing may remove primes of `b` from its denominator — exactly the ones carrying the
+  gain. What saves it is that the part of the denominator prime to `b` does not grow along
+  divisors (`Rat.mul_prod_padicNorm_le_of_dvd`), so it stays below `b ^ s`.
+
+* ⚠ **`1 ≤ |V k|` is Ridout's hypothesis and not the Subspace Theorem's.** The three-variable
+  route never divides by `b ^ s - 1`, and strict monotonicity of `|V k|` is all it uses; the
+  `w > 2` route needs `b ^ s - 1 ≠ 0`. `Function.IsStammeringWith.exists_periodic` supplies both,
+  after dropping the first repetition.
+
+* ⚠ **Layer 7.5's pigeonhole needs its period re-cut, and then needs no case split.** Two equal
+  factors of length `n` at positions `r < t ≤ C n` give period `s = t - r` on a segment of length
+  `n + s`; for small `s` the ratio `r / s` is unbounded. Replacing `s` by its multiple
+  `P = (⌊n / 2 s⌋ + 1) s ∈ (n / 2, n / 2 + s]` gives `r ≤ 2 C P` and the exponent
+  `1 + 1 / (1 + 2 C)` at once. And the theorem feeds 7.4's *working form*, not its definition:
+  stammering is only the name of what the lemma proves.
+
+* ⚠ **Layer 7.5's two hypotheses are one.** 7.4 needed only "not eventually periodic ⟹
+  irrational"; the converse (`Real.irrational_ofDigits_iff`, for `b ≥ 2`) is a fixed point of
+  `T ↦ (P + T) / b ^ p` on the tails, and lets the theorem be stated for an algebraic irrational
+  as the roadmap states it.
+
 Every height below is Mathlib's **relative** height over the fixed number field, the local factor
 at an infinite place carries the exponent `InfinitePlace.mult`, and a finite set of places is a
 pair of **typed** finsets, `Sinf` and `Sfin`. `README.md` writes them `S∞` and `S₀`; `S∞` stops
@@ -1494,12 +1695,29 @@ theorem mahlerExponent_add_one_le_two_mul_koksmaExponent {n : ℕ} {ξ : ℝ} (h
     Real.mahlerExponent n ξ + 1 ≤ 2 * Real.koksmaExponent n ξ :=
   sorry
 
-/-- **Layer 7.3** (Schmidt 1970). The exponents of a real algebraic number. At `n = 1` this is
-Roth's theorem. -/
-theorem mahlerExponent_of_isAlgebraic {α : ℝ} (hα : IsAlgebraic ℚ α) {n : ℕ} (hn : 1 ≤ n) :
+/-- **Layer 7.3**, landed (Schmidt 1970). The exponents of a real algebraic number, in the shape
+prototyped here. At `n = 1` this is Roth's theorem, and the acceptance criteria of
+`DiophantineApproximation/SchmidtExponents.lean` check that reading. ⚠ The hypothesis `1 ≤ n`
+turned out to be unnecessary — at `n = 0` both sides vanish — and the library states the two
+halves separately. -/
+example {α : ℝ} (hα : IsAlgebraic ℚ α) {n : ℕ} (_hn : 1 ≤ n) :
     Real.mahlerExponent n α = (min n ((minpoly ℚ α).natDegree - 1) : ℕ) ∧
       Real.koksmaExponent n α = (min n ((minpoly ℚ α).natDegree - 1) : ℕ) :=
-  sorry
+  ⟨Real.mahlerExponent_eq_of_isAlgebraic hα n, Real.koksmaExponent_eq_of_isAlgebraic hα n⟩
+
+/-- **Layer 7.3**, landed: the one bound Layer 1 could not supply, `w_n(α) ≤ n`. It is Layer 7.1
+applied to `1, α, …, α ^ n` and to the coefficient vector of the polynomial, with no mean value
+theorem between them — the proof of Layer 7.2 with its first step deleted. -/
+example {α : ℝ} (hα : IsAlgebraic ℚ α) (n : ℕ) : Real.mahlerExponent n α ≤ (n : ℝ≥0∞) :=
+  Real.mahlerExponent_le_natCast_of_isAlgebraic hα n
+
+/-- **Layer 7.3**, landed, the polynomial-level statement the bound above is read off: for a
+complex algebraic `α`, finitely many integer polynomials of degree at most `D` take a nonzero
+value at `α` below `H(P) ^ (-D - ε)`. -/
+example {α : ℂ} (hα : IsAlgebraic ℚ α) (D : ℕ) {ε : ℝ} (hε : 0 < ε) :
+    {P : ℤ[X] | P.natDegree ≤ D ∧ aeval α P ≠ 0 ∧
+      ‖aeval α P‖ ≤ P.supNorm ^ (-(D : ℝ) - ε)}.Finite :=
+  Complex.finite_setOf_norm_aeval_le hα D hε
 
 end Exponents
 
@@ -3715,14 +3933,303 @@ example [Nontrivial ι] (Sinf : Finset (InfinitePlace K)) (Sfin : Finset (Finite
     (fun _ ↦ Finset.univ) L (fun v hv ↦ .of_linearIndependent _ (hLI v hv))
     (fun v hv ↦ .of_linearIndependent _ (hLF v hv)) hε
 
-/-- **Layer 7.1** (Bombieri–Gubler, Theorem 7.3.2). One linear form with algebraic coefficients,
-in integer points. The hypothesis is that the value is nonzero, not that the coefficients are
-independent. -/
-theorem finite_setOf_abs_sum_mul_le {n : ℕ} (α : Fin (n + 1) → ℂ)
+/-! ### Layer 6.6 — landed
+
+Discharged by `DiophantineApproximation/SubspaceConsistency.lean`. Nothing was prototyped here.
+⚠ The milestone is an equation and not a translation: `Fintype.card ι = 2` supplies the
+`[Nontrivial ι]` that Layer 6.3 asks for, and the two conclusions are then the *same*
+proposition, so the converse needs nothing. The last example says so with `rfl`. See the
+preamble. -/
+
+/-- **Layer 6.6**, landed: **Layer 3.4 from Layer 6.3**. The Subspace Theorem with algebraic
+coefficients at a two-element index type is Roth's theorem on the projective line — the statement
+of Layer 3.4, hypothesis for hypothesis. -/
+example (hcard : Fintype.card ι = 2) (Sinf : Finset (InfinitePlace K))
+    (Sfin : Finset (FinitePlace K)) (w : AbsoluteValue K ℝ → AbsoluteValue F ℝ)
+    (hwI : ∀ v ∈ Sinf, (w v.1).LiesOver v.1) (hwF : ∀ v ∈ Sfin, (w v.1).LiesOver v.1)
+    (L : AbsoluteValue K ℝ → ι → Dual F (ι → F))
+    (hLI : ∀ v ∈ Sinf, LinearIndependent F (L v.1))
+    (hLF : ∀ v ∈ Sfin, LinearIndependent F (L v.1)) {ε : ℝ} (hε : 0 < ε) :
+    ∃ T : Finset (Submodule K (ι → K)), (∀ V ∈ T, V ≠ ⊤) ∧
+      ∀ x : ι → K, x ≠ 0 →
+        approxProd Sinf Sfin w L x ≤ mulHeight x ^ (-(Fintype.card ι : ℝ) - ε) →
+        ∃ V ∈ T, x ∈ V :=
+  NumberField.exists_finset_submodule_of_approxProd_le_card_two_of_extension hcard Sinf Sfin w
+    hwI hwF L hLI hLF hε
+
+/-- **Layer 6.6**, landed: **the projective reading**. On a two-element index type a proper
+subspace is a point, so the conclusion is that finitely many points of `ℙ¹(K)` satisfy the
+inequality — a count of solutions, with no subspace in the statement. -/
+example (hcard : Fintype.card ι = 2) (Sinf : Finset (InfinitePlace K))
+    (Sfin : Finset (FinitePlace K)) (w : AbsoluteValue K ℝ → AbsoluteValue F ℝ)
+    (hwI : ∀ v ∈ Sinf, (w v.1).LiesOver v.1) (hwF : ∀ v ∈ Sfin, (w v.1).LiesOver v.1)
+    (L : AbsoluteValue K ℝ → ι → Dual F (ι → F))
+    (hLI : ∀ v ∈ Sinf, LinearIndependent F (L v.1))
+    (hLF : ∀ v ∈ Sfin, LinearIndependent F (L v.1)) {ε : ℝ} (hε : 0 < ε) :
+    {P : Projectivization K (ι → K) | NumberField.approxProd Sinf Sfin w L P.rep
+      ≤ Projectivization.mulHeight P ^ (-(Fintype.card ι : ℝ) - ε)}.Finite :=
+  NumberField.finite_setOf_approxProd_le_card_two hcard Sinf Sfin w hwI hwF L hLI hLF hε
+
+/-- **Layer 6.6**, landed: **Roth's theorem of Layer 3.2 from Layer 6.3**. Layer 3.4's converse
+implication takes the Subspace Theorem as a hypothesis; discharging it from Layer 6 instead of
+from Layer 3.3 gives a second proof of Roth's theorem over a number field. -/
+example (Sinf : Finset (InfinitePlace K)) (Sfin : Finset (FinitePlace K))
+    (w : AbsoluteValue K ℝ → AbsoluteValue F ℝ)
+    (hwI : ∀ v ∈ Sinf, (w v.1).LiesOver v.1) (hwF : ∀ v ∈ Sfin, (w v.1).LiesOver v.1)
+    (α : AbsoluteValue K ℝ → F) {κ : ℝ} (hκ : 2 < κ) :
+    {β : K | (∏ v ∈ Sinf, min 1 (w v.1 (algebraMap K F β - α v.1)) ^ v.mult) *
+        ∏ v ∈ Sfin, min 1 (w v.1 (algebraMap K F β - α v.1)) ≤ mulHeight₁ β ^ (-κ)}.Finite :=
+  NumberField.finite_setOf_prod_min_one_le_of_extension Sinf Sfin w hwI hwF α hκ
+
+/-- **Layer 6.6**, landed: **the two layers prove the same theorem, and `rfl` says so.** Proof
+irrelevance is definitional, so an equality between two theorem constants is an equality between
+their statements. The same holds for Layer 6.5's route and for the three proofs of Roth's theorem
+the library now carries. -/
+example : @NumberField.exists_finset_submodule_of_approxProd_le_card_two
+    = @NumberField.exists_finset_submodule_of_approxProd_le_card_two_of_extension := rfl
+
+/-! ### Layer 7.1 — landed
+
+The statement prototyped here survived verbatim, display for display, and changed only its name:
+`‖·‖` is a norm and not an absolute value, so the library calls it
+`Complex.finite_setOf_norm_sum_mul_le_fin`. -/
+
+/-- **Layer 7.1** (Bombieri–Gubler, Theorem 7.3.2), landed. One linear form with algebraic
+coefficients, in integer points. The hypothesis is that the value is nonzero, not that the
+coefficients are independent. -/
+example {n : ℕ} (α : Fin (n + 1) → ℂ)
     (hα : ∀ i, IsAlgebraic ℚ (α i)) {ε : ℝ} (hε : 0 < ε) :
     {x : Fin (n + 1) → ℤ | 0 < ‖∑ i, α i * x i‖ ∧
       ‖∑ i, α i * x i‖ ≤ mulHeight (fun i ↦ (x i : ℚ)) ^ (-(n : ℝ) - ε)}.Finite :=
-  sorry
+  Complex.finite_setOf_norm_sum_mul_le_fin hα hε
+
+/-- **Layer 7.1**, landed, for an arbitrary finite index type: the form the induction proves,
+with the exponent read off the cardinality. -/
+example (α : ι → ℂ) (hα : ∀ i, IsAlgebraic ℚ (α i)) {ε : ℝ} (hε : 0 < ε) :
+    {x : ι → ℤ | 0 < ‖∑ i, α i * (x i : ℂ)‖ ∧
+      ‖∑ i, α i * (x i : ℂ)‖
+        ≤ mulHeight (fun i ↦ (x i : ℚ)) ^ (-(Fintype.card ι - 1 : ℝ) - ε)}.Finite :=
+  Complex.finite_setOf_norm_sum_mul_le hα hε
+
+/-- **Layer 7.1**, landed: **the Subspace Theorem step**, which is all Layer 6 contributes. The
+solutions lie in finitely many proper rational subspaces; eliminating one variable on each of
+them is an induction that uses no further input. -/
+example [Nontrivial ι] {α : ι → ℂ} (hα : ∀ i, IsAlgebraic ℚ (α i)) {j : ι} (hj : α j ≠ 0)
+    {ε : ℝ} (hε : 0 < ε) :
+    ∃ T : Finset (Submodule ℚ (ι → ℚ)), (∀ V ∈ T, V ≠ ⊤) ∧
+      ∀ x : ι → ℤ, (fun i ↦ (x i : ℚ)) ≠ 0 →
+        ‖∑ k, α k * (x k : ℂ)‖
+            ≤ mulHeight (fun i ↦ (x i : ℚ)) ^ (-(Fintype.card ι - 1 : ℝ) - ε) →
+        ∃ V ∈ T, (fun i ↦ (x i : ℚ)) ∈ V :=
+  Complex.exists_finset_submodule_of_norm_sum_le hα hj hε
+
+/-- **Layer 7.1**, landed: **the nonvanishing hypothesis is not decoration.** The form `X 0 - X 1`
+vanishes on the diagonal, so without it the set is infinite at *every* exponent, for coefficients
+as algebraic as `1` and `-1`. -/
+example (ε : ℝ) :
+    {x : Fin 2 → ℤ | ‖∑ i, (![1, -1] : Fin 2 → ℂ) i * (x i : ℂ)‖
+      ≤ mulHeight (fun i ↦ (x i : ℚ)) ^ (-(1 : ℝ) - ε)}.Infinite := by
+  refine Set.infinite_of_injective_forall_mem
+    (f := fun m : ℕ ↦ (fun _ ↦ (m : ℤ) : Fin 2 → ℤ)) (fun m m' hmm ↦ ?_) fun m ↦ ?_
+  · have h : ((m : ℤ)) = ((m' : ℤ)) := congrFun hmm 0
+    exact_mod_cast h
+  · have h0 : (∑ i, (![1, -1] : Fin 2 → ℂ) i * ((m : ℤ) : ℂ)) = 0 := by
+      rw [Fin.sum_univ_two]
+      simp
+    rw [Set.mem_ofPred_eq, h0, norm_zero]
+    positivity
+
+/-! ### Layer 7.2 — landed
+
+Discharged by `DiophantineApproximation/BoundedDegreeApproximation.lean`. Nothing was prototyped
+here before the proof: `H(f_ξ)` names an object Mathlib does not have, so the shape had to be
+chosen. The library quantifies over the minimal polynomial, and the rigidity lemma stated second
+below is what makes that choice the book's. -/
+
+/-- **Layer 7.2** (Schmidt; Bombieri–Gubler, Corollary 7.3.5), landed. **Approximation by
+algebraic numbers of bounded degree.** For a complex algebraic `α`, a degree bound `D` and
+`ε > 0`, only finitely many complex algebraic numbers `ξ` of degree at most `D` satisfy
+`‖α - ξ‖ ≤ H(f_ξ) ^ (-D - 1 - ε)`. The approximant is carried by its primitive irreducible
+integer minimal polynomial `f_ξ`, whose degree is the degree of `ξ` and whose naive height is the
+`H(f_ξ)` of the statement. -/
+example {α : ℂ} (hα : IsAlgebraic ℚ α) (D : ℕ) {ε : ℝ} (hε : 0 < ε) :
+    {ξ : ℂ | ∃ P : ℤ[X], P.IsPrimitive ∧ Irreducible P ∧ aeval ξ P = 0 ∧ P.natDegree ≤ D ∧
+      ‖α - ξ‖ ≤ P.supNorm ^ (-(D : ℝ) - 1 - ε)}.Finite :=
+  Complex.finite_setOf_norm_sub_le hα D hε
+
+/-- **Layer 7.2**, landed: **the height in the exponent depends on `ξ` alone.** Two primitive
+irreducible integer polynomials with a common complex root are associated, hence equal up to
+sign, so the existential above is Bombieri–Gubler's `H(f_ξ)` and not a choice. The lemma is
+Layer 1.3's, generalized by Layer 7.2 from a real root to a root in any `ℚ`-algebra that is a
+domain. -/
+example {ξ : ℂ} {P Q : ℤ[X]} (hPp : P.IsPrimitive) (hPi : Irreducible P) (hPξ : aeval ξ P = 0)
+    (hQp : Q.IsPrimitive) (hQi : Irreducible Q) (hQξ : aeval ξ Q = 0) : P.supNorm = Q.supNorm :=
+  Polynomial.supNorm_eq_of_isPrimitive_of_irreducible hPp hPi hPξ hQp hQi hQξ
+
+/-- **Layer 7.2**, landed, counted by minimal polynomials instead of by approximants: the shape
+the proof produces, and the shape Layer 1.3's exponents consume. The approximants of the
+statement above are the roots of these finitely many polynomials. -/
+example {α : ℂ} (hα : IsAlgebraic ℚ α) (D : ℕ) {ε : ℝ} (hε : 0 < ε) :
+    {P : ℤ[X] | P.natDegree ≤ D ∧ P.IsPrimitive ∧ Irreducible P ∧
+      ∃ ξ : ℂ, aeval ξ P = 0 ∧ ‖α - ξ‖ ≤ P.supNorm ^ (-(D : ℝ) - 1 - ε)}.Finite :=
+  Complex.finite_setOf_exists_root_norm_sub_le hα D hε
+
+/-- **Layer 7.2 in the language of Layer 1.3**, landed, and one of the two upper bounds Layer 7.3
+needs: Koksma's exponent of a real algebraic number is at most the degree bound. The other upper
+bound, `w_n^* ≤ deg α - 1`, is Liouville's inequality and is Layer 1.3's. -/
+example {α : ℝ} (hα : IsAlgebraic ℚ α) (n : ℕ) : Real.koksmaExponent n α ≤ (n : ℝ≥0∞) :=
+  Real.koksmaExponent_le_of_isAlgebraic hα n
+
+/-! ### Layer 7.3 — landed
+
+Discharged by `DiophantineApproximation/{SchmidtExponents,SimultaneousSubspaces,
+SimultaneousApproximation}.lean`. The exponents of a real algebraic number are computed above,
+next to the Layer 1.3 statements they close; **Schmidt's two theorems on simultaneous
+approximation** were never prototyped and are stated here for the first time. The distance to the
+nearest integer is written as an existential over the numerator — `Real.abs_sub_round_le` says
+the minimum is attained at `round`, so the two readings cut out the same set — and the hypothesis
+that `1, α 1, …, α n` are linearly independent over `ℚ` is Mathlib's `LinearIndependent`, indexed
+by `Option ι`. -/
+
+/-- **Layer 7.3**, landed: **Schmidt's theorem on simultaneous approximation** (Schmidt 1970;
+Bombieri–Gubler, Remark 7.3.4). For real algebraic `α 1, …, α n` with `1, α 1, …, α n` linearly
+independent over `ℚ` and `ε > 0`, finitely many `q ≥ 1` satisfy
+`q ^ (1 + ε) * ∏ i, ‖q * α i‖ < 1`. -/
+example {ι : Type*} [Fintype ι] {α : ι → ℝ} (halg : ∀ i, IsAlgebraic ℚ (α i))
+    (hind : LinearIndependent ℚ fun o : Option ι ↦ o.elim (1 : ℝ) α) {ε : ℝ} (hε : 0 < ε) :
+    {q : ℤ | 1 ≤ q ∧ ∃ p : ι → ℤ,
+      ((q : ℤ) : ℝ) ^ (1 + ε) * ∏ i, |((q : ℤ) : ℝ) * α i - ((p i : ℤ) : ℝ)| < 1}.Finite :=
+  Real.finite_setOf_mul_prod_dist_lt halg hind hε
+
+/-- **Layer 7.3**, landed: **Schmidt's theorem on the linear form `∑ i, q i * α i`** (Schmidt
+1970; Bombieri–Gubler, Remark 7.3.4). The `q ∈ ℤⁿ` with no vanishing coordinate satisfying
+`(∏ i, |q i|) ^ (1 + ε) * ‖∑ i, q i * α i‖ < 1` are finitely many. ⚠ The hypothesis that no
+coordinate vanishes is not decoration: with one it the product is `0` and the inequality is
+free. -/
+example {ι : Type*} [Fintype ι] {α : ι → ℝ} (halg : ∀ i, IsAlgebraic ℚ (α i))
+    (hind : LinearIndependent ℚ fun o : Option ι ↦ o.elim (1 : ℝ) α) {ε : ℝ} (hε : 0 < ε) :
+    {q : ι → ℤ | (∀ i, q i ≠ 0) ∧ ∃ p : ℤ,
+      (∏ i, |((q i : ℤ) : ℝ)|) ^ (1 + ε)
+        * |∑ i, α i * ((q i : ℤ) : ℝ) - (p : ℝ)| < 1}.Finite :=
+  Real.finite_setOf_prod_abs_mul_dist_lt halg hind hε
+
+/-- **Layer 7.3**, landed, the theorem the statement above runs on and which is not in the
+roadmap's prose: for algebraic `β 1, …, β n` independent with `1` over `ℚ`, the `q` with no
+vanishing coordinate satisfying `(∏ i, |q i|) ^ (1 + ε) * |∑ i, β i * q i| < 1` are finitely
+many. The difference from the statement above is that the value itself is small, not its distance
+to `ℤ`. -/
+example {ι : Type*} [Fintype ι] {β : ι → ℝ} (halg : ∀ i, IsAlgebraic ℚ (β i))
+    (hind : LinearIndependent ℚ fun o : Option ι ↦ o.elim (1 : ℝ) β) {ε : ℝ} (hε : 0 < ε) :
+    {x : ι → ℤ | (∀ i, x i ≠ 0) ∧
+      (∏ i, |((x i : ℤ) : ℝ)|) ^ (1 + ε) * |∑ i, β i * ((x i : ℤ) : ℝ)| < 1}.Finite :=
+  Real.finite_setOf_prod_abs_mul_abs_sum_lt halg hind hε
+
+/-- **Layer 7.3**, landed, the Subspace Theorem step both theorems run on: a full system of
+linearly independent forms with algebraic coefficients, with the hypothesis on the bare product
+of the values of the forms and not on the sup norm. -/
+example {ι : Type*} [Fintype ι] [Nontrivial ι] {c : ι → ι → ℂ}
+    (hc : ∀ i k, IsAlgebraic ℚ (c i k)) (hind : LinearIndependent ℂ c) {ε : ℝ} (hε : 0 < ε) :
+    ∃ T : Finset (Submodule ℚ (ι → ℚ)), (∀ V ∈ T, V ≠ ⊤) ∧
+      ∀ x : ι → ℤ, (fun i ↦ (x i : ℚ)) ≠ 0 →
+        (∏ i, ‖∑ k, c i k * ((x k : ℤ) : ℂ)‖) ≤ (⨆ i, |((x i : ℤ) : ℝ)|) ^ (-ε) →
+        ∃ V ∈ T, (fun i ↦ (x i : ℚ)) ∈ V :=
+  Complex.exists_finset_submodule_of_prod_norm_le hc hind hε
+
+/-! ### Layer 7.4 — landed
+
+Discharged by `DiophantineApproximation/{StammeringWords,DigitExpansions,RepetitionSubspaces,
+TranscendenceCriterion}.lean`. Nothing of 7.4 was prototyped; its definitions are stated here for
+the first time, as the roadmap's prose gives them: `V ^ w` is `List.rpow`, and "`U k (V k) ^ w` is
+a prefix of `a`" is written letter by letter with `getElem?`. The number is Mathlib's
+`Real.ofDigits`. -/
+
+/-- **Layer 7.4**, landed: **the combinatorial transcendence criterion** (Adamczewski–Bugeaud–Luca
+2004; Adamczewski–Bugeaud 2007). For `b ≥ 2`, if `a` is stammering and not eventually periodic,
+then `∑ k, a k / b ^ (k + 1)` is transcendental. -/
+example {b : ℕ} (hb : 2 ≤ b) {a : ℕ → Fin b} (hst : Function.IsStammering a)
+    (hper : ¬ Function.IsEventuallyPeriodic a) : Transcendental ℚ (Real.ofDigits a) :=
+  Real.transcendental_ofDigits_of_isStammering hb hst hper
+
+/-- **Layer 7.4**, landed: the definition, as the roadmap's prose gives it. -/
+example {α : Type*} (w : ℝ) (a : ℕ → α) :
+    Function.IsStammeringWith w a ↔ ∃ U V : ℕ → List α,
+      (∀ k i, i < (U k ++ (V k).rpow w).length → (U k ++ (V k).rpow w)[i]? = some (a i)) ∧
+      BddAbove (Set.range fun k ↦ ((U k).length : ℝ) / (V k).length) ∧
+      StrictMono fun k ↦ (V k).length :=
+  Iff.rfl
+
+/-- **Layer 7.4**, landed: **the weaker criterion for `w > 2`** (Ferenczi–Mauduit 1997), the
+consumer of Layer 3.3 that needs none of Layers 4–6. -/
+example {b : ℕ} (hb : 2 ≤ b) {a : ℕ → Fin b} {w : ℝ} (hw : 2 < w)
+    (hst : Function.IsStammeringWith w a) (hper : ¬ Function.IsEventuallyPeriodic a) :
+    Transcendental ℚ (Real.ofDigits a) :=
+  Real.transcendental_ofDigits_of_isStammeringWith_of_two_lt hb hw hst hper
+
+/-- **Layer 7.4**, landed, the working form both criteria are proved in: periodic segments of the
+digits, for any irrational value. -/
+example {b : ℕ} (hb : 2 ≤ b) {a : ℕ → Fin b} (hirr : Irrational (Real.ofDigits a)) {w C : ℝ}
+    (hw : 1 < w) (hC : 0 ≤ C) {r s : ℕ → ℕ} (hs : StrictMono s)
+    (hrs : ∀ k, (r k : ℝ) ≤ C * s k)
+    (hper : ∀ k i, r k ≤ i → i + s k < r k + ⌈w * s k⌉₊ → a (i + s k) = a i) :
+    Transcendental ℚ (Real.ofDigits a) :=
+  Real.transcendental_ofDigits_of_forall_periodic hb hirr hw hC hs hrs hper
+
+/-- **Layer 7.4**, landed: a base-`b` expansion that is not eventually periodic has an irrational
+value, whatever the other expansions of that value. -/
+example {b : ℕ} {a : ℕ → Fin b} (hper : ¬ Function.IsEventuallyPeriodic a) :
+    Irrational (Real.ofDigits a) :=
+  Real.irrational_ofDigits hper
+
+/-- **Layer 7.4**, landed, the Subspace Theorem step: `X 0`, `X 1`, `ξ X 0 - ξ X 1 - X 2` at `∞`
+and the coordinate forms at a finite set of primes. -/
+example {ξ : ℝ} (hξ : IsAlgebraic ℚ ξ) (S : Finset Nat.Primes) {ε : ℝ} (hε : 0 < ε) :
+    ∃ T : Finset (Submodule ℚ (Fin 3 → ℚ)), (∀ V ∈ T, V ≠ ⊤) ∧
+      ∀ x : Fin 3 → ℤ, (fun i ↦ (x i : ℚ)) ≠ 0 →
+        |((x 0 : ℤ) : ℝ)| * |((x 1 : ℤ) : ℝ)| * |ξ * (x 0 : ℝ) - ξ * (x 1 : ℝ) - (x 2 : ℝ)|
+            * ∏ l ∈ S, ∏ i, ((padicNorm (l : ℕ) ((x i : ℤ) : ℚ) : ℚ) : ℝ)
+          ≤ (⨆ i, |((x i : ℤ) : ℝ)|) ^ (-ε) →
+        ∃ V ∈ T, (fun i ↦ (x i : ℚ)) ∈ V :=
+  Real.exists_finset_submodule_of_repetition hξ S hε
+
+/-! ### Layer 7.5 — landed
+
+Discharged by `DiophantineApproximation/{FactorComplexity,ComplexityTranscendence}.lean`. Nothing
+of 7.5 was prototyped. The complexity counts the words `List.ofFn fun j : Fin n ↦ a (i + j)`, the
+factors of `a`; over a finite alphabet the set is finite and `Set.ncard` counts it. -/
+
+/-- **Layer 7.5**, landed: **the complexity of an algebraic irrational** (Adamczewski–Bugeaud 2007,
+Theorem 1). -/
+example {b : ℕ} (hb : 2 ≤ b) {a : ℕ → Fin b} (hirr : Irrational (Real.ofDigits a))
+    (halg : IsAlgebraic ℚ (Real.ofDigits a)) :
+    Filter.Tendsto (fun n ↦ (Function.complexity a n : ℝ) / n) Filter.atTop Filter.atTop :=
+  Real.tendsto_complexity_div_atTop hb hirr halg
+
+/-- **Layer 7.5**, landed: the definition, as the roadmap's prose gives it. -/
+example {α : Type*} (a : ℕ → α) (n : ℕ) :
+    Function.complexity a n = (Set.range fun i ↦ List.ofFn fun j : Fin n ↦ a (i + j)).ncard :=
+  rfl
+
+/-- **Layer 7.5**, landed: **the combinatorial lemma**, for an arbitrary finite alphabet and with
+no reference to a number. -/
+example {α : Type*} [Finite α] {a : ℕ → α} {C : ℝ}
+    (h : ∃ᶠ n in Filter.atTop, (Function.complexity a n : ℝ) ≤ C * n) : Function.IsStammering a :=
+  Function.isStammering_of_frequently_complexity_le h
+
+/-- **Layer 7.5**, landed: the complexity is nondecreasing. -/
+example {α : Type*} [Finite α] (a : ℕ → α) : Monotone (Function.complexity a) :=
+  Function.complexity_mono a
+
+/-- **Layer 7.5**, landed: **Morse–Hedlund**. -/
+example {α : Type*} [Finite α] (a : ℕ → α) :
+    List.TFAE [Function.IsEventuallyPeriodic a, BddAbove (Set.range (Function.complexity a)),
+      ∃ n, Function.complexity a n ≤ n] :=
+  Function.isEventuallyPeriodic_tfae a
+
+/-- **Layer 7.5**, landed: the value of a base-`b` expansion is irrational exactly when the
+expansion is not eventually periodic. -/
+example {b : ℕ} (hb : 2 ≤ b) {a : ℕ → Fin b} :
+    Irrational (Real.ofDigits a) ↔ ¬ Function.IsEventuallyPeriodic a :=
+  Real.irrational_ofDigits_iff hb
 
 end Subspace
 
@@ -3732,27 +4239,146 @@ section UnitEquation
 
 variable {K : Type*} [Field K] [NumberField K] {ι : Type*} [Fintype ι]
 
-/-- **Layer 8.1** (Siegel; Mahler; Lang). The unit equation in two variables. -/
-theorem finite_setOf_unit_add_unit_eq_one (S : Finset (HeightOneSpectrum (𝓞 K))) (a b : Kˣ) :
+/-- **Layer 8.1** (Siegel; Mahler; Lang), landed in `DiophantineApproximation/UnitEquation.lean`:
+the unit equation in two variables. The prototype survived **verbatim**. -/
+example (S : Finset (HeightOneSpectrum (𝓞 K))) (a b : Kˣ) :
     {p : Kˣ × Kˣ | p.1 ∈ (S : Set (HeightOneSpectrum (𝓞 K))).unit K ∧
       p.2 ∈ (S : Set (HeightOneSpectrum (𝓞 K))).unit K ∧
       (a : K) * p.1 + (b : K) * p.2 = 1}.Finite :=
-  sorry
+  NumberField.finite_setOf_unit_add_unit_eq_one S a b
 
-/-- **Layer 8.2** (Evertse; van der Poorten–Schlickewei; Bombieri–Gubler, Theorem 7.4.2). The
-unit equation in `n` variables: finitely many solutions with no vanishing subsum. The hypothesis
-is not removable: `(u, −u, 1)` solves `x₁ + x₂ + x₃ = 1` for every unit `u`. -/
-theorem finite_setOf_sum_unit_eq_one (S : Finset (HeightOneSpectrum (𝓞 K))) (a : ι → Kˣ) :
+/-- **Layer 8.1**, landed: ⚠ **the route is Vojta's refinement, with no split by the largest
+coordinate.** With the three forms `X₀`, `X₁`, `X₀ + X₁` at every place — in general position —
+the central quantity of Layer 6.5 at a solution of `x + y = 1` is *exactly* `H(x, y) ^ (-3)`: the
+numerators multiply to `1` by the `S`-product formula, the denominators to `H ^ 3` because the
+equation itself makes the point `S`-primitive. -/
+example (S : Finset (HeightOneSpectrum (𝓞 K))) {x y : Kˣ}
+    (hx : x ∈ (S : Set (HeightOneSpectrum (𝓞 K))).unit K)
+    (hy : y ∈ (S : Set (HeightOneSpectrum (𝓞 K))).unit K) (hxy : (x : K) + y = 1) :
+    open scoped Classical in
+    generalProd Finset.univ (S.image FinitePlace.mk) (fun v ↦ v) (fun _ ↦ Finset.univ)
+        (fun _ ↦ unitEquationForms) ![(x : K), y] = (mulHeight ![(x : K), y] ^ 3)⁻¹ :=
+  NumberField.generalProd_unitEquationForms_eq S hx hy hxy
+
+/-- **Layer 8.2** (Evertse; van der Poorten–Schlickewei; Bombieri–Gubler, Theorem 7.4.2), landed
+in `DiophantineApproximation/UnitEquationSeveral.lean`: the unit equation in `n` variables, finitely
+many solutions with no vanishing subsum. The prototype survived **verbatim**. The hypothesis is
+not removable: `(u, −u, 1)` solves `x₁ + x₂ + x₃ = 1` for every unit `u`. -/
+example (S : Finset (HeightOneSpectrum (𝓞 K))) (a : ι → Kˣ) :
     {x : ι → Kˣ | (∀ i, x i ∈ (S : Set (HeightOneSpectrum (𝓞 K))).unit K) ∧
       ∑ i, (a i : K) * x i = 1 ∧
       ∀ I : Finset ι, I.Nonempty → ∑ i ∈ I, (a i : K) * x i ≠ 0}.Finite :=
-  sorry
+  NumberField.finite_setOf_sum_unit_eq_one S a
 
-/-- **Layer 8.2.** The same for a finitely generated subgroup of `Kˣ`. -/
-theorem finite_setOf_sum_mem_eq_one (Γ : Subgroup Kˣ) (hΓ : Γ.FG) (a : ι → Kˣ) :
+/-- **Layer 8.2**, landed: the same for a finitely generated subgroup of `Kˣ`, which lies in the
+`S`-units for a finite `S`. The prototype survived **verbatim**. -/
+example (Γ : Subgroup Kˣ) (hΓ : Γ.FG) (a : ι → Kˣ) :
     {x : ι → Kˣ | (∀ i, x i ∈ Γ) ∧ ∑ i, (a i : K) * x i = 1 ∧
       ∀ I : Finset ι, I.Nonempty → ∑ i ∈ I, (a i : K) * x i ≠ 0}.Finite :=
-  sorry
+  NumberField.finite_setOf_sum_mem_eq_one Γ hΓ a
+
+/-- **Layer 8.2**, landed: Corollary 7.4.3, **vanishing subsums allowed** — every solution has a
+term `a i * x i` in a fixed finite set. -/
+example (S : Finset (HeightOneSpectrum (𝓞 K))) (a : ι → Kˣ) :
+    ∃ Φ : Set K, Φ.Finite ∧ ∀ x : ι → Kˣ,
+      (∀ i, x i ∈ (S : Set (HeightOneSpectrum (𝓞 K))).unit K) →
+      ∑ i, (a i : K) * x i = 1 → ∃ i, (a i : K) * x i ∈ Φ :=
+  NumberField.exists_finite_forall_exists_mul_mem S a
+
+/-- **Layer 8.2**, landed: ⚠ **the central quantity is `H ^ (-n - 1)` on the nose**, with the
+`n + 1` forms `X i` and `∑ i, X i` at every place — 8.1's identity in `n` variables. -/
+example (S : Finset (HeightOneSpectrum (𝓞 K))) {x : ι → Kˣ}
+    (hx : ∀ i, x i ∈ (S : Set (HeightOneSpectrum (𝓞 K))).unit K) (hsum : ∑ i, (x i : K) = 1) :
+    open scoped Classical in
+    generalProd Finset.univ (S.image FinitePlace.mk) (fun v ↦ v) (fun _ ↦ Finset.univ)
+        (fun _ ↦ NumberField.sumEquationForms) (fun i ↦ (x i : K)) =
+      (mulHeight (fun i ↦ (x i : K)) ^ (Fintype.card ι + 1))⁻¹ :=
+  NumberField.generalProd_sumEquationForms_eq S hx hsum
+
+/-- **Layer 8.3** (Győry–Papp), landed in `DiophantineApproximation/DecomposableForm.lean` and
+prototyped here for the first time: for a triangularly connected family of forms with common
+kernel `0`, a decomposable form equation `c ∏ j, l j x ^ e j = m` has finitely many solutions in
+`S`-integers. ⚠ **Pairwise non-proportionality is not a hypothesis**: the argument never uses it.
+⚠ Only the split case — forms over `K` itself; the passage to an extension is made by 8.4, for
+binary forms. -/
+example {κ : Type*} [Fintype κ] (S : Finset (HeightOneSpectrum (𝓞 K)))
+    {l : κ → Dual K (ι → K)} (hl : ⨅ j, LinearMap.ker (l j) = ⊥)
+    (hc : Dual.IsTriangularlyConnected l) {e : κ → ℕ} (he : ∀ j, e j ≠ 0) (c : K) {m : K}
+    (hm : m ≠ 0) :
+    {x : ι → K | (∀ i, x i ∈ (S : Set (HeightOneSpectrum (𝓞 K))).integer K) ∧
+      c * ∏ j, l j x ^ e j = m}.Finite :=
+  NumberField.finite_setOf_mul_prod_eq S hl hc he c hm
+
+/-- **Layer 8.3**, landed: modulo `S`-units, finitely many `S`-integral points make the form an
+`S`-unit, and the representatives can be taken among them. ⚠ **No discreteness of valuations**:
+two solutions on one line differ by a scalar whose `E`-th power is an `S`-unit, hence by an
+`S`-unit. -/
+example {κ : Type*} [Fintype κ] (S : Finset (HeightOneSpectrum (𝓞 K)))
+    {l : κ → Dual K (ι → K)} (hl : ⨅ j, LinearMap.ker (l j) = ⊥)
+    (hc : Dual.IsTriangularlyConnected l) {e : κ → ℕ} (he : ∀ j, e j ≠ 0) (c : K) :
+    ∃ F : Set (ι → K), F.Finite ∧
+      F ⊆ {x | (∀ i, x i ∈ (S : Set (HeightOneSpectrum (𝓞 K))).integer K) ∧
+        ∃ w ∈ (S : Set (HeightOneSpectrum (𝓞 K))).unit K, (w : K) = c * ∏ j, l j x ^ e j} ∧
+      ∀ x : ι → K, (∀ i, x i ∈ (S : Set (HeightOneSpectrum (𝓞 K))).integer K) →
+        (∃ w ∈ (S : Set (HeightOneSpectrum (𝓞 K))).unit K, (w : K) = c * ∏ j, l j x ^ e j) →
+        ∃ u ∈ (S : Set (HeightOneSpectrum (𝓞 K))).unit K, ∃ y ∈ F, x = (u : K) • y :=
+  NumberField.exists_finite_forall_mul_prod_mem_unit S hl hc he c
+
+/-- **Layer 8.3**, landed: the core, on any `K`-vector space — the points at which every form of a
+triangularly connected family takes an `S`-unit value are `S`-unit multiples of finitely many. -/
+example {κ V : Type*} [Finite κ] [AddCommGroup V] [Module K V]
+    (S : Finset (HeightOneSpectrum (𝓞 K))) {l : κ → Dual K V}
+    (hl : ⨅ j, LinearMap.ker (l j) = ⊥) (hc : Dual.IsTriangularlyConnected l) :
+    ∃ F : Set V, F.Finite ∧ ∀ x : V,
+      (∀ j, ∃ u ∈ (S : Set (HeightOneSpectrum (𝓞 K))).unit K, (u : K) = l j x) →
+      ∃ u ∈ (S : Set (HeightOneSpectrum (𝓞 K))).unit K, ∃ y ∈ F, x = (u : K) • y :=
+  NumberField.exists_finite_forall_eq_smul S hl hc
+
+/-- **Layer 8.4** (Thue 1909; Siegel), landed in `DiophantineApproximation/ThueMahler.lean` and
+prototyped here for the first time: Thue's equation in the `S`-integers of a number field, under
+Layer 3.6's hypothesis — `g` has at least three distinct roots in an algebraically closed field,
+the point at infinity counting as one when `deg g < d`. ⚠ **Nothing above 8.3 is used**: the
+equation is solved in the splitting field, over the primes above `S`
+(`DiophantineApproximation/SIntegerExtension.lean`), where the form is decomposable and at least
+three pairwise non-proportional binary forms are triangularly connected. -/
+example {Ω : Type*} [Field Ω] [IsAlgClosed Ω] [Algebra K Ω] [DecidableEq Ω]
+    (S : Finset (HeightOneSpectrum (𝓞 K))) {g : K[X]} {d : ℕ} (hd : g.natDegree ≤ d)
+    (hroots : 3 ≤ (g.map (algebraMap K Ω)).roots.toFinset.card +
+      if g.natDegree = d then 0 else 1)
+    {m : K} (hm : m ≠ 0) :
+    {z : Fin 2 → K | (∀ i, z i ∈ (S : Set (HeightOneSpectrum (𝓞 K))).integer K) ∧
+      MvPolynomial.eval z (g.homogenize d) = m}.Finite :=
+  NumberField.finite_setOf_eval_homogenize_eq S hd hroots hm
+
+/-- **Layer 8.4** (Mahler 1933), landed: modulo `S`-units, finitely many `S`-integral points make
+the form an `S`-unit. ⚠ **The descent from the splitting field needs no degree and no norm**: two
+`K`-solutions on one line of the extension differ by a scalar of `K` that is a unit above `S`,
+hence an `S`-unit. -/
+example {Ω : Type*} [Field Ω] [IsAlgClosed Ω] [Algebra K Ω] [DecidableEq Ω]
+    (S : Finset (HeightOneSpectrum (𝓞 K))) {g : K[X]} {d : ℕ} (hd : g.natDegree ≤ d)
+    (hroots : 3 ≤ (g.map (algebraMap K Ω)).roots.toFinset.card +
+      if g.natDegree = d then 0 else 1) :
+    ∃ F : Set (Fin 2 → K), F.Finite ∧
+      F ⊆ {z | (∀ i, z i ∈ (S : Set (HeightOneSpectrum (𝓞 K))).integer K) ∧
+        ∃ w ∈ (S : Set (HeightOneSpectrum (𝓞 K))).unit K,
+          (w : K) = MvPolynomial.eval z (g.homogenize d)} ∧
+      ∀ z : Fin 2 → K, (∀ i, z i ∈ (S : Set (HeightOneSpectrum (𝓞 K))).integer K) →
+        (∃ w ∈ (S : Set (HeightOneSpectrum (𝓞 K))).unit K,
+          (w : K) = MvPolynomial.eval z (g.homogenize d)) →
+        ∃ u ∈ (S : Set (HeightOneSpectrum (𝓞 K))).unit K, ∃ y ∈ F, z = (u : K) • y :=
+  NumberField.exists_finite_forall_eval_homogenize_mem_unit S hd hroots
+
+/-- **Layer 8.4**, landed: **the Thue–Mahler theorem over `ℚ`** — finitely many coprime integers
+`x, y` and exponents `z` with `G(x, y) = ± p₁ ^ z₁ ⋯ pₛ ^ zₛ`. ⚠ Coprimality enters only at the
+end: a line through the origin carries at most two coprime integer points. -/
+example {g : ℤ[X]} {d : ℕ} (hd : g.natDegree ≤ d)
+    (hroots : 3 ≤ (g.map (Int.castRingHom ℂ)).roots.toFinset.card +
+      if g.natDegree = d then 0 else 1)
+    {s : ℕ} (p : Fin s → Nat.Primes) :
+    {t : (ℤ × ℤ) × (Fin s → ℕ) | IsCoprime t.1.1 t.1.2 ∧
+      (MvPolynomial.eval ![t.1.1, t.1.2] (g.homogenize d)).natAbs =
+        ∏ i, (p i : ℕ) ^ t.2 i}.Finite :=
+  Polynomial.finite_setOf_natAbs_eval_homogenize_eq_prod_pow hd hroots p
 
 end UnitEquation
 

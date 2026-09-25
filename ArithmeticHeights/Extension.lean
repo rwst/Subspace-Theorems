@@ -100,7 +100,7 @@ private lemma card_filter_comp_eq (ψ : K →+* ℂ) :
     #{φ : L →+* ℂ | φ.comp (algebraMap K L) = ψ} = finrank K L := by
   let : Algebra K ℂ := ψ.toAlgebra
   rw [← AlgHom.card K L ℂ]
-  refine (Finset.card_nbij AlgHom.toRingHom (fun σ _ ↦ ?_) AlgHom.coe_ringHom_injective.injOn
+  refine (Finset.card_nbij AlgHom.toRingHom (fun σ _ ↦ ?_) AlgHom.toRingHom_injective.injOn
     (fun φ hφ ↦ ?_)).symm
   · simp only [Finset.coe_filter, Set.mem_ofPred_eq, mem_univ, true_and]
     ext r

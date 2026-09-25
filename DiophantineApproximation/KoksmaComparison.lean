@@ -34,7 +34,8 @@ prototype — which carried none — is proved as it stands.
 ## Main results
 
 * `Polynomial.associated_of_isPrimitive_of_irreducible`: **two primitive irreducible integer
-  polynomials with a common real root are associated**, hence equal up to sign.
+  polynomials with a common root are associated**, hence equal up to sign — for a root in any
+  `ℚ`-algebra that is a domain.
 * `Polynomial.supNorm_eq_of_isPrimitive_of_irreducible`: they have the same naive height.
 * `Real.exists_supNorm_le_of_aeval_eq_zero`: the height of the minimal polynomial of `ξ`, when
   there is one, as a threshold above which every Koksma solution is a Mahler solution.
@@ -77,11 +78,13 @@ namespace Polynomial
 
 /-! ### The minimal polynomial of a real number is rigid -/
 
-/-- **Two primitive irreducible integer polynomials with a common real root are associated.**
+/-- **Two primitive irreducible integer polynomials with a common root are associated.**
 Over `ℚ` both are associated to the minimal polynomial of the root, so one divides the other;
 Gauss's lemma brings that divisibility back to `ℤ[X]`, where irreducibility upgrades it to an
-association. -/
-theorem associated_of_isPrimitive_of_irreducible {ξ : ℝ} {P Q : ℤ[X]}
+association. The root may lie in any `ℚ`-algebra that is a domain: Layer 1.3 reads this over `ℝ`
+and Layer 7.2 over `ℂ`. -/
+theorem associated_of_isPrimitive_of_irreducible {A : Type*} [CommRing A] [IsDomain A]
+    [Algebra ℚ A] {ξ : A} {P Q : ℤ[X]}
     (hPp : P.IsPrimitive) (hPi : Irreducible P) (hPξ : aeval ξ P = 0)
     (hQp : Q.IsPrimitive) (hQi : Irreducible Q) (hQξ : aeval ξ Q = 0) :
     Associated P Q := by
@@ -105,8 +108,9 @@ theorem associated_of_isPrimitive_of_irreducible {ξ : ℝ} {P Q : ℤ[X]}
   exact hPi.associated_of_dvd hQi
     ((IsPrimitive.Int.dvd_iff_map_cast_dvd_map_cast P Q hPp).2 (hassP.symm.trans hassQ).dvd)
 
-/-- **The naive height of the minimal polynomial of a real number is well defined.** -/
-theorem supNorm_eq_of_isPrimitive_of_irreducible {ξ : ℝ} {P Q : ℤ[X]}
+/-- **The naive height of the minimal polynomial of an algebraic number is well defined.** -/
+theorem supNorm_eq_of_isPrimitive_of_irreducible {A : Type*} [CommRing A] [IsDomain A]
+    [Algebra ℚ A] {ξ : A} {P Q : ℤ[X]}
     (hPp : P.IsPrimitive) (hPi : Irreducible P) (hPξ : aeval ξ P = 0)
     (hQp : Q.IsPrimitive) (hQi : Irreducible Q) (hQξ : aeval ξ Q = 0) :
     P.supNorm = Q.supNorm := by

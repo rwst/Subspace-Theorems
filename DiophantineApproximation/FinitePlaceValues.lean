@@ -107,7 +107,7 @@ theorem exists_apply_eq_one_forall_apply_lt_one (v₀ : FinitePlace K) (T : Fins
       intro hle
       have := v.maximalIdeal.isMaximal.eq_of_le v₀.maximalIdeal.isPrime.ne_top hle
       exact hv (FinitePlace.maximalIdeal_injective (HeightOneSpectrum.ext this))
-    obtain ⟨p, hp, hp'⟩ := SetLike.not_le_iff_exists.1 hle
+    obtain ⟨p, hp, hp'⟩ := IsConcreteLE.not_le_iff_exists.1 hle
     exact ⟨p, fun _ ↦ ⟨hp, hp'⟩⟩
   choose p hp using hp
   have hne : ∀ v ∈ T, v ≠ v₀ := fun v hv h ↦ hv₀ (h ▸ hv)
@@ -193,11 +193,7 @@ theorem zpow_mem_range (v : FinitePlace K) (k : ℤ) :
     rw [apply_eq_mk_maximalIdeal, FinitePlace.mk_apply, FinitePlace.norm_embedding,
       HeightOneSpectrum.adicAbv_def,
       WithZeroMulInt.toNNReal_neg_apply _ ((Valuation.ne_zero_iff _).2 hπ0)]
-    have key : ∀ (y : WithZero (Multiplicative ℤ)) (hy : y ≠ 0), y = WithZero.exp (-1 : ℤ) →
-        Multiplicative.toAdd (WithZero.unzero hy) = -1 := by
-      rintro y hy rfl
-      rfl
-    rw [key _ _ hπ]
+    rw [hπ, WithZero.log_exp]
     push_cast
     rfl
   refine ⟨π ^ (-k), ?_⟩

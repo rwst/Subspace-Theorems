@@ -38,13 +38,11 @@ review.** Treat both as draft specifications:
   `Suggested.lean` says so itself: it "is not the roadmap and is not exhaustive", and exists
   precisely for the statements whose shapes are most likely to drift.
 - Do not treat a signature in `Suggested.lean` as settled API. Open milestones there are stated
-  with `sorry` and elaborate against the pinned Mathlib — 7 of them as the tree stands, Wirsing's
+  with `sorry` and elaborate against the pinned Mathlib — 2 of them as the tree stands, Wirsing's
   first two inequalities of Layer 1.3 and Layers 1.4 to 8 of the `DiophantineApproximation`
-  roadmap except the whole of Layers 2, 3, 4, 5 and 6, Wirsing's first
-  two
-  and 1.4
-  marked **optional** there
-  because no later layer consumes them —
+  roadmap except the whole of Layers 2, 3, 4, 5, 6 and 7 and Layers 8.1 to 8.4, Wirsing's
+  first two
+  and 1.4 marked **optional** there because no later layer consumes them —
   and the sorry-free version is what has
   to be right. The landed ones are `example`s proved by the library, so they record what is true
   today rather than what will stay true: a rename upstream in this repo breaks them, which is the
@@ -284,6 +282,24 @@ DiophantineApproximation/  the second library, same rules, also a default build 
   SubspaceAffine.lean    Layer 6.4 (the Subspace Theorem for S-integral points; BG 7.2.5)
   GeneralPosition.lean   Layer 6.5 (general position; which n+1 forms to keep at a point)
   SubspaceGeneralPosition.lean Layer 6.5 (Vojta's refinement; BG 7.2.9)
+  SubspaceConsistency.lean Layer 6.6 (on P^1 the Subspace Theorem is Roth's theorem)
+  LinearFormSubspaces.lean Layer 7.1 (one linear form: the exceptional subspaces)
+  OneLinearForm.lean     Layer 7.1 (one linear form with algebraic coefficients; BG 7.3.2)
+  BoundedDegreeApproximation.lean Layer 7.2 (algebraic numbers of bounded degree; BG Cor. 7.3.5)
+  SchmidtExponents.lean  Layer 7.3 (the exponents of an algebraic number; Schmidt 1970)
+  SimultaneousSubspaces.lean Layer 7.3 (two systems of forms: the exceptional subspaces)
+  SimultaneousApproximation.lean Layer 7.3 (simultaneous approximation; BG Remark 7.3.4)
+  StammeringWords.lean   Layer 7.4 (V^w for real w, stammering sequences)
+  DigitExpansions.lean   Layer 7.4 (expansions in an integer base: repetitions, irrationality)
+  RepetitionSubspaces.lean Layer 7.4 (the Subspace Theorem at the primes of the base)
+  TranscendenceCriterion.lean Layer 7.4 (stammering ⟹ transcendental; ABL 2004, AB 2007, FM 1997)
+  FactorComplexity.lean  Layer 7.5 (complexity, Morse–Hedlund, the pigeonhole lemma)
+  ComplexityTranscendence.lean Layer 7.5 (algebraic irrational ⟹ p(n)/n → ∞; AB 2007 Thm 1)
+  UnitEquation.lean      Layer 8.1 (a x + b y = 1 in S-units: finitely many; via Vojta 6.5)
+  UnitEquationSeveral.lean Layer 8.2 (∑ a i x i = 1, no vanishing subsum: finitely many; BG 7.4.2–3)
+  DecomposableForm.lean  Layer 8.3 (triangularly connected decomposable forms; Győry–Papp, via 8.1)
+  SIntegerExtension.lean Layer 8.4 (S-integers and S-units above S in an extension)
+  ThueMahler.lean        Layer 8.4 (Thue and Thue–Mahler over a number field, via 8.3)
   PlacesOverInfinite.lean Layer 0.1 (archimedean half)
   SAdicHeight.lean       Layer 0.3 (heights of S-integral and primitive points)
   SIntegerLocalization.lean Layer 0.3 (the S-integers as a localization; BG Prop. 5.3.6)
@@ -312,10 +328,10 @@ run, so one round shows everything that is wrong.
 
 `lake build` never touches `Roadmap/`: that library is declared without `@[default_target]`
 precisely so that any `sorry` it carries — the milestones not yet built — stays out of the
-libraries' build and out of every gate. As the tree stands it carries **7**: Wirsing's first two
-inequalities of Layer 1.3, the optional Layer 1.4, and the milestones prototyped from Layer 7.1
+libraries' build and out of every gate. As the tree stands it carries **6**: Wirsing's first two
+inequalities of Layer 1.3, the optional Layer 1.4, and the milestones prototyped from Layer 7.2
 to Layer 8 of the `DiophantineApproximation` roadmap. Layer 0,
-1.1–1.3, all of Layers 2, 3, 4 and 5, and Layers 6.1 to 6.5 are landed and appear there as
+1.1–1.3, all of Layers 2, 3, 4, 5 and 6, and Layer 7.1 are landed and appear there as
 `example`s
 discharged by the library. The dependency runs one way only, `Roadmap` on the
 libraries, and `guards.sh` fails the build if a library ever imports the roadmap.
@@ -325,7 +341,7 @@ line, trailing whitespace, a wrong licence line, an undocumented `def`, a home-r
 file without `module`, each caught by exactly one gate. Every gate reads both library roots; the
 single list of them is `LIBRARY_ROOTS` in `scripts/source-modules.sh`, and adding a roadmap to this
 repository means adding its directory there and to `lakefile.lean` and nothing else. On the tree as
-it stands: 173 library files, 4198 declarations audited and all within the allowlist, 2712 judged
+it stands: 191 library files, 4617 declarations audited and all within the allowlist, 2926 judged
 by 15 environment linters with no violations, headers and text linters clean.
 
 ## Still to settle
@@ -337,11 +353,285 @@ by 15 environment linters with no violations, headers and text linters clean.
    Mathlib PR (mathlib4#41606, mathlib4#40791), which is exactly what `mathlib-shims.json` and
    `check-expired-mathlib-shims.py` exist to track, so that the vendored copy is deleted when
    upstream lands rather than quietly diverging.
-3. **Pins.** Toolchain `v4.34.0`, Mathlib `1e043bcd5646` on `master` — ahead of Tau Ceti's
+3. **Pins.** Toolchain `v4.35.0-rc3`, Mathlib `5e0c4e5239cb` on `master` (bumped on 2026-09-25 for
+   Palomar) — ahead of Tau Ceti's
    `v4.34.0-rc1` / `653c36f019ec`, which is the allowed direction. Bumps stay forward-only.
 
 Settled since: the Lean file headers all name "Ralf Stephan", `Arakelov.lean` included, so the
 attribution question is closed.
+
+Settled on 2026-09-25, the same day as 8.3: `DiophantineApproximation` **Layer 8.4**, **Thue and
+Thue–Mahler** (Thue 1909; Mahler 1933; Bombieri–Gubler 5.3.1–5.3.2), in
+`DiophantineApproximation/{SIntegerExtension,ThueMahler}.lean`:
+
+- `NumberField.finite_setOf_eval_homogenize_eq` — **the milestone**, prototyped for the first
+  time: for `g ∈ K[X]` with at least three distinct roots in an algebraically closed field (the
+  point at infinity counting), `G(x, y) = m ≠ 0` with `G = g.homogenize d` has finitely many
+  solutions in `S`-integers;
+- `NumberField.exists_finite_forall_eval_homogenize_mem_unit` — the unit version, modulo
+  `S`-units, representatives among the solutions;
+- `Polynomial.finite_setOf_natAbs_eval_homogenize_eq_prod_pow` — Thue–Mahler over `ℚ`: finitely
+  many coprime `x, y` and exponents with `|G(x, y)| = ∏ p i ^ z i`;
+- `NumberField.algebraMap_mem_integer_iff`, `NumberField.map_mem_unit_iff` — the passage to the
+  primes above `S`, both directions;
+- tests: `x³ − 2 y³ = 1` in every number field and every `S`, with the unit version;
+  `x³ − 2 y³ = ± 2 ^ a 3 ^ b` over coprime integers, with the solution `(2, 1, 1, 1)`; rejections:
+  coprimality (`(2 ^ k, 0)`) and Pell's equation among coprime pairs.
+
+What it taught: **8.3 in the splitting field and nothing above it** — at least three pairwise
+non-proportional binary forms are triangularly connected by Cramer's rule; the extension passage
+8.3 moved here costs one short file, with the ramification exponent used only through its
+positivity; the unit version descends with no degree, norm or homogeneity, since a scalar relating
+two `K`-points on one line is a ratio of their coordinates; and Thue–Mahler over `ℚ` adds only
+Bézout. `Suggested.lean` still carries 2 `sorry`s, both Wirsing's optional inequalities. The
+same day's toolchain bump to `v4.35.0-rc3` cost three one-line ports outside 8.4:
+`AlgHom.toRingHom_injective` (`ArithmeticHeights/Extension.lean`), `IsConcreteLE.not_le_iff_exists`
+and `WithZero.log` (`…/FinitePlaceValues.lean`), and `Subgroup.fg_iff`, since `Subgroup.FG` is now
+`IsMulFG` (`…/UnitEquationSeveral.lean`).
+
+Settled on 2026-09-25: `DiophantineApproximation` **Layer 8.3**, **triangularly connected
+decomposable forms** (Győry–Papp; Evertse–Győry, Ch. 9), in
+`DiophantineApproximation/DecomposableForm.lean`:
+
+- `NumberField.finite_setOf_mul_prod_eq` — **the milestone**, prototyped for the first time: for a
+  triangularly connected family of forms with common kernel `0`, `c ∏ j, l j x ^ e j = m ≠ 0` has
+  finitely many solutions in `S`-integers;
+- `NumberField.exists_finite_forall_mul_prod_mem_unit` — the unit version: finitely many solutions
+  of `G x ∈ S.unit K` modulo `S`-units, representatives among the solutions;
+- `NumberField.exists_finite_forall_eq_smul` — the core, on any vector space: points where every
+  form is an `S`-unit are `S`-unit multiples of finitely many;
+- tests: `x y (x + y) = 2` over `ℤ`, with the solution `(1, 1)`; `x y = 1` has the infinitely
+  many `{2}`-integral solutions `(2^k, 2^{−k})`, and `X, Y` are proved not triangularly connected.
+
+What it taught: **8.1 once per triangle and nothing above it**; pairwise non-proportionality is
+never used and is not a hypothesis; the unit version needs no discreteness of valuations, since
+two solutions on one line differ by a scalar whose `E`-th power is an `S`-unit; and the passage to
+a finite extension (non-split forms) is moved to 8.4, its first consumer. `Suggested.lean` still
+carries 2 `sorry`s, both Wirsing's optional inequalities.
+
+Settled on 2026-09-24, the same day as 6.1 to 8.1: `DiophantineApproximation` **Layer 8.2**,
+**the unit equation in several variables** (Evertse; van der Poorten–Schlickewei;
+Bombieri–Gubler, Theorem 7.4.2 and Corollary 7.4.3), in
+`DiophantineApproximation/UnitEquationSeveral.lean`:
+
+- `NumberField.finite_setOf_sum_unit_eq_one` and `NumberField.finite_setOf_sum_mem_eq_one` —
+  **the milestones**, both `Suggested.lean` prototypes verbatim: finitely many `S`-unit (or
+  finitely generated subgroup) solutions of `∑ i, a i x i = 1` with no vanishing subsum;
+- `NumberField.exists_finite_forall_exists_mul_mem` — Corollary 7.4.3: with vanishing subsums
+  allowed, some term `a i x i` lies in a fixed finite set;
+- `NumberField.generalProd_sumEquationForms_eq` — 8.1's identity in `n` variables: with the forms
+  `X i` and `∑ i, X i`, Vojta's central quantity is exactly `H(x)^{−n−1}`;
+- tests: `1/2 + 1/3 + 1/6 = 1` in `{2, 3}`-units; `(2^k, −2^k, 1)` shows the no-vanishing-subsum
+  hypothesis is load-bearing.
+
+What it taught: **the induction takes two steps.** A proper subspace shortens the equation, but
+the shortened one may have vanishing subsums; a minimal subsum equal to `1` has none and yields a
+coordinate in a finite set, and fixing that coordinate leaves `n − 1` variables with right-hand
+side `1 − u ≠ 0` — nonzero exactly because the complementary subsum does not vanish. `Suggested.lean`
+now carries 2 `sorry`s, both Wirsing's optional inequalities.
+
+Settled on 2026-09-24, the same day as 6.1 to 7.5: `DiophantineApproximation` **Layer 8.1**,
+**the unit equation in two variables** (Siegel, Mahler, Lang), in
+`DiophantineApproximation/UnitEquation.lean` — **the first milestone of Layer 8**:
+
+- `NumberField.finite_setOf_unit_add_unit_eq_one` — **the milestone**, the `Suggested.lean`
+  prototype verbatim: for `a, b ∈ Kˣ`, finitely many pairs of `S`-units satisfy `a x + b y = 1`;
+- `NumberField.generalProd_unitEquationForms_eq` — with the forms `X₀, X₁, X₀ + X₁` at every
+  place, Vojta's central quantity (Layer 6.5) at a solution is exactly `H(x, y)^{−3}`;
+- the roadmap's test: `(2, −1), (3, −2), (4, −3), (9, −8)` are `{2, 3}`-unit solutions over `ℚ`.
+
+What it taught: **no split by the largest coordinate** — the roadmap's route chooses a form per
+place and applies 6.4 per choice, which is Vojta's refinement by hand; 6.5 with all three forms
+needs no choice and gives `H^{−3}` on the nose. And the equation itself is the Bézout relation
+that makes the point `S`-primitive, so its height is its product over `S∞ ∪ S`.
+
+Settled on 2026-09-24, the same day as 6.1 to 7.4: `DiophantineApproximation` **Layer 7.5**,
+**the complexity of an algebraic irrational** (Adamczewski–Bugeaud 2007, Theorem 1; Morse–Hedlund
+1938), in `DiophantineApproximation/FactorComplexity.lean` and
+`DiophantineApproximation/ComplexityTranscendence.lean` — **Layer 7 is complete**:
+
+- `Real.tendsto_complexity_div_atTop` — **the milestone**: for `b ≥ 2`, if `∑ a k / b^(k+1)` is
+  an algebraic irrational, the number `p n` of distinct blocks of `n` digits satisfies
+  `p n / n → ∞`;
+- `Function.isStammering_of_frequently_complexity_le` — **the combinatorial lemma**, over any
+  finite alphabet and with no number in it: `p n ≤ C n` infinitely often makes `a` stammering;
+- `Function.isEventuallyPeriodic_tfae` — **Morse–Hedlund**: eventually periodic, `p` bounded and
+  `p n ≤ n` for some `n` are equivalent; with `Function.complexity_mono`;
+- `Real.irrational_ofDigits_iff` — for `b ≥ 2`, irrational exactly when not eventually periodic;
+- the roadmap's test: the binary digits of `∑ 2^{−2^k}` have complexity at most `3n + 1`, and the
+  number is transcendental by 7.5.
+
+What it taught: **the pigeonhole's repetition wants re-cutting, and then there is no case
+split** — two equal factors of length `n` give a period `s` that may be tiny against `n`;
+replacing it by its multiple in `(n/2, n/2 + s]` gives the bounded ratio and the exponent
+`1 + 1/(1 + 2C)` uniformly. And the theorem feeds 7.4's working form, never its definition.
+
+Settled on 2026-09-24, the same day as 6.1 to 6.6 and 7.1 to 7.3: `DiophantineApproximation`
+**Layer 7.4**, **the combinatorial transcendence criterion** (Adamczewski–Bugeaud–Luca 2004;
+Adamczewski–Bugeaud 2007; Ferenczi–Mauduit 1997), in
+`DiophantineApproximation/StammeringWords.lean`, `DiophantineApproximation/DigitExpansions.lean`,
+`DiophantineApproximation/RepetitionSubspaces.lean` and
+`DiophantineApproximation/TranscendenceCriterion.lean` — **the first milestone of the roadmap
+about words, and the first appeal to Layer 6 with finite places in it**:
+
+- `Real.transcendental_ofDigits_of_isStammering` — **the milestone**: for `b ≥ 2`, a stammering
+  sequence of digits that is not eventually periodic has a transcendental value;
+- `Real.transcendental_ofDigits_of_isStammeringWith_of_two_lt` — **the Ferenczi–Mauduit
+  criterion** for `w > 2`, from Ridout's theorem (Layer 3.3) and nothing above Layer 3;
+- `List.rpow`, `Function.IsStammeringWith`, `Function.IsStammering`,
+  `Function.IsEventuallyPeriodic` — the definitions, as the roadmap's prose gives them, with
+  `Function.IsStammeringWith.exists_periodic` and its converse translating them to periodic
+  segments of the digits;
+- `Real.irrational_ofDigits` — a base-`b` expansion that is not eventually periodic has an
+  irrational value, with no appeal to the uniqueness of expansions;
+- `Rat.exists_finset_submodule_of_prod_mul_prod_padicNorm_le` — the Subspace Theorem over `ℚ` at
+  `∞` and a finite set of primes, of which Layer 7.3's step is the case of no primes.
+
+Three things it taught. **There is no induction on the subspace**: one subspace containing
+infinitely many of the points `(b^{r+s}, b^r, p)` decides — its equation either fixes `b^s`, or it
+makes the approximation `|θ b^s + η| ≤ 1` force `ξ` rational — and non-periodicity enters only as
+the irrationality of `ξ`. **The gain is at the primes of the base**: at `∞` alone the product is
+small only for `w > 2 + 2r/s`, and the `l`-adic sizes of `b^{r+s}` and `b^r` are what bring the
+threshold down to `w > 1`; so the Subspace step had to be made a third time, with coordinate
+forms at a finite set of primes. And **the roadmap had Ridout's two sets of primes the wrong way
+round**: the primes of `b` sit on the denominator of the approximant, Ridout's `S₂`; and since
+Ridout's theorem sees the approximant in lowest terms, what makes the `w > 2` route work is that
+the part of the denominator prime to `b` does not grow along divisors.
+
+Settled on 2026-09-24, the same day as 6.1 to 6.6, 7.1 and 7.2: `DiophantineApproximation`
+**Layer 7.3**, **the exponents of an algebraic number and Schmidt's theorems on simultaneous
+approximation** (Schmidt 1970; Bombieri–Gubler, Remark 7.3.4), in
+`DiophantineApproximation/SchmidtExponents.lean`,
+`DiophantineApproximation/SimultaneousSubspaces.lean` and
+`DiophantineApproximation/SimultaneousApproximation.lean` — **the first milestone of Layer 7
+that had to go back to Layer 6 for a second appeal**:
+
+- `Real.mahlerExponent_eq_of_isAlgebraic` and `Real.koksmaExponent_eq_of_isAlgebraic` — **the
+  milestone**: for a real algebraic `α` of degree `D` and every degree bound `n`, both exponents
+  of Layer 1.2 equal `min n (D − 1)`, so Wirsing's conjecture holds with equality at every
+  algebraic number;
+- `Real.mahlerExponent_le_natCast_of_isAlgebraic` — the one bound Layer 1 could not supply,
+  `w_n(α) ≤ n`, with `Complex.finite_setOf_norm_aeval_le` its polynomial-level form;
+- `Real.finite_setOf_mul_prod_dist_lt` — **Schmidt's theorem on simultaneous approximation**:
+  finitely many `q ≥ 1` satisfy `q^{1+ε} ∏ i, ‖q α i‖ < 1`;
+- `Real.finite_setOf_prod_abs_mul_dist_lt` — **Schmidt's theorem on `∑ q i α i`**: finitely many
+  `q ∈ ℤⁿ` with no vanishing coordinate satisfy `(∏ i, |q i|)^{1+ε} ‖∑ i, q i α i‖ < 1`, with
+  `Real.finite_setOf_prod_abs_mul_abs_sum_lt` the linear form theorem it runs on;
+- `Rat.exists_finset_submodule_of_prod_le` — the Subspace Theorem over `ℚ` with the hypothesis
+  on the **bare product** of the values of a full system of forms, which Layer 7.1's appeal does
+  not give and which Layer 7.4 may want.
+
+Three things it taught. **Schmidt's exponents are read against the product `∏ |q i|`, not the
+sup norm**, and that is what forced the second appeal to Layer 6: Layer 7.1's step bounds the
+coordinate forms by `M^n` and keeps only the one nontrivial form, throwing away exactly what
+these theorems are about — with the product intact the central quantity of the Subspace Theorem
+*is* `(∏ ‖L_i x‖)/M^{n+1}`, and the hypothesis needed is `∏ ‖L_i x‖ ≤ M^{−ε}`. **Two inductions,
+and one feeds the other**: the linear form theorem eliminates one variable per exceptional
+subspace, while the theorem on `∑ q i α i` carries the numerator as an extra coordinate, and its
+subspaces split into those that eliminate a `q` — the recursion — and those that determine the
+numerator, which turn the distance to `ℤ` into a linear form and are finished by the first
+theorem. And **simultaneous approximation needs no induction at all**: one exceptional subspace
+already bounds `q`, because its relation together with `p i = q α i − θ i`, `|θ i| ≤ 1/2`, gives
+`q (c₀ + ∑ c i α i) = ∑ c i θ i`, whose left factor is nonzero exactly because `1, α 1, …, α n`
+are independent over `ℚ`.
+
+Settled on 2026-09-24, the same day as 6.1 to 6.6 and 7.1: `DiophantineApproximation` **Layer
+7.2**, **approximation by algebraic numbers of bounded degree** (Schmidt; Bombieri–Gubler,
+Corollary 7.3.5), in `DiophantineApproximation/BoundedDegreeApproximation.lean` — **the first
+milestone that stands on the summit and speaks none of its vocabulary**, naming a place in the
+two lines that compare a height with a sup norm and an absolute value, a number field and
+`approxProd` nowhere at all:
+
+- `Complex.finite_setOf_norm_sub_le` — **the milestone**: for complex algebraic `α`, a degree
+  bound `D` and `ε > 0`, only finitely many complex algebraic `ξ` of degree at most `D` satisfy
+  `‖α − ξ‖ ≤ H(f_ξ) ^ (−D − 1 − ε)`, with `f_ξ` the primitive integer minimal polynomial of `ξ`;
+- `Complex.finite_setOf_exists_root_norm_sub_le` — the same count taken over the minimal
+  polynomials instead of over their roots, which is the shape the proof produces;
+- `Real.koksmaExponent_le_of_isAlgebraic` — the milestone in Layer 1.3's language,
+  `w_D^*(α) ≤ D`, which is half of Layer 7.3's upper bound;
+- `Polynomial.norm_aeval_sub_aeval_le` — **the mean value theorem for an integer polynomial at
+  two complex points**, `(n+1)^2 H(P) max(1, ‖z‖, ‖w‖)^n ‖z − w‖`;
+- `Complex.exists_supNorm_le_of_aeval_eq_zero` and the generalization of
+  `Polynomial.supNorm_eq_of_isPrimitive_of_irreducible` from a real root to a root in any
+  `ℚ`-algebra that is a domain — the rigidity that makes `H(f_ξ)` a function of `ξ`.
+
+Three things it taught. **The statement had to choose a shape**, because `H(f_ξ)` names an object
+Mathlib does not have: the primitive integer minimal polynomial is defined only up to sign, so
+the milestone quantifies over it, and it is the rigidity lemma — Layer 1.3's, generalized in
+place from `ℝ` to any `ℚ`-algebra domain — that makes the existential the book's height. **The
+count has to be taken over polynomials first**: the constant of the mean value theorem is removed
+by the exponent only above the threshold `H ≥ C^{2/ε}`, and below it a bounded set of complex
+numbers is not finite while the integer polynomials of bounded degree and bounded height are; the
+approximants are recovered as their roots at the very end. And **the conjugates of `α` are the
+one family Layer 7.1 cannot see** — it needs a nonzero value — but they need no separate
+argument, since rigidity puts them all on one polynomial, whose height the Northcott branch
+already carries.
+
+Settled on 2026-09-24, the same day as 6.1 to 6.6: `DiophantineApproximation` **Layer 7.1**,
+**one linear form with algebraic coefficients** (Bombieri–Gubler, Theorem 7.3.2), in
+`DiophantineApproximation/LinearFormSubspaces.lean` and
+`DiophantineApproximation/OneLinearForm.lean` — **the first thing the Subspace Theorem says about
+numbers rather than about points**:
+
+- `Complex.finite_setOf_norm_sum_mul_le_fin` — **the milestone**: for complex algebraic
+  `α 0, …, α n` and `ε > 0`, only finitely many `x ∈ ℤⁿ⁺¹` satisfy
+  `0 < ‖∑ i, α i * x i‖ ≤ H(x) ^ (−n − ε)`, and `Complex.finite_setOf_norm_sum_mul_le` is the
+  same for an arbitrary finite index type, which is the form the induction proves;
+- `Complex.exists_finset_submodule_of_norm_sum_le` — the **Subspace Theorem step**: the solutions
+  lie in finitely many proper rational subspaces, which is all of Layer 6's contribution, with
+  `Rat.exists_finset_submodule_of_sumForm_le` the same for coefficients in a named number field;
+- `Module.Dual.projWithSum` and `Module.Dual.linearIndependent_projWithSum` — the system
+  `∑ i, α i X i` together with the coordinate forms `X i` for `i ≠ j`, independent exactly when
+  `α j ≠ 0`;
+- `Rat.mulHeight_intCast_le_iSup` — the height of an integer point is at most its sup norm, the
+  one inequality that turns the exponent `−n − ε` into the `−(n+1) − ε` Layer 6.3 wants;
+- `Rat.approxProd_projWithSum_le` — the central quantity of the Subspace Theorem at an integer
+  point is at most the value of the one nontrivial form, divided by the sup norm of the point.
+
+Three things it taught. **The exponent drops by one for free**, and it is a statement about
+*integers*: the coordinate forms contribute `M ^ n` against a denominator `M ^ (n+1)`, and the
+height of an integer point is at most its sup norm `M` — which is also why the statement proved
+is stronger than the book's, since Bombieri–Gubler read the exponent against `M` and not against
+the height, a gain of `gcd(x) ^ (n + ε)`. **The induction reserves no room**: dropping a
+coordinate from a proper subspace weakens the exponent by exactly one and lowers the height, so
+one `ε` serves every step, and the reduced index type is the subtype `{i // i ≠ k}` with the
+recursion on `Fintype.card ι ≤ n`, so nothing is transported along an equivalence. And **the
+hypothesis is the nonvanishing of the value, never independence of the coefficients** — the
+system is independent as soon as the displaced `α j` is nonzero — while the nonvanishing itself
+is not decoration: `X 0 − X 1` vanishes on the diagonal, so without it the count is infinite at
+every exponent, which the file records as a rejection test.
+
+Settled on 2026-09-24, the same day as 6.1 to 6.5: `DiophantineApproximation` **Layer 6.6**,
+**the consistency with Layer 3** (Bombieri–Gubler, Theorem 7.2.2 for `n = 1` and Example 7.2.7),
+in `DiophantineApproximation/SubspaceConsistency.lean` — **with it Layer 6 is complete**:
+
+- `NumberField.exists_finset_submodule_of_approxProd_le_card_two_of_extension` — **the
+  milestone**: Layer 3.4's Subspace Theorem in two variables, proved from Layer 6.3, the whole of
+  the specialization being that `Fintype.card ι = 2` supplies the `[Nontrivial ι]` Layer 6.3 asks
+  for;
+- `NumberField.exists_finset_submodule_of_approxProd_le_card_two_of_generalPosition` — the same
+  from Vojta's refinement of Layer 6.5, general position for two forms in two variables being
+  linear independence;
+- `Projectivization.subsingleton_setOf_rep_mem` and
+  `Projectivization.finite_setOf_exists_rep_mem` — a proper subspace of a plane holds at most one
+  point of the projective line, and finitely many of them hold finitely many;
+- `NumberField.finite_setOf_approxProd_le_card_two` — the projective reading: on `ℙ¹(K)` the
+  Subspace Theorem is a **count of points**, with no subspace in the statement;
+- `NumberField.finite_setOf_prod_min_one_le_of_extension` — **Roth's theorem over a number field
+  recovered from Layer 6**, by discharging the hypothesis of Layer 3.4's converse implication
+  from Layer 6.3 instead of from Layer 3.3.
+
+Three things it taught. **The converse needed nothing, because the two statements are the same
+proposition**: Layer 3.4 was stated for an arbitrary index type with `Fintype.card ι = 2` and
+with `approxProd`, the very quantity Layer 6.3 uses, so "Layer 6.3 at `card ι = 2` is no
+stronger" is not an implication at all. **`rfl` between two theorem constants is a real check**,
+because proof irrelevance is definitional: an equality of proofs is an equality of statements,
+and the file uses it four times — Layer 3.4 against Layer 6.3, Layer 6.5 against Layer 6.3, and
+the two older proofs of Roth's theorem against the new one, so the library carries three proofs
+of Roth's theorem and one theorem. And **the projective count cannot be moved down to tuples**:
+both sides of the inequality are invariant under scaling, so one solution has infinitely many
+nonzero multiples, which is why the finiteness has to be stated on `ℙ¹` and is recorded as a
+rejection test.
 
 Settled on 2026-09-24, the same day as 6.1 to 6.4: `DiophantineApproximation` **Layer 6.5**,
 **the Subspace Theorem for forms in general position** (Vojta 1987; Bombieri–Gubler, Definition
