@@ -1,0 +1,267 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/mathlib-initiative/formalization.yaml/main/schema/formalization.schema.json
+version: "v0.4"
+
+project:
+  name: "Corvaja–Zannier 2004: rational approximations to the powers of an algebraic number"
+  description: >-
+    A Lean 4 / Mathlib formalization of the whole of P. Corvaja and U. Zannier,
+    On the rational approximations to the powers of an algebraic number:
+    solution of two problems of Mahler and Mendès France (Acta Math. 193
+    (2004)), built on the repository's libraries ArithmeticHeights and
+    DiophantineApproximation, whose Subspace Theorem it uses. The library
+    CorvajaZannier2004 is sorry-free and within Lean's three standard axioms.
+    It proves the Main Theorem (finitely many non-pseudo-Pisot δqu that are
+    very close to integers, u in a finitely generated group of algebraic
+    numbers), Theorem 1 (Mahler's question: if ‖αⁿ‖ < lⁿ infinitely often,
+    some power of α is a Pisot number), Lemmas 1–5, Theorem 2 (Mendès
+    France's question: the period of the continued fraction of αⁿ tends to
+    infinity unless α is a unit or a square root of a rational, and is
+    bounded for units), and the Appendix (the word "algebraic" cannot be
+    dropped from Theorem 1). Eleven statements are compared.
+  authors:
+    - "Ralf Stephan"
+  license: "Apache-2.0"
+  responsible_maintainers:
+    - "Ralf Stephan"
+
+classification:
+  arxiv: [math.NT]
+  msc2020: ["11J68", "11R06", "11J70", "11A55", "11J87"]
+
+status:
+  scope: >-
+    The eleven declarations named in comparator/corvaja-zannier-2004.json,
+    listed under main_results, are every numbered result of the paper: the
+    Main Theorem, Theorem 1, Lemma 4 (as printed and in the stronger form
+    its proof gives), Lemma 5 (both forms), Theorem 2 (a), (b) and (c), and
+    the Appendix with its closing remark. Lemmas 1–3 are proved in the
+    library (CorvajaZannier2004/LinearRelation.lean, TwoTermRelation.lean,
+    SubfieldDescent.lean) but not compared: they are steps of the Main
+    Theorem's proof, stated with auxiliary notions of the development. So
+    are the continued-fraction facts the paper quotes (Lagrange's and
+    Galois's theorems, Serret's theorem, the period of the conjugate), which
+    Mathlib lacks and which are proved here.
+  sorry_count: 0
+  sorry_in_definitions: 0
+  axioms: ["propext", "Classical.choice", "Quot.sound"]
+  main_results:
+    - declaration: "finite_setOf_not_isPseudoPisot"
+      file: "CorvajaZannier2004/MainTheorem.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/corvaja-zannier-2004.json"
+      literature_dependencies: []
+    - declaration: "exists_isPisot_pow_of_frequently"
+      file: "CorvajaZannier2004/PisotPowers.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/corvaja-zannier-2004.json"
+      literature_dependencies: []
+    - declaration: "isIntegral_or_exists_pow_eq_ratCast"
+      file: "CorvajaZannier2004/IntegralPowerSums.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/corvaja-zannier-2004.json"
+      literature_dependencies: []
+    - declaration: "isIntegral_of_trace_mul_pow"
+      file: "CorvajaZannier2004/IntegralPowerSums.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/corvaja-zannier-2004.json"
+      literature_dependencies: []
+    - declaration: "Real.isPisot_or_tendsto_log_cfQuot"
+      file: "CorvajaZannier2004/PartialQuotients.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/corvaja-zannier-2004.json"
+      literature_dependencies: []
+    - declaration: "Real.isPisot_or_tendsto_log_cfQuot_odd"
+      file: "CorvajaZannier2004/PartialQuotients.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/corvaja-zannier-2004.json"
+      literature_dependencies: []
+    - declaration: "Real.tendsto_cfPeriod_pow"
+      file: "CorvajaZannier2004/PeriodLength.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/corvaja-zannier-2004.json"
+      literature_dependencies: []
+    - declaration: "Real.tendsto_cfPeriod_pow_odd"
+      file: "CorvajaZannier2004/PeriodLength.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/corvaja-zannier-2004.json"
+      literature_dependencies: []
+    - declaration: "Real.bddAbove_cfPeriod_pow"
+      file: "CorvajaZannier2004/UnitPowers.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/corvaja-zannier-2004.json"
+      literature_dependencies: []
+    - declaration: "Real.exists_frequently_not_isPisot"
+      file: "CorvajaZannier2004/Appendix.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/corvaja-zannier-2004.json"
+      literature_dependencies: []
+    - declaration: "Real.exists_transcendental_frequently_not_isPisot"
+      file: "CorvajaZannier2004/Appendix.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/corvaja-zannier-2004.json"
+      literature_dependencies: []
+
+fidelity:
+  divergences: >-
+    The Main Theorem is stated for a finitely generated Γ ≤ ℝˣ of algebraic
+    numbers and a real algebraic δ ≠ 0, rather than Γ ≤ Q̄ˣ, δ ∈ Q̄ˣ: the
+    distance to the nearest integer is defined only for reals and the
+    paper's proof treats only real u; every application in the paper has
+    u = αⁿ and δ = 1. The paper's q^(-d-ε) is read as |q|^(-d-ε) with
+    d = [ℚ(u):ℚ], and heights are Mathlib's absolute multiplicative height
+    absMulHeight₁. Distance to the nearest integer is |x - round x|; Pisot
+    and pseudo-Pisot numbers are defined through the complex roots of the
+    minimal polynomial over ℚ. Some statements are stronger than printed,
+    each recorded in its module doc: Lemma 4 always concludes that α is an
+    algebraic integer (isIntegral_of_trace_mul_pow; the printed disjunction
+    is kept as isIntegral_or_exists_pow_eq_ratCast), and its proof uses the
+    unit equation (Lemma 2) instead of Skolem–Mahler–Lech; Lemma 5 along
+    the odd exponents holds for every real quadratic irrational α > 1, not
+    only square roots of rationals; Theorem 2 (a) does not assume α > 0.
+    The period of a continued fraction is defined from Mathlib's
+    GenContFract.of (the least r > 0 with aᵢ₊ᵣ = aᵢ for all large i). The
+    reduction (4.6) in the proof of Theorem 2 is replaced by the reduced
+    number αⁿ - (⌊α'ⁿ⌋ + 1), which also covers case (b). In the Appendix the
+    first interval is [2, 5/2] instead of [2, 3], 2⁻ⁿ is written 1 / 2 ^ n,
+    and "d ≥ 1" is 0 < d.
+    The single-file challenge differs from the development in presentation
+    only (see COMPARATOR.md at the repository root). Its Mathlib imports
+    follow the development's load order; in four of its parts local
+    attribute commands lower the priority of a Nontrivial instance and of
+    SubsemiringClass.toSubmonoidClass, which the development's modules rank
+    differently from the file's load order. These are instances of
+    propositions, so the commands change which proof a statement carries,
+    never what it says. Each part opens with a run_cmd that clears Lean's
+    module-local cache of auxiliary proofs, as a module boundary does.
+
+sources:
+  - title: >-
+      On the rational approximations to the powers of an algebraic number:
+      solution of two problems of Mahler and Mendès France
+    authors: ["Pietro Corvaja", "Umberto Zannier"]
+    type: paper
+    location: >-
+      Acta Math. 193 (2004), 175–191; arXiv:math/0403522. The Main Theorem,
+      Lemmas 1–5, Theorems 1 and 2, the Proposition in the proof of
+      Theorem 2, and the Appendix
+    relationship: formalizes
+    author_endorsement: not-contacted
+    note: >-
+      The whole paper. The module docs cite it by page and result.
+
+automation:
+  methods:
+    - method: agent
+      models: ["claude-opus-5-5"]
+      framework: "Claude Code"
+      role: >-
+        The formalization: the plan, the Lean text of the library, the
+        per-paper mode of scripts/make-challenge.py, the challenge and
+        solution modules and the configuration, under the releaser's
+        direction.
+    - method: manual
+      models: []
+      role: >-
+        Direction and release. Ralf Stephan chose the paper, the conventions
+        and the gates, steered the agent turn by turn, and releases the
+        repository.
+  spend_usd: "subscription-based Claude Code usage; two hours of a Max $100 subscription"
+  notes: >-
+    The library is held to the repository's rules by scripts/check.sh (a
+    build with Mathlib's linter set as errors, the axiom audit against the
+    three standard axioms, the module-system check, the textual guards).
+    It has 19 files. lake test runs leanprover/comparator over
+    comparator/corvaja-zannier-2004.json against the single Mathlib-only
+    file ChallengeCorvajaZannier2004.lean, generated from
+    comparator/corvaja-zannier-2004.txt by
+    scripts/make-challenge.py --paper CorvajaZannier2004, with the proofs
+    re-exported by SolutionCorvajaZannier2004.lean. It passes. A negative
+    control (a weakened hypothesis of Theorem 2 (c) in the challenge) was
+    confirmed to be rejected. Wall time and hardware were not recorded.
+
+review:
+  status: unchecked
+  notes: >-
+    No human or external review of the Lean text or of the fidelity of the
+    statements has been performed. What is established is mechanical:
+    comparator compares each named statement against the challenge file
+    constant by constant, checks the axiom list, and replays the export
+    through the Lean kernel.
+
+limitations:
+  - >-
+    The compared theorems depend on propext, Classical.choice and Quot.sound
+    and nothing else. The library contains no sorry and no native_decide.
+    The sorries in the challenge file are the placeholders comparator
+    expects, and the configuration fixes no definition holes.
+  - >-
+    The Main Theorem is proved for real Γ and δ only; see fidelity. The
+    Subspace Theorem it rests on is the repository's own
+    (DiophantineApproximation), which is certified separately by
+    comparator/std3-flat.json.
+  - >-
+    Everything proved here is in print; no novelty is claimed. The value
+    offered is the machine-checked account.
+
+alignment:
+  namespace: "Real, root"
+  statements:
+    - source: "Main Theorem (p. 2)"
+      lean: "finite_setOf_not_isPseudoPisot"
+      module: "ChallengeCorvajaZannier2004 (statement), SolutionCorvajaZannier2004 / CorvajaZannier2004.MainTheorem (proof)"
+      status: proved
+      note: "Γ ≤ ℝˣ and δ real; see fidelity."
+    - source: "Theorem 1 (p. 1), Mahler's question"
+      lean: "exists_isPisot_pow_of_frequently"
+      module: "ChallengeCorvajaZannier2004 (statement), SolutionCorvajaZannier2004 / CorvajaZannier2004.PisotPowers (proof)"
+      status: proved
+    - source: "Lemma 4 (p. 7), as printed"
+      lean: "isIntegral_or_exists_pow_eq_ratCast"
+      module: "ChallengeCorvajaZannier2004 (statement), SolutionCorvajaZannier2004 / CorvajaZannier2004.IntegralPowerSums (proof)"
+      status: proved
+    - source: "Lemma 4, the conclusion the proof gives"
+      lean: "isIntegral_of_trace_mul_pow"
+      module: "ChallengeCorvajaZannier2004 (statement), SolutionCorvajaZannier2004 / CorvajaZannier2004.IntegralPowerSums (proof)"
+      status: proved
+      note: "Stronger than printed: α is always an algebraic integer."
+    - source: "Lemma 5 (p. 10)"
+      lean: "Real.isPisot_or_tendsto_log_cfQuot"
+      module: "ChallengeCorvajaZannier2004 (statement), SolutionCorvajaZannier2004 / CorvajaZannier2004.PartialQuotients (proof)"
+      status: proved
+    - source: "Lemma 5 (p. 10), along the odd exponents"
+      lean: "Real.isPisot_or_tendsto_log_cfQuot_odd"
+      module: "ChallengeCorvajaZannier2004 (statement), SolutionCorvajaZannier2004 / CorvajaZannier2004.PartialQuotients (proof)"
+      status: proved
+      note: "For every real quadratic irrational α > 1."
+    - source: "Theorem 2 (a) (p. 1), Mendès France's question"
+      lean: "Real.tendsto_cfPeriod_pow"
+      module: "ChallengeCorvajaZannier2004 (statement), SolutionCorvajaZannier2004 / CorvajaZannier2004.PeriodLength (proof)"
+      status: proved
+      note: "Without the hypothesis α > 0."
+    - source: "Theorem 2 (b) (p. 1)"
+      lean: "Real.tendsto_cfPeriod_pow_odd"
+      module: "ChallengeCorvajaZannier2004 (statement), SolutionCorvajaZannier2004 / CorvajaZannier2004.PeriodLength (proof)"
+      status: proved
+    - source: "Theorem 2 (c) (p. 1)"
+      lean: "Real.bddAbove_cfPeriod_pow"
+      module: "ChallengeCorvajaZannier2004 (statement), SolutionCorvajaZannier2004 / CorvajaZannier2004.UnitPowers (proof)"
+      status: proved
+    - source: "Appendix (p. 11)"
+      lean: "Real.exists_frequently_not_isPisot"
+      module: "ChallengeCorvajaZannier2004 (statement), SolutionCorvajaZannier2004 / CorvajaZannier2004.Appendix (proof)"
+      status: proved
+    - source: "Appendix (p. 11), closing remark: such α are transcendental"
+      lean: "Real.exists_transcendental_frequently_not_isPisot"
+      module: "ChallengeCorvajaZannier2004 (statement), SolutionCorvajaZannier2004 / CorvajaZannier2004.Appendix (proof)"
+      status: proved

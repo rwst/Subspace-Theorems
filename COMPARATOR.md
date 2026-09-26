@@ -102,6 +102,28 @@ challenge and compared by value.
   Challenge at 1000 lines and 100 KiB. Adding one is a line in `comparator/theorems.txt`; the
   generator reports the flat file's size.
 
+## Formalized papers
+
+Each paper directory (e.g. `CorvajaZannier2004/`) is certified on its own lane, one Palomar entry
+each. A lane has four files at the top level:
+
+- the theorem list `comparator/<paper>.txt`, where `<paper>` is the kebab-case form of the
+  directory name (e.g. `corvaja-zannier-2004.txt`);
+- the flat challenge `Challenge<Paper>.lean`;
+- the hand-written re-export `Solution<Paper>.lean`;
+- the config `comparator/<paper>.json`, which `lake test` runs together with the others.
+
+The challenge and the config are generated, in the flat shape only, by
+
+```sh
+python3 scripts/make-challenge.py --paper CorvajaZannier2004
+lake test -- comparator/corvaja-zannier-2004.json
+```
+
+The challenge and solution sit at the top level because every `.lean` file under a paper directory
+is a module of that paper's `sorry`-free library. The paper's `formalization.yaml` sits in its
+directory.
+
 ## Regenerating
 
 ```sh

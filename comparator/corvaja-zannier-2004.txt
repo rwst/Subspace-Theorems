@@ -1,0 +1,16 @@
+# The theorems of Corvaja–Zannier (Acta Math. 2004) that `lake test` certifies, in the order the
+# config lists them. `scripts/make-challenge.py --paper CorvajaZannier2004` reads this file and
+# regenerates `ChallengeCorvajaZannier2004.lean` and `comparator/corvaja-zannier-2004.json` from
+# it. `#` starts a comment. See `COMPARATOR.md`.
+
+finite_setOf_not_isPseudoPisot                      # Main Theorem (p. 2)
+exists_isPisot_pow_of_frequently                    # Theorem 1 (p. 1), Mahler's question
+isIntegral_or_exists_pow_eq_ratCast                 # Lemma 4 (p. 7), as printed
+isIntegral_of_trace_mul_pow                         # Lemma 4, the stronger form of the proof
+Real.isPisot_or_tendsto_log_cfQuot                  # Lemma 5 (p. 10)
+Real.isPisot_or_tendsto_log_cfQuot_odd              # Lemma 5, along the odd exponents
+Real.tendsto_cfPeriod_pow                           # Theorem 2 (a), Mendès France's question
+Real.tendsto_cfPeriod_pow_odd                       # Theorem 2 (b)
+Real.bddAbove_cfPeriod_pow                          # Theorem 2 (c)
+Real.exists_frequently_not_isPisot    # Appendix (p. 11)
+Real.exists_transcendental_frequently_not_isPisot  # Appendix, closing remark

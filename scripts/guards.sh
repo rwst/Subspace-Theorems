@@ -39,12 +39,13 @@ for LIB in "${LIBRARY_ROOTS[@]}"; do
     echo "guards: $LIB/ must not import Roadmap (the sorry-allowed target signatures)." >&2
     status=1
   fi
-  # The same boundary for the comparator statements of record (`Challenge`, `ChallengeFlat`), which
-  # are `sorry`-proved by design, and for `Solution`, which exists to import the libraries.
+  # The same boundary for the comparator statements of record (`Challenge`, `ChallengeFlat`, and a
+  # paper's `Challenge<Paper>`), which are `sorry`-proved by design, and for `Solution` and
+  # `Solution<Paper>`, which exist to import the libraries.
   record_re='^[[:space:]]*(public[[:space:]]+)?import[[:space:]]+'
-  record_re+='(Challenge|ChallengeFlat|Solution)\b'
+  record_re+='(Challenge|Solution)[[:alnum:]_]*\b'
   if grep -nE "$record_re" "${files[@]}"; then
-    echo "guards: $LIB/ must not import Challenge, ChallengeFlat or Solution" \
+    echo "guards: $LIB/ must not import a Challenge* or Solution* module" \
       "(see COMPARATOR.md)." >&2
     status=1
   fi

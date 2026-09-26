@@ -32,7 +32,8 @@ open Lean
 
 /-- The libraries whose declarations are audited (the AI-owned mathematics), one per roadmap.
 Keep in step with `LIBRARY_ROOTS` in `scripts/source-modules.sh`. -/
-def auditedRoots : List Name := [`ArithmeticHeights, `DiophantineApproximation]
+def auditedRoots : List Name :=
+  [`ArithmeticHeights, `DiophantineApproximation, `CorvajaZannier2004]
 
 /-- The audited roots as one string, for the audit's own messages. -/
 def auditedRootsString : String := ", ".intercalate (auditedRoots.map toString)

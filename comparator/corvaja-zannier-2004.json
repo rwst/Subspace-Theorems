@@ -1,0 +1,23 @@
+{
+  "challenge_module": "ChallengeCorvajaZannier2004",
+  "solution_module": "SolutionCorvajaZannier2004",
+  "theorem_names": [
+    "finite_setOf_not_isPseudoPisot",
+    "exists_isPisot_pow_of_frequently",
+    "isIntegral_or_exists_pow_eq_ratCast",
+    "isIntegral_of_trace_mul_pow",
+    "Real.isPisot_or_tendsto_log_cfQuot",
+    "Real.isPisot_or_tendsto_log_cfQuot_odd",
+    "Real.tendsto_cfPeriod_pow",
+    "Real.tendsto_cfPeriod_pow_odd",
+    "Real.bddAbove_cfPeriod_pow",
+    "Real.exists_frequently_not_isPisot",
+    "Real.exists_transcendental_frequently_not_isPisot"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Quot.sound",
+    "Classical.choice"
+  ],
+  "enable_nanoda": false
+}
