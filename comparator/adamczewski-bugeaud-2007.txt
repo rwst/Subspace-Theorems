@@ -1,0 +1,42 @@
+# The theorems of Adamczewski–Bugeaud (Ann. of Math. 2007) that `lake test` certifies, in the
+# order the config lists them. `scripts/make-challenge.py --paper AdamczewskiBugeaud2007` reads this
+# file and regenerates `ChallengeAdamczewskiBugeaud2007.lean` and
+# `comparator/adamczewski-bugeaud-2007.json` from it. `#` starts a comment. See `COMPARATOR.md`.
+
+# §2, integer bases
+Real.tendsto_complexity_div_atTop                   # Theorem 1 (DiophantineApproximation)
+Real.tendsto_complexity_sub_atTop                   # (1), after Ferenczi–Mauduit
+Real.transcendental_ofDigits_of_isGeneratedByAutomaton  # Theorem 2, automata as in §3
+Real.transcendental_ofDigits_of_isAutomatic         # Theorem 2, finite k-kernel
+Real.transcendental_ofDigits_of_isGeneratedByMorphism   # Theorem 3
+Real.transcendental_ofDigits_of_isGeneratedByMorphism_of_isRecurrent  # Theorem 4
+# §3, automata and morphisms
+Function.finite_kKernel_iff_isGeneratedByAutomaton  # Eilenberg: the two definitions agree
+Function.IsAutomatic.exists_complexity_le           # Cobham's bound p(n) = O(n)
+Function.IsAutomatic.isStammering                   # automatic ⇒ Condition (∗)_w
+# §2 and §4, β-expansions
+Real.abs_sub_le_of_periodic                         # Lemma 1, the bound (3)
+Real.mem_adjoin_of_isStammering                     # Theorem 5, the hypothesis the proof uses
+Real.mem_adjoin_or_transcendental_of_isPisot        # Theorem 5, Pisot base
+Real.mem_adjoin_or_transcendental_of_isSalem        # Theorem 5, Salem base
+Real.tsum_mem_adjoin_of_isEventuallyPeriodic        # eventually periodic ⇒ in ℚ(β)
+Real.tendsto_complexity_betaDigitsFin_div_atTop     # Theorem 1A
+Real.not_isGeneratedByAutomaton_betaDigitsFin       # Theorem 2A, automata
+Real.not_isAutomatic_betaDigitsFin                  # Theorem 2A, finite k-kernel
+Real.not_isGeneratedByMorphism_of_betaDigits        # Theorem 3A
+Real.not_isGeneratedByMorphism_betaDigitsFin_of_isRecurrent  # Theorem 4A
+Real.isEventuallyPeriodic_betaDigits_of_mem_adjoin  # K. Schmidt (1980)
+Real.transcendental_of_isStammering_betaDigits      # Theorem 5A
+# §6, p-adic expansions
+Padic.transcendental_of_isStammering_henselDigits   # Theorem 6, as printed
+Padic.transcendental_ofDigits_of_isStammering       # Theorem 6, digits from k = 0
+Padic.tendsto_complexity_henselDigits_div_atTop     # Theorem 1B, as printed
+Padic.tendsto_complexity_div_atTop                  # Theorem 1B, digits from k = 0
+Padic.transcendental_ofDigits_of_isAutomatic        # Theorem 2B
+Padic.transcendental_ofDigits_of_isGeneratedByMorphism  # Theorem 3B
+Padic.transcendental_ofDigits_of_isGeneratedByMorphism_of_isRecurrent  # Theorem 4B
+# §7, power series over 𝔽_p
+PowerSeries.finite_kKernel_coeff_of_isAlgebraic     # Christol (CKMR80, Théorème 1), algebraic ⇒ automatic
+Real.isAlgebraic_and_isAlgebraic_iff                # Theorem 7, corrected (u_k < min(b, p))
+exists_counterexample_theorem7                      # Theorem 7 as printed: the counterexample
+not_forall_theorem7_as_printed                      # Theorem 7 as printed is false

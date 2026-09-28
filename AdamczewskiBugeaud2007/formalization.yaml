@@ -1,0 +1,534 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/mathlib-initiative/formalization.yaml/main/schema/formalization.schema.json
+version: "v0.4"
+
+project:
+  name: "Adamczewski–Bugeaud 2007: the complexity of algebraic numbers in integer bases"
+  description: >-
+    A Lean 4 / Mathlib formalization of B. Adamczewski and Y. Bugeaud, On the
+    complexity of algebraic numbers I. Expansions in integer bases (Ann. of
+    Math. 165 (2007)), built on the repository's libraries ArithmeticHeights,
+    DiophantineApproximation and ForMathlib, whose Subspace Theorem with
+    algebraic coefficients it uses. The library AdamczewskiBugeaud2007 is
+    sorry-free and within Lean's three standard axioms. It proves Theorem 1
+    (the complexity of an irrational algebraic number in an integer base
+    satisfies p(n)/n → ∞, with (1), p(n) − n → ∞), Theorems 2–4 (automatic
+    and morphic expansions), Theorem 5 in full (β Pisot or Salem, bounded
+    integer digits satisfying Condition (∗)_w: the number lies in ℚ(β) or is
+    transcendental), Lemma 1, Theorems 1A–5A on β-expansions with K. Schmidt's
+    periodicity theorem, and the p-adic Theorems 6 and 1B–4B, together with
+    the finite automata and morphisms of §3, and Theorem 7 in corrected form
+    (u_k < min(b, p)) with Christol's theorem (algebraic ⇒ automatic) and a
+    counterexample to Theorem 7 as printed. Thirty-two statements are
+    compared.
+  authors:
+    - "Ralf Stephan"
+  license: "Apache-2.0"
+  responsible_maintainers:
+    - "Ralf Stephan"
+
+classification:
+  arxiv: [math.NT]
+  msc2020: ["11J81", "11A63", "11K16", "11R06", "68R15"]
+
+status:
+  scope: >-
+    The thirty-two declarations named in
+    comparator/adamczewski-bugeaud-2007.json, listed under main_results: every
+    numbered theorem of the paper (Theorem 7 corrected, with a
+    counterexample to its printed form), Lemma 1, the complexity bound (1),
+    and the facts the paper quotes (Eilenberg's characterization of
+    automatic sequences, Cobham's bound p(n) = O(n), K. Schmidt's theorem,
+    the direction algebraic ⇒ automatic of Christol's theorem), which are
+    proved here. Theorem 1 is the
+    repository's DiophantineApproximation (Layer 7.4); it is compared here
+    because the paper is built around it. Where the paper's form and a
+    working form differ, both are compared (Theorem 2, Theorem 2A,
+    Theorem 5, Theorems 1B and 6). The Conjecture and the ternary problem
+    after Theorem 4 are open; they are stated as propositions in
+    OpenProblems.lean, not proved, and not compared. Not formalized:
+    the direction automatic ⇒ algebraic of Christol's theorem (not used),
+    the remark that Condition
+    (∗)_w survives a non-erasing morphism, and the Fibonacci word of §7.
+    Theorem E (the Subspace Theorem in Evertse's form) is not restated; the
+    proofs apply the repository's Subspace Theorem with algebraic
+    coefficients directly.
+  sorry_count: 0
+  sorry_in_definitions: 0
+  axioms: ["propext", "Classical.choice", "Quot.sound"]
+  main_results:
+    - declaration: "Real.tendsto_complexity_div_atTop"
+      file: "DiophantineApproximation/ComplexityTranscendence.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/adamczewski-bugeaud-2007.json"
+      literature_dependencies: []
+    - declaration: "Real.tendsto_complexity_sub_atTop"
+      file: "AdamczewskiBugeaud2007/MorphicTranscendence.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/adamczewski-bugeaud-2007.json"
+      literature_dependencies: []
+    - declaration: "Real.transcendental_ofDigits_of_isGeneratedByAutomaton"
+      file: "AdamczewskiBugeaud2007/Automaton.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/adamczewski-bugeaud-2007.json"
+      literature_dependencies: []
+    - declaration: "Real.transcendental_ofDigits_of_isAutomatic"
+      file: "AdamczewskiBugeaud2007/AutomaticComplexity.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/adamczewski-bugeaud-2007.json"
+      literature_dependencies: []
+    - declaration: "Real.transcendental_ofDigits_of_isGeneratedByMorphism"
+      file: "AdamczewskiBugeaud2007/MorphicTranscendence.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/adamczewski-bugeaud-2007.json"
+      literature_dependencies: []
+    - declaration: "Real.transcendental_ofDigits_of_isGeneratedByMorphism_of_isRecurrent"
+      file: "AdamczewskiBugeaud2007/MorphicTranscendence.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/adamczewski-bugeaud-2007.json"
+      literature_dependencies: []
+    - declaration: "Function.finite_kKernel_iff_isGeneratedByAutomaton"
+      file: "AdamczewskiBugeaud2007/Automaton.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/adamczewski-bugeaud-2007.json"
+      literature_dependencies: []
+    - declaration: "Function.IsAutomatic.exists_complexity_le"
+      file: "AdamczewskiBugeaud2007/AutomaticComplexity.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/adamczewski-bugeaud-2007.json"
+      literature_dependencies: []
+    - declaration: "Function.IsAutomatic.isStammering"
+      file: "AdamczewskiBugeaud2007/AutomaticComplexity.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/adamczewski-bugeaud-2007.json"
+      literature_dependencies: []
+    - declaration: "Real.abs_sub_le_of_periodic"
+      file: "AdamczewskiBugeaud2007/BetaApproximation.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/adamczewski-bugeaud-2007.json"
+      literature_dependencies: []
+    - declaration: "Real.mem_adjoin_of_isStammering"
+      file: "AdamczewskiBugeaud2007/PisotTranscendence.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/adamczewski-bugeaud-2007.json"
+      literature_dependencies: []
+    - declaration: "Real.mem_adjoin_or_transcendental_of_isPisot"
+      file: "AdamczewskiBugeaud2007/PisotTranscendence.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/adamczewski-bugeaud-2007.json"
+      literature_dependencies: []
+    - declaration: "Real.mem_adjoin_or_transcendental_of_isSalem"
+      file: "AdamczewskiBugeaud2007/PisotTranscendence.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/adamczewski-bugeaud-2007.json"
+      literature_dependencies: []
+    - declaration: "Real.tsum_mem_adjoin_of_isEventuallyPeriodic"
+      file: "AdamczewskiBugeaud2007/PisotTranscendence.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/adamczewski-bugeaud-2007.json"
+      literature_dependencies: []
+    - declaration: "Real.tendsto_complexity_betaDigitsFin_div_atTop"
+      file: "AdamczewskiBugeaud2007/BetaDigitsTranscendence.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/adamczewski-bugeaud-2007.json"
+      literature_dependencies: []
+    - declaration: "Real.not_isGeneratedByAutomaton_betaDigitsFin"
+      file: "AdamczewskiBugeaud2007/BetaDigitsTranscendence.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/adamczewski-bugeaud-2007.json"
+      literature_dependencies: []
+    - declaration: "Real.not_isAutomatic_betaDigitsFin"
+      file: "AdamczewskiBugeaud2007/BetaDigitsTranscendence.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/adamczewski-bugeaud-2007.json"
+      literature_dependencies: []
+    - declaration: "Real.not_isGeneratedByMorphism_of_betaDigits"
+      file: "AdamczewskiBugeaud2007/BetaDigitsTranscendence.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/adamczewski-bugeaud-2007.json"
+      literature_dependencies: []
+    - declaration: "Real.not_isGeneratedByMorphism_betaDigitsFin_of_isRecurrent"
+      file: "AdamczewskiBugeaud2007/BetaDigitsTranscendence.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/adamczewski-bugeaud-2007.json"
+      literature_dependencies: []
+    - declaration: "Real.isEventuallyPeriodic_betaDigits_of_mem_adjoin"
+      file: "AdamczewskiBugeaud2007/SchmidtPeriodicity.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/adamczewski-bugeaud-2007.json"
+      literature_dependencies: []
+    - declaration: "Real.transcendental_of_isStammering_betaDigits"
+      file: "AdamczewskiBugeaud2007/BetaDigitsTranscendence.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/adamczewski-bugeaud-2007.json"
+      literature_dependencies: []
+    - declaration: "Padic.transcendental_of_isStammering_henselDigits"
+      file: "AdamczewskiBugeaud2007/HenselDigits.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/adamczewski-bugeaud-2007.json"
+      literature_dependencies: []
+    - declaration: "Padic.transcendental_ofDigits_of_isStammering"
+      file: "AdamczewskiBugeaud2007/PadicTranscendence.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/adamczewski-bugeaud-2007.json"
+      literature_dependencies: []
+    - declaration: "Padic.tendsto_complexity_henselDigits_div_atTop"
+      file: "AdamczewskiBugeaud2007/HenselDigits.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/adamczewski-bugeaud-2007.json"
+      literature_dependencies: []
+    - declaration: "Padic.tendsto_complexity_div_atTop"
+      file: "AdamczewskiBugeaud2007/PadicTranscendence.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/adamczewski-bugeaud-2007.json"
+      literature_dependencies: []
+    - declaration: "Padic.transcendental_ofDigits_of_isAutomatic"
+      file: "AdamczewskiBugeaud2007/PadicTranscendence.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/adamczewski-bugeaud-2007.json"
+      literature_dependencies: []
+    - declaration: "Padic.transcendental_ofDigits_of_isGeneratedByMorphism"
+      file: "AdamczewskiBugeaud2007/MorphicTranscendence.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/adamczewski-bugeaud-2007.json"
+      literature_dependencies: []
+    - declaration: "Padic.transcendental_ofDigits_of_isGeneratedByMorphism_of_isRecurrent"
+      file: "AdamczewskiBugeaud2007/MorphicTranscendence.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/adamczewski-bugeaud-2007.json"
+      literature_dependencies: []
+    - declaration: "PowerSeries.finite_kKernel_coeff_of_isAlgebraic"
+      file: "AdamczewskiBugeaud2007/Christol.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/adamczewski-bugeaud-2007.json"
+      literature_dependencies: []
+    - declaration: "Real.isAlgebraic_and_isAlgebraic_iff"
+      file: "AdamczewskiBugeaud2007/ChristolTranscendence.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/adamczewski-bugeaud-2007.json"
+      literature_dependencies: []
+    - declaration: "exists_counterexample_theorem7"
+      file: "AdamczewskiBugeaud2007/ChristolTranscendence.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/adamczewski-bugeaud-2007.json"
+      literature_dependencies: []
+    - declaration: "not_forall_theorem7_as_printed"
+      file: "AdamczewskiBugeaud2007/ChristolTranscendence.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/adamczewski-bugeaud-2007.json"
+      literature_dependencies: []
+
+fidelity:
+  divergences: >-
+    Condition (∗)_w of the paper includes non-periodicity; here
+    Function.IsStammering is only the repetition condition (with the paper's
+    length ⌈w s⌉), and each criterion takes non-periodicity as a separate
+    hypothesis where it is needed. Theorem 5 and Theorems 1A–4A need none:
+    an eventually periodic sequence already gives a number of ℚ(β). Theorem 5
+    and Theorems 1A–4A are stated for a real algebraic integer β > 1 whose
+    other conjugates have modulus at most 1, which is all the proof uses and
+    covers both Pisot and Salem numbers; the Pisot and Salem forms of
+    Theorem 5 are compared as well. The β-expansion is the greedy one given by
+    the β-transformation; for Theorems 1A, 2A and 4A its digits are read as
+    letters of {0, …, ⌊β⌋}, and Theorem 3A takes a binary sequence equal to
+    the digits. Automatic sequences are defined by a finite k-kernel, and
+    also by the paper's k-automata (least significant digit first); the two
+    are proved equivalent, and Theorems 2 and 2A are compared in both forms.
+    Theorems 3 and 4 hold for every base b ≥ 2 (Theorem 4 as printed asks
+    b ≥ 3), and Theorem 4's proof takes the letter of maximal growth among the
+    letters that occur, which closes a small gap in the printed proof. The
+    p-adic expansions are stated twice: with digits from k = 0 (Padic.ofDigits)
+    and, as printed, for the Hensel expansion ∑_{k ≥ -m} a_k p^k of a given
+    α ∈ ℚ_p, with Condition (∗)_w on (a_k)_{k ≥ 1}. A p-adic irrational is
+    written x ∉ Set.range ((↑) : ℚ → ℚ_[p]). Lemma 1 is stated with the
+    denominator β^r (β^s − 1) of the approximation multiplied out, and the
+    paper's 1/d normalization of heights is replaced by Mathlib's weights,
+    which the product formula also carries. Theorem 7 is false as printed
+    (see limitations) and is stated with u_k < min(b, p), the hypothesis its
+    proof uses; indices start at k = 0 (the paper's objects when u_0 = 0),
+    and "algebraic over 𝔽_p(X)" is stated over 𝔽_p[X], equivalent for an
+    element of 𝔽_p⟦X⟧. Christol's theorem is proved from CKMR80 §7 inside
+    K⟦X⟧: CKMR80 divide by a₀ in K((X)); here the finite stable set is
+    {s : a₀ s = ∑ c_i f^(q^i), deg c_i ≤ N}.
+    The single-file challenge differs from the development in presentation
+    only (see COMPARATOR.md at the repository root). Its Mathlib imports
+    follow the development's load order, and each part opens with a run_cmd
+    that clears Lean's module-local cache of auxiliary proofs, as a module
+    boundary does.
+
+sources:
+  - title: >-
+      On the complexity of algebraic numbers I. Expansions in integer bases
+    authors: ["Boris Adamczewski", "Yann Bugeaud"]
+    type: paper
+    location: >-
+      Ann. of Math. (2) 165 (2007), 547–565; arXiv:math/0511674. Theorems
+      1–6, 1A–5A, 1B–4B, Lemma 1, (1), and the facts of §§3–5 it quotes
+    relationship: formalizes
+    author_endorsement: not-contacted
+    note: >-
+      The whole paper, Theorem 7 in corrected form; the Conjecture and the
+      ternary problem after Theorem 4 are open and only stated. The module
+      docs cite it by section and result.
+  - title: >-
+      On periodic expansions of Pisot numbers and Salem numbers
+    authors: ["Klaus Schmidt"]
+    type: paper
+    location: "Bull. London Math. Soc. 12 (1980), 269–278; the Pisot case"
+    relationship: formalizes
+    author_endorsement: not-contacted
+    note: >-
+      Quoted by the paper to derive Theorem 5A; proved here
+      (Real.isEventuallyPeriodic_betaDigits_of_mem_adjoin).
+  - title: "Suites algébriques, automates et substitutions"
+    authors: ["Gilles Christol", "Teturo Kamae", "Michel Mendès France", "Gérard Rauzy"]
+    type: paper
+    location: "Bull. Soc. Math. France 108 (1980), 401–419; Théorème 1, (iii) ⇒ (i), proof in §7"
+    relationship: formalizes
+    author_endorsement: not-contacted
+    note: >-
+      Quoted by the paper for Theorem 7; the direction algebraic ⇒ automatic
+      is proved here (PowerSeries.finite_kKernel_coeff_of_isAlgebraic).
+  - title: "Une approche arithmétique des systèmes de numération"
+    authors: ["Boris Adamczewski"]
+    type: other
+    location: "Habilitation, Université Lyon 1, 2010, §7.2, Théorème 7.1"
+    relationship: background
+    author_endorsement: not-contacted
+    note: >-
+      Restates Theorem 7 for b = p with digits in {0, …, p − 1}; the corrected
+      Theorem 7 here contains it.
+
+automation:
+  methods:
+    - method: agent
+      models: ["claude-opus-5-5"]
+      framework: "Claude Code"
+      role: >-
+        The formalization: the plan, the Lean text of the library, the
+        challenge and solution modules and the configuration, under the
+        releaser's direction.
+    - method: manual
+      models: []
+      role: >-
+        Direction and release. Ralf Stephan chose the paper, the conventions
+        and the gates, steered the agent turn by turn, and releases the
+        repository.
+  spend_usd: "subscription-based Claude Code usage; Max 00 subscription"
+  notes: >-
+    The library is held to the repository's rules by scripts/check.sh (a
+    build with Mathlib's linter set as errors, the axiom audit against the
+    three standard axioms, the module-system check, the textual guards).
+    It has 16 files. lake test runs leanprover/comparator over
+    comparator/adamczewski-bugeaud-2007.json against the single Mathlib-only
+    file ChallengeAdamczewskiBugeaud2007.lean, generated from
+    comparator/adamczewski-bugeaud-2007.txt by
+    scripts/make-challenge.py --paper AdamczewskiBugeaud2007, with the proofs
+    re-exported by SolutionAdamczewskiBugeaud2007.lean. It passes. A negative
+    control (Theorem 5A with IsSalem in place of IsPisot in the challenge, the
+    open Salem case) was confirmed to be rejected, and so was a second
+    (Theorem 7 without the bound u_k < p, which the counterexample refutes). Wall time and hardware
+    were not recorded.
+
+review:
+  status: unchecked
+  notes: >-
+    No human or external review of the Lean text or of the fidelity of the
+    statements has been performed. What is established is mechanical:
+    comparator compares each named statement against the challenge file
+    constant by constant, checks the axiom list, and replays the export
+    through the Lean kernel.
+
+limitations:
+  - >-
+    The compared theorems depend on propext, Classical.choice and Quot.sound
+    and nothing else. The library contains no sorry and no native_decide.
+    The sorries in the challenge file are the placeholders comparator
+    expects, and the configuration fixes no definition holes.
+  - >-
+    Theorem 7 is false as printed ("a sequence of integers u"): for p = 5,
+    b = 2 there are digits in {0, 1, 2, 3} whose base-2 value is 1 and whose
+    power series over 𝔽_5 is algebraic but not rational
+    (exists_counterexample_theorem7). No erratum was found; Adamczewski's
+    habilitation (Lyon, 2010, Théorème 7.1) restates it for b = p with
+    digits below p. The formalized statement asks u_k < min(b, p).
+  - >-
+    The Subspace Theorem the proofs rest on is the repository's own
+    (DiophantineApproximation), certified separately by
+    comparator/std3-flat.json.
+  - >-
+    Everything proved here is in print; no novelty is claimed. The value
+    offered is the machine-checked account.
+
+alignment:
+  namespace: "Real, Padic, Function"
+  statements:
+    - source: "Theorem 1"
+      lean: "Real.tendsto_complexity_div_atTop"
+      module: "ChallengeAdamczewskiBugeaud2007 (statement), SolutionAdamczewskiBugeaud2007 / DiophantineApproximation.ComplexityTranscendence (proof)"
+      status: proved
+    - source: "(1), after Ferenczi–Mauduit"
+      lean: "Real.tendsto_complexity_sub_atTop"
+      module: "ChallengeAdamczewskiBugeaud2007 (statement), SolutionAdamczewskiBugeaud2007 / AdamczewskiBugeaud2007.MorphicTranscendence (proof)"
+      status: proved
+      note: "Stated as p(n) − n → ∞, which is liminf (p(n) − n) = +∞."
+    - source: "Theorem 2, automatic in the sense of §3"
+      lean: "Real.transcendental_ofDigits_of_isGeneratedByAutomaton"
+      module: "ChallengeAdamczewskiBugeaud2007 (statement), SolutionAdamczewskiBugeaud2007 / AdamczewskiBugeaud2007.Automaton (proof)"
+      status: proved
+    - source: "Theorem 2, finite k-kernel form"
+      lean: "Real.transcendental_ofDigits_of_isAutomatic"
+      module: "ChallengeAdamczewskiBugeaud2007 (statement), SolutionAdamczewskiBugeaud2007 / AdamczewskiBugeaud2007.AutomaticComplexity (proof)"
+      status: proved
+    - source: "Theorem 3"
+      lean: "Real.transcendental_ofDigits_of_isGeneratedByMorphism"
+      module: "ChallengeAdamczewskiBugeaud2007 (statement), SolutionAdamczewskiBugeaud2007 / AdamczewskiBugeaud2007.MorphicTranscendence (proof)"
+      status: proved
+    - source: "Theorem 4"
+      lean: "Real.transcendental_ofDigits_of_isGeneratedByMorphism_of_isRecurrent"
+      module: "ChallengeAdamczewskiBugeaud2007 (statement), SolutionAdamczewskiBugeaud2007 / AdamczewskiBugeaud2007.MorphicTranscendence (proof)"
+      status: proved
+      note: "For every b ≥ 2, not only b ≥ 3."
+    - source: "§3, Eilenberg's characterization quoted"
+      lean: "Function.finite_kKernel_iff_isGeneratedByAutomaton"
+      module: "ChallengeAdamczewskiBugeaud2007 (statement), SolutionAdamczewskiBugeaud2007 / AdamczewskiBugeaud2007.Automaton (proof)"
+      status: proved
+    - source: "§5, Cobham's bound p(n) = O(n) quoted"
+      lean: "Function.IsAutomatic.exists_complexity_le"
+      module: "ChallengeAdamczewskiBugeaud2007 (statement), SolutionAdamczewskiBugeaud2007 / AdamczewskiBugeaud2007.AutomaticComplexity (proof)"
+      status: proved
+    - source: "§5, an automatic sequence satisfies (∗)_w"
+      lean: "Function.IsAutomatic.isStammering"
+      module: "ChallengeAdamczewskiBugeaud2007 (statement), SolutionAdamczewskiBugeaud2007 / AdamczewskiBugeaud2007.AutomaticComplexity (proof)"
+      status: proved
+    - source: "Lemma 1, the bound (3)"
+      lean: "Real.abs_sub_le_of_periodic"
+      module: "ChallengeAdamczewskiBugeaud2007 (statement), SolutionAdamczewskiBugeaud2007 / AdamczewskiBugeaud2007.BetaApproximation (proof)"
+      status: proved
+      note: "The denominator of the approximation is multiplied out."
+    - source: "Theorem 5, under the hypothesis its proof uses"
+      lean: "Real.mem_adjoin_of_isStammering"
+      module: "ChallengeAdamczewskiBugeaud2007 (statement), SolutionAdamczewskiBugeaud2007 / AdamczewskiBugeaud2007.PisotTranscendence (proof)"
+      status: proved
+      note: "β > 1 an algebraic integer whose other conjugates have modulus at most 1."
+    - source: "Theorem 5, Pisot base"
+      lean: "Real.mem_adjoin_or_transcendental_of_isPisot"
+      module: "ChallengeAdamczewskiBugeaud2007 (statement), SolutionAdamczewskiBugeaud2007 / AdamczewskiBugeaud2007.PisotTranscendence (proof)"
+      status: proved
+    - source: "Theorem 5, Salem base"
+      lean: "Real.mem_adjoin_or_transcendental_of_isSalem"
+      module: "ChallengeAdamczewskiBugeaud2007 (statement), SolutionAdamczewskiBugeaud2007 / AdamczewskiBugeaud2007.PisotTranscendence (proof)"
+      status: proved
+    - source: "§4, the periodic case of Theorem 5"
+      lean: "Real.tsum_mem_adjoin_of_isEventuallyPeriodic"
+      module: "ChallengeAdamczewskiBugeaud2007 (statement), SolutionAdamczewskiBugeaud2007 / AdamczewskiBugeaud2007.PisotTranscendence (proof)"
+      status: proved
+      note: "For every real β > 1."
+    - source: "Theorem 1A"
+      lean: "Real.tendsto_complexity_betaDigitsFin_div_atTop"
+      module: "ChallengeAdamczewskiBugeaud2007 (statement), SolutionAdamczewskiBugeaud2007 / AdamczewskiBugeaud2007.BetaDigitsTranscendence (proof)"
+      status: proved
+    - source: "Theorem 2A, automata as in §3"
+      lean: "Real.not_isGeneratedByAutomaton_betaDigitsFin"
+      module: "ChallengeAdamczewskiBugeaud2007 (statement), SolutionAdamczewskiBugeaud2007 / AdamczewskiBugeaud2007.BetaDigitsTranscendence (proof)"
+      status: proved
+    - source: "Theorem 2A, finite k-kernel form"
+      lean: "Real.not_isAutomatic_betaDigitsFin"
+      module: "ChallengeAdamczewskiBugeaud2007 (statement), SolutionAdamczewskiBugeaud2007 / AdamczewskiBugeaud2007.BetaDigitsTranscendence (proof)"
+      status: proved
+    - source: "Theorem 3A"
+      lean: "Real.not_isGeneratedByMorphism_of_betaDigits"
+      module: "ChallengeAdamczewskiBugeaud2007 (statement), SolutionAdamczewskiBugeaud2007 / AdamczewskiBugeaud2007.BetaDigitsTranscendence (proof)"
+      status: proved
+    - source: "Theorem 4A"
+      lean: "Real.not_isGeneratedByMorphism_betaDigitsFin_of_isRecurrent"
+      module: "ChallengeAdamczewskiBugeaud2007 (statement), SolutionAdamczewskiBugeaud2007 / AdamczewskiBugeaud2007.BetaDigitsTranscendence (proof)"
+      status: proved
+    - source: "§4, K. Schmidt's theorem quoted"
+      lean: "Real.isEventuallyPeriodic_betaDigits_of_mem_adjoin"
+      module: "ChallengeAdamczewskiBugeaud2007 (statement), SolutionAdamczewskiBugeaud2007 / AdamczewskiBugeaud2007.SchmidtPeriodicity (proof)"
+      status: proved
+      note: "Proved here, not cited."
+    - source: "Theorem 5A"
+      lean: "Real.transcendental_of_isStammering_betaDigits"
+      module: "ChallengeAdamczewskiBugeaud2007 (statement), SolutionAdamczewskiBugeaud2007 / AdamczewskiBugeaud2007.BetaDigitsTranscendence (proof)"
+      status: proved
+    - source: "Theorem 6, as printed"
+      lean: "Padic.transcendental_of_isStammering_henselDigits"
+      module: "ChallengeAdamczewskiBugeaud2007 (statement), SolutionAdamczewskiBugeaud2007 / AdamczewskiBugeaud2007.HenselDigits (proof)"
+      status: proved
+    - source: "Theorem 6, digits from k = 0"
+      lean: "Padic.transcendental_ofDigits_of_isStammering"
+      module: "ChallengeAdamczewskiBugeaud2007 (statement), SolutionAdamczewskiBugeaud2007 / AdamczewskiBugeaud2007.PadicTranscendence (proof)"
+      status: proved
+    - source: "Theorem 1B, as printed"
+      lean: "Padic.tendsto_complexity_henselDigits_div_atTop"
+      module: "ChallengeAdamczewskiBugeaud2007 (statement), SolutionAdamczewskiBugeaud2007 / AdamczewskiBugeaud2007.HenselDigits (proof)"
+      status: proved
+    - source: "Theorem 1B, digits from k = 0"
+      lean: "Padic.tendsto_complexity_div_atTop"
+      module: "ChallengeAdamczewskiBugeaud2007 (statement), SolutionAdamczewskiBugeaud2007 / AdamczewskiBugeaud2007.PadicTranscendence (proof)"
+      status: proved
+    - source: "Theorem 2B"
+      lean: "Padic.transcendental_ofDigits_of_isAutomatic"
+      module: "ChallengeAdamczewskiBugeaud2007 (statement), SolutionAdamczewskiBugeaud2007 / AdamczewskiBugeaud2007.PadicTranscendence (proof)"
+      status: proved
+    - source: "Theorem 3B"
+      lean: "Padic.transcendental_ofDigits_of_isGeneratedByMorphism"
+      module: "ChallengeAdamczewskiBugeaud2007 (statement), SolutionAdamczewskiBugeaud2007 / AdamczewskiBugeaud2007.MorphicTranscendence (proof)"
+      status: proved
+    - source: "Theorem 4B"
+      lean: "Padic.transcendental_ofDigits_of_isGeneratedByMorphism_of_isRecurrent"
+      module: "ChallengeAdamczewskiBugeaud2007 (statement), SolutionAdamczewskiBugeaud2007 / AdamczewskiBugeaud2007.MorphicTranscendence (proof)"
+      status: proved
+    - source: "§7, the Christol–Kamae–Mendès France–Rauzy theorem quoted (algebraic ⇒ automatic)"
+      lean: "PowerSeries.finite_kKernel_coeff_of_isAlgebraic"
+      module: "ChallengeAdamczewskiBugeaud2007 (statement), SolutionAdamczewskiBugeaud2007 / AdamczewskiBugeaud2007.Christol (proof)"
+      status: proved
+      note: "Proved here, for every finite field; only this direction."
+    - source: "Theorem 7, corrected"
+      lean: "Real.isAlgebraic_and_isAlgebraic_iff"
+      module: "ChallengeAdamczewskiBugeaud2007 (statement), SolutionAdamczewskiBugeaud2007 / AdamczewskiBugeaud2007.ChristolTranscendence (proof)"
+      status: proved
+      note: "Under u_k < min(b, p); false as printed, see the next two."
+    - source: "Theorem 7 as printed: a counterexample"
+      lean: "exists_counterexample_theorem7"
+      module: "ChallengeAdamczewskiBugeaud2007 (statement), SolutionAdamczewskiBugeaud2007 / AdamczewskiBugeaud2007.ChristolTranscendence (proof)"
+      status: proved
+      note: "b = 2, p = 5, u_k ≤ 3; not in the paper."
+    - source: "Theorem 7 as printed is false"
+      lean: "not_forall_theorem7_as_printed"
+      module: "ChallengeAdamczewskiBugeaud2007 (statement), SolutionAdamczewskiBugeaud2007 / AdamczewskiBugeaud2007.ChristolTranscendence (proof)"
+      status: proved
+      note: "Not in the paper."

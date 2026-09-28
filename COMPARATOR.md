@@ -124,6 +124,27 @@ The challenge and solution sit at the top level because every `.lean` file under
 is a module of that paper's `sorry`-free library. The paper's `formalization.yaml` sits in its
 directory.
 
+The lanes so far:
+
+| paper | config | theorems | flat challenge |
+| --- | --- | --- | --- |
+| Corvaja–Zannier 2004 | `comparator/corvaja-zannier-2004.json` | 11 | 229 lines |
+| Adamczewski–Bugeaud 2007 | `comparator/adamczewski-bugeaud-2007.json` | 32 | 483 lines, 22 KiB |
+
+Two traps surfaced on the Adamczewski–Bugeaud lane, both fixed in the development, not the
+challenge:
+
+- **`omega` mints a `private` auxiliary proof** (`_private.<module>.0.<thm>._proof_1_2`). That is
+  harmless in a theorem nothing unfolds, but `Padic.henselDigits` carries the proof of
+  `Padic.norm_pow_henselShift_mul_le_one` in its value, so the generator refused the closure. A
+  `linarith` ending mints nothing.
+- **A lightly-imported module elaborates `k ^ i : ℕ` differently.** `Function.kKernel` lived in a
+  module importing only `Mathlib.Data.Set.Finite.Basic`, where `Nat.instMonoid` is not loaded,
+  so `k ^ i` became core's `instPowNat`; in the flat file it is `Monoid.npow`, and comparator
+  rejected `Function.IsAutomatic`. This is not a tie between loaded instances (the `TIES` table
+  cannot help), but an instance missing from the module; importing
+  `Mathlib.Algebra.Group.Nat.Defs` there fixed it.
+
 ## Regenerating
 
 ```sh

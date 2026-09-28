@@ -10,6 +10,7 @@ public import Mathlib.FieldTheory.Minpoly.IsIntegrallyClosed
 public import Mathlib.NumberTheory.Real.Irrational
 public import Mathlib.RingTheory.Polynomial.ScaleRoots
 public import Mathlib.Algebra.GCDMonoid.IntegrallyClosed
+public import ForMathlib.NumberTheory.PisotNumber
 
 /-!
 # Pisot and pseudo-Pisot numbers
@@ -24,8 +25,8 @@ Conjugates are the complex roots of `minpoly ℚ α`, and the trace is their sum
 
 ## Main definitions
 
-* `IsPseudoPisot`: the predicate of Corvaja–Zannier, p. 2.
-* `IsPisot`: a real algebraic integer `> 1` whose other conjugates lie in the open unit disc.
+* `IsPseudoPisot`: the predicate of Corvaja–Zannier, p. 2. Pisot numbers, `IsPisot`, are in
+  `ForMathlib/NumberTheory/PisotNumber.lean`.
 
 ## Main results
 
@@ -64,11 +65,6 @@ integer. -/
 def IsPseudoPisot (α : ℝ) : Prop :=
   1 < |α| ∧ IsAlgebraic ℚ α ∧ (∀ z ∈ (minpoly ℚ α).aroots ℂ, z ≠ (α : ℂ) → ‖z‖ < 1) ∧
     ∃ n : ℤ, ((minpoly ℚ α).aroots ℂ).sum = n
-
-/-- **A Pisot number**: a real algebraic integer `α > 1` whose conjugates other than `α` lie in
-the open unit disc. Rational integers `> 1` are Pisot numbers. -/
-def IsPisot (α : ℝ) : Prop :=
-  1 < α ∧ IsIntegral ℤ α ∧ ∀ z ∈ (minpoly ℚ α).aroots ℂ, z ≠ (α : ℂ) → ‖z‖ < 1
 
 /-- The conjugates of `r x`, for rational `r ≠ 0`, are `r` times the conjugates of `x`, because
 `minpoly ℚ (r • x) = (minpoly ℚ x).scaleRoots r`. -/
