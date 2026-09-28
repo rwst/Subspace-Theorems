@@ -9,6 +9,7 @@ public import Mathlib.Analysis.Complex.Polynomial.Basic
 public import Mathlib.FieldTheory.Minpoly.IsIntegrallyClosed
 public import Mathlib.NumberTheory.Real.Irrational
 public import Mathlib.Algebra.GCDMonoid.IntegrallyClosed
+public import Mathlib.NumberTheory.Real.GoldenRatio
 public import Mathlib.NumberTheory.NumberField.Basic
 import Mathlib.Algebra.Algebra.Hom.Rat
 public import Mathlib.NumberTheory.NumberField.InfinitePlace.Ramification
@@ -77,6 +78,16 @@ with `sorry`. Each part opens by clearing Lean's auxiliary-proof cache, as a mod
 and some lower instances locally to restore their module's tie-break. See `COMPARATOR.md`.
 -/
 
+-- ForMathlib.NumberTheory.PisotNumber
+run_cmd Lean.modifyEnv (Lean.Meta.auxLemmasExt.setState · {})
+section
+attribute [local instance 999] instFaithfulSMul_1
+@[expose] public section
+open Polynomial
+def IsPisot (α : ℝ) : Prop :=
+  1 < α ∧ IsIntegral ℤ α ∧ ∀ z ∈ (minpoly ℚ α).aroots ℂ, z ≠ (α : ℂ) → ‖z‖ < 1
+end
+end
 -- CorvajaZannier2004.PseudoPisot
 run_cmd Lean.modifyEnv (Lean.Meta.auxLemmasExt.setState · {})
 @[expose] public section
@@ -84,8 +95,6 @@ open Polynomial
 def IsPseudoPisot (α : ℝ) : Prop :=
   1 < |α| ∧ IsAlgebraic ℚ α ∧ (∀ z ∈ (minpoly ℚ α).aroots ℂ, z ≠ (α : ℂ) → ‖z‖ < 1) ∧
     ∃ n : ℤ, ((minpoly ℚ α).aroots ℂ).sum = n
-def IsPisot (α : ℝ) : Prop :=
-  1 < α ∧ IsIntegral ℤ α ∧ ∀ z ∈ (minpoly ℚ α).aroots ℂ, z ≠ (α : ℂ) → ‖z‖ < 1
 end
 -- CorvajaZannier2004.IntegralPowerSums
 run_cmd Lean.modifyEnv (Lean.Meta.auxLemmasExt.setState · {})

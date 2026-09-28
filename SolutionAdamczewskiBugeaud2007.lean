@@ -3,18 +3,20 @@ Copyright (c) 2026 Ralf Stephan. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Ralf Stephan
 -/
-import DiophantineApproximation.ComplexityTranscendence
-import AdamczewskiBugeaud2007.AutomaticComplexity
-import AdamczewskiBugeaud2007.Automaton
-import AdamczewskiBugeaud2007.MorphicTranscendence
-import AdamczewskiBugeaud2007.BetaApproximation
-import AdamczewskiBugeaud2007.PisotTranscendence
-import AdamczewskiBugeaud2007.SchmidtPeriodicity
-import AdamczewskiBugeaud2007.BetaDigitsTranscendence
-import AdamczewskiBugeaud2007.PadicTranscendence
-import AdamczewskiBugeaud2007.HenselDigits
-import AdamczewskiBugeaud2007.Christol
-import AdamczewskiBugeaud2007.ChristolTranscendence
+module
+
+public import DiophantineApproximation.ComplexityTranscendence
+public import AdamczewskiBugeaud2007.AutomaticComplexity
+public import AdamczewskiBugeaud2007.Automaton
+public import AdamczewskiBugeaud2007.MorphicTranscendence
+public import AdamczewskiBugeaud2007.BetaApproximation
+public import AdamczewskiBugeaud2007.PisotTranscendence
+public import AdamczewskiBugeaud2007.SchmidtPeriodicity
+public import AdamczewskiBugeaud2007.BetaDigitsTranscendence
+public import AdamczewskiBugeaud2007.PadicTranscendence
+public import AdamczewskiBugeaud2007.HenselDigits
+public import AdamczewskiBugeaud2007.Christol
+public import AdamczewskiBugeaud2007.ChristolTranscendence
 
 /-!
 # Adamczewski–Bugeaud 2007, re-exported for `comparator`

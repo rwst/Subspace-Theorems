@@ -3,27 +3,29 @@ Copyright (c) 2026 Ralf Stephan. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Ralf Stephan
 -/
-import ArithmeticHeights.AuxiliaryPolynomial
-import ArithmeticHeights.BombieriVaaler
-import ArithmeticHeights.BombieriVaalerEntries
-import ArithmeticHeights.BombieriVaalerRelative
-import ArithmeticHeights.Siegel
-import DiophantineApproximation.MovingTargets
-import DiophantineApproximation.ParametricSubspace
-import DiophantineApproximation.Ridout
-import DiophantineApproximation.RothInfinity
-import DiophantineApproximation.RothProjective
-import DiophantineApproximation.RothRational
-import DiophantineApproximation.RothSubspaceCount
-import DiophantineApproximation.RothTheorem
-import DiophantineApproximation.SubspaceAffine
-import DiophantineApproximation.SubspaceAlgebraic
-import DiophantineApproximation.SubspaceConsistency
-import DiophantineApproximation.SubspaceGeneralPosition
-import DiophantineApproximation.SubspaceIntervals
-import DiophantineApproximation.SubspaceSmall
-import DiophantineApproximation.SubspaceSystem
-import DiophantineApproximation.SubspaceTheorem
+module
+
+public import ArithmeticHeights.AuxiliaryPolynomial
+public import ArithmeticHeights.BombieriVaaler
+public import ArithmeticHeights.BombieriVaalerEntries
+public import ArithmeticHeights.BombieriVaalerRelative
+public import ArithmeticHeights.Siegel
+public import DiophantineApproximation.MovingTargets
+public import DiophantineApproximation.ParametricSubspace
+public import DiophantineApproximation.Ridout
+public import DiophantineApproximation.RothInfinity
+public import DiophantineApproximation.RothProjective
+public import DiophantineApproximation.RothRational
+public import DiophantineApproximation.RothSubspaceCount
+public import DiophantineApproximation.RothTheorem
+public import DiophantineApproximation.SubspaceAffine
+public import DiophantineApproximation.SubspaceAlgebraic
+public import DiophantineApproximation.SubspaceConsistency
+public import DiophantineApproximation.SubspaceGeneralPosition
+public import DiophantineApproximation.SubspaceIntervals
+public import DiophantineApproximation.SubspaceSmall
+public import DiophantineApproximation.SubspaceSystem
+public import DiophantineApproximation.SubspaceTheorem
 
 /-!
 # The development, re-exported for `comparator`

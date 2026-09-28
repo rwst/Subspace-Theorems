@@ -526,7 +526,7 @@ def main():
                 + "\n" + render_text(items[m], False) + "\n")
     if not PAPER:
         with open(os.path.join(ROOT, "Challenge.lean"), "w") as f:
-            f.write(HEADER + "".join(f"import Challenge.{m}\n" for m in order))
+            f.write(HEADER + "module\n\n" + "".join(f"public import Challenge.{m}\n" for m in order))
     flat_name = f"Challenge{PAPER}" if PAPER else "ChallengeFlat"
     sol_name = f"Solution{PAPER}" if PAPER else "Solution"
 
@@ -535,7 +535,7 @@ def main():
         for i, p in resolve(m, chal_set).items():
             if not i.startswith("Challenge."):
                 flat_imps[i] = flat_imps.get(i, False) or p
-    roots = [mm.group(1) for mm in (re.match(r"^import (\S+)", l)
+    roots = [mm.group(1) for mm in (re.match(r"^(?:public )?import (\S+)", l)
              for l in open(os.path.join(ROOT, sol_name + ".lean"))) if mm]
     flat_list = reduce_imports(flat_imps, roots)
     edges = collections.defaultdict(list)

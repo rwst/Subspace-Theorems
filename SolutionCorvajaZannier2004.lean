@@ -3,13 +3,15 @@ Copyright (c) 2026 Ralf Stephan. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Ralf Stephan
 -/
-import CorvajaZannier2004.MainTheorem
-import CorvajaZannier2004.PisotPowers
-import CorvajaZannier2004.IntegralPowerSums
-import CorvajaZannier2004.PartialQuotients
-import CorvajaZannier2004.PeriodLength
-import CorvajaZannier2004.UnitPowers
-import CorvajaZannier2004.Appendix
+module
+
+public import CorvajaZannier2004.MainTheorem
+public import CorvajaZannier2004.PisotPowers
+public import CorvajaZannier2004.IntegralPowerSums
+public import CorvajaZannier2004.PartialQuotients
+public import CorvajaZannier2004.PeriodLength
+public import CorvajaZannier2004.UnitPowers
+public import CorvajaZannier2004.Appendix
 
 /-!
 # Corvaja–Zannier 2004, re-exported for `comparator`

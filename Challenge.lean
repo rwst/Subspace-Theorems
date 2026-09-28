@@ -3,37 +3,39 @@ Copyright (c) 2026 Ralf Stephan. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Ralf Stephan
 -/
-import Challenge.ArithmeticHeights.Arakelov
-import Challenge.ArithmeticHeights.Absolute
-import Challenge.ArithmeticHeights.Affine
-import Challenge.ArithmeticHeights.Plucker
-import Challenge.ArithmeticHeights.Matrix
-import Challenge.ArithmeticHeights.BombieriVaalerEntries
-import Challenge.ArithmeticHeights.BombieriVaalerRelative
-import Challenge.ArithmeticHeights.Polynomial
-import Challenge.ArithmeticHeights.MonomialIndex
-import Challenge.ArithmeticHeights.AuxiliaryPolynomial
-import Challenge.ArithmeticHeights.Siegel
-import Challenge.ArithmeticHeights.BombieriVaaler
-import Challenge.DiophantineApproximation.RothTheorem
-import Challenge.DiophantineApproximation.RothInfinity
-import Challenge.DiophantineApproximation.ApproxProd
-import Challenge.DiophantineApproximation.AffineProd
-import Challenge.DiophantineApproximation.ApproximationDomain
-import Challenge.DiophantineApproximation.RationalPlaces
-import Challenge.DiophantineApproximation.GeneralPosition
-import Challenge.DiophantineApproximation.IrrationalityExponent
-import Challenge.DiophantineApproximation.MovingTargets
-import Challenge.DiophantineApproximation.ParametricSubspace
-import Challenge.DiophantineApproximation.RothRational
-import Challenge.DiophantineApproximation.Ridout
-import Challenge.DiophantineApproximation.RothProjective
-import Challenge.DiophantineApproximation.SubspaceTheorem
-import Challenge.DiophantineApproximation.SubspaceAlgebraic
-import Challenge.DiophantineApproximation.SubspaceAffine
-import Challenge.DiophantineApproximation.SubspaceSystem
-import Challenge.DiophantineApproximation.SubspaceIntervals
-import Challenge.DiophantineApproximation.RothSubspaceCount
-import Challenge.DiophantineApproximation.SubspaceGeneralPosition
-import Challenge.DiophantineApproximation.SubspaceConsistency
-import Challenge.DiophantineApproximation.SubspaceSmall
+module
+
+public import Challenge.ArithmeticHeights.Arakelov
+public import Challenge.ArithmeticHeights.Absolute
+public import Challenge.ArithmeticHeights.Affine
+public import Challenge.ArithmeticHeights.Plucker
+public import Challenge.ArithmeticHeights.Matrix
+public import Challenge.ArithmeticHeights.BombieriVaalerEntries
+public import Challenge.ArithmeticHeights.BombieriVaalerRelative
+public import Challenge.ArithmeticHeights.Polynomial
+public import Challenge.ArithmeticHeights.MonomialIndex
+public import Challenge.ArithmeticHeights.AuxiliaryPolynomial
+public import Challenge.ArithmeticHeights.Siegel
+public import Challenge.ArithmeticHeights.BombieriVaaler
+public import Challenge.DiophantineApproximation.RothTheorem
+public import Challenge.DiophantineApproximation.RothInfinity
+public import Challenge.DiophantineApproximation.ApproxProd
+public import Challenge.DiophantineApproximation.AffineProd
+public import Challenge.DiophantineApproximation.ApproximationDomain
+public import Challenge.DiophantineApproximation.RationalPlaces
+public import Challenge.DiophantineApproximation.GeneralPosition
+public import Challenge.DiophantineApproximation.IrrationalityExponent
+public import Challenge.DiophantineApproximation.MovingTargets
+public import Challenge.DiophantineApproximation.ParametricSubspace
+public import Challenge.DiophantineApproximation.RothRational
+public import Challenge.DiophantineApproximation.Ridout
+public import Challenge.DiophantineApproximation.RothProjective
+public import Challenge.DiophantineApproximation.SubspaceTheorem
+public import Challenge.DiophantineApproximation.SubspaceAlgebraic
+public import Challenge.DiophantineApproximation.SubspaceAffine
+public import Challenge.DiophantineApproximation.SubspaceSystem
+public import Challenge.DiophantineApproximation.SubspaceIntervals
+public import Challenge.DiophantineApproximation.RothSubspaceCount
+public import Challenge.DiophantineApproximation.SubspaceGeneralPosition
+public import Challenge.DiophantineApproximation.SubspaceConsistency
+public import Challenge.DiophantineApproximation.SubspaceSmall

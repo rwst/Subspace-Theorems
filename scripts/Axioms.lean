@@ -10,7 +10,9 @@ than the single root `TauCeti`, and the module enumeration no longer prepends a 
 because neither library has one.
 The pristine original is `~/math/TauCeti/scripts/Axioms.lean`; everything else is upstream's.
 -/
-import Lean
+module
+
+public import Lean
 
 /-!
 # `axioms`: the axiom-allowlist audit for this repository's libraries
@@ -163,7 +165,7 @@ def audit : CoreM (Nat × Array String) := do
 
 -- Return the exit code (rather than `IO.Process.exit`) so the Lean runtime tears the
 -- imported environment down in order; an abrupt `exit()` can segfault during teardown.
-def main : IO UInt32 := do
+public def main : IO UInt32 := do
   let modules ← auditedModules
   let (audited, messages) ← withImportedEnv modules audit
   if audited == 0 then

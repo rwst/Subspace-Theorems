@@ -9,7 +9,9 @@ Changes: the audited libraries are `ArithmeticHeights` and `DiophantineApproxima
 of which has a library root at all, so the root exemption upstream needs does not arise. The pristine original is
 `~/math/TauCeti/scripts/HeaderStyle.lean`; the code below is upstream's.
 -/
-import Mathlib.Tactic.Linter.Header
+module
+
+public meta import Mathlib.Tactic.Linter.Header
 
 /-!
 # Copyright-header audit
@@ -30,11 +32,11 @@ Run via `lake env lean --run scripts/HeaderStyle.lean ...`, as part of `scripts/
 open Mathlib.Linter
 
 /-- Mathlib's default required license line, also used here. -/
-def expectedLicense := Mathlib.Linter.linter.style.header.license.defValue
+meta def expectedLicense := Mathlib.Linter.linter.style.header.license.defValue
 
 /-- Audit every supplied source with Mathlib's copyright-header checker. Returns a nonzero exit
 code when the source list is empty or at least one file has a malformed header. -/
-unsafe def main (args : List String) : IO UInt32 := do
+public meta unsafe def main (args : List String) : IO UInt32 := do
   if args.isEmpty then
     IO.eprintln "header-style: received no validated library source files; \
       the audit is miswired."

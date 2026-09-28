@@ -10,7 +10,9 @@ than the single root `TauCeti`, and the module enumeration no longer prepends a 
 because neither library has one.
 The pristine original is `~/math/TauCeti/scripts/ModuleSystem.lean`; everything else is upstream's.
 -/
-import Lean
+module
+
+public import Lean
 
 /-!
 # `module-system`: enforce that every library file opts into the module system
@@ -90,7 +92,7 @@ def moduleIsOptedIn (m : Name) : IO (Option Bool) := do
   return some isModule
 
 -- Return the exit code rather than calling `IO.Process.exit`, matching `scripts/Axioms.lean`.
-def main : IO UInt32 := do
+public def main : IO UInt32 := do
   initSearchPath (← findSysroot)
   let modules ← auditedModules
   let mut bad : Array Name := #[]
