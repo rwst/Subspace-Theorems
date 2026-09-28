@@ -18,7 +18,9 @@ project:
     periodicity theorem, and the p-adic Theorems 6 and 1B–4B, together with
     the finite automata and morphisms of §3, and Theorem 7 in corrected form
     (u_k < min(b, p)) with Christol's theorem (algebraic ⇒ automatic) and a
-    counterexample to Theorem 7 as printed. Thirty-two statements are
+    counterexample to Theorem 7 as printed. The counterexample and the
+    corrected hypothesis were worked out during this formalization, not taken
+    from the cited works (see limitations). Thirty-two statements are
     compared.
   authors:
     - "Ralf Stephan"
@@ -388,8 +390,22 @@ limitations:
     (DiophantineApproximation), certified separately by
     comparator/std3-flat.json.
   - >-
-    Everything proved here is in print; no novelty is claimed. The value
-    offered is the machine-checked account.
+    Provenance. The results proved here are taken from the cited works (the
+    paper; K. Schmidt 1980; Christol, Kamae, Mendès France and Rauzy 1980;
+    and the standard facts the paper quotes), with two exceptions: the
+    counterexample to Theorem 7 as printed (exists_counterexample_theorem7,
+    not_forall_theorem7_as_printed) and the corrected statement under the
+    hypothesis u_k < min(b, p) (Real.isAlgebraic_and_isAlgebraic_iff). Both
+    were worked out during this formalization. The hypothesis u_k < min(b, p)
+    is the one the paper's own proof of Theorem 7 uses, and its special case
+    b = p is stated in Adamczewski's habilitation (Théorème 7.1). We did not
+    find the counterexample or the min(b, p) form in the sources we consulted
+    (the published paper, the habilitation, and a search for an erratum).
+    Whether either appeared earlier elsewhere is unknown, and no priority is
+    claimed. The smaller departures described under scope (Theorems 3 and 4
+    for every b ≥ 2, the choice of the letter of maximal growth among the
+    letters that occur in Theorem 4's proof, and Christol's proof kept inside
+    K⟦X⟧) adjust the printed proofs and are not offered as new results.
 
 alignment:
   namespace: "Real, Padic, Function"
