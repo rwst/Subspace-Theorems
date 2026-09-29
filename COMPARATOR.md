@@ -130,6 +130,7 @@ The lanes so far:
 | --- | --- | --- | --- |
 | Corvaja–Zannier 2004 | `comparator/corvaja-zannier-2004.json` | 11 | 229 lines |
 | Adamczewski–Bugeaud 2007 | `comparator/adamczewski-bugeaud-2007.json` | 32 | 483 lines, 22 KiB |
+| Evertse 1984 | `comparator/evertse-1984.json` | 14 | 316 lines, 16 KiB |
 
 Two traps surfaced on the Adamczewski–Bugeaud lane, both fixed in the development, not the
 challenge:

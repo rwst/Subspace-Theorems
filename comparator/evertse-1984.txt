@@ -1,0 +1,19 @@
+# The theorems of Evertse (Compositio Math. 1984) that `lake test` certifies, in the order the
+# config lists them. `scripts/make-challenge.py --paper Evertse1984` reads this file and
+# regenerates `ChallengeEvertse1984.lean` and `comparator/evertse-1984.json` from it. `#` starts
+# a comment. See `COMPARATOR.md`.
+
+NumberField.exists_finset_submodule_of_integer_of_affineProd_le  # Theorem 4 (Schlickewei, cited)
+NumberField.exists_pos_forall_placeProd_le              # Theorem 2 (p. 228)
+NumberField.finite_setOf_admissible_sum_eq_zero         # Theorem 1 (p. 227)
+evertseTheorem1                                         # Theorem 1, over every number field
+NumberField.exists_pos_forall_placeProd_iInf_le         # Corollary 2 (p. 228)
+Rat.finite_setOf_sum_eq_zero_of_gcd_eq_one              # Corollary 1 (p. 227)
+NumberField.exists_pos_forall_placeProd_eval_intCast    # Lemma 1 (p. 235)
+NumberField.finite_setOf_eval_div_eval_mem_unit         # Lemma 2 (p. 235)
+NumberField.finite_setOf_powerSum_div_mem_unit          # Theorem 3 (p. 229), roots in K
+NumberField.finite_setOf_div_mem_unit_of_eq_powerSum    # Theorem 3, u in K, roots in L
+NumberField.finite_setOf_powerSum_mem_unit              # Corollary 3 (p. 229), roots in K
+NumberField.finite_setOf_mem_unit_of_eq_powerSum        # Corollary 3, u in K, roots in L
+NumberField.finite_setOf_powerSum_eq                    # Corollary 4 (p. 229), roots in K
+NumberField.finite_setOf_eq_of_eq_powerSum              # Corollary 4, u in K, roots in L

@@ -1,0 +1,26 @@
+{
+  "challenge_module": "ChallengeEvertse1984",
+  "solution_module": "SolutionEvertse1984",
+  "theorem_names": [
+    "NumberField.exists_finset_submodule_of_integer_of_affineProd_le",
+    "NumberField.exists_pos_forall_placeProd_le",
+    "NumberField.finite_setOf_admissible_sum_eq_zero",
+    "evertseTheorem1",
+    "NumberField.exists_pos_forall_placeProd_iInf_le",
+    "Rat.finite_setOf_sum_eq_zero_of_gcd_eq_one",
+    "NumberField.exists_pos_forall_placeProd_eval_intCast",
+    "NumberField.finite_setOf_eval_div_eval_mem_unit",
+    "NumberField.finite_setOf_powerSum_div_mem_unit",
+    "NumberField.finite_setOf_div_mem_unit_of_eq_powerSum",
+    "NumberField.finite_setOf_powerSum_mem_unit",
+    "NumberField.finite_setOf_mem_unit_of_eq_powerSum",
+    "NumberField.finite_setOf_powerSum_eq",
+    "NumberField.finite_setOf_eq_of_eq_powerSum"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Quot.sound",
+    "Classical.choice"
+  ],
+  "enable_nanoda": false
+}

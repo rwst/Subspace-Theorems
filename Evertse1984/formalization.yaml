@@ -1,0 +1,308 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/mathlib-initiative/formalization.yaml/main/schema/formalization.schema.json
+version: "v0.4"
+
+project:
+  name: "Evertse 1984: sums of S-units and linear recurrences"
+  description: >-
+    A Lean 4 / Mathlib formalization of the whole of J.-H. Evertse, On sums
+    of S-units and linear recurrences (Compositio Math. 53 (1984)), built on
+    the repository's libraries ArithmeticHeights and DiophantineApproximation,
+    whose p-adic Subspace Theorem (Schlickewei's, the paper's Theorem 4) it
+    uses. The library Evertse1984 is sorry-free and within Lean's three
+    standard axioms. It proves Theorem 2 (a lower bound for S-integral sums
+    without vanishing subsums, at any set of places), Theorem 1 (finitely
+    many admissible projective solutions of x₀ + ⋯ + xₙ = 0), Corollaries 1
+    and 2, Lemmas 1 and 2 (polynomial values and shifted polynomial
+    quotients that are S-units), Theorem 3 (for a non-degenerate linear
+    recurrence with at least two characteristic roots, the largest prime
+    ideal norm of u_r / u_s tends to infinity), and Corollaries 3 and 4
+    (P(u_r) → ∞; u_r = u_s has finitely many solutions r ≠ s). It also compares
+    the paper's cited Theorem 4, the repository's p-adic Subspace Theorem.
+    Fourteen statements are compared.
+  authors:
+    - "Ralf Stephan"
+  license: "Apache-2.0"
+  responsible_maintainers:
+    - "Ralf Stephan"
+
+classification:
+  arxiv: [math.NT]
+  msc2020: ["11D61", "11B37", "11J87", "11R27"]
+
+status:
+  scope: >-
+    The fourteen declarations named in comparator/evertse-1984.json, listed
+    under main_results, are every numbered result of the paper. Theorem 4,
+    which the paper cites (Schlickewei's p-adic Subspace Theorem), is the
+    repository's own DiophantineApproximation Layer 6.4, also certified on
+    the repository's main lane (comparator/std3-flat.json). Theorem 1 is compared twice: over a fixed
+    number field, and as the closed statement EvertseTheorem1 quantified
+    over all number fields. Theorem 3 and Corollaries 3 and 4 are compared
+    twice: with characteristic roots and polynomials in K, and for a
+    sequence in K whose characteristic roots and polynomials lie in an
+    extension L. The intermediate steps (the Subspace step of Theorem 2,
+    the normalization by S-units, the split cases of Lemma 2 and Theorem 3,
+    linear independence of exponential polynomials) are proved in the
+    library but not compared.
+  sorry_count: 0
+  sorry_in_definitions: 0
+  axioms: ["propext", "Classical.choice", "Quot.sound"]
+  main_results:
+    - declaration: "NumberField.exists_finset_submodule_of_integer_of_affineProd_le"
+      file: "DiophantineApproximation/SubspaceAffine.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/evertse-1984.json"
+      literature_dependencies: []
+    - declaration: "NumberField.exists_pos_forall_placeProd_le"
+      file: "Evertse1984/SUnitSums.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/evertse-1984.json"
+      literature_dependencies: []
+    - declaration: "NumberField.finite_setOf_admissible_sum_eq_zero"
+      file: "Evertse1984/AdmissiblePoints.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/evertse-1984.json"
+      literature_dependencies: []
+    - declaration: "evertseTheorem1"
+      file: "Evertse1984/AdmissiblePoints.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/evertse-1984.json"
+      literature_dependencies: []
+    - declaration: "NumberField.exists_pos_forall_placeProd_iInf_le"
+      file: "Evertse1984/Corollaries.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/evertse-1984.json"
+      literature_dependencies: []
+    - declaration: "Rat.finite_setOf_sum_eq_zero_of_gcd_eq_one"
+      file: "Evertse1984/Corollaries.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/evertse-1984.json"
+      literature_dependencies: []
+    - declaration: "NumberField.exists_pos_forall_placeProd_eval_intCast"
+      file: "Evertse1984/PolynomialValues.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/evertse-1984.json"
+      literature_dependencies: []
+    - declaration: "NumberField.finite_setOf_eval_div_eval_mem_unit"
+      file: "Evertse1984/GeneralRoots.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/evertse-1984.json"
+      literature_dependencies: []
+    - declaration: "NumberField.finite_setOf_powerSum_div_mem_unit"
+      file: "Evertse1984/GeneralRoots.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/evertse-1984.json"
+      literature_dependencies: []
+    - declaration: "NumberField.finite_setOf_div_mem_unit_of_eq_powerSum"
+      file: "Evertse1984/GeneralRoots.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/evertse-1984.json"
+      literature_dependencies: []
+    - declaration: "NumberField.finite_setOf_powerSum_mem_unit"
+      file: "Evertse1984/GeneralRoots.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/evertse-1984.json"
+      literature_dependencies: []
+    - declaration: "NumberField.finite_setOf_mem_unit_of_eq_powerSum"
+      file: "Evertse1984/GeneralRoots.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/evertse-1984.json"
+      literature_dependencies: []
+    - declaration: "NumberField.finite_setOf_powerSum_eq"
+      file: "Evertse1984/GeneralRoots.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/evertse-1984.json"
+      literature_dependencies: []
+    - declaration: "NumberField.finite_setOf_eq_of_eq_powerSum"
+      file: "Evertse1984/GeneralRoots.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/evertse-1984.json"
+      literature_dependencies: []
+
+fidelity:
+  divergences: >-
+    Absolute values are Mathlib's: ‖x‖_v is w(x)^mult(w) at an infinite
+    place and FinitePlace.mk P x at a prime, the normalization of the
+    product formula, which is Evertse's. The products over S∞ ∪ S are
+    placeProd; the paper's set T ⊆ S is any set of absolute values, of
+    which only the places in S∞ ∪ S count. ‖x‖ is the largest house of a
+    coordinate, and heights are Mathlib's mulHeight / mulHeight₁. In
+    Theorem 1 the hypothesis c > 0 is kept in EvertseTheorem1 and dropped
+    from finite_setOf_admissible_sum_eq_zero, where it is not needed; the
+    proof normalizes by an S-unit (a compactness argument) instead of
+    Evertse's ideal-norm argument. In Corollary 1 the same holds, and ‖x‖ is
+    max_k |x_k|. Lemma 1 has max(|r|, 1) for |r|. Lemma 2 is stated for
+    integers r ≠ s with f(r)/g(s) an S-unit, the ideal-norm step replaced by
+    the membership ∏(x_i − y_j) ∈ (∏ x_i, ∏ y_j) over the S-integers.
+    Theorem 3 and Corollary 3 are stated in the equivalent S-unit form: for
+    every finite set S of primes only finitely many r > s have u_s ≠ 0 and
+    u_r / u_s (resp. u_r) zero or an S-unit, which is P_K(·) → ∞. A linear
+    recurrence is given by its representation u_k = Σ_i f_i(k) α_i^k with
+    nonzero α_i, nonzero polynomials f_i, and no quotient α_i / α_j (i ≠ j)
+    a root of unity (non-degeneracy); deriving that representation from a
+    recurrence relation is not formalized. "At least two characteristic
+    roots" is Nontrivial ι. Corollaries 3 and 4 use no hypothesis that u is
+    not identically zero: that is proved (linear independence of
+    exponential polynomials). Corollary 4's exception "u_k = c α^k with α a
+    root of unity" is the hypothesis hone for a subsingleton index type.
+    The passage to a splitting field that Evertse makes "without
+    restriction" is proved: S-units of K are units of L for the primes
+    above S.
+    The single-file challenge differs from the development in presentation
+    only (see COMPARATOR.md at the repository root). Its Mathlib imports
+    follow the development's load order, and each part opens with a run_cmd
+    that clears Lean's module-local cache of auxiliary proofs, as a module
+    boundary does.
+
+sources:
+  - title: "On sums of S-units and linear recurrences"
+    authors: ["Jan-Hendrik Evertse"]
+    type: paper
+    location: >-
+      Compositio Math. 53 (1984), 225–244. Theorems 1–3, Corollaries 1–4,
+      Lemmas 1 and 2
+    relationship: formalizes
+    author_endorsement: not-contacted
+    note: >-
+      The whole paper. The module docs cite it by page and result.
+  - title: "The p-adic Thue–Siegel–Roth–Schmidt theorem"
+    authors: ["Hans Peter Schlickewei"]
+    type: paper
+    location: "Arch. Math. 29 (1977), 267–270; the paper's Theorem 4"
+    relationship: background
+    author_endorsement: not-contacted
+    note: >-
+      Cited by Evertse as Theorem 4; proved in this repository
+      (DiophantineApproximation) and certified by comparator/evertse-1984.json
+      and comparator/std3-flat.json.
+
+automation:
+  methods:
+    - method: agent
+      models: ["claude-opus-5-5"]
+      framework: "Claude Code"
+      role: >-
+        The formalization: the plan, the Lean text of the library, the
+        challenge and solution modules and the configuration, under the
+        releaser's direction.
+    - method: manual
+      models: []
+      role: >-
+        Direction and release. Ralf Stephan chose the paper, the conventions
+        and the gates, steered the agent turn by turn, and releases the
+        repository.
+  spend_usd: "subscription-based Claude Code usage; time not recorded"
+  notes: >-
+    The library is held to the repository's rules by scripts/check.sh (a
+    build with Mathlib's linter set as errors, the axiom audit against the
+    three standard axioms, the module-system check, the textual guards).
+    It has 15 files, and uses the repository's libraries
+    ArithmeticHeights and DiophantineApproximation. lake test runs leanprover/comparator over
+    comparator/evertse-1984.json against the single Mathlib-only file
+    ChallengeEvertse1984.lean, generated from comparator/evertse-1984.txt
+    by scripts/make-challenge.py --paper Evertse1984, with the proofs
+    re-exported by SolutionEvertse1984.lean. It passes. A negative control
+    (a weakened hypothesis of Corollary 4 in the challenge) was confirmed to
+    be rejected. Wall time and hardware were not recorded.
+
+review:
+  status: unchecked
+  notes: >-
+    No human or external review of the Lean text or of the fidelity of the
+    statements has been performed. What is established is mechanical:
+    comparator compares each named statement against the challenge file
+    constant by constant, checks the axiom list, and replays the export
+    through the Lean kernel.
+
+limitations:
+  - >-
+    The compared theorems depend on propext, Classical.choice and Quot.sound
+    and nothing else. The library contains no sorry and no native_decide.
+    The sorries in the challenge file are the placeholders comparator
+    expects, and the configuration fixes no definition holes.
+  - >-
+    Recurrences enter through their power-sum representation; see
+    fidelity. The Subspace Theorem the paper rests on is the repository's
+    own (DiophantineApproximation), certified separately.
+  - >-
+    Everything proved here is in print; no novelty is claimed. The value
+    offered is the machine-checked account.
+
+alignment:
+  namespace: "NumberField, Rat, root"
+  statements:
+    - source: "Theorem 4 (Schlickewei, cited)"
+      lean: "NumberField.exists_finset_submodule_of_integer_of_affineProd_le"
+      module: "ChallengeEvertse1984 (statement), SolutionEvertse1984 / DiophantineApproximation.SubspaceAffine (proof)"
+      status: proved
+      note: "H(x)^(-ε/[K:ℚ]) in place of ‖x‖^(-ε); also on comparator/std3-flat.json."
+    - source: "Theorem 2 (p. 228)"
+      lean: "NumberField.exists_pos_forall_placeProd_le"
+      module: "ChallengeEvertse1984 (statement), SolutionEvertse1984 / Evertse1984.SUnitSums (proof)"
+      status: proved
+    - source: "Theorem 1 (p. 227)"
+      lean: "NumberField.finite_setOf_admissible_sum_eq_zero"
+      module: "ChallengeEvertse1984 (statement), SolutionEvertse1984 / Evertse1984.AdmissiblePoints (proof)"
+      status: proved
+      note: "Without the hypothesis c > 0."
+    - source: "Theorem 1 (p. 227), over every number field"
+      lean: "evertseTheorem1"
+      module: "ChallengeEvertse1984 (statement), SolutionEvertse1984 / Evertse1984.AdmissiblePoints (proof)"
+      status: proved
+    - source: "Corollary 2 (p. 228)"
+      lean: "NumberField.exists_pos_forall_placeProd_iInf_le"
+      module: "ChallengeEvertse1984 (statement), SolutionEvertse1984 / Evertse1984.Corollaries (proof)"
+      status: proved
+    - source: "Corollary 1 (p. 227)"
+      lean: "Rat.finite_setOf_sum_eq_zero_of_gcd_eq_one"
+      module: "ChallengeEvertse1984 (statement), SolutionEvertse1984 / Evertse1984.Corollaries (proof)"
+      status: proved
+      note: "Without the hypothesis c > 0."
+    - source: "Lemma 1 (p. 235)"
+      lean: "NumberField.exists_pos_forall_placeProd_eval_intCast"
+      module: "ChallengeEvertse1984 (statement), SolutionEvertse1984 / Evertse1984.PolynomialValues (proof)"
+      status: proved
+      note: "max(|r|, 1) for |r|."
+    - source: "Lemma 2 (p. 235)"
+      lean: "NumberField.finite_setOf_eval_div_eval_mem_unit"
+      module: "ChallengeEvertse1984 (statement), SolutionEvertse1984 / Evertse1984.GeneralRoots (proof)"
+      status: proved
+    - source: "Theorem 3 (p. 229), roots and polynomials in K"
+      lean: "NumberField.finite_setOf_powerSum_div_mem_unit"
+      module: "ChallengeEvertse1984 (statement), SolutionEvertse1984 / Evertse1984.GeneralRoots (proof)"
+      status: proved
+      note: "S-unit form of P_K(u_r / u_s) → ∞."
+    - source: "Theorem 3 (p. 229), u in K, roots and polynomials in an extension"
+      lean: "NumberField.finite_setOf_div_mem_unit_of_eq_powerSum"
+      module: "ChallengeEvertse1984 (statement), SolutionEvertse1984 / Evertse1984.GeneralRoots (proof)"
+      status: proved
+    - source: "Corollary 3 (p. 229), roots and polynomials in K"
+      lean: "NumberField.finite_setOf_powerSum_mem_unit"
+      module: "ChallengeEvertse1984 (statement), SolutionEvertse1984 / Evertse1984.GeneralRoots (proof)"
+      status: proved
+    - source: "Corollary 3 (p. 229), u in K, roots and polynomials in an extension"
+      lean: "NumberField.finite_setOf_mem_unit_of_eq_powerSum"
+      module: "ChallengeEvertse1984 (statement), SolutionEvertse1984 / Evertse1984.GeneralRoots (proof)"
+      status: proved
+    - source: "Corollary 4 (p. 229), roots and polynomials in K"
+      lean: "NumberField.finite_setOf_powerSum_eq"
+      module: "ChallengeEvertse1984 (statement), SolutionEvertse1984 / Evertse1984.GeneralRoots (proof)"
+      status: proved
+    - source: "Corollary 4 (p. 229), u in K, roots and polynomials in an extension"
+      lean: "NumberField.finite_setOf_eq_of_eq_powerSum"
+      module: "ChallengeEvertse1984 (statement), SolutionEvertse1984 / Evertse1984.GeneralRoots (proof)"
+      status: proved
