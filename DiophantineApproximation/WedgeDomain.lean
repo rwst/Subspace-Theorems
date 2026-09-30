@@ -10,7 +10,7 @@ public import DiophantineApproximation.WedgeForm
 public import Mathlib.Analysis.SpecialFunctions.Log.Base
 
 -- Used only inside proofs.
-import DiophantineApproximation.EvertseLemma
+public import DiophantineApproximation.EvertseLemma
 import Mathlib.LinearAlgebra.Dimension.OrzechProperty
 
 /-!
@@ -212,10 +212,17 @@ private theorem prod_min_le {N k p : ℕ} {μ : ℕ → ℝ} (hμm : MonotoneOn 
     exact Finset.prod_le_prod₀ (fun b _ ↦ hm0 b) fun b _ ↦ min_le_left _ _
 
 
+variable (K) in
+/-- **The constant of the wedge domain**, `N! · max 1 C_E ^ N` for Evertse's constant `C_E` in
+`N` variables. -/
+noncomputable def pluckerConst (N : ℕ) : ℝ :=
+  N.factorial * max 1 (evertseConst (finrank ℚ K * reducedBasisBound K) N) ^ N
+
 variable (K ι) in
 /-- **The wedges of Evertse's vectors lie in the wedge domain** (Bombieri–Gubler 7.5.30, (7.44)
-and (7.45)). -/
+and (7.45)), with the constant `pluckerConst K #ι`. -/
 theorem exists_plucker_mem_approxDomain_wedgeForms : ∃ C : ℝ, 0 < C ∧
+    C = pluckerConst K (Fintype.card ι) ∧
     ∀ (Sfin : Finset (FinitePlace K)) (L : AbsoluteValue K ℝ → ι → Dual K (ι → K)),
     (∀ w : InfinitePlace K, LinearIndependent K (L w.1)) →
     (∀ v ∈ Sfin, LinearIndependent K (L v.1)) →
@@ -232,8 +239,9 @@ theorem exists_plucker_mem_approxDomain_wedgeForms : ∃ C : ℝ, 0 < C ∧
           plucker p ((fun j ↦ x j + ∑ l ∈ Finset.Iio j, ξ j l • x l) ∘
               Set.powersetCard.ofFinEmbEquiv.symm J) ∈
             approxDomain Sfin (fun v ↦ wedgeForms (L v) p) (wedgeExponent c π μ C Q k p) Q := by
-  obtain ⟨CE, hCE, hev⟩ := exists_evertse K ι
-  refine ⟨(Fintype.card ι).factorial * max 1 CE ^ Fintype.card ι, by positivity, ?_⟩
+  obtain ⟨CE, hCE, hCEeq, hev⟩ := exists_evertse K ι
+  refine ⟨(Fintype.card ι).factorial * max 1 CE ^ Fintype.card ι, by positivity,
+    by rw [hCEeq, pluckerConst], ?_⟩
   intro Sfin L hLInf hLFin c Q hQ x hx μ hμm hμp hxm
   classical
   have hQ0 : 0 < Q := by linarith
@@ -541,7 +549,7 @@ theorem exists_successiveMinimum_wedge : ∃ C : ℝ, 0 < C ∧
             (Fintype.card (Set.powersetCard ι p) - 1) *
           (successiveMinimum (approxModule Sfin L c Q) (approxBody L c Q) (k - 1) /
             successiveMinimum (approxModule Sfin L c Q) (approxBody L c Q) k)) ^ finrank ℚ K := by
-  obtain ⟨C, hC, hmem⟩ := exists_plucker_mem_approxDomain_wedgeForms K ι
+  obtain ⟨C, hC, -, hmem⟩ := exists_plucker_mem_approxDomain_wedgeForms K ι
   refine ⟨C, hC, fun Sfin L hLInf hLFin k p hkp hp ↦ ?_⟩
   set M := Fintype.card (Set.powersetCard ι p) with hM
   set N := Fintype.card ι with hN

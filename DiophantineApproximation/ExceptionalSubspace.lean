@@ -36,7 +36,8 @@ pattern, and there are only finitely many patterns.
 
 ## Main results
 
-* `NumberField.exists_finite_forall_logHeight_approxSpan`: **the milestone**, Lemma 7.5.21.
+* `NumberField.exists_finite_forall_logHeight_approxSpan`: **the milestone**, Lemma 7.5.21, with
+  at most `2 ^ (#ι |S|)` exceptional subspaces.
 * `NumberField.exists_finite_forall_mem_of_weightAt_lt`: the exceptional alternative.
 * `NumberField.mem_span_vec_of_normal`: the normal vector of `V(Q)` is carried by its pattern.
 * `NumberField.one_le_mul_rpow_weightAt`: the product formula against the bounds at `S`.
@@ -50,7 +51,8 @@ pattern, and there are only finitely many patterns.
 "there is a linear space `W`, independent of `Π(Q)` and `ε`"; their proof fixes one solution `w`
 of the system `L̂_{v i}(w) = 0`, `i ∉ I_v`, and that system depends on the pattern `(I_v)`, which
 moves with `Q`. What is true is that there are finitely many patterns and hence finitely many
-exceptional subspaces, which is all Step IV consumes. A formal statement with a single `W` is not
+exceptional subspaces, which is all Step IV consumes: a pattern is a subset of `ι` at each place
+of `S`, so there are at most `2 ^ (#ι |S|)` of them. A formal statement with a single `W` is not
 what the proof gives.
 
 ⚠ **The system is an intersection of spans of coefficient vectors, and no star operator appears.**
@@ -202,6 +204,77 @@ theorem one_le_mul_rpow_weightAt {Q : ℝ} (hQ : 1 ≤ Q) {D : K} (hD : D ≠ 0)
     simp only [Nat.cast_one, mul_one]
     exact congrArg₂ _ (Finset.sum_congr rfl fun w _ ↦ by ring) rfl
 
+omit [Fintype ι] in
+/-- The product of the local bounds `A * Q ^ c v (k v)` over the places of `S` is
+`A ^ (d + |S₀|) * Q ^ weightAt`. -/
+theorem prod_mul_rpow_eq_mul_rpow_weightAt {Q : ℝ} (hQ : 0 < Q) (A : ℝ)
+    (k : AbsoluteValue K ℝ → ι) :
+    (∏ w : InfinitePlace K, (A * Q ^ c w.1 (k w.1)) ^ w.mult)
+      * ∏ w ∈ S₀, (A * Q ^ c w.1 (k w.1)) ^ (fun _ ↦ 1 : FinitePlace K → ℕ) w
+      = A ^ (Height.totalWeight K + #S₀) * Q ^ weightAt S₀ c k := by
+  rw [prod_mul_rpow_pow hQ univ (fun w : InfinitePlace K ↦ c w.1 (k w.1)) (fun w ↦ w.mult),
+    prod_mul_rpow_pow hQ S₀ (fun w : FinitePlace K ↦ c w.1 (k w.1)) (fun _ ↦ 1),
+    mul_mul_mul_comm, ← pow_add, ← Real.rpow_add hQ]
+  refine congrArg₂ _ (congrArg _ ?_) (congrArg _ ?_)
+  · rw [← NumberField.totalWeight_eq_sum_mult K, Finset.sum_const, smul_eq_mul, mul_one]
+  · rw [weightAt]
+    simp only [Nat.cast_one, mul_one]
+    exact congrArg₂ _ (Finset.sum_congr rfl fun w _ ↦ by ring) rfl
+
+omit [Fintype ι] in
+/-- **The product formula against the bounds at the places of `S`, with a height.** If a nonzero
+element of `K` is at most `A * ‖ζ‖_v * Q ^ c v (k v)` at each place of `S` and at most `‖ζ‖_v`
+at the other finite places, for a nonzero tuple `ζ` with `‖ζ‖_v = max_i v (ζ i)`, then `1` is at
+most `A` to the number of places times `H(ζ)` times `Q` to the weight along `k`. -/
+theorem one_le_mul_mulHeight_rpow_weightAt {κ : Type*} [Finite κ] {Q : ℝ} (hQ : 1 ≤ Q) {D : K}
+    (hD : D ≠ 0) {A : ℝ} (hA : 1 ≤ A) {ζ : κ → K} (hζ : ζ ≠ 0) {k : AbsoluteValue K ℝ → ι}
+    (hI : ∀ w : InfinitePlace K, w D ≤ A * (⨆ i, w (ζ i)) * Q ^ c w.1 (k w.1))
+    (hF : ∀ w ∈ S₀, w D ≤ A * (⨆ i, w (ζ i)) * Q ^ c w.1 (k w.1))
+    (hO : ∀ w : FinitePlace K, w ∉ S₀ → w D ≤ ⨆ i, w (ζ i)) :
+    (1 : ℝ) ≤ A ^ (Height.totalWeight K + #S₀) * Height.mulHeight ζ * Q ^ weightAt S₀ c k := by
+  classical
+  have hQ0 : (0 : ℝ) < Q := by linarith
+  have hnn : ∀ v : AbsoluteValue K ℝ, (0 : ℝ) ≤ ⨆ i, v (ζ i) :=
+    fun v ↦ Real.iSup_nonneg fun i ↦ v.nonneg _
+  set g : FinitePlace K → ℝ := fun w ↦ if w ∈ S₀ then A * Q ^ c w.1 (k w.1) else 1 with hg
+  have hgsub : Function.mulSupport g ⊆ (S₀ : Set (FinitePlace K)) := fun w hw ↦ by
+    by_contra h
+    exact hw (by simp only [g, ite_eq_right_iff]; exact fun h' ↦ absurd h' h)
+  have hgsupp : g.HasFiniteMulSupport := S₀.finite_toSet.subset hgsub
+  have hζsupp := FinitePlace.hasFiniteMulSupport_iSup hζ
+  have hfin : ∀ w : FinitePlace K, w D ≤ g w * ⨆ i, w (ζ i) := fun w ↦ by
+    by_cases hw : w ∈ S₀
+    · simp only [g, hw, ↓reduceIte]
+      exact (hF w hw).trans_eq (mul_right_comm _ _ _)
+    · simp only [g, hw, ↓reduceIte, one_mul]
+      exact hO w hw
+  have hpf := NumberField.prod_abs_eq_one hD
+  have h1 : (∏ w : InfinitePlace K, w D ^ w.mult)
+      ≤ ∏ w : InfinitePlace K, ((A * Q ^ c w.1 (k w.1)) * ⨆ i, w (ζ i)) ^ w.mult :=
+    Finset.prod_le_prod₀ (fun w _ ↦ pow_nonneg (w.1.nonneg _) _)
+      fun w _ ↦ pow_le_pow_left₀ (w.1.nonneg _) ((hI w).trans_eq (mul_right_comm _ _ _)) _
+  have h2 : (∏ᶠ w : FinitePlace K, w D) ≤ (∏ᶠ w, g w) * ∏ᶠ w : FinitePlace K, ⨆ i, w (ζ i) := by
+    rw [← finprod_mul_distrib hgsupp hζsupp]
+    exact finprod_le_finprod₀ (FinitePlace.hasFiniteMulSupport hD) (fun w ↦ w.1.nonneg _)
+      ((hgsupp.union hζsupp).subset (Function.mulSupport_mul _ _)) hfin
+  have hgS : ∏ᶠ w, g w
+      = ∏ w ∈ S₀, (A * Q ^ c w.1 (k w.1)) ^ (fun _ ↦ 1 : FinitePlace K → ℕ) w := by
+    rw [finprod_eq_prod_of_mulSupport_subset g hgsub]
+    exact Finset.prod_congr rfl fun w hw ↦ by simp [g, hw]
+  have hsplit : ∏ w : InfinitePlace K, ((A * Q ^ c w.1 (k w.1)) * ⨆ i, w (ζ i)) ^ w.mult
+      = (∏ w : InfinitePlace K, (A * Q ^ c w.1 (k w.1)) ^ w.mult)
+        * ∏ w : InfinitePlace K, (⨆ i, w (ζ i)) ^ w.mult := by
+    rw [← Finset.prod_mul_distrib]
+    exact Finset.prod_congr rfl fun w _ ↦ mul_pow _ _ _
+  have hpos : (0 : ℝ) ≤ ∏ w : InfinitePlace K, ((A * Q ^ c w.1 (k w.1)) * ⨆ i, w (ζ i)) ^ w.mult :=
+    Finset.prod_nonneg fun w _ ↦ pow_nonneg (mul_nonneg (by positivity) (hnn w.1)) _
+  have h3 := mul_le_mul h1 h2 (finprod_nonneg fun w ↦ w.1.nonneg _) hpos
+  rw [hpf, hsplit, hgS] at h3
+  rw [NumberField.mulHeight_eq hζ, mul_right_comm,
+    ← prod_mul_rpow_eq_mul_rpow_weightAt hQ0 A k]
+  refine h3.trans (le_of_eq ?_)
+  ring
+
 variable {n : ℕ} [LinearOrder ι]
 
 omit [NumberField K] in
@@ -277,76 +350,71 @@ def patternSpace (S₀ : Finset (FinitePlace K)) (L : AbsoluteValue K ℝ → ι
     ⊓ ⨅ w : {w : FinitePlace K // w ∈ S₀},
       Submodule.span K (Set.range fun i : {i : ι // i ∈ p.2 w} ↦ (L w.1.1 i.1).vec)
 
-/-- **A vector of a pattern space is a bounded combination of the forms it is carried by.** -/
-theorem exists_one_le_forall_apply_dotProduct_le
-    (p : (InfinitePlace K → Finset ι) × ({w : FinitePlace K // w ∈ S₀} → Finset ι))
-    {ζ : ι → K} (hζ : ζ ∈ patternSpace S₀ L p) :
-    ∃ A : ℝ, 1 ≤ A ∧
-      (∀ (w : InfinitePlace K) (x : ι → K) (b : ℝ), 0 ≤ b →
-        (∀ i ∈ p.1 w, w (L w.1 i x) ≤ b) → w (ζ ⬝ᵥ x) ≤ A * b) ∧
-      ∀ (w : {w : FinitePlace K // w ∈ S₀}) (x : ι → K) (b : ℝ), 0 ≤ b →
-        (∀ i ∈ p.2 w, w.1.1 (L w.1.1 i x) ≤ b) → w.1.1 (ζ ⬝ᵥ x) ≤ A * b := by
+omit [NumberField K] [Nonempty ι] in
+/-- **A vector in the span of some of the forms is bounded by those forms and its own size.**
+If `ζ` is a combination of the coefficient vectors of the forms `l i`, `i ∈ T`, and these forms are
+at most `b` at `x`, then `v (ζ ⬝ x) ≤ #ι · invFormBound v l · max_k v (ζ k) · b`. -/
+theorem apply_dotProduct_le_of_mem_span_vec (v : AbsoluteValue K ℝ) {l : ι → Dual K (ι → K)}
+    (hl : LinearIndependent K l) (T : Finset ι) {ζ : ι → K}
+    (hζ : ζ ∈ Submodule.span K (Set.range fun i : {i : ι // i ∈ T} ↦ (l i.1).vec)) (x : ι → K)
+    {b : ℝ} (hb : 0 ≤ b) (hx : ∀ i ∈ T, v (l i x) ≤ b) :
+    v (ζ ⬝ᵥ x) ≤ Fintype.card ι * invFormBound v l * (⨆ k, v (ζ k)) * b := by
   classical
-  choose βI hβI using fun w : InfinitePlace K ↦
-    (Submodule.mem_span_range_iff_exists_fun K).mp (Submodule.mem_iInf _ |>.mp hζ.1 w)
-  choose βF hβF using fun w : {w : FinitePlace K // w ∈ S₀} ↦
-    (Submodule.mem_span_range_iff_exists_fun K).mp (Submodule.mem_iInf _ |>.mp hζ.2 w)
-  obtain ⟨A₁, hA₁, hA₁le⟩ := Finset.exists_one_le_forall_le
-    (univ : Finset ((w : InfinitePlace K) × {i : ι // i ∈ p.1 w}))
-    fun q ↦ q.1 (βI q.1 q.2)
-  obtain ⟨A₂, hA₂, hA₂le⟩ := Finset.exists_one_le_forall_le
-    (univ : Finset ((w : {w : FinitePlace K // w ∈ S₀}) × {i : ι // i ∈ p.2 w}))
-    fun q ↦ q.1.1.1 (βF q.1 q.2)
-  have hdotI : ∀ (w : InfinitePlace K) (x : ι → K),
-      ζ ⬝ᵥ x = ∑ i : {i : ι // i ∈ p.1 w}, βI w i * L w.1 i.1 x := by
-    intro w x
-    rw [← hβI w, _root_.sum_dotProduct]
+  obtain ⟨β, hβ⟩ := (Submodule.mem_span_range_iff_exists_fun K).mp hζ
+  set β' : ι → K := fun i ↦ if h : i ∈ T then β ⟨i, h⟩ else 0 with hβ'
+  refine apply_dotProduct_le_of_forall_eq_sum v hl (T := T) (β := β')
+    (fun i hi ↦ by simp [β', hi]) (fun x' ↦ ?_) x hb hx
+  rw [← hβ, _root_.sum_dotProduct]
+  have h1 : ∑ i : {i : ι // i ∈ T}, (β i • (l i.1).vec) ⬝ᵥ x' = ∑ i ∈ T, β' i * l i x' := by
+    rw [← Finset.sum_coe_sort T (fun i ↦ β' i * l i x')]
     exact Finset.sum_congr rfl fun i _ ↦ by
       rw [smul_dotProduct, smul_eq_mul, Module.Dual.vec_dotProduct]
-  have hdotF : ∀ (w : {w : FinitePlace K // w ∈ S₀}) (x : ι → K),
-      ζ ⬝ᵥ x = ∑ i : {i : ι // i ∈ p.2 w}, βF w i * L w.1.1 i.1 x := by
-    intro w x
-    rw [← hβF w, _root_.sum_dotProduct]
-    exact Finset.sum_congr rfl fun i _ ↦ by
-      rw [smul_dotProduct, smul_eq_mul, Module.Dual.vec_dotProduct]
-  have hcard1 : (1 : ℝ) ≤ (Fintype.card ι : ℝ) := by
-    exact_mod_cast Nat.one_le_iff_ne_zero.mpr Fintype.card_ne_zero
-  have hA₁0 : (0 : ℝ) ≤ A₁ := by linarith
-  have hA₂0 : (0 : ℝ) ≤ A₂ := by linarith
-  have hprod : (1 : ℝ) ≤ (Fintype.card ι : ℝ) * (A₁ * A₂) := by
-    have h12 : (1 : ℝ) ≤ A₁ * A₂ := by
-      calc (1 : ℝ) = 1 * 1 := (one_mul 1).symm
-        _ ≤ A₁ * A₂ := mul_le_mul hA₁ hA₂ zero_le_one hA₁0
-    calc (1 : ℝ) = 1 * 1 := (one_mul 1).symm
-      _ ≤ (Fintype.card ι : ℝ) * (A₁ * A₂) :=
-        mul_le_mul hcard1 h12 zero_le_one (by linarith)
-  refine ⟨(Fintype.card ι : ℝ) * (A₁ * A₂), hprod, fun w x b hb hx ↦ ?_, fun w x b hb hx ↦ ?_⟩
-  · rw [hdotI w x]
-    refine le_trans (AbsoluteValue.apply_sum_le_of_le w.1 _ _ (b := A₁ * b) fun i _ ↦ ?_) ?_
-    · rw [map_mul]
-      exact mul_le_mul (hA₁le ⟨w, i⟩ (mem_univ _)) (hx i.1 i.2) (w.1.nonneg _) hA₁0
-    · have hcard : ((#(univ : Finset {i : ι // i ∈ p.1 w}) : ℝ)) ≤ (Fintype.card ι : ℝ) := by
-        rw [Finset.card_univ, Fintype.card_coe]
-        exact_mod_cast Finset.card_le_univ (p.1 w)
-      have h3 : (#(univ : Finset {i : ι // i ∈ p.1 w}) : ℝ) * A₁
-          ≤ (Fintype.card ι : ℝ) * (A₁ * A₂) :=
-        le_trans (mul_le_mul_of_nonneg_right hcard hA₁0)
-          (mul_le_mul_of_nonneg_left (le_mul_of_one_le_right hA₁0 hA₂) (Nat.cast_nonneg _))
-      calc (#(univ : Finset {i : ι // i ∈ p.1 w}) : ℝ) * (A₁ * b)
-          = ((#(univ : Finset {i : ι // i ∈ p.1 w}) : ℝ) * A₁) * b := by ring
-        _ ≤ ((Fintype.card ι : ℝ) * (A₁ * A₂)) * b := mul_le_mul_of_nonneg_right h3 hb
-  · rw [hdotF w x]
-    refine le_trans (AbsoluteValue.apply_sum_le_of_le_of_isNonarchimedean
-      (fun a b' ↦ w.1.add_le a b') _ _ (b := A₂ * b) (mul_nonneg hA₂0 hb) fun i _ ↦ ?_) ?_
-    · rw [map_mul]
-      exact mul_le_mul (hA₂le ⟨w, i⟩ (mem_univ _)) (hx i.1 i.2) (w.1.1.nonneg _) hA₂0
-    · have h3 : A₂ ≤ (Fintype.card ι : ℝ) * (A₁ * A₂) := by
-        calc A₂ = 1 * A₂ := (one_mul _).symm
-          _ ≤ ((Fintype.card ι : ℝ) * A₁) * A₂ :=
-            mul_le_mul_of_nonneg_right
-              (le_trans hcard1 (le_mul_of_one_le_right (by linarith) hA₁)) hA₂0
-          _ = (Fintype.card ι : ℝ) * (A₁ * A₂) := by ring
-      exact mul_le_mul_of_nonneg_right h3 hb
+      simp [β', i.2]
+  rw [h1]
+  exact Finset.sum_subset (Finset.subset_univ T) fun i _ hi ↦ by simp [β', hi]
+
+variable (S₀ L) in
+/-- **The least height of a nonzero vector of a pattern space**, or `0` if there is none. -/
+def patternHeight
+    (p : (InfinitePlace K → Finset ι) × ({w : FinitePlace K // w ∈ S₀} → Finset ι)) : ℝ :=
+  sInf ((fun ζ ↦ Height.mulHeight ζ) '' {ζ | ζ ∈ patternSpace S₀ L p ∧ ζ ≠ 0})
+
+variable (S₀ L) in
+open scoped Classical in
+/-- **The bound on the heights of the chosen pattern vectors**: the sum over all patterns of
+`max 1 (patternHeight p)`. -/
+def patternHeightBound : ℝ :=
+  ∑ p : (InfinitePlace K → Finset ι) × ({w : FinitePlace K // w ∈ S₀} → Finset ι),
+    max 1 (patternHeight S₀ L p)
+
+variable (S₀ L) in
+/-- **The constant of the pattern vectors**: `#ι (1 + ∑_{v ∈ S} invFormBound v (L v))`. -/
+def patternConst : ℝ :=
+  Fintype.card ι * (1 + ∑ w : InfinitePlace K, invFormBound w.1 (L w.1)
+    + ∑ w : {w : FinitePlace K // w ∈ S₀}, invFormBound w.1.1 (L w.1.1))
+
+omit [Nonempty ι] in
+open scoped Classical in
+/-- **A pattern space that is not zero holds a nonzero vector of height at most twice the
+least.** -/
+theorem exists_mem_patternSpace_mulHeight_le
+    (p : (InfinitePlace K → Finset ι) × ({w : FinitePlace K // w ∈ S₀} → Finset ι))
+    (h : ∃ ξ ∈ patternSpace S₀ L p, ξ ≠ 0) :
+    ∃ ζ ∈ patternSpace S₀ L p, ζ ≠ 0 ∧ Height.mulHeight ζ ≤ 2 * patternHeightBound S₀ L := by
+  classical
+  set U : Set ℝ := (fun ζ ↦ Height.mulHeight ζ) '' {ζ | ζ ∈ patternSpace S₀ L p ∧ ζ ≠ 0}
+  have hUne : U.Nonempty := by
+    obtain ⟨ξ, hξ, hξ0⟩ := h
+    exact ⟨_, ξ, ⟨hξ, hξ0⟩, rfl⟩
+  have hinf1 : 1 ≤ patternHeight S₀ L p :=
+    le_csInf hUne (by rintro _ ⟨ζ, -, rfl⟩; exact Height.one_le_mulHeight _)
+  obtain ⟨_, ⟨ζ, ⟨hζ, hζ0⟩, rfl⟩, hlt⟩ :=
+    exists_lt_of_csInf_lt hUne (lt_two_mul_self (by linarith) : patternHeight S₀ L p < _)
+  refine ⟨ζ, hζ, hζ0, hlt.le.trans ?_⟩
+  have hle : max 1 (patternHeight S₀ L p) ≤ patternHeightBound S₀ L :=
+    Finset.single_le_sum (f := fun p ↦ max 1 (patternHeight S₀ L p))
+      (fun p _ ↦ zero_le_one.trans (le_max_left _ _)) (Finset.mem_univ p)
+  linarith [le_max_right 1 (patternHeight S₀ L p)]
 
 /-- **The exceptional subspaces** (Bombieri–Gubler, Lemma 7.5.21). There is a finite set of
 subspaces, depending only on the forms and on `S`, and a constant `C₄`, such that whenever the
@@ -357,6 +425,9 @@ theorem exists_finite_forall_mem_of_weightAt_lt {n : ℕ} (hlk : 1 + n = Fintype
     (hLfin : ∀ w ∈ S₀, LinearIndependent K (L w.1))
     {ε : ℝ} (hε : 0 < ε) :
     ∃ (𝒲 : Set (Submodule K (ι → K))) (C₄ : ℝ), 𝒲.Finite ∧
+      𝒲.ncard ≤ 2 ^ (Fintype.card ι * (Fintype.card (InfinitePlace K) + #S₀)) ∧
+      C₄ = 4 * ((Height.totalWeight K + #S₀ : ℕ) * Real.log (patternConst S₀ L)
+        + Real.log (2 * patternHeightBound S₀ L)) + 1 ∧
       ∀ Q : ℝ, 1 ≤ Q → C₄ / ε ≤ Real.log Q →
       ∀ y : Fin n → ι → K, LinearIndependent K y →
         (∀ j, y j ∈ approxDomain S₀ L c Q) →
@@ -371,27 +442,48 @@ theorem exists_finite_forall_mem_of_weightAt_lt {n : ℕ} (hlk : 1 + n = Fintype
           Submodule.span K (Set.range y) ∈ 𝒲 := by
   classical
   have hchoice : ∀ p : (InfinitePlace K → Finset ι) × ({w : FinitePlace K // w ∈ S₀} → Finset ι),
-      ∃ (ζ : ι → K) (A : ℝ), 1 ≤ A ∧
-      ((∃ ξ ∈ patternSpace S₀ L p, ξ ≠ 0) →
-        (ζ ≠ 0 ∧ (∀ (w : FinitePlace K) (i : ι), w (ζ i) ≤ 1) ∧
-          (∀ (w : InfinitePlace K) (x : ι → K) (b : ℝ), 0 ≤ b →
-             (∀ i ∈ p.1 w, w (L w.1 i x) ≤ b) → w (ζ ⬝ᵥ x) ≤ A * b) ∧
-          ∀ (w : {w : FinitePlace K // w ∈ S₀}) (x : ι → K) (b : ℝ), 0 ≤ b →
-             (∀ i ∈ p.2 w, w.1.1 (L w.1.1 i x) ≤ b) → w.1.1 (ζ ⬝ᵥ x) ≤ A * b)) := by
+      ∃ ζ : ι → K, (∃ ξ ∈ patternSpace S₀ L p, ξ ≠ 0) →
+        ζ ∈ patternSpace S₀ L p ∧ ζ ≠ 0 ∧ Height.mulHeight ζ ≤ 2 * patternHeightBound S₀ L := by
     intro p
     by_cases h : ∃ ξ ∈ patternSpace S₀ L p, ξ ≠ 0
-    · obtain ⟨ξ, hξU, hξ0⟩ := h
-      obtain ⟨lam, hlam0, hlam⟩ := NumberField.exists_smul_apply_le_one ξ
-      have hζU : lam • ξ ∈ patternSpace S₀ L p := Submodule.smul_mem _ _ hξU
-      obtain ⟨A, hA1, hAI, hAF⟩ := exists_one_le_forall_apply_dotProduct_le p hζU
-      exact ⟨lam • ξ, A, hA1, fun _ ↦ ⟨smul_ne_zero hlam0 hξ0,
-        fun w i ↦ by simpa [Pi.smul_apply, smul_eq_mul] using hlam w i, hAI, hAF⟩⟩
-    · exact ⟨0, 1, le_rfl, fun hc ↦ absurd hc h⟩
-  choose ζ A hA1 hdata using hchoice
-  obtain ⟨A₀, hA₀1, hA₀⟩ := Finset.exists_one_le_forall_le univ A
+    · obtain ⟨ζ, hζ, hζ0, hH⟩ := exists_mem_patternSpace_mulHeight_le p h
+      exact ⟨ζ, fun _ ↦ ⟨hζ, hζ0, hH⟩⟩
+    · exact ⟨0, fun hc ↦ absurd hc h⟩
+  choose ζ hdata using hchoice
   set m : ℕ := Height.totalWeight K + #S₀ with hm
+  set A := patternConst S₀ L with hAdef
+  set HB := patternHeightBound S₀ L with hHB
+  have hIFB : ∀ v : AbsoluteValue K ℝ, LinearIndependent K (L v) → 0 ≤ invFormBound v (L v) :=
+    fun v _ ↦ by rw [invFormBound]; positivity
+  have hsumI : 0 ≤ ∑ w : InfinitePlace K, invFormBound w.1 (L w.1) :=
+    Finset.sum_nonneg fun w _ ↦ hIFB _ (hLinf w)
+  have hsumF : 0 ≤ ∑ w : {w : FinitePlace K // w ∈ S₀}, invFormBound w.1.1 (L w.1.1) :=
+    Finset.sum_nonneg fun w _ ↦ hIFB _ (hLfin w.1 w.2)
+  have hN1 : (1 : ℝ) ≤ Fintype.card ι := by
+    exact_mod_cast Nat.one_le_iff_ne_zero.mpr Fintype.card_ne_zero
+  have hA1 : 1 ≤ A := by
+    rw [hAdef, patternConst]
+    nlinarith
+  have hAI : ∀ w : InfinitePlace K, Fintype.card ι * invFormBound w.1 (L w.1) ≤ A := by
+    intro w
+    rw [hAdef, patternConst]
+    have := Finset.single_le_sum (f := fun w : InfinitePlace K ↦ invFormBound w.1 (L w.1))
+      (fun w _ ↦ hIFB _ (hLinf w)) (Finset.mem_univ w)
+    exact mul_le_mul_of_nonneg_left (by linarith) (Nat.cast_nonneg _)
+  have hAF : ∀ w : {w : FinitePlace K // w ∈ S₀},
+      Fintype.card ι * invFormBound w.1.1 (L w.1.1) ≤ A := by
+    intro w
+    rw [hAdef, patternConst]
+    have := Finset.single_le_sum
+      (f := fun w : {w : FinitePlace K // w ∈ S₀} ↦ invFormBound w.1.1 (L w.1.1))
+      (fun w _ ↦ hIFB _ (hLfin w.1 w.2)) (Finset.mem_univ w)
+    exact mul_le_mul_of_nonneg_left (by linarith) (Nat.cast_nonneg _)
   refine ⟨Set.range fun p ↦ LinearMap.ker (Module.piEquiv ι K K (ζ p)),
-    4 * (m : ℝ) * Real.log A₀ + 1, Set.finite_range _, ?_⟩
+    4 * ((m : ℝ) * Real.log A + Real.log (2 * HB)) + 1, Set.finite_range _, ?_, rfl, ?_⟩
+  · rw [← Set.image_univ, ← Finset.coe_univ, ← Finset.coe_image, Set.ncard_coe_finset]
+    refine Finset.card_image_le.trans (le_of_eq ?_)
+    rw [Finset.card_univ, Fintype.card_prod, Fintype.card_fun, Fintype.card_fun,
+      Fintype.card_finset, Fintype.card_coe, ← pow_add, ← pow_mul, mul_add]
   intro Q hQ hQlarge y hyli hy k hkI hkF hbad
   have hQ0 : (0 : ℝ) < Q := by linarith
   set T : AbsoluteValue K ℝ → Finset ι := fun v ↦
@@ -409,48 +501,60 @@ theorem exists_finite_forall_mem_of_weightAt_lt {n : ℕ} (hlk : 1 + n = Fintype
     refine ⟨Submodule.mem_iInf _ |>.mpr fun w ↦ ?_, Submodule.mem_iInf _ |>.mpr fun w ↦ ?_⟩
     · exact mem_span_vec_of_normal hyli rfl hlk hζQker (hLinf w) (T w.1) (hmemT w.1)
     · exact mem_span_vec_of_normal hyli rfl hlk hζQker (hLfin w.1 w.2) (T w.1.1) (hmemT w.1.1)
-  obtain ⟨hζ0, hζint, hζI, hζF⟩ := hdata p₀ ⟨ζQ, hζQU, hζQ0⟩
+  obtain ⟨hζU, hζ0, hζH⟩ := hdata p₀ ⟨ζQ, hζQU, hζQ0⟩
   have hvanish : ∀ j, ζ p₀ ⬝ᵥ y j = 0 := by
     intro j
     by_contra hne
-    have hI : ∀ w : InfinitePlace K, w (ζ p₀ ⬝ᵥ y j) ≤ A₀ * Q ^ c w.1 (k w.1) := by
+    have hnn : ∀ v : AbsoluteValue K ℝ, (0 : ℝ) ≤ ⨆ i, v (ζ p₀ i) :=
+      fun v ↦ Real.iSup_nonneg fun i ↦ v.nonneg _
+    have hI : ∀ w : InfinitePlace K,
+        w (ζ p₀ ⬝ᵥ y j) ≤ A * (⨆ i, w (ζ p₀ i)) * Q ^ c w.1 (k w.1) := by
       intro w
-      refine le_trans (hζI w (y j) (Q ^ c w.1 (k w.1))
-        (Real.rpow_nonneg hQ0.le _) fun i hi ↦ ?_) ?_
+      refine (apply_dotProduct_le_of_mem_span_vec w.1 (hLinf w) (T w.1)
+        (Submodule.mem_iInf _ |>.mp hζU.1 w) (y j) (b := Q ^ c w.1 (k w.1))
+        (Real.rpow_nonneg hQ0.le _)
+        fun i hi ↦ ?_).trans ?_
       · exact le_trans ((hy j).1 w i)
           (Real.rpow_le_rpow_of_exponent_le hQ (hkI w i ((hmemT w.1 i).mp hi)))
-      · exact mul_le_mul_of_nonneg_right (hA₀ p₀ (mem_univ _)) (Real.rpow_nonneg hQ0.le _)
-    have hF : ∀ w ∈ S₀, w (ζ p₀ ⬝ᵥ y j) ≤ A₀ * Q ^ c w.1 (k w.1) := by
+      · exact mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right (hAI w) (hnn w.1))
+          (Real.rpow_nonneg hQ0.le _)
+    have hF : ∀ w ∈ S₀, w (ζ p₀ ⬝ᵥ y j) ≤ A * (⨆ i, w (ζ p₀ i)) * Q ^ c w.1 (k w.1) := by
       intro w hw
-      refine le_trans (hζF ⟨w, hw⟩ (y j) (Q ^ c w.1 (k w.1))
-        (Real.rpow_nonneg hQ0.le _) fun i hi ↦ ?_) ?_
+      refine (apply_dotProduct_le_of_mem_span_vec w.1 (hLfin w hw) (T w.1)
+        (Submodule.mem_iInf _ |>.mp hζU.2 ⟨w, hw⟩) (y j) (b := Q ^ c w.1 (k w.1))
+        (Real.rpow_nonneg hQ0.le _)
+        fun i hi ↦ ?_).trans ?_
       · exact le_trans ((hy j).2.1 w hw i)
           (Real.rpow_le_rpow_of_exponent_le hQ (hkF w hw i ((hmemT w.1 i).mp hi)))
-      · exact mul_le_mul_of_nonneg_right (hA₀ p₀ (mem_univ _)) (Real.rpow_nonneg hQ0.le _)
-    have hO : ∀ w : FinitePlace K, w ∉ S₀ → w (ζ p₀ ⬝ᵥ y j) ≤ 1 := by
+      · exact mul_le_mul_of_nonneg_right
+          (mul_le_mul_of_nonneg_right (hAF ⟨w, hw⟩) (hnn w.1)) (Real.rpow_nonneg hQ0.le _)
+    have hO : ∀ w : FinitePlace K, w ∉ S₀ → w (ζ p₀ ⬝ᵥ y j) ≤ ⨆ i, w (ζ p₀ i) := by
       intro w hw
       rw [dotProduct]
       refine AbsoluteValue.apply_sum_le_of_le_of_isNonarchimedean (fun a b ↦ w.add_le a b)
-        univ _ zero_le_one fun i _ ↦ ?_
+        univ _ (hnn w.1) fun i _ ↦ ?_
       rw [map_mul]
-      have hmul := mul_le_mul (hζint w i) ((hy j).2.2 w hw i) (w.1.nonneg _) zero_le_one
-      rwa [one_mul] at hmul
-    have hone := one_le_mul_rpow_weightAt (c := c) hQ hne hA₀1 hI hF hO
+      have h1 : w (ζ p₀ i) ≤ ⨆ i, w (ζ p₀ i) := Finite.le_ciSup_of_le i le_rfl
+      have hmul := mul_le_mul h1 ((hy j).2.2 w hw i) (w.1.nonneg _) (hnn w.1)
+      rwa [mul_one] at hmul
+    have hone := one_le_mul_mulHeight_rpow_weightAt (c := c) hQ hne hA1 hζ0 hI hF hO
     have hstep : Q ^ weightAt S₀ c k ≤ Q ^ (-ε / 4) :=
       Real.rpow_le_rpow_of_exponent_le hQ hbad.le
-    have hApos : (0 : ℝ) < (A₀ : ℝ) ^ m := pow_pos (by linarith) _
-    have h2 : (1 : ℝ) ≤ A₀ ^ m * Q ^ (-ε / 4) :=
-      le_trans hone (mul_le_mul_of_nonneg_left hstep hApos.le)
-    have h3 : Q ^ (ε / 4) ≤ A₀ ^ m := by
+    have hApos : (0 : ℝ) < A ^ m := pow_pos (by linarith) _
+    have hH1 : (1 : ℝ) ≤ Height.mulHeight (ζ p₀) := Height.one_le_mulHeight _
+    have hHB : (0 : ℝ) < 2 * HB := by linarith
+    have h2 : (1 : ℝ) ≤ A ^ m * (2 * HB) * Q ^ (-ε / 4) :=
+      le_trans hone (mul_le_mul (mul_le_mul_of_nonneg_left hζH hApos.le) hstep
+        (Real.rpow_nonneg hQ0.le _) (mul_nonneg hApos.le hHB.le))
+    have h3 : Q ^ (ε / 4) ≤ A ^ m * (2 * HB) := by
       rw [show (-ε / 4 : ℝ) = -(ε / 4) by ring, Real.rpow_neg hQ0.le] at h2
       have hp : (0 : ℝ) < Q ^ (ε / 4) := Real.rpow_pos_of_pos hQ0 _
       have hmul := mul_le_mul_of_nonneg_right h2 hp.le
       rwa [one_mul, mul_assoc, inv_mul_cancel₀ hp.ne', mul_one] at hmul
-    have h4 : (ε / 4) * Real.log Q ≤ (m : ℝ) * Real.log A₀ := by
+    have h4 : (ε / 4) * Real.log Q ≤ (m : ℝ) * Real.log A + Real.log (2 * HB) := by
       have := Real.log_le_log (Real.rpow_pos_of_pos hQ0 (ε / 4)) h3
-      rwa [Real.log_rpow hQ0, Real.log_pow] at this
-    have hlogA : (0 : ℝ) ≤ Real.log A₀ := Real.log_nonneg hA₀1
-    have h5 : (4 * (m : ℝ) * Real.log A₀ + 1) / ε ≤ Real.log Q := hQlarge
+      rwa [Real.log_rpow hQ0, Real.log_mul hApos.ne' hHB.ne', Real.log_pow] at this
+    have h5 : (4 * ((m : ℝ) * Real.log A + Real.log (2 * HB)) + 1) / ε ≤ Real.log Q := hQlarge
     rw [div_le_iff₀ hε] at h5
     nlinarith
   have hVrank : Module.finrank K (Submodule.span K (Set.range y)) = n :=
@@ -487,6 +591,11 @@ theorem exists_finite_forall_logHeight_approxSpan {n : ℕ} (hlk : 1 + n = Finty
     (hLfin : ∀ w ∈ S₀, LinearIndependent K (L w.1))
     {ε : ℝ} (hε : 0 < ε) (hweight : approxWeight S₀ c ≤ -ε / 2) :
     ∃ (𝒲 : Set (Submodule K (ι → K))) (C₄ C₅ C₆ : ℝ), 𝒲.Finite ∧
+      𝒲.ncard ≤ 2 ^ (Fintype.card ι * (Fintype.card (InfinitePlace K) + #S₀)) ∧
+      C₄ = 4 * ((Height.totalWeight K + #S₀ : ℕ) * Real.log (patternConst S₀ L)
+        + Real.log (2 * patternHeightBound S₀ L)) + 1 ∧
+      C₅ = |((Fintype.card (InfinitePlace K) + #S₀ : ℕ) : ℝ) * Real.log (normalKappa n S₀ L)⁻¹
+        + (Height.totalWeight K : ℝ) * Real.log n.factorial| ∧
       ∀ Q : ℝ, 1 ≤ Q → C₄ / ε ≤ Real.log Q →
         Module.finrank K (approxSpan S₀ L c Q) = n →
           approxSpan S₀ L c Q ∈ 𝒲 ∨
@@ -496,15 +605,17 @@ theorem exists_finite_forall_logHeight_approxSpan {n : ℕ} (hlk : 1 + n = Finty
                 ≤ (n : ℝ) * (∑ w : InfinitePlace K, (w.mult : ℝ) * cMax c w.1
                     + ∑ w ∈ S₀, cMax c w.1) * Real.log Q + C₆) := by
   classical
-  obtain ⟨𝒲, C₄, h𝒲fin, hexc⟩ := exists_finite_forall_mem_of_weightAt_lt (c := c) hlk hLinf hLfin hε
+  obtain ⟨𝒲, C₄, h𝒲fin, h𝒲card, hC₄eq, hexc⟩ :=
+    exists_finite_forall_mem_of_weightAt_lt (c := c) hlk hLinf hLfin hε
   obtain ⟨C₆, hC₆1, hC₆⟩ := exists_one_le_forall_mulHeight_plucker_le (c := c) hLinf hLfin
-  obtain ⟨κ, hκ0, hκ⟩ := exists_pos_forall_prod_le (c := c) hlk hLinf hLfin
+  obtain ⟨κ, hκ0, hκeq, hκ⟩ := exists_pos_forall_prod_le (c := c) hlk hLinf hLfin
   set NS : ℕ := Fintype.card (InfinitePlace K) + #S₀ with hNS
   have hNS1 : 1 ≤ NS := by
     have : 0 < Fintype.card (InfinitePlace K) := Fintype.card_pos
     omega
   refine ⟨𝒲, C₄, |(NS : ℝ) * Real.log κ⁻¹
-      + (Height.totalWeight K : ℝ) * Real.log n.factorial|, Real.log C₆, h𝒲fin, ?_⟩
+      + (Height.totalWeight K : ℝ) * Real.log n.factorial|, Real.log C₆, h𝒲fin, h𝒲card, hC₄eq,
+      by rw [hκeq], ?_⟩
   intro Q hQ hQlarge hrank
   have hQ0 : (0 : ℝ) < Q := by linarith
   obtain ⟨y, hymem, hyli, hyspan⟩ :=

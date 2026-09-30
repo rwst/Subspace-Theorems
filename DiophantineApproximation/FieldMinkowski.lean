@@ -286,23 +286,27 @@ end Approximation
 
 section Tests
 
-/-- The integral basis of `ℚ` is `± 1`, so `c_ℚ = 1`. -/
+/-- Every integral basis of `ℚ` is `± 1`, so `c_ℚ = 1`. -/
 private theorem integralBasisHouse_rat : integralBasisHouse ℚ = 1 := by
-  have hcard : Fintype.card (Free.ChooseBasisIndex ℤ (𝓞 ℚ)) = 1 := by
-    rw [← finrank_eq_card_chooseBasisIndex, RingOfIntegers.rank, Module.finrank_self]
+  set b := reducedIntegralBasis ℚ
+  have hcard : Fintype.card (Fin (finrank ℚ ℚ)) = 1 := by
+    rw [Fintype.card_fin, Module.finrank_self]
   obtain ⟨r₀, hr₀⟩ := Fintype.card_eq_one_iff.1 hcard
-  have key : ∀ r, house (integralBasis ℚ r) = 1 := by
+  have key : ∀ r, house (b r : ℚ) = 1 := by
     intro r
-    have hsum := (RingOfIntegers.basis ℚ).sum_repr 1
+    have hsum := b.sum_repr 1
     rw [Fintype.sum_eq_single r fun r' hr' ↦ absurd ((hr₀ r').trans (hr₀ r).symm) hr'] at hsum
-    have hunit : IsUnit (Rat.ringOfIntegersEquiv (RingOfIntegers.basis ℚ r)) := by
-      refine IsUnit.of_mul_eq_one ((RingOfIntegers.basis ℚ).repr 1 r) ?_
+    have hunit : IsUnit (Rat.ringOfIntegersEquiv (b r)) := by
+      refine IsUnit.of_mul_eq_one (b.repr 1 r) ?_
       have := congrArg Rat.ringOfIntegersEquiv hsum
       rwa [zsmul_eq_mul, map_mul, map_intCast, map_one Rat.ringOfIntegersEquiv, Int.cast_id,
         mul_comm] at this
-    rw [integralBasis_apply, ← Rat.ringOfIntegersEquiv_apply_coe, house_intCast]
+    rw [show ((b r : 𝓞 ℚ) : ℚ) = algebraMap (𝓞 ℚ) ℚ (b r) from rfl,
+      ← Rat.ringOfIntegersEquiv_apply_coe, house_intCast]
     rcases Int.isUnit_iff.1 hunit with h | h <;> rw [h] <;> simp
-  simp only [integralBasisHouse, key, ciSup_const]
+  have : Nonempty (Fin (finrank ℚ ℚ)) := ⟨r₀⟩
+  rw [integralBasisHouse, show (fun r ↦ house ((reducedIntegralBasis ℚ r : 𝓞 ℚ) : ℚ)) = fun _ ↦ 1
+    from funext key, ciSup_const]
 
 open scoped Classical in
 /-- **Conformance: over `ℚ` the minima over the field are the real minima**, since `d = 1` makes

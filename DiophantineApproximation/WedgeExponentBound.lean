@@ -207,6 +207,20 @@ theorem abs_wedgeExponent_sub_sum_le {c : AbsoluteValue K ℝ → ι → ℝ}
       exact this
 
 open scoped Classical in
+/-- **The constant of the wedge weight**: `max (max C₁ 1 ^ (N ^ 2) / A₃) 1`, where
+`C₁ = C ^ (M d) a₂ ^ binom(N - 1, p - 1)`, `a₂ = 2 ^ (d N) ∏_{v ∈ Sfin} N(v) ^ N / approxConst`
+and `A₃ = 2 ^ (d N) / ((d N)! c_K ^ (d N) approxConst)`. -/
+noncomputable def wedgeWeightConst (Sfin : Finset (FinitePlace K))
+    (L : AbsoluteValue K ℝ → ι → Dual K (ι → K)) (C : ℝ) (p : ℕ) : ℝ :=
+  max (max (C ^ (Fintype.card (Set.powersetCard ι p) * finrank ℚ K) *
+      (2 ^ (finrank ℚ K * Fintype.card ι) *
+        (∏ v ∈ Sfin, (Ideal.absNorm v.maximalIdeal.asIdeal : ℝ) ^ Fintype.card ι) /
+          approxConst Sfin L) ^ ((Fintype.card ι - 1).choose (p - 1))) 1 ^
+      (Fintype.card ι ^ 2) *
+    (2 ^ (finrank ℚ K * Fintype.card ι) / ((finrank ℚ K * Fintype.card ι).factorial *
+      integralBasisHouse K ^ (finrank ℚ K * Fintype.card ι) * approxConst Sfin L))⁻¹) 1
+
+open scoped Classical in
 /-- **The weight of the wedge domain is negative, uniformly in the level** (Bombieri–Gubler,
 7.5.31 and (7.41) put together): for a domain of rank `R` with `1 ≤ R ≤ k` whose jump at `k` is
 large enough, the weight of the wedge domain in `⋀^p` is at most `weight / (2 (#ι) ^ 2)` at every
@@ -217,7 +231,8 @@ theorem exists_forall_approxWeight_wedgeExponent_le [Nonempty ι]
     (hLFin : ∀ v ∈ Sfin, LinearIndependent K (L v.1)) {c : AbsoluteValue K ℝ → ι → ℝ}
     (hc : approxWeight Sfin c < 0) {C : ℝ} (hC : 0 < C) {k p : ℕ}
     (hkp : k + p = Fintype.card ι) (hp : 0 < p) :
-    ∃ Q₂ : ℝ, 1 < Q₂ ∧ ∀ Q : ℝ, Q₂ ≤ Q → ∀ R : ℕ, 1 ≤ R → R ≤ k →
+    ∃ Q₂ : ℝ, 1 < Q₂ ∧ Q₂ = max 2 (Real.exp (2 * Real.log (wedgeWeightConst Sfin L C p) /
+        (-approxWeight Sfin c))) ∧ ∀ Q : ℝ, Q₂ ≤ Q → ∀ R : ℕ, 1 ≤ R → R ≤ k →
       (successiveMinimum (approxModule Sfin L c Q) (approxBody L c Q) (k - 1) /
           successiveMinimum (approxModule Sfin L c Q) (approxBody L c Q) k) ^ (Fintype.card ι - R)
         ≤ (successiveMinimum (approxModule Sfin L c Q) (approxBody L c Q)
@@ -250,7 +265,7 @@ theorem exists_forall_approxWeight_wedgeExponent_le [Nonempty ι]
   have hC₂1 : 1 ≤ C₂ := le_max_right _ _
   have hC₂0 : 0 < C₂ := lt_of_lt_of_le one_pos hC₂1
   refine ⟨max 2 (Real.exp (2 * Real.log C₂ / (-W))), lt_of_lt_of_le one_lt_two (le_max_left _ _),
-    fun Q hQ R hR1 hRk hjump π ↦ ?_⟩
+    by rw [hC₂, hC₁, ha₂, hA₃, wedgeWeightConst], fun Q hQ R hR1 hRk hjump π ↦ ?_⟩
   have hQ2 : (2 : ℝ) ≤ Q := le_trans (le_max_left _ _) hQ
   have hQ1 : (1 : ℝ) < Q := by linarith
   have hQ0 : (0 : ℝ) < Q := by linarith

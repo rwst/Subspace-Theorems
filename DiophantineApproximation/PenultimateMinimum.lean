@@ -41,16 +41,29 @@ an explicit point `X` of small height in that product. Step VI, which is
 of `S` and below by the product formula. Letting `D → ∞` against a fixed `m` gives the
 contradiction.
 
+## Main definitions
+
+* `NumberField.subspaceEta`, `NumberField.subspaceChainLength` and `NumberField.subspaceRatio`:
+  the `η`, `m` and `σ` of Steps IV and VI, as functions of `n`, `|S|`, `ε` and a bound `A` on
+  the weight of the absolute values of the exponents.
+
 ## Main results
 
-* `NumberField.exists_forall_not_chain`: **Steps IV and VI**, the whole contradiction. There are
-  `m`, `σ > 0` and `Qlow` such that no `m + 1` levels with `log (Q h) ≥ Qlow`, growing at the
-  rate `2 σ⁻¹`, can all have rank `n` and height at least `ε log (Q h) / (4 |S|) - C₅`.
+* `NumberField.exists_forall_not_chain`: **Steps IV and VI**, the whole contradiction. There is
+  `Qlow` such that no `m + 1` levels with `log (Q h) ≥ Qlow`, growing at the rate `2 σ⁻¹`, can all
+  have rank `n` and height at least `ε log (Q h) / (4 |S|) - C₅`. Here `m` and `σ` are the
+  explicit `subspaceChainLength` and `subspaceRatio`.
+* `NumberField.exists_forall_mem_interval_approxSpan`: **the interval result**. Above a level,
+  the levels at which `V(Q)` has rank `n` and is not exceptional have `log Q` in at most `m`
+  intervals `[t, 4 σ⁻¹ t)`, with the `m` and `σ` of Steps IV and VI, outside a set `𝒲` of at
+  most `2 ^ ((n + 1) |S|)` exceptional subspaces.
 * `NumberField.exists_forall_approxSpan_mem`: beyond a level, `V(Q)` lies in the finite set of
-  exceptional subspaces of Layer 5.4.
+  exceptional subspaces of Layer 5.4, read off the interval result.
 * `NumberField.finite_setOf_approxSpan`: **the milestone**, Theorem 7.5.13.
 * `NumberField.logHeight_approxSpan_le`: the upper half of Lemma 7.5.21 without its hypothesis
   that the level be large, which is what covers a bounded range of levels.
+* `Set.exists_forall_mem_Ico_of_not_exists_chain`: a set of positive reals without chains of
+  `m + 1` points of ratio `R` is covered by `m` windows `[t, 2 R t)`.
 * `Submodule.exists_basis_subset` and `Submodule.logHeight_eq_logHeight_of_forall_dotProduct`:
   a spanning set contains a basis, and the height of a hyperplane is the height of its normal
   vector (Bombieri–Gubler's (7.28)).
@@ -93,6 +106,21 @@ hypothesis of Layer 5.3, and every `field_simp`, `positivity` and `linarith` on 
 from the same budget. The five lemmas of `NumberField.PenultimateMinimum` carry all the
 inequalities that have divisions in them; inside the main proof only `linarith only` is used, on
 goals whose atoms are already in normal form.
+
+⚠ **The parameters are uniform in the exponents, through their absolute weight.** The proof
+chooses `η` against `approxAbsWeight`, and `m` and `σ` from `η`, `n` and `|S|`. Stated with a
+bound `A` on that weight, they are functions of `n`, `|S|`, `ε` and `A`, so one `m` and one `σ`
+serve every system of exponents with that bound — as the grid systems of Layer 6.1 are
+(`NumberField.approxAbsWeight_gridExponent_le`). The book's `m` grows like `(d + |S|) ² / ε ²`
+through `A`, not like `log |S| / ε ²`.
+
+⚠ **The finite chain is turned into intervals, not into a contradiction with an infinite
+sequence.** Steps IV and VI forbid `m + 1` levels of rank `n` outside `𝒲` whose logarithms grow
+by the ratio `2 σ⁻¹`. The greedy covering turns that into at most `m` intervals of ratio `4 σ⁻¹`
+in `log Q`, which is the interval result the quantitative theorem consumes; "beyond a level" is
+its corollary. The levels form a continuum, so each window starts at an infimum that need not be
+a level; the window is `[t, 2 R t)` rather than `[t, R t)`, and only `log` of the ratio enters a
+count.
 
 ⚠ **The milestone is stated for `1 ≤ Q`, and the bounded range is covered separately.** Layer
 5.4 states its dichotomy only for `C₄ / ε ≤ log Q`, but its *upper* bound needs no such
@@ -275,6 +303,61 @@ theorem log_box_eq {ι ρ : Type*} [Fintype ι] [Fintype ρ] {n : ℕ} (hn : 1 �
 
 end NumberField.PenultimateMinimum
 
+namespace Set
+
+/-- **A set of positive reals without long chains is covered by few windows.** If `T` lies above
+`a₀ > 0` and contains no chain of `m + 1` points each at least `R` times the previous one, then
+`T` is covered by at most `m` windows `[t, 2 R t)` with `t ≥ a₀`. The proof is the greedy
+covering: start a window at the infimum `a` of `T`, pick a point `t₀ ∈ T` below `2 a`, and
+recurse on the points at least `R t₀`, which have no chain of `m` points. The factor `2` pays for
+an infimum that need not be attained. -/
+theorem exists_forall_mem_Ico_of_not_exists_chain {T : Set ℝ} {a₀ R : ℝ} (ha₀ : 0 < a₀)
+    (hT : ∀ x ∈ T, a₀ ≤ x) :
+    ∀ m : ℕ, (¬ ∃ s : Fin (m + 1) → ℝ, (∀ j, s j ∈ T) ∧
+        ∀ j : Fin m, R * s j.castSucc ≤ s j.succ) →
+      ∃ k ≤ m, ∃ t : Fin k → ℝ, (∀ i, a₀ ≤ t i) ∧ ∀ x ∈ T, ∃ i, t i ≤ x ∧ x < 2 * R * t i := by
+  intro m
+  induction m generalizing T with
+  | zero =>
+      intro hchain
+      refine ⟨0, le_rfl, Fin.elim0, fun i ↦ i.elim0, fun x hx ↦ ?_⟩
+      exact absurd ⟨fun _ ↦ x, fun _ ↦ hx, fun j ↦ j.elim0⟩ hchain
+  | succ m ih =>
+      intro hchain
+      rcases T.eq_empty_or_nonempty with hT0 | hTne
+      · exact ⟨0, Nat.zero_le _, Fin.elim0, fun i ↦ i.elim0, fun x hx ↦ by simp [hT0] at hx⟩
+      have hbdd : BddBelow T := ⟨a₀, hT⟩
+      set a := sInf T with hadef
+      have ha : a₀ ≤ a := le_csInf hTne hT
+      obtain ⟨t₀, ht₀, ht₀a⟩ := exists_lt_of_csInf_lt hTne (by linarith : a < 2 * a)
+      obtain ⟨k, hk, t, hta, ht⟩ := ih (T := {x ∈ T | R * t₀ ≤ x}) (fun x hx ↦ hT x hx.1)
+        fun ⟨s, hsT, hs⟩ ↦ by
+          refine hchain ⟨Fin.cons t₀ s, fun j ↦ ?_, fun j ↦ ?_⟩
+          · refine Fin.cases ?_ (fun j ↦ ?_) j
+            · simpa using ht₀
+            · simpa using (hsT j).1
+          · refine Fin.cases ?_ (fun j ↦ ?_) j
+            · simpa using (hsT 0).2
+            · simpa [← Fin.succ_castSucc] using hs j
+      refine ⟨k + 1, by omega, Fin.cons a t, fun i ↦ Fin.cases ha (fun i ↦ hta i) i,
+        fun x hx ↦ ?_⟩
+      by_cases hRx : R * t₀ ≤ x
+      · obtain ⟨i, hi⟩ := ht x ⟨hx, hRx⟩
+        exact ⟨i.succ, by simpa using hi⟩
+      · push Not at hRx
+        have hx0 : 0 < x := lt_of_lt_of_le ha₀ (hT x hx)
+        have ht₀0 : 0 < t₀ := lt_of_lt_of_le ha₀ (hT t₀ ht₀)
+        have hR : 0 ≤ R := by
+          by_contra hR
+          push Not at hR
+          nlinarith
+        refine ⟨0, ?_⟩
+        simp only [Fin.cons_zero]
+        refine ⟨csInf_le hbdd hx, lt_of_lt_of_le hRx ?_⟩
+        nlinarith
+
+end Set
+
 namespace Submodule
 
 variable {K : Type*} [Field K] {ι : Type*}
@@ -372,18 +455,98 @@ theorem logHeight_approxSpan_le {Sfin : Finset (FinitePlace K)}
   ring
 
 
-omit [DecidableEq ι] in
+/-! ### The parameters of Steps IV and VI
+
+Everything the proof chooses before it sees a chain, as functions of the dimension `n`, the
+number `s` of places of `S`, the margin `ε` and a bound `A` on the weight of the absolute values
+of the exponents (`NumberField.approxAbsWeight`). A family of systems of exponents with one bound
+`A` shares one chain length and one ratio.
+-/
+
+/-- **The `η` of Steps IV and VI**, `min 1 (ε / (8 (n + 1) ^ 2 (A + 1)))`: the weight `A` of the
+absolute values of the exponents is charged at most a quarter of `ε`. -/
+noncomputable def subspaceEta (n : ℕ) (ε A : ℝ) : ℝ :=
+  min 1 (ε / (8 * ((n : ℝ) + 1) ^ 2 * (A + 1)))
+
+/-- **The length of the longest chain of levels Steps IV and VI allow**: no `m + 1` levels of rank
+`n` with large spans grow at the rate `2 σ⁻¹`, for `m = ⌈4 log (2 (n + 1) s) / ((n + 1) (n + 2)
+η ²)⌉`. It is the number of blocks of the auxiliary polynomial, less one. -/
+noncomputable def subspaceChainLength (n s : ℕ) (ε A : ℝ) : ℕ :=
+  ⌈4 * Real.log (2 * ((n : ℝ) + 1) * s)
+    / (((n : ℝ) + 1) * ((n : ℝ) + 2) * subspaceEta n ε A ^ 2)⌉₊
+
+/-- **The ratio `σ` of consecutive multidegrees**, `(η / 4) ^ (2 ^ m)` with
+`m = subspaceChainLength n s ε A`; the levels of a chain grow at the rate `2 σ⁻¹`. -/
+noncomputable def subspaceRatio (n s : ℕ) (ε A : ℝ) : ℝ :=
+  (subspaceEta n ε A / 4) ^ 2 ^ subspaceChainLength n s ε A
+
+/-- `η` is positive. -/
+theorem subspaceEta_pos {n : ℕ} {ε A : ℝ} (hε : 0 < ε) (hA : 0 ≤ A) : 0 < subspaceEta n ε A :=
+  lt_min zero_lt_one (div_pos hε (by positivity))
+
+/-- `σ` is positive. -/
+theorem subspaceRatio_pos {n s : ℕ} {ε A : ℝ} (hε : 0 < ε) (hA : 0 ≤ A) :
+    0 < subspaceRatio n s ε A :=
+  pow_pos (div_pos (subspaceEta_pos hε hA) four_pos) _
+
+variable (Sfin : Finset (FinitePlace K)) (L : AbsoluteValue K ℝ → ι → Dual K (ι → K)) in
+/-- **The constant `C₂` of the auxiliary polynomial** of Layer 5.2, for the matrices of the forms
+at the places of `S`: `log |D_K| / 2 + d #ι / 2 + d log #ι + log H(y)`, where `y` collects the
+entries of the inverse matrices and `1`. -/
+noncomputable def auxHeightConst : ℝ :=
+  2⁻¹ * Real.log |(NumberField.discr K : ℝ)|
+    + ((Module.finrank ℚ K : ℝ) / 2 * Fintype.card ι
+      + Height.totalWeight K * Real.log (Fintype.card ι)
+      + Real.log (Height.mulHeight
+          (Sum.elim (fun p : (InfinitePlace K ⊕ ↥Sfin) × ι × ι ↦
+            ((formMatrix L (sPlace Sfin p.1))⁻¹) p.2.1 p.2.2) (fun _ : Unit ↦ (1 : K)))))
+
+variable (Sfin : Finset (FinitePlace K)) (L : AbsoluteValue K ℝ → ι → Dual K (ι → K)) in
+/-- **The level `Qlow` of Steps IV and VI**, as a formula in `n`, `|S|`, `ε`, `A`, `C₅`, the
+constant `auxHeightConst` of the auxiliary polynomial and the heights of the reference family
+`refFamily` (the entries of the inverse matrices and the integers up to `⌈2 n / η + 1⌉`). -/
+noncomputable def chainThreshold (n : ℕ) (ε A C₅ : ℝ) : ℝ :=
+  max 1 (max (8 * ((n : ℝ) + 1) *
+      max ((Height.totalWeight K : ℝ) * Real.log (2 * ((n : ℝ) + 1) * (n : ℝ))
+        + max (auxHeightConst Sfin L) 0
+        + 2 * ∑ θ, Real.log (Height.mulHeight₁
+            (refFamily L Sfin ⌈2 * (n : ℝ) / subspaceEta n ε A + 1⌉₊ θ))) 0 / ε)
+    (8 * ((Fintype.card (InfinitePlace K) + Sfin.card : ℕ) : ℝ) *
+      ((n : ℝ) * (subspaceRatio n (Fintype.card (InfinitePlace K) + Sfin.card) ε A)⁻¹ *
+          ((subspaceChainLength n (Fintype.card (InfinitePlace K) + Sfin.card) ε A : ℝ) + 1) *
+          (max (auxHeightConst Sfin L) 0 + 4 * (Height.totalWeight K : ℝ))
+        + max C₅ 0) / ε))
+
+variable (Sfin : Finset (FinitePlace K)) (L : AbsoluteValue K ℝ → ι → Dual K (ι → K)) in
+/-- **The threshold of the interval form of Layer 5.6**: `max 1 (max Qlow (C₄ / ε))`, with
+`Qlow = chainThreshold` at `C₅ = |s log κ⁻¹ + d log n!|` for `κ = normalKappa` and
+`C₄ = 4 ((d + |Sfin|) log patternConst + log (2 patternHeightBound)) + 1`. -/
+noncomputable def penultimateThreshold (n : ℕ) (ε A : ℝ) : ℝ :=
+  max 1 (max (chainThreshold Sfin L n ε A
+      |((Fintype.card (InfinitePlace K) + #Sfin : ℕ) : ℝ) * Real.log (normalKappa n Sfin L)⁻¹
+        + (Height.totalWeight K : ℝ) * Real.log n.factorial|)
+    ((4 * ((Height.totalWeight K + #Sfin : ℕ) * Real.log (patternConst Sfin L)
+      + Real.log (2 * patternHeightBound Sfin L)) + 1) / ε))
+
 /-- **No chain of levels of rank `n` whose heights grow with the level**, which is the whole of
-Bombieri--Gubler's Steps IV and VI. -/
+Bombieri--Gubler's Steps IV and VI. For exponents whose absolute values have weight at most `A`,
+no `m + 1` levels with `log Q ≥ Qlow`, growing at the rate `2 σ⁻¹`, can all have rank `n` and
+height at least `ε log Q / (4 |S|) - C₅`, where `m = subspaceChainLength n |S| ε A` and
+`σ = subspaceRatio n |S| ε A` depend on `n`, `|S|`, `ε` and `A` alone. Only `Qlow` depends on the
+forms and the exponents. -/
 theorem exists_forall_not_chain {n : ℕ} (hn : 1 ≤ n) (hcard : Fintype.card ι = n + 1)
     {Sfin : Finset (FinitePlace K)} {L : AbsoluteValue K ℝ → ι → Dual K (ι → K)}
     {cf : AbsoluteValue K ℝ → ι → ℝ}
     (hLinf : ∀ w : InfinitePlace K, LinearIndependent K (L w.1))
     (hLfin : ∀ w ∈ Sfin, LinearIndependent K (L w.1))
-    {ε : ℝ} (hε : 0 < ε) (hweight : approxWeight Sfin cf ≤ -ε / 2) (C₅ : ℝ) :
-    ∃ (m : ℕ) (σ Qlow : ℝ), 0 < σ ∧
-      ∀ Q : Fin (m + 1) → ℝ, (∀ h, 1 < Q h) → (∀ h, Qlow ≤ Real.log (Q h)) →
-        (∀ h : Fin m, 2 * σ⁻¹ * Real.log (Q h.castSucc) ≤ Real.log (Q h.succ)) →
+    {ε : ℝ} (hε : 0 < ε) (hweight : approxWeight Sfin cf ≤ -ε / 2) {A : ℝ}
+    (hA : approxAbsWeight Sfin cf ≤ A) (C₅ : ℝ) :
+    ∃ Qlow : ℝ, Qlow = chainThreshold Sfin L n ε A C₅ ∧
+      ∀ Q : Fin (subspaceChainLength n (Fintype.card (InfinitePlace K) + Sfin.card)
+        ε A + 1) → ℝ, (∀ h, 1 < Q h) → (∀ h, Qlow ≤ Real.log (Q h)) →
+        (∀ h : Fin (subspaceChainLength n (Fintype.card (InfinitePlace K) + Sfin.card) ε A),
+          2 * (subspaceRatio n (Fintype.card (InfinitePlace K) + Sfin.card) ε A)⁻¹
+            * Real.log (Q h.castSucc) ≤ Real.log (Q h.succ)) →
         (∀ h, Module.finrank K (approxSpan Sfin L cf (Q h)) = n) →
         (∀ h, ε * Real.log (Q h)
               / (4 * ((Fintype.card (InfinitePlace K) + Sfin.card : ℕ) : ℝ)) - C₅
@@ -392,29 +555,36 @@ theorem exists_forall_not_chain {n : ℕ} (hn : 1 ≤ n) (hcard : Fintype.card �
   set AW : ℝ := approxAbsWeight Sfin cf with hAWdef
   have hAW0 : 0 ≤ AW := approxAbsWeight_nonneg Sfin cf
   -- the matrices of the forms at the places of `S`
-  set A : (InfinitePlace K ⊕ ↥Sfin) → Matrix ι ι K :=
-    fun a ↦ formMatrix L (sPlace Sfin a) with hAdef
-  have hA : ∀ a, IsUnit (A a).det := by
+  set Af : (InfinitePlace K ⊕ ↥Sfin) → Matrix ι ι K :=
+    fun a ↦ formMatrix L (sPlace Sfin a) with hAfdef
+  have hAf : ∀ a, IsUnit (Af a).det := by
     rintro (w | w)
     · exact isUnit_det_formMatrix (hLinf w)
     · exact isUnit_det_formMatrix (hLfin w w.2)
   -- the parameter `η`, chosen against the weight of the absolute values of the exponents
-  set η : ℝ := min 1 (ε / (8 * ((n : ℝ) + 1) ^ 2 * (AW + 1))) with hηdef
-  have hη0 : 0 < η := by
-    refine lt_min zero_lt_one (div_pos hε ?_)
-    positivity
+  have hA0 : 0 ≤ A := hAW0.trans hA
+  set η : ℝ := subspaceEta n ε A with hηdef
+  have hη0 : 0 < η := subspaceEta_pos hε hA0
   have hη1 : η ≤ 1 := min_le_left _ _
-  have hηW : 2 * (n : ℝ) * η * AW ≤ ε / (4 * ((n : ℝ) + 1)) :=
-    two_mul_mul_le_div hε hAW0 (Nat.cast_nonneg n) hη0 (min_le_right _ _)
+  have hηW : 2 * (n : ℝ) * η * AW ≤ ε / (4 * ((n : ℝ) + 1)) := by
+    refine two_mul_mul_le_div hε hAW0 (Nat.cast_nonneg n) hη0 ((min_le_right _ _).trans ?_)
+    refine div_le_div_of_nonneg_left hε.le (by positivity) ?_
+    exact mul_le_mul_of_nonneg_left (by linarith) (by positivity)
   -- the number of blocks
   set Scard : ℝ := ((Fintype.card (InfinitePlace K) + Sfin.card : ℕ) : ℝ) with hScard
   set cardS : ℝ := ((Fintype.card (InfinitePlace K ⊕ ↥Sfin) : ℕ) : ℝ) with hcardS
+  have hcardSeq : cardS = Scard := by
+    rw [hcardS, hScard, Fintype.card_sum, Fintype.card_coe]
   have hpos : (0 : ℝ) < ((n : ℝ) + 1) * ((n : ℝ) + 2) * η ^ 2 := by positivity
-  obtain ⟨m, hm⟩ : ∃ m : ℕ, 4 * Real.log (2 * ((n : ℝ) + 1) * cardS)
+  set m : ℕ := subspaceChainLength n (Fintype.card (InfinitePlace K) + Sfin.card) ε A with hmdef
+  have hm : 4 * Real.log (2 * ((n : ℝ) + 1) * cardS)
       < ((n : ℝ) + 1) * ((n : ℝ) + 2) * η ^ 2 * ((m : ℝ) + 1) := by
-    obtain ⟨m, hmm⟩ := exists_nat_gt
-      ((4 * Real.log (2 * ((n : ℝ) + 1) * cardS)) / (((n : ℝ) + 1) * ((n : ℝ) + 2) * η ^ 2))
-    refine ⟨m, ?_⟩
+    have hmm : 4 * Real.log (2 * ((n : ℝ) + 1) * cardS)
+        / (((n : ℝ) + 1) * ((n : ℝ) + 2) * η ^ 2) < (m : ℝ) + 1 := by
+      refine lt_of_le_of_lt ?_ (lt_add_one (m : ℝ))
+      rw [hcardSeq, hmdef, subspaceChainLength, hScard]
+      push_cast
+      exact Nat.le_ceil _
     rw [div_lt_iff₀ hpos] at hmm
     linarith only [hmm, hpos]
   -- the ratio `σ` of consecutive multidegrees
@@ -439,9 +609,9 @@ theorem exists_forall_not_chain {n : ℕ} (hn : 1 ≤ n) (hcard : Fintype.card �
     rw [Fintype.card_fin]
     push_cast
     exact hm
-  obtain ⟨C₂, C₃, D₀, haux⟩ :=
+  obtain ⟨C₂, C₃, hC₂eq, D₀, haux⟩ :=
     MvPolynomial.exists_ne_zero_isMultiHomogeneous_forall_coeff_blockSubst_hasseDeriv_eq_zero
-      (κ := Fin (m + 1)) hn hcard A hA hη0 hmκ
+      (κ := Fin (m + 1)) hn hcard Af hAf hη0 hmκ
   -- the constants of the final comparison
   set tw : ℝ := (Height.totalWeight K : ℝ) with htwdef
   set B : ℕ := ⌈2 * (n : ℝ) / η + 1⌉₊ with hBdef
@@ -452,7 +622,7 @@ theorem exists_forall_not_chain {n : ℕ} (hn : 1 ≤ n) (hcard : Fintype.card �
   set K₁ : ℝ := (n : ℝ) * σ⁻¹ * ((m : ℝ) + 1) * (max C₂ 0 + 4 * tw) with hK1def
   set Qlow : ℝ :=
     max 1 (max (8 * ((n : ℝ) + 1) * Cb / ε) (8 * Scard * (K₁ + max C₅ 0) / ε)) with hQlowdef
-  refine ⟨m, σ, Qlow, hσ0, ?_⟩
+  refine ⟨Qlow, by rw [hQlowdef, hK1def, hCbdef, hC₂eq]; rfl, ?_⟩
   intro Q hQ1 hQlowh hgrow hrank hhgt
   have hlk : 1 + n = Fintype.card ι := by rw [hcard]; ring
   set q : Fin (m + 1) → ℝ := fun h ↦ Real.log (Q h) with hqdef
@@ -678,9 +848,71 @@ theorem exists_forall_not_chain {n : ℕ} (hn : 1 ≤ n) (hcard : Fintype.card �
     (by linarith only [hkey]) hDlog
 
 
+/-- **The penultimate-minimum theorem as an interval result** (Bombieri–Gubler, Theorem 7.5.13,
+read as Schmidt's and Evertse's interval results are). Let `s = |S|` and let `A` bound the weight
+of the absolute values of the exponents. There are a set `𝒲` of at most `2 ^ ((n + 1) s)`
+subspaces and a level `Q₀ > 0` such that for every `Q₀' ≥ Q₀` the levels `Q` with
+`log Q ≥ Q₀'` at which `V(Q)` has rank `n` and is not in `𝒲` have `log Q` in the union of at
+most `m = subspaceChainLength n s ε A` intervals `[t, 4 σ⁻¹ t)` with `t ≥ Q₀'`, where
+`σ = subspaceRatio n s ε A`. The number of intervals, their ratio and the bound on `|𝒲|` depend on
+`n`, `s`, `ε` and `A` alone.
+
+The proof is Lemma 7.5.21's dichotomy, Steps IV and VI (`NumberField.exists_forall_not_chain`),
+and a greedy covering (`Set.exists_forall_mem_Ico_of_not_exists_chain`). It picks no unbounded
+sequence of levels and does not use Northcott. -/
+theorem exists_forall_mem_interval_approxSpan {n : ℕ} (hn : 1 ≤ n)
+    (hcard : Fintype.card ι = n + 1) {Sfin : Finset (FinitePlace K)}
+    {L : AbsoluteValue K ℝ → ι → Dual K (ι → K)} {cf : AbsoluteValue K ℝ → ι → ℝ}
+    (hLinf : ∀ w : InfinitePlace K, LinearIndependent K (L w.1))
+    (hLfin : ∀ w ∈ Sfin, LinearIndependent K (L w.1))
+    {ε : ℝ} (hε : 0 < ε) (hweight : approxWeight Sfin cf ≤ -ε / 2) {A : ℝ}
+    (hA : approxAbsWeight Sfin cf ≤ A) :
+    ∃ (𝒲 : Set (Submodule K (ι → K))) (Q₀ : ℝ), 𝒲.Finite ∧
+      𝒲.ncard ≤ 2 ^ ((n + 1) * (Fintype.card (InfinitePlace K) + Sfin.card)) ∧ 0 < Q₀ ∧
+      Q₀ = penultimateThreshold Sfin L n ε A ∧ ∀ Q₀' : ℝ, Q₀ ≤ Q₀' →
+        ∃ k ≤ subspaceChainLength n (Fintype.card (InfinitePlace K) + Sfin.card) ε A,
+        ∃ t : Fin k → ℝ, (∀ i, Q₀' ≤ t i) ∧
+        ∀ Q : ℝ, 1 < Q → Q₀' ≤ Real.log Q →
+          Module.finrank K (approxSpan Sfin L cf Q) = n → approxSpan Sfin L cf Q ∉ 𝒲 →
+          ∃ i, t i ≤ Real.log Q ∧ Real.log Q
+            < 4 * (subspaceRatio n (Fintype.card (InfinitePlace K) + Sfin.card) ε A)⁻¹ * t i := by
+  classical
+  have hlk : 1 + n = Fintype.card ι := by rw [hcard]; ring
+  obtain ⟨𝒲, C₄, C₅, C₆, h𝒲fin, h𝒲card, hC₄eq, hC₅eq, hdich⟩ :=
+    exists_finite_forall_logHeight_approxSpan hlk hLinf hLfin hε hweight
+  obtain ⟨Qlow, hQloweq, hchain⟩ :=
+    exists_forall_not_chain hn hcard hLinf hLfin hε hweight hA C₅
+  set σ := subspaceRatio n (Fintype.card (InfinitePlace K) + Sfin.card) ε A with hσdef
+  set m := subspaceChainLength n (Fintype.card (InfinitePlace K) + Sfin.card) ε A with hmdef
+  set Q₀ : ℝ := max 1 (max Qlow (C₄ / ε)) with hQ₀def
+  have hQ₀1 : 1 ≤ Q₀ := le_max_left _ _
+  refine ⟨𝒲, Q₀, h𝒲fin, by rwa [← hcard], by linarith,
+    by rw [hQ₀def, hQloweq, hC₄eq, hC₅eq, penultimateThreshold], fun Q₀' hQ₀' ↦ ?_⟩
+  set T : Set ℝ := {q : ℝ | Q₀' ≤ q ∧ Module.finrank K (approxSpan Sfin L cf (Real.exp q)) = n ∧
+    approxSpan Sfin L cf (Real.exp q) ∉ 𝒲} with hTdef
+  obtain ⟨k, hk, t, hta, ht⟩ := Set.exists_forall_mem_Ico_of_not_exists_chain
+    (T := T) (R := 2 * σ⁻¹) (by linarith) (fun q hq ↦ hq.1) m fun ⟨s, hsT, hs⟩ ↦ by
+      have hs1 : ∀ h, 1 ≤ s h := fun h ↦ hQ₀1.trans (hQ₀'.trans (hsT h).1)
+      refine hchain (fun h ↦ Real.exp (s h)) (fun h ↦ Real.one_lt_exp_iff.mpr (by linarith [hs1 h]))
+        (fun h ↦ ?_) (fun h ↦ ?_) (fun h ↦ (hsT h).2.1) fun h ↦ ?_
+      · rw [Real.log_exp]
+        exact ((le_max_left _ _).trans (le_max_right _ _)).trans (hQ₀'.trans (hsT h).1)
+      · rw [Real.log_exp, Real.log_exp]
+        exact hs h
+      · refine ((hdich _ (Real.one_le_exp (by linarith [hs1 h])) ?_ (hsT h).2.1).resolve_left
+          (hsT h).2.2).1
+        rw [Real.log_exp]
+        exact ((le_max_right _ _).trans (le_max_right _ _)).trans (hQ₀'.trans (hsT h).1)
+  refine ⟨k, hk, t, hta, fun Q hQ1 hQlog hrank hnot ↦ ?_⟩
+  have hQexp : Real.exp (Real.log Q) = Q := Real.exp_log (by linarith)
+  obtain ⟨i, hi⟩ := ht (Real.log Q) ⟨hQlog, by rwa [hQexp], by rwa [hQexp]⟩
+  exact ⟨i, hi.1, by linarith [hi.2]⟩
+
 omit [DecidableEq ι] in
 /-- **Beyond a level, the span of the approximation domain is one of finitely many subspaces**:
-Bombieri--Gubler's Theorem 7.5.13 for levels bounded below. -/
+Bombieri--Gubler's Theorem 7.5.13 for levels bounded below. It is read off the interval result
+`NumberField.exists_forall_mem_interval_approxSpan`: above the last of its intervals no level
+is left outside `𝒲`. -/
 theorem exists_forall_approxSpan_mem {n : ℕ} (hn : 1 ≤ n) (hcard : Fintype.card ι = n + 1)
     {Sfin : Finset (FinitePlace K)} {L : AbsoluteValue K ℝ → ι → Dual K (ι → K)}
     {cf : AbsoluteValue K ℝ → ι → ℝ}
@@ -690,56 +922,19 @@ theorem exists_forall_approxSpan_mem {n : ℕ} (hn : 1 ≤ n) (hcard : Fintype.c
     ∃ 𝒲 : Set (Submodule K (ι → K)), 𝒲.Finite ∧ ∃ Q₀ : ℝ, ∀ Q : ℝ, 1 < Q → Q₀ ≤ Real.log Q →
       Module.finrank K (approxSpan Sfin L cf Q) = n → approxSpan Sfin L cf Q ∈ 𝒲 := by
   classical
-  have hlk : 1 + n = Fintype.card ι := by rw [hcard]; ring
-  obtain ⟨𝒲, C₄, C₅, C₆, h𝒲fin, hdich⟩ :=
-    exists_finite_forall_logHeight_approxSpan hlk hLinf hLfin hε hweight
-  obtain ⟨m, σ, Qlow, hσ0, hchain⟩ := exists_forall_not_chain hn hcard hLinf hLfin hε hweight C₅
-  refine ⟨𝒲, h𝒲fin, ?_⟩
-  by_contra hcon
-  push Not at hcon
-  choose f hf1 hf2 hf3 hf4 using hcon
-  set Qb : ℝ := max Qlow (C₄ / ε) with hQbdef
-  obtain ⟨a, ha0, hasucc⟩ : ∃ a : ℕ → ℝ, a 0 = f Qb ∧
-      ∀ k, a (k + 1) = f (max Qb (2 * σ⁻¹ * Real.log (a k))) :=
-    ⟨fun k ↦ Nat.rec (f Qb) (fun _ prev ↦ f (max Qb (2 * σ⁻¹ * Real.log prev))) k, rfl,
-      fun _ ↦ rfl⟩
-  have haf : ∀ k, ∃ t : ℝ, a k = f t ∧ Qb ≤ t := by
-    intro k
-    cases k with
-    | zero => exact ⟨Qb, ha0, le_rfl⟩
-    | succ k => exact ⟨max Qb (2 * σ⁻¹ * Real.log (a k)), hasucc k, le_max_left _ _⟩
-  have ha1 : ∀ k, 1 < a k := by
-    intro k
-    obtain ⟨t, ht, -⟩ := haf k
-    rw [ht]
-    exact hf1 t
-  have haQb : ∀ k, Qb ≤ Real.log (a k) := by
-    intro k
-    obtain ⟨t, ht, hQt⟩ := haf k
-    rw [ht]
-    exact le_trans hQt (hf2 t)
-  have harank : ∀ k, Module.finrank K (approxSpan Sfin L cf (a k)) = n := by
-    intro k
-    obtain ⟨t, ht, -⟩ := haf k
-    rw [ht]
-    exact hf3 t
-  have hanot : ∀ k, approxSpan Sfin L cf (a k) ∉ 𝒲 := by
-    intro k
-    obtain ⟨t, ht, -⟩ := haf k
-    rw [ht]
-    exact hf4 t
-  have hagrow : ∀ k, 2 * σ⁻¹ * Real.log (a k) ≤ Real.log (a (k + 1)) := by
-    intro k
-    rw [hasucc k]
-    exact le_trans (le_max_right _ _) (hf2 _)
-  refine hchain (fun h ↦ a h.val) (fun h ↦ ha1 _)
-    (fun h ↦ le_trans (le_max_left _ _) (haQb _)) (fun h ↦ ?_) (fun h ↦ harank _) (fun h ↦ ?_)
-  · rw [Fin.val_castSucc, Fin.val_succ]
-    exact hagrow h.val
-  · rcases hdich (a h.val) (le_of_lt (ha1 _))
-      (le_trans (le_max_right _ _) (haQb _)) (harank _) with hw | ⟨hl, -⟩
-    · exact absurd hw (hanot _)
-    · exact hl
+  obtain ⟨𝒲, Q₀, h𝒲fin, -, hQ₀, -, hint⟩ :=
+    exists_forall_mem_interval_approxSpan hn hcard hLinf hLfin hε hweight le_rfl
+  obtain ⟨k, -, t, -, ht⟩ := hint Q₀ le_rfl
+  set σ := subspaceRatio n (Fintype.card (InfinitePlace K) + Sfin.card) ε
+    (approxAbsWeight Sfin cf)
+  have hsum0 : 0 ≤ ∑ i, |4 * σ⁻¹ * t i| := Finset.sum_nonneg fun i _ ↦ abs_nonneg _
+  refine ⟨𝒲, h𝒲fin, Q₀ + ∑ i, |4 * σ⁻¹ * t i|, fun Q hQ1 hQ hrank ↦ ?_⟩
+  by_contra hnot
+  obtain ⟨i, -, hi⟩ := ht Q hQ1 (by linarith) hrank hnot
+  have h1 : 4 * σ⁻¹ * t i ≤ ∑ i, |4 * σ⁻¹ * t i| :=
+    (le_abs_self _).trans (Finset.single_le_sum (f := fun i ↦ |4 * σ⁻¹ * t i|)
+      (fun i _ ↦ abs_nonneg _) (Finset.mem_univ i))
+  linarith
 
 omit [DecidableEq ι] in
 /-- **The penultimate-minimum theorem** (Bombieri--Gubler, Theorem 7.5.13): for forms

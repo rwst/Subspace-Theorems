@@ -275,6 +275,10 @@ noncomputable def rothClassSize (κ : ℝ) (s : ℕ) : ℕ := ⌈2 * (s : ℝ) /
 noncomputable def rothChainLength (κ : ℝ) (s r : ℕ) : ℕ :=
   ⌈Real.log (2 * (r : ℝ) * s + 1) / (6 * rothEps κ ^ 2)⌉₊
 noncomputable def rothRatio (κ : ℝ) (s r : ℕ) : ℝ := 2 / rothEps κ ^ 2 ^ rothChainLength κ s r
+noncomputable def rothDelta (κ : ℝ) (s r : ℕ) (rF : ℝ) : ℝ :=
+  min (rothEps κ ^ 2 ^ rothChainLength κ s r / (12 * ((rothChainLength κ s r : ℝ) + 1)))
+    ((κ * (1 - (s : ℝ) / rothClassSize κ s) * (1 / 2 - 4 * rothEps κ) - 1)
+      / (2 * (8 * rF * s + 8)))
 theorem finite_setOf_prod_min_one_le (Sinf : Finset (InfinitePlace K))
     (Sfin : Finset (FinitePlace K)) (w : AbsoluteValue K ℝ → AbsoluteValue F ℝ)
     (hwInf : ∀ v ∈ Sinf, (w v.1).LiesOver v.1) (hwFin : ∀ v ∈ Sfin, (w v.1).LiesOver v.1)
@@ -290,6 +294,7 @@ section
 attribute [local instance 999] instFaithfulSMul_1
 attribute [local instance 998] Module.Free.instFaithfulSMulOfNontrivial
 attribute [local instance 999] IsLocalRing.toNontrivial
+attribute [local instance 999] SubsemiringClass.toSubmonoidClass
 @[expose] public section
 open Height OnePoint
 namespace AbsoluteValue
@@ -318,6 +323,7 @@ section
 attribute [local instance 999] instFaithfulSMul_1
 attribute [local instance 998] Module.Free.instFaithfulSMulOfNontrivial
 attribute [local instance 999] IsLocalRing.toNontrivial
+attribute [local instance 999] SubsemiringClass.toSubmonoidClass
 @[expose] public section
 open Height Module
 namespace NumberField
@@ -337,6 +343,7 @@ section
 attribute [local instance 999] instFaithfulSMul_1
 attribute [local instance 998] Module.Free.instFaithfulSMulOfNontrivial
 attribute [local instance 999] IsLocalRing.toNontrivial
+attribute [local instance 999] SubsemiringClass.toSubmonoidClass
 @[expose] public section
 open Height IsDedekindDomain Module
 namespace NumberField
@@ -376,6 +383,7 @@ section
 attribute [local instance 999] instFaithfulSMul_1
 attribute [local instance 998] Module.Free.instFaithfulSMulOfNontrivial
 attribute [local instance 999] IsLocalRing.toNontrivial
+attribute [local instance 999] SubsemiringClass.toSubmonoidClass
 @[expose] public section
 open NumberField Height
 instance Nat.Primes.instFactPrime (p : Nat.Primes) : Fact (p : ℕ).Prime := ⟨p.2⟩
@@ -452,6 +460,7 @@ section
 attribute [local instance 999] instFaithfulSMul_1
 attribute [local instance 998] Module.Free.instFaithfulSMulOfNontrivial
 attribute [local instance 999] IsLocalRing.toNontrivial
+attribute [local instance 999] SubsemiringClass.toSubmonoidClass
 @[expose] public section
 open Height NumberField AbsoluteValue OnePoint IntermediateField
 namespace Rat
@@ -469,12 +478,27 @@ theorem finite_setOf_ridout {ξ : ℝ} (halg : IsAlgebraic ℚ ξ) (S₁ S₂ : 
 end Rat
 end
 end
+-- DiophantineApproximation.RothIntervals
+run_cmd Lean.modifyEnv (Lean.Meta.auxLemmasExt.setState · {})
+@[expose] public section
+open Height Module
+namespace NumberField
+variable {K F : Type*} [Field K] [NumberField K] [Field F] [NumberField F] [Algebra K F]
+noncomputable def mobiusShift (s : ℕ) : ℝ := Real.log (2 * ((s : ℝ) + 1))
+noncomputable def rothOnePointBound (s r nF nK : ℕ) (Ht logC κ : ℝ) : ℝ :=
+  max (max ((1 + Ht + s * mobiusShift s) / rothDelta ((κ + 2) / 2) s r nF)
+      (Real.log 16 / ((1 - (s : ℝ) / rothClassSize ((κ + 2) / 2) s) * ((κ + 2) / 2) - 1 - 1)))
+    ((2 * s * Real.log 2 + 4 * nF * (Ht + s * mobiusShift s) + logC + κ * nK * mobiusShift s)
+      / ((κ - 2) / 2 * nK))
+end NumberField
+end
 -- DiophantineApproximation.RothProjective
 run_cmd Lean.modifyEnv (Lean.Meta.auxLemmasExt.setState · {})
 section
 attribute [local instance 999] instFaithfulSMul_1
 attribute [local instance 998] Module.Free.instFaithfulSMulOfNontrivial
 attribute [local instance 999] IsLocalRing.toNontrivial
+attribute [local instance 999] SubsemiringClass.toSubmonoidClass
 @[expose] public section
 open Height Module AbsoluteValue
 namespace NumberField
@@ -509,6 +533,7 @@ section
 attribute [local instance 999] instFaithfulSMul_1
 attribute [local instance 998] Module.Free.instFaithfulSMulOfNontrivial
 attribute [local instance 999] IsLocalRing.toNontrivial
+attribute [local instance 999] SubsemiringClass.toSubmonoidClass
 @[expose] public section
 open Finset Height Module
 namespace NumberField
@@ -534,6 +559,7 @@ section
 attribute [local instance 999] instFaithfulSMul_1
 attribute [local instance 998] Module.Free.instFaithfulSMulOfNontrivial
 attribute [local instance 999] IsLocalRing.toNontrivial
+attribute [local instance 999] SubsemiringClass.toSubmonoidClass
 @[expose] public section
 open Finset Height Module NumberField
 namespace NumberField
@@ -565,6 +591,7 @@ section
 attribute [local instance 999] instFaithfulSMul_1
 attribute [local instance 998] Module.Free.instFaithfulSMulOfNontrivial
 attribute [local instance 999] IsLocalRing.toNontrivial
+attribute [local instance 999] SubsemiringClass.toSubmonoidClass
 @[expose] public section
 open Finset Height IsDedekindDomain Module
 namespace NumberField
@@ -697,6 +724,13 @@ run_cmd Lean.modifyEnv (Lean.Meta.auxLemmasExt.setState · {})
 open Height IsDedekindDomain Module
 namespace NumberField
 variable {K F : Type*} [Field K] [NumberField K] [Field F] [NumberField F] [Algebra K F]
+noncomputable def systemRothThreshold (s r nF nK : ℕ) (δ H : ℝ) : ℝ :=
+  Real.exp (((r * s : ℕ) : ℝ) * (max (rothOnePointBound s r nF nK (2 * (s : ℝ) * Real.log H)
+      ((s : ℝ) * (Real.log 32 + 8 * (nF : ℝ) * Real.log H)) (2 + δ))
+    (max (2 * mobiusShift s
+        + (s : ℝ) * (((nF : ℝ) + 1) * Real.log 2 + 6 * (nF : ℝ) * Real.log H) / nK)
+      (mobiusShift s + 4 / δ * Real.log 2)) + mobiusShift s + 1)
+    + (s : ℝ) * (((nF : ℝ) + 1) * Real.log 2 + 6 * (nF : ℝ) * Real.log H) / nK)
 theorem exists_finset_submodule_of_card_eq_two {ι : Type*} [Fintype ι]
     (hι : Fintype.card ι = 2) (S : Finset (HeightOneSpectrum (𝓞 K)))
     (w : AbsoluteValue K ℝ → AbsoluteValue F ℝ)
@@ -705,7 +739,7 @@ theorem exists_finset_submodule_of_card_eq_two {ι : Type*} [Fintype ι]
     {L : AbsoluteValue K ℝ → ι → Dual F (ι → F)} {C : InfinitePlace K ⊕ S → ℝ}
     {c : InfinitePlace K ⊕ S → ι → ℝ} {H : ℝ} {D R : ℕ} {δ : ℝ}
     (hN : IsNormalizedSystem S w L C c H D R δ) :
-    ∃ X₀ : ℝ, ∃ T : Finset (Submodule K (ι → K)),
+    ∃ T : Finset (Submodule K (ι → K)),
       (T.card : ℝ) ≤ ((Fintype.card (InfinitePlace K) + S.card + 1 : ℕ) : ℝ) +
         ((rothChainLength (2 + δ / 2) (Fintype.card (InfinitePlace K) + S.card) (finrank K F) *
           (rothClassSize (2 + δ / 2) (Fintype.card (InfinitePlace K) + S.card) +
@@ -715,7 +749,9 @@ theorem exists_finset_submodule_of_card_eq_two {ι : Type*} [Fintype ι]
             rothRatio (2 + δ / 2) (Fintype.card (InfinitePlace K) + S.card) (finrank K F)) /
             Real.log (1 + δ / 4)) ∧
       (∀ U ∈ T, U ≠ ⊤) ∧
-      ∀ x ∈ systemSet S w L C c, X₀ ≤ mulHeightAff x ^ ((finrank ℚ K : ℝ)⁻¹) →
+      ∀ x ∈ systemSet S w L C c,
+        systemRothThreshold (Fintype.card (InfinitePlace K) + S.card) (finrank K F)
+          (finrank ℚ F) (finrank ℚ K) δ H ≤ mulHeightAff x ^ ((finrank ℚ K : ℝ)⁻¹) →
         ∃ U ∈ T, x ∈ U := by
   sorry
 end NumberField
@@ -726,6 +762,7 @@ section
 attribute [local instance 999] instFaithfulSMul_1
 attribute [local instance 998] Module.Free.instFaithfulSMulOfNontrivial
 attribute [local instance 999] IsLocalRing.toNontrivial
+attribute [local instance 999] SubsemiringClass.toSubmonoidClass
 @[expose] public section
 open Finset Height Module Module.Dual
 namespace NumberField
@@ -760,6 +797,7 @@ section
 attribute [local instance 999] instFaithfulSMul_1
 attribute [local instance 998] Module.Free.instFaithfulSMulOfNontrivial
 attribute [local instance 999] IsLocalRing.toNontrivial
+attribute [local instance 999] SubsemiringClass.toSubmonoidClass
 @[expose] public section
 open Height Module AbsoluteValue
 namespace NumberField

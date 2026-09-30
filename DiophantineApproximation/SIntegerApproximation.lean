@@ -7,6 +7,7 @@ module
 
 public import Mathlib.NumberTheory.NumberField.CanonicalEmbedding.Basic
 public import Mathlib.NumberTheory.NumberField.Completion.FinitePlace
+public import DiophantineApproximation.ReducedIntegralBasis
 
 -- Used only inside proofs.
 import ArithmeticHeights.FinitePlaceIdeal
@@ -157,17 +158,29 @@ theorem normAtPlace_le_norm (w : InfinitePlace K) (z : mixedSpace K) :
 
 end mixedEmbedding
 
-/-- **An algebraic integer moves any targets at the infinite places into a ball of radius `A`**,
-with `A` depending only on `K`: the sum of the norms of the embedded integral basis, which bounds a
-fundamental domain of `𝓞 K` in the mixed space. -/
-theorem exists_integer_forall_infinitePlace_add_le :
-    ∃ A : ℝ, 0 ≤ A ∧ ∀ t : InfinitePlace K → K, ∃ a : 𝓞 K, ∀ w : InfinitePlace K,
-      w ((a : K) + t w) ≤ A := by
+/-- **An algebraic integer moves any targets at the infinite places into a ball of radius
+`d · reducedBasisBound K`**: the sum of the houses of a reduced integral basis
+(`NumberField.exists_basis_house_le`), which bounds a fundamental domain of `𝓞 K` in the mixed
+space. -/
+theorem exists_integer_forall_infinitePlace_add_le (t : InfinitePlace K → K) :
+    ∃ a : 𝓞 K, ∀ w : InfinitePlace K,
+      w ((a : K) + t w) ≤ Module.finrank ℚ K * reducedBasisBound K := by
   classical
-  refine ⟨∑ i, ‖latticeBasis K i‖, Finset.sum_nonneg fun i _ ↦ norm_nonneg _, fun t ↦ ?_⟩
+  obtain ⟨b, hb⟩ := exists_basis_house_le K
+  set f : 𝓞 K →ₗ[ℤ] mixedSpace K :=
+    ((mixedEmbedding K).comp (algebraMap (𝓞 K) K)).toIntAlgHom.toLinearMap with hf
+  have hinj : Function.Injective f := fun x y hxy ↦
+    RingOfIntegers.coe_injective (mixedEmbedding_injective K hxy)
+  set e : 𝓞 K ≃ₗ[ℤ] mixedEmbedding.integerLattice K := LinearEquiv.ofInjective f hinj
+  set P := (b.map e).ofZLatticeBasis ℝ (mixedEmbedding.integerLattice K) with hP
+  have hPi : ∀ i, P i = mixedEmbedding K (b i : K) := fun i ↦ by
+    rw [hP, Module.Basis.ofZLatticeBasis_apply, Module.Basis.map_apply]
+    rfl
   let z : mixedSpace K := (fun w ↦ (mixedEmbedding K (t w.1)).1 w,
     fun w ↦ (mixedEmbedding K (t w.1)).2 w)
-  have hfl := (mem_span_latticeBasis K).1 (ZSpan.floor (latticeBasis K) z).2
+  have hfl : (ZSpan.floor P z : mixedSpace K) ∈ mixedEmbedding.integerLattice K := by
+    rw [← Module.Basis.ofZLatticeBasis_span ℝ (mixedEmbedding.integerLattice K) (b.map e)]
+    exact (ZSpan.floor P z).2
   obtain ⟨a, ha⟩ := hfl
   refine ⟨-a, fun w ↦ ?_⟩
   have hz : normAtPlace w (z - mixedEmbedding K (a : K)) = w ((-a : 𝓞 K) + t w) := by
@@ -178,23 +191,24 @@ theorem exists_integer_forall_infinitePlace_add_le :
       rfl
     · rw [normAtPlace_apply_of_isComplex hw, normAtPlace_apply_of_isComplex hw]
       rfl
-  have hfr : z - mixedEmbedding K (a : K) = ZSpan.fract (latticeBasis K) z := by
+  have hfr : z - mixedEmbedding K (a : K) = ZSpan.fract P z := by
     rw [ZSpan.fract_apply, ← ha]
     rfl
   rw [← hz, hfr]
-  exact (normAtPlace_le_norm w _).trans (ZSpan.norm_fract_le _ _)
+  refine (normAtPlace_le_norm w _).trans ((ZSpan.norm_fract_le _ _).trans ?_)
+  calc ∑ i, ‖P i‖ ≤ ∑ _i : Fin (Module.finrank ℚ K), reducedBasisBound K :=
+        Finset.sum_le_sum fun i _ ↦ by rw [hPi, norm_mixedEmbedding_eq_house]; exact hb i
+    _ = Module.finrank ℚ K * reducedBasisBound K := by
+        rw [Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul]
 
 /-- **Simultaneous approximation by `Sfin`-integers**, stated without completions: for targets
 `γ v ∈ K` there is an `Sfin`-integer `ξ` with `v (ξ + γ v) ≤ 1` at every place of `Sfin` and
 `w (ξ + γ w) ≤ A` at every infinite place, with `A` depending only on `K`. -/
-theorem exists_forall_apply_add_le :
-    ∃ A : ℝ, 0 ≤ A ∧ ∀ (Sfin : Finset (FinitePlace K)) (γ : AbsoluteValue K ℝ → K),
-      ∃ ξ : K, (∀ v : FinitePlace K, v ∉ Sfin → v ξ ≤ 1) ∧ (∀ v ∈ Sfin, v (ξ + γ v.1) ≤ 1) ∧
-        ∀ w : InfinitePlace K, w (ξ + γ w.1) ≤ A := by
-  obtain ⟨A, hA, hInf⟩ := exists_integer_forall_infinitePlace_add_le (K := K)
-  refine ⟨A, hA, fun Sfin γ ↦ ?_⟩
+theorem exists_forall_apply_add_le (Sfin : Finset (FinitePlace K)) (γ : AbsoluteValue K ℝ → K) :
+    ∃ ξ : K, (∀ v : FinitePlace K, v ∉ Sfin → v ξ ≤ 1) ∧ (∀ v ∈ Sfin, v (ξ + γ v.1) ≤ 1) ∧
+      ∀ w : InfinitePlace K, w (ξ + γ w.1) ≤ Module.finrank ℚ K * reducedBasisBound K := by
   obtain ⟨ξ₀, hξ₀, hξ₀S⟩ := FinitePlace.exists_forall_apply_add_le_one Sfin fun v ↦ γ v.1
-  obtain ⟨a, ha⟩ := hInf fun w ↦ ξ₀ + γ w.1
+  obtain ⟨a, ha⟩ := exists_integer_forall_infinitePlace_add_le fun w ↦ ξ₀ + γ w.1
   refine ⟨ξ₀ + a, fun v hv ↦ ?_, fun v hv ↦ ?_, fun w ↦ ?_⟩
   · exact (v.add_le _ _).trans (max_le (hξ₀ v hv) (FinitePlace.apply_le_one v a))
   · rw [add_right_comm]

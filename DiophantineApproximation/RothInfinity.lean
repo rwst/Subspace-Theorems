@@ -31,6 +31,8 @@ to a finite one.
 * `AbsoluteValue.onePointApprox`: the local factor at a target in `OnePoint F`.
 * `AbsoluteValue.min_one_sub_onePointMobius_le`: the local content — the Möbius change of
   variable distorts each factor by a constant that does not depend on `β`.
+* `AbsoluteValue.mobiusConst_coe_le`: that constant is at most `2 H ^ 2` when
+  `min 1 |a - c| ≥ H⁻¹`.
 * `NumberField.exists_liesOver_fun`: Layer 0.1's fibres, packaged as one function.
 
 ## Implementation notes
@@ -140,6 +142,25 @@ theorem one_le_mobiusConst {c : F} {t : OnePoint F} (ht : t ≠ (c : OnePoint F)
       refine le_trans ?_ (le_max_right _ _)
       rw [le_div_iff₀ hm]
       linarith
+
+/-- **A lower bound for the distance bounds the distortion constant.** If
+`min 1 |a - c| ≥ H⁻¹`, then the constant at the finite target `a` is at most `2 H ^ 2`; with
+Liouville's inequality at one place, `H` is a height. -/
+theorem mobiusConst_coe_le {c a : F} {H : ℝ} (hH : 0 < H) (hlow : H⁻¹ ≤ min 1 (W (a - c))) :
+    W.mobiusConst c a ≤ 2 * H ^ 2 := by
+  rw [mobiusConst_coe]
+  have hm : 0 < min 1 (W (a - c)) := lt_of_lt_of_le (inv_pos.mpr hH) hlow
+  have hmD : min 1 (W (a - c)) ≤ W (a - c) := min_le_right _ _
+  have hHm : 1 ≤ H * min 1 (W (a - c)) := by
+    have h := mul_le_mul_of_nonneg_left hlow hH.le
+    rwa [mul_inv_cancel₀ hH.ne'] at h
+  have hH1 : 1 ≤ H := by nlinarith [min_le_left 1 (W (a - c))]
+  have hHD : 1 ≤ H * W (a - c) := hHm.trans (mul_le_mul_of_nonneg_left hmD hH.le)
+  refine max_le ?_ ?_
+  · rw [div_le_iff₀ (pow_pos (hm.trans_le hmD) 2)]
+    nlinarith
+  · rw [div_le_iff₀ hm]
+    nlinarith
 
 /-- `min 1 x⁻¹` is `(max 1 x)⁻¹`, which is the junk-free form of the factor at the target `∞`. -/
 theorem min_one_inv {x : ℝ} (hx : 0 < x) : min 1 x⁻¹ = (max 1 x)⁻¹ := by

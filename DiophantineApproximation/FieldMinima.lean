@@ -7,6 +7,7 @@ module
 
 public import ArithmeticHeights.SuccessiveMinima
 public import DiophantineApproximation.ModuleCovolume
+public import DiophantineApproximation.ReducedIntegralBasis
 public import Mathlib.NumberTheory.NumberField.House
 
 -- Used only inside proofs.
@@ -27,8 +28,9 @@ count vectors independent over `ℝ`, and the lattice has rank `d #ι`; this fil
 λ i  ≤  μ i  ≤  λ (d i),        λ (d (i + 1) - 1)  ≤  c_K μ i,
 ```
 
-with `c_K` the largest house of a member of the integral basis of `𝓞 K`. The first inequality is
-that `K`-independent vectors stay independent over `ℝ`; the second is the extraction lemma of
+with `c_K` the largest house of a member of a reduced integral basis of `𝓞 K`, which is at most
+`d · 2 ^ d · √|D_K|`. The first inequality is that `K`-independent vectors stay independent over
+`ℝ`; the second is the extraction lemma of
 `ArithmeticHeights` applied to vectors realizing the real minima; the third multiplies vectors
 realizing `μ i` by the integral basis, which the body absorbs because it is balanced over every
 completion. Minkowski's second theorem over `K` follows in `FieldMinkowski.lean`.
@@ -36,8 +38,10 @@ completion. Minkowski's second theorem over `K` follows in `FieldMinkowski.lean`
 ## Main definitions
 
 * `NumberField.successiveMinimum`: the `i`-th successive minimum over `K`, indexed from `0`.
-* `NumberField.integralBasisHouse`: the constant `c_K`, the largest house of a member of Mathlib's
-  integral basis `NumberField.integralBasis K`.
+* `NumberField.reducedIntegralBasis`: an integral basis whose members have house at most
+  `d · 2 ^ d · √|D_K|`.
+* `NumberField.integralBasisHouse`: the constant `c_K`, the largest house of a member of it, so
+  that `c_K ≤ d · 2 ^ d · √|D_K|` (`NumberField.integralBasisHouse_le`).
 
 ## Main results
 
@@ -168,32 +172,43 @@ theorem successiveMinimum_eq_zero_of_le [Fintype ι] (Λ : Submodule (𝓞 K) (�
 variable [NumberField K]
 
 variable (K) in
+/-- **A reduced integral basis** of `𝓞 K`, one whose members all have house at most
+`d · 2 ^ d · √|D_K|` (`NumberField.exists_basis_house_le`). -/
+noncomputable def reducedIntegralBasis : Basis (Fin (finrank ℚ K)) ℤ (𝓞 K) :=
+  (exists_basis_house_le K).choose
+
+variable (K) in
 /-- The constant `c_K` of the comparison between the two kinds of minima: the largest house of a
-member of the integral basis `NumberField.integralBasis K`, so that every conjugate of every
-member has absolute value at most `c_K`. -/
+member of the reduced integral basis `NumberField.reducedIntegralBasis K`, so that every conjugate
+of every member has absolute value at most `c_K`. -/
 noncomputable def integralBasisHouse : ℝ :=
-  ⨆ r, house (integralBasis K r)
+  ⨆ r, house (reducedIntegralBasis K r : K)
 
-/-- Every member of the integral basis has house at most `c_K`. -/
-theorem house_integralBasis_le (r : Free.ChooseBasisIndex ℤ (𝓞 K)) :
-    house (integralBasis K r) ≤ integralBasisHouse K :=
-  le_ciSup (f := fun r ↦ house (integralBasis K r)) (Set.finite_range _).bddAbove r
+/-- Every member of the reduced integral basis has house at most `c_K`. -/
+theorem house_integralBasis_le (r : Fin (finrank ℚ K)) :
+    house (reducedIntegralBasis K r : K) ≤ integralBasisHouse K :=
+  le_ciSup (f := fun r ↦ house (reducedIntegralBasis K r : K)) (Set.finite_range _).bddAbove r
 
-/-- Every member of the integral basis has absolute value at most `c_K` at every infinite
+/-- Every member of the reduced integral basis has absolute value at most `c_K` at every infinite
 place. -/
-theorem apply_integralBasis_le (w : InfinitePlace K) (r : Free.ChooseBasisIndex ℤ (𝓞 K)) :
-    w (integralBasis K r) ≤ integralBasisHouse K := by
+theorem apply_integralBasis_le (w : InfinitePlace K) (r : Fin (finrank ℚ K)) :
+    w (reducedIntegralBasis K r : K) ≤ integralBasisHouse K := by
   rw [← w.norm_embedding_eq]
   exact (norm_embedding_le_house _ _).trans (house_integralBasis_le r)
 
 variable (K) in
 /-- `c_K ≥ 1`: a nonzero algebraic integer has a conjugate of absolute value at least `1`. -/
 theorem one_le_integralBasisHouse : 1 ≤ integralBasisHouse K := by
-  obtain ⟨r⟩ := (integralBasis K).index_nonempty
+  have r : Fin (finrank ℚ K) := ⟨0, finrank_pos⟩
   refine le_trans ?_ (house_integralBasis_le r)
-  refine one_le_house_of_isIntegral ?_ ((integralBasis K).ne_zero r)
-  rw [integralBasis_apply]
-  exact (RingOfIntegers.basis K r).isIntegral_coe
+  refine one_le_house_of_isIntegral (reducedIntegralBasis K r).isIntegral_coe ?_
+  exact_mod_cast (reducedIntegralBasis K).ne_zero r
+
+variable (K) in
+/-- **`c_K` is bounded by the discriminant**: `c_K ≤ d · 2 ^ d · √|D_K|`. -/
+theorem integralBasisHouse_le : integralBasisHouse K ≤ reducedBasisBound K := by
+  have : Nonempty (Fin (finrank ℚ K)) := ⟨⟨0, finrank_pos⟩⟩
+  exact ciSup_le (exists_basis_house_le K).choose_spec
 
 /-- The mixed embedding of tuples, as a `ℚ`-linear map: the `f` of the extraction lemma. -/
 private noncomputable def embedQ : (ι → K) →ₗ[ℚ] (ι → mixedSpace K) :=
@@ -369,12 +384,12 @@ theorem successiveMinimum_mixedImage_le_mul (Λ : Submodule (𝓞 K) (ι → K))
   rw [← div_le_iff₀' hc0]
   refine le_successiveMinimum Λ hB₀ hB₁ hB₂ hB₃ hi fun t ht x hx hind ↦ ?_
   rw [div_le_iff₀' hc0]
-  set ω := integralBasis K
-  set y : Free.ChooseBasisIndex ℤ (𝓞 K) × Fin (i + 1) → ι → K := fun p ↦ ω p.1 • x p.2
+  set ω := (reducedIntegralBasis K).localizationLocalization ℚ (nonZeroDivisors ℤ) K
+  set y : Fin (finrank ℚ K) × Fin (i + 1) → ι → K := fun p ↦ ω p.1 • x p.2
   have hyind : LinearIndependent ℚ y := linearIndependent_smul ω.linearIndependent hind
   have hcard : Fintype.card (Fin (finrank ℚ K * (i + 1) - 1 + 1)) =
-      Fintype.card (Free.ChooseBasisIndex ℤ (𝓞 K) × Fin (i + 1)) := by
-    rw [Fintype.card_fin, Fintype.card_prod, Fintype.card_fin, ← finrank_eq_card_basis ω]
+      Fintype.card (Fin (finrank ℚ K) × Fin (i + 1)) := by
+    rw [Fintype.card_fin, Fintype.card_prod, Fintype.card_fin, Fintype.card_fin]
     have : 1 ≤ finrank ℚ K * (i + 1) := Nat.one_le_iff_ne_zero.2
       (Nat.mul_ne_zero Module.finrank_pos.ne' (Nat.succ_ne_zero i))
     omega
@@ -386,6 +401,7 @@ theorem successiveMinimum_mixedImage_le_mul (Λ : Submodule (𝓞 K) (ι → K))
     set a : mixedSpace K := c⁻¹ • mixedEmbedding K (ω (e m).1)
     have ha : ∀ w, normAtPlace w a ≤ 1 := fun w ↦ by
       rw [normAtPlace_smul, normAtPlace_apply, abs_of_pos (inv_pos.2 hc0), inv_mul_le_one₀ hc0]
+      rw [Basis.localizationLocalization_apply]
       exact apply_integralBasis_le w _
     have heq : (fun j ↦ mixedEmbedding K (y (e m) j)) = (c * t) • fun j ↦ a * z j := by
       ext1 j
@@ -397,8 +413,8 @@ theorem successiveMinimum_mixedImage_le_mul (Λ : Submodule (𝓞 K) (ι → K))
     rw [heq]
     exact Set.smul_mem_smul_set (hBbal z hz a ha)
   · refine Submodule.mem_mixedImage.2 ⟨y (e m), ?_, rfl⟩
-    have : y (e m) = (RingOfIntegers.basis K (e m).1) • x (e m).2 := by
-      simp only [y, ω, integralBasis_apply, algebraMap_smul]
+    have : y (e m) = (reducedIntegralBasis K (e m).1) • x (e m).2 := by
+      simp only [y, ω, Basis.localizationLocalization_apply, algebraMap_smul]
     rw [this]
     exact Λ.smul_mem _ (hx _).1
 

@@ -28,6 +28,9 @@ Roth 1955 at one place). Heights are absolute and logarithmic throughout, and
   solutions. The core of Roth's proof, `NumberField.roth_no_chain`, forbids a chain of `m + 1`
   solutions in one class whose heights grow by the factor `M`; the book's greedy grouping then
   leaves at most `m` blocks of ratio `M` in each class, and the window count bounds each block.
+* **The total count** (6.5.7 (b), Davenport and Roth's shape). `L` is linear in the sum `Ht` of
+  the target heights, so the window `(log 16 / (c − 1), L]` holds `O(log (1 + Ht))` solutions,
+  and the two counts together bound every solution above `log 16 / (c − 1)`.
 
 The combinatorics is in two lemmas that know nothing of heights: points with a multiplicative gap
 in a window, and a finite set without long chains.
@@ -36,6 +39,9 @@ in a window, and a finite set without long chains.
 
 * `NumberField.rothLargeCount`: the bound on the number of large solutions, a function of `κ`,
   `|S|` and `[F : K]`.
+* `NumberField.rothGapHeight`: the height `log 16 / (c − 1)` where the gap principle starts.
+* `NumberField.rothTotalCount`: the Davenport–Roth bound on all solutions above
+  `rothGapHeight`, which grows like `log (1 + Ht)` in the sum `Ht` of the target heights.
 
 ## Main results
 
@@ -44,7 +50,12 @@ in a window, and a finite set without long chains.
 * `Finset.card_le_mul_of_not_exists_chain`: a finite set whose blocks have at most `k` points and
   which has no chain of `m + 1` points has at most `m k` points.
 * `NumberField.ncard_setOf_absLogHeight₁_mem_Ioc_le`: **Lemma 6.5.6**, the count in a window.
-* `NumberField.exists_ncard_setOf_lt_absLogHeight₁_le`: **6.5.7**, the count of large solutions.
+* `NumberField.card_le_rothLargeCount` and `NumberField.ncard_setOf_lt_absLogHeight₁_le`:
+  **6.5.7**, the count of large solutions above the explicit height `rothLargeThreshold`, for a
+  finite set and for the set of all of them.
+* `NumberField.card_le_rothTotalCount` and
+  `NumberField.ncard_setOf_rothGapHeight_lt_absLogHeight₁_le`: **the Davenport–Roth count**, the
+  window lemma up to `rothLargeThreshold` plus 6.5.7 above it.
 * `NumberField.one_lt_rothGap`: the classes Roth's proof uses have gap constant `c > 1`.
 
 ## Implementation notes
@@ -74,8 +85,9 @@ auxiliary polynomial. The book's `m` is its number of variables, so its bound is
 block per class.
 
 ⚠ **The very small solutions are left to Northcott, as in the book.** Those of height at most
-`log 16 / (c − 1)` are finitely many, but their number depends on `K`, and no count of them is
-stated.
+`rothGapHeight κ |S| = log 16 / (c − 1)` are finitely many, but their number depends on `K`, and
+no count of them is stated. Every solution above that height is counted, by
+`NumberField.rothTotalCount`, and without Northcott.
 
 ## References
 
@@ -252,6 +264,39 @@ private theorem mul_le_of_gap {c h h' : ℝ} (hc : 1 < c) (hgap : c * h - Real.l
   rw [div_le_iff₀ hc1] at hh
   nlinarith
 
+/-- **Lemma 6.5.6 for a subset of the window**: every set of solutions of
+`Λ(β) ≤ H(β) ^ (−κ)` with absolute height in `(X, A X]` has at most
+`⌈log A / log ((c + 1) / 2)⌉ · (N + |S|).choose |S|` elements. Stated for subsets so that finite
+sets can be counted without first knowing that the window is finite. -/
+private theorem ncard_le_of_subset_setOf_absLogHeight₁_mem_Ioc {Sinf : Finset (InfinitePlace K)}
+    {Sfin : Finset (FinitePlace K)} {w : AbsoluteValue K ℝ → AbsoluteValue F ℝ}
+    (hwInf : ∀ v ∈ Sinf, (w v.1).LiesOver v.1) (hwFin : ∀ v ∈ Sfin, (w v.1).LiesOver v.1)
+    (α : AbsoluteValue K ℝ → F) {κ : ℝ} (hκ : 0 < κ) {N : ℕ} (hN : 0 < N) {c : ℝ}
+    (hcdef : c = (1 - ((Sinf.card + Sfin.card : ℕ) : ℝ) / N) * κ - 1) (hc : 1 < c)
+    {X A : ℝ} (hX : Real.log 16 / (c - 1) ≤ X) {T : Set K}
+    (hT : ∀ β ∈ T, (∏ v ∈ Sinf, min 1 (w v.1 (algebraMap K F β - α v.1)) ^ v.mult) *
+        ∏ v ∈ Sfin, min 1 (w v.1 (algebraMap K F β - α v.1)) ≤ mulHeight₁ β ^ (-κ) ∧
+      X < absLogHeight₁ β ∧ absLogHeight₁ β ≤ A * X) :
+    T.ncard ≤ ⌈Real.log A / Real.log ((c + 1) / 2)⌉₊
+        * (N + (Sinf.card + Sfin.card)).choose (Sinf.card + Sfin.card) := by
+  have hc1 : 0 < c - 1 := by linarith
+  have hX0 : 0 < X := lt_of_lt_of_le (div_pos (Real.log_pos (by norm_num)) hc1) hX
+  have hq : 1 < (c + 1) / 2 := by linarith
+  have hcard : Fintype.card (↥Sinf ⊕ ↥Sfin) = Sinf.card + Sfin.card := by
+    rw [Fintype.card_sum, Fintype.card_coe, Fintype.card_coe]
+  have hCn : {c' : (↥Sinf ⊕ ↥Sfin) → ℕ | ∑ a, c' a ≤ N}.ncard
+      = (N + (Sinf.card + Sfin.card)).choose (Sinf.card + Sfin.card) := by
+    rw [Set.ncard_setOf_sum_le, hcard]
+  rw [← hCn]
+  refine Set.ncard_le_ceil_mul_ncard_of_gap_Ioc (Set.finite_setOf_sum_le _ N)
+    (approxClass Sinf Sfin w α N) (fun β _ ↦ sum_approxClass_le Sinf Sfin w α N β)
+    absLogHeight₁ hX0 hq (fun β hβ ↦ (hT β hβ).2) ?_
+  intro β hβ β' hβ' hne hcl hle
+  have hgap := mul_absLogHeight₁_sub_le_of_approxClass_eq hwInf hwFin hκ hN (hT β hβ).1
+    (hT β' hβ').1 hne hcl hle
+  rw [← hcdef] at hgap
+  exact mul_le_of_gap hc hgap (le_trans hX (hT β hβ).2.1.le)
+
 /-- **Lemma 6.5.6, the count in a window** (Bombieri–Gubler). With
 `c = (1 − |S| / N) κ − 1 > 1` and `X ≥ log 16 / (c − 1)`, at most
 `⌈log A / log ((c + 1) / 2)⌉ · (N + |S|).choose |S|` solutions of `Λ(β) ≤ H(β) ^ (−κ)` have
@@ -266,23 +311,8 @@ theorem ncard_setOf_absLogHeight₁_mem_Ioc_le {Sinf : Finset (InfinitePlace K)}
         ∏ v ∈ Sfin, min 1 (w v.1 (algebraMap K F β - α v.1)) ≤ mulHeight₁ β ^ (-κ) ∧
       X < absLogHeight₁ β ∧ absLogHeight₁ β ≤ A * X}.ncard
       ≤ ⌈Real.log A / Real.log ((c + 1) / 2)⌉₊
-        * (N + (Sinf.card + Sfin.card)).choose (Sinf.card + Sfin.card) := by
-  have hc1 : 0 < c - 1 := by linarith
-  have hX0 : 0 < X := lt_of_lt_of_le (div_pos (Real.log_pos (by norm_num)) hc1) hX
-  have hq : 1 < (c + 1) / 2 := by linarith
-  have hcard : Fintype.card (↥Sinf ⊕ ↥Sfin) = Sinf.card + Sfin.card := by
-    rw [Fintype.card_sum, Fintype.card_coe, Fintype.card_coe]
-  have hCn : {c' : (↥Sinf ⊕ ↥Sfin) → ℕ | ∑ a, c' a ≤ N}.ncard
-      = (N + (Sinf.card + Sfin.card)).choose (Sinf.card + Sfin.card) := by
-    rw [Set.ncard_setOf_sum_le, hcard]
-  rw [← hCn]
-  refine Set.ncard_le_ceil_mul_ncard_of_gap_Ioc (Set.finite_setOf_sum_le _ N)
-    (approxClass Sinf Sfin w α N) (fun β _ ↦ sum_approxClass_le Sinf Sfin w α N β)
-    absLogHeight₁ hX0 hq (fun β hβ ↦ ⟨hβ.2.1, hβ.2.2⟩) ?_
-  intro β hβ β' hβ' hne hcl hle
-  have hgap := mul_absLogHeight₁_sub_le_of_approxClass_eq hwInf hwFin hκ hN hβ.1 hβ'.1 hne hcl hle
-  rw [← hcdef] at hgap
-  exact mul_le_of_gap hc hgap (le_trans hX hβ.2.1.le)
+        * (N + (Sinf.card + Sfin.card)).choose (Sinf.card + Sfin.card) :=
+  ncard_le_of_subset_setOf_absLogHeight₁_mem_Ioc hwInf hwFin α hκ hN hcdef hc hX fun _ hβ ↦ hβ
 
 /-! ### The count of large solutions -/
 
@@ -312,21 +342,37 @@ theorem one_lt_rothGap {κ : ℝ} (hκ : 2 < κ) (s : ℕ) :
     exact mul_le_mul_of_nonneg_right h2 hε4.le
   linarith
 
-/-- **6.5.7, the count of large solutions** (Bombieri–Gubler; Davenport and Roth 1955 at one
-place). There is a height `L` — depending on `K`, `S` and the targets — above which Roth's
-inequality `Λ(β) ≤ H(β) ^ (−κ)` has at most `rothLargeCount κ |S| [F : K]` solutions, a number
-depending on `κ`, `|S|` and `[F : K]` alone. Absolute logarithmic heights.
+/-- **The threshold of 6.5.7**: above it, in absolute logarithmic height, Roth's inequality has
+at most `rothLargeCount κ |S| [F : K]` solutions (`NumberField.card_le_rothLargeCount`). It is
+the larger of two heights:
+- `rothThreshold / [K : ℚ]`, where no chain of solutions exists;
+- `log 16 / (c − 1)`, where the gap principle applies, with `c = (1 − |S| / N) κ − 1`.
 
-⚠ This bounds the **number** of large solutions and says nothing about their height: `L` is
-explicit, but no statement here bounds the height of a solution above `L`, and none can be read
-off the proof — which is the ineffectivity of Roth's method. -/
-theorem exists_ncard_setOf_lt_absLogHeight₁_le (Sinf : Finset (InfinitePlace K))
+It is linear in the heights of the targets. -/
+noncomputable def rothLargeThreshold (Sinf : Finset (InfinitePlace K))
+    (Sfin : Finset (FinitePlace K)) (α : AbsoluteValue K ℝ → F) (κ : ℝ) : ℝ :=
+  max (rothThreshold Sinf Sfin α κ / totalWeight K)
+    (Real.log 16 / ((1 - ((Sinf.card + Sfin.card : ℕ) : ℝ)
+      / rothClassSize κ (Sinf.card + Sfin.card)) * κ - 1 - 1))
+
+/-- **6.5.7, the count of large solutions, for a finite set** (Bombieri–Gubler; Davenport and
+Roth 1955 at one place). Every finite set of solutions of Roth's inequality
+`Λ(β) ≤ H(β) ^ (−κ)` of absolute logarithmic height above `rothLargeThreshold` has at most
+`rothLargeCount κ |S| [F : K]` elements. That number depends on `κ`, `|S|` and `[F : K]` alone,
+and the threshold is linear in the heights of the targets.
+
+⚠ This bounds the **number** of large solutions and says nothing about their height: no
+statement here bounds the height of a solution above the threshold, and none can be read off the
+proof — which is the ineffectivity of Roth's method. Nor does it use Roth's theorem: finiteness
+is a consequence (`NumberField.ncard_setOf_lt_absLogHeight₁_le`). -/
+theorem card_le_rothLargeCount (Sinf : Finset (InfinitePlace K))
     (Sfin : Finset (FinitePlace K)) (w : AbsoluteValue K ℝ → AbsoluteValue F ℝ)
     (hwInf : ∀ v ∈ Sinf, (w v.1).LiesOver v.1) (hwFin : ∀ v ∈ Sfin, (w v.1).LiesOver v.1)
-    (α : AbsoluteValue K ℝ → F) {κ : ℝ} (hκ : 2 < κ) :
-    ∃ L : ℝ, {β : K | (∏ v ∈ Sinf, min 1 (w v.1 (algebraMap K F β - α v.1)) ^ v.mult) *
+    (α : AbsoluteValue K ℝ → F) {κ : ℝ} (hκ : 2 < κ) (U' : Finset K)
+    (hU' : ∀ β ∈ U', (∏ v ∈ Sinf, min 1 (w v.1 (algebraMap K F β - α v.1)) ^ v.mult) *
         ∏ v ∈ Sfin, min 1 (w v.1 (algebraMap K F β - α v.1)) ≤ mulHeight₁ β ^ (-κ) ∧
-      L < absLogHeight₁ β}.ncard ≤ rothLargeCount κ (Sinf.card + Sfin.card) (finrank K F) := by
+      rothLargeThreshold Sinf Sfin α κ < absLogHeight₁ β) :
+    U'.card ≤ rothLargeCount κ (Sinf.card + Sfin.card) (finrank K F) := by
   classical
   set s := Sinf.card + Sfin.card with hsdef
   set r := finrank K F with hrdef
@@ -344,15 +390,15 @@ theorem exists_ncard_setOf_lt_absLogHeight₁_le (Sinf : Finset (InfinitePlace K
   have hd : (0 : ℝ) < totalWeight K := by exact_mod_cast totalWeight_pos K
   have hcard : Fintype.card (↥Sinf ⊕ ↥Sfin) = s := by
     rw [hsdef, Fintype.card_sum, Fintype.card_coe, Fintype.card_coe]
-  obtain ⟨Lr, hLr⟩ := roth_no_chain Sinf Sfin w hwInf hwFin α hκ
+  have hLr := roth_no_chain Sinf Sfin w hwInf hwFin α hκ
+  set Lr := rothThreshold Sinf Sfin α κ with hLrdef
   set X₀ : ℝ := Real.log 16 / (c - 1) with hX₀def
   have hX₀ : 0 < X₀ := div_pos (Real.log_pos (by norm_num)) hc1
-  refine ⟨max (Lr / totalWeight K) X₀, ?_⟩
+  have hthr : rothLargeThreshold Sinf Sfin α κ = max (Lr / totalWeight K) X₀ := rfl
+  rw [hthr] at hU'
   set U : Set K := {β : K | (∏ v ∈ Sinf, min 1 (w v.1 (algebraMap K F β - α v.1)) ^ v.mult) *
         ∏ v ∈ Sfin, min 1 (w v.1 (algebraMap K F β - α v.1)) ≤ mulHeight₁ β ^ (-κ) ∧
       max (Lr / totalWeight K) X₀ < absLogHeight₁ β} with hUdef
-  have hUfin : U.Finite :=
-    (finite_setOf_prod_min_one_le Sinf Sfin w hwInf hwFin α hκ).subset fun β hβ ↦ hβ.1
   -- what the members of `U` satisfy
   have hsolU : ∀ β ∈ U, ∏ a, localApprox Sinf Sfin w α a β ≤ mulHeight₁ β ^ (-κ) :=
     fun β hβ ↦ by
@@ -377,8 +423,7 @@ theorem exists_ncard_setOf_lt_absLogHeight₁_le (Sinf : Finset (InfinitePlace K
     exact mul_le_of_gap hc hgap (hbigU β hβ).le
   -- one class at a time
   set k : ℕ := ⌈Real.log M / Real.log q⌉₊ with hkdef
-  set U' : Finset K := hUfin.toFinset with hU'def
-  have hmemU : ∀ β ∈ U', β ∈ U := fun β hβ ↦ hUfin.mem_toFinset.mp hβ
+  have hmemU : ∀ β ∈ U', β ∈ U := hU'
   have hfiber : ∀ c₀ : (↥Sinf ⊕ ↥Sfin) → ℕ,
       {β ∈ U' | approxClass Sinf Sfin w α N β = c₀}.card ≤ m * k := by
     intro c₀
@@ -424,8 +469,7 @@ theorem exists_ncard_setOf_lt_absLogHeight₁_le (Sinf : Finset (InfinitePlace K
         exact sum_approxClass_le Sinf Sfin w α N β) (Set.finite_setOf_sum_le _ N)
     rw [Set.ncard_coe_finset, Set.ncard_setOf_sum_le, hcard] at h1
     exact h1
-  calc U.ncard = U'.card := Set.ncard_eq_toFinset_card U hUfin
-    _ = ∑ b ∈ U'.image (approxClass Sinf Sfin w α N),
+  calc U'.card = ∑ b ∈ U'.image (approxClass Sinf Sfin w α N),
           {β ∈ U' | approxClass Sinf Sfin w α N β = b}.card :=
         Finset.card_eq_sum_card_fiberwise hmaps
     _ ≤ ∑ _b ∈ U'.image (approxClass Sinf Sfin w α N), m * k :=
@@ -436,6 +480,177 @@ theorem exists_ncard_setOf_lt_absLogHeight₁_le (Sinf : Finset (InfinitePlace K
     _ = rothLargeCount κ s r := by
         rw [rothLargeCount]
         ring
+
+/-- **6.5.7, the count of large solutions** (Bombieri–Gubler; Davenport and Roth 1955 at one
+place). Above the height `rothLargeThreshold`, which is linear in the heights of the targets,
+Roth's inequality `Λ(β) ≤ H(β) ^ (−κ)` has finitely many solutions, and at most
+`rothLargeCount κ |S| [F : K]` of them. That number depends on `κ`, `|S|` and `[F : K]` alone.
+Absolute logarithmic heights. Finiteness comes from `NumberField.card_le_rothLargeCount`, not
+from Roth's theorem: a set whose finite subsets are bounded in size is finite. -/
+theorem ncard_setOf_lt_absLogHeight₁_le (Sinf : Finset (InfinitePlace K))
+    (Sfin : Finset (FinitePlace K)) (w : AbsoluteValue K ℝ → AbsoluteValue F ℝ)
+    (hwInf : ∀ v ∈ Sinf, (w v.1).LiesOver v.1) (hwFin : ∀ v ∈ Sfin, (w v.1).LiesOver v.1)
+    (α : AbsoluteValue K ℝ → F) {κ : ℝ} (hκ : 2 < κ) :
+    {β : K | (∏ v ∈ Sinf, min 1 (w v.1 (algebraMap K F β - α v.1)) ^ v.mult) *
+        ∏ v ∈ Sfin, min 1 (w v.1 (algebraMap K F β - α v.1)) ≤ mulHeight₁ β ^ (-κ) ∧
+      rothLargeThreshold Sinf Sfin α κ < absLogHeight₁ β}.Finite ∧
+    {β : K | (∏ v ∈ Sinf, min 1 (w v.1 (algebraMap K F β - α v.1)) ^ v.mult) *
+        ∏ v ∈ Sfin, min 1 (w v.1 (algebraMap K F β - α v.1)) ≤ mulHeight₁ β ^ (-κ) ∧
+      rothLargeThreshold Sinf Sfin α κ < absLogHeight₁ β}.ncard
+      ≤ rothLargeCount κ (Sinf.card + Sfin.card) (finrank K F) := by
+  set U : Set K := {β : K | (∏ v ∈ Sinf, min 1 (w v.1 (algebraMap K F β - α v.1)) ^ v.mult) *
+        ∏ v ∈ Sfin, min 1 (w v.1 (algebraMap K F β - α v.1)) ≤ mulHeight₁ β ^ (-κ) ∧
+      rothLargeThreshold Sinf Sfin α κ < absLogHeight₁ β} with hUdef
+  have hfin : U.Finite := by
+    by_contra hinf
+    obtain ⟨t, ht, hcard⟩ := Set.Infinite.exists_subset_card_eq hinf
+      (rothLargeCount κ (Sinf.card + Sfin.card) (finrank K F) + 1)
+    have := card_le_rothLargeCount Sinf Sfin w hwInf hwFin α hκ t fun β hβ ↦ ht hβ
+    omega
+  refine ⟨hfin, ?_⟩
+  rw [Set.ncard_eq_toFinset_card U hfin]
+  exact card_le_rothLargeCount Sinf Sfin w hwInf hwFin α hκ _ fun β hβ ↦ hfin.mem_toFinset.mp hβ
+
+/-! ### The total count -/
+
+/-- **The height where the gap principle starts**, `log 16 / (c − 1)` with
+`c = (1 − s / N) κ − 1` and `N = rothClassSize κ s` (Remark 6.5.5). Above it, heights in one
+approximation class grow by the factor `(c + 1) / 2`. It depends on `κ` and `s` alone. -/
+noncomputable def rothGapHeight (κ : ℝ) (s : ℕ) : ℝ :=
+  Real.log 16 / ((1 - (s : ℝ) / rothClassSize κ s) * κ - 1 - 1)
+
+/-- The gap principle starts at a positive height. -/
+theorem rothGapHeight_pos {κ : ℝ} (hκ : 2 < κ) (s : ℕ) : 0 < rothGapHeight κ s :=
+  div_pos (Real.log_pos (by norm_num)) (by linarith [one_lt_rothGap hκ s])
+
+/-- **The Davenport–Roth count** (Bombieri–Gubler 6.5.7): the number of solutions above
+`rothGapHeight κ s` is at most `rothLargeCount κ s r` plus
+`⌈log (L / X₀) / log ((c + 1) / 2)⌉ (N + s).choose s`, where `X₀ = rothGapHeight κ s` and
+`L = max ((1 + Ht) / δ) X₀` with `δ = rothDelta κ s r nF`. Here `s = |S|`, `r = [F : K]`,
+`nF = [F : ℚ]` and `Ht` bounds the sum of the absolute heights of the targets.
+
+Only the window term sees the targets, and only through `log (1 + Ht)`: the count is
+`A(κ, s, r) + B(κ, s) log (1 + Ht) + B'(κ, s, r, [F : ℚ])`, the shape of Davenport and Roth's
+`c₁ + c₂ log log H(α)`. -/
+noncomputable def rothTotalCount (κ : ℝ) (s r nF : ℕ) (Ht : ℝ) : ℕ :=
+  rothLargeCount κ s r
+    + ⌈Real.log (max ((1 + Ht) / rothDelta κ s r nF) (rothGapHeight κ s) / rothGapHeight κ s)
+        / Real.log ((1 - (s : ℝ) / rothClassSize κ s) * κ / 2)⌉₊
+      * (rothClassSize κ s + s).choose s
+
+/-- **The count is monotone in the heights of the targets.** -/
+theorem rothTotalCount_mono {κ : ℝ} (hκ : 2 < κ) (s r nF : ℕ) {Ht Ht' : ℝ} (hHt : Ht ≤ Ht') :
+    rothTotalCount κ s r nF Ht ≤ rothTotalCount κ s r nF Ht' := by
+  have hδ := (rothDelta_spec hκ s r (Nat.cast_nonneg nF)).1
+  have hX₀ := rothGapHeight_pos hκ s
+  have hq : 0 < Real.log ((1 - (s : ℝ) / rothClassSize κ s) * κ / 2) :=
+    Real.log_pos (by linarith [one_lt_rothGap hκ s])
+  unfold rothTotalCount
+  gcongr
+
+/-- The threshold of 6.5.7 in terms of the heights of the targets. -/
+private theorem rothLargeThreshold_eq (Sinf : Finset (InfinitePlace K))
+    (Sfin : Finset (FinitePlace K)) (α : AbsoluteValue K ℝ → F) (κ : ℝ) :
+    rothLargeThreshold Sinf Sfin α κ
+      = max ((1 + ∑ a : ↥Sinf ⊕ ↥Sfin, absLogHeight₁ (α (sPlaceAbsValue a)))
+          / rothDelta κ (Sinf.card + Sfin.card) (finrank K F) (finrank ℚ F))
+        (rothGapHeight κ (Sinf.card + Sfin.card)) := by
+  have hd : (totalWeight K : ℝ) ≠ 0 := by exact_mod_cast (totalWeight_pos K).ne'
+  rw [rothLargeThreshold, rothThreshold, mul_div_assoc, mul_div_cancel_left₀ _ hd]
+  rfl
+
+/-- **The Davenport–Roth count, for a finite set** (Bombieri–Gubler 6.5.7; Davenport and Roth
+1955 at one place). Every finite set of solutions of `Λ(β) ≤ H(β) ^ (−κ)` of absolute
+logarithmic height above `rothGapHeight κ |S|` has at most
+`rothTotalCount κ |S| [F : K] [F : ℚ] Ht` elements, where `Ht` bounds the sum of the absolute
+heights of the targets. The solutions up to `rothLargeThreshold` are counted by the window lemma,
+those above it by `NumberField.card_le_rothLargeCount`. -/
+theorem card_le_rothTotalCount (Sinf : Finset (InfinitePlace K))
+    (Sfin : Finset (FinitePlace K)) (w : AbsoluteValue K ℝ → AbsoluteValue F ℝ)
+    (hwInf : ∀ v ∈ Sinf, (w v.1).LiesOver v.1) (hwFin : ∀ v ∈ Sfin, (w v.1).LiesOver v.1)
+    (α : AbsoluteValue K ℝ → F) {κ : ℝ} (hκ : 2 < κ) {Ht : ℝ}
+    (hHt : ∑ a : ↥Sinf ⊕ ↥Sfin, absLogHeight₁ (α (sPlaceAbsValue a)) ≤ Ht) (U' : Finset K)
+    (hU' : ∀ β ∈ U', (∏ v ∈ Sinf, min 1 (w v.1 (algebraMap K F β - α v.1)) ^ v.mult) *
+        ∏ v ∈ Sfin, min 1 (w v.1 (algebraMap K F β - α v.1)) ≤ mulHeight₁ β ^ (-κ) ∧
+      rothGapHeight κ (Sinf.card + Sfin.card) < absLogHeight₁ β) :
+    U'.card ≤ rothTotalCount κ (Sinf.card + Sfin.card) (finrank K F) (finrank ℚ F) Ht := by
+  classical
+  set s := Sinf.card + Sfin.card with hsdef
+  set N := rothClassSize κ s with hNdef
+  set X₀ := rothGapHeight κ s with hX₀def
+  set L := rothLargeThreshold Sinf Sfin α κ with hLdef
+  set c : ℝ := (1 - (s : ℝ) / N) * κ - 1 with hcdef
+  have hc : 1 < c := one_lt_rothGap hκ s
+  have hX₀ : 0 < X₀ := rothGapHeight_pos hκ s
+  have hN : 0 < N := (rothClassSize_spec hκ s).1
+  have hsplit := Finset.card_filter_add_card_filter_not (s := U')
+    (p := fun β ↦ absLogHeight₁ β ≤ L)
+  -- above `L`: the count of large solutions
+  have hlarge : {β ∈ U' | ¬ absLogHeight₁ β ≤ L}.card ≤ rothLargeCount κ s (finrank K F) :=
+    card_le_rothLargeCount Sinf Sfin w hwInf hwFin α hκ _ fun β hβ ↦ by
+      obtain ⟨hβU, hβL⟩ := Finset.mem_filter.mp hβ
+      exact ⟨(hU' β hβU).1, not_le.mp hβL⟩
+  -- in `(X₀, L]`: the window lemma
+  have hwin := ncard_le_of_subset_setOf_absLogHeight₁_mem_Ioc hwInf hwFin α (by linarith) hN
+    hcdef hc (le_refl X₀) (A := L / X₀) (T := ↑{β ∈ U' | absLogHeight₁ β ≤ L}) fun β hβ ↦ by
+      obtain ⟨hβU, hβL⟩ := Finset.mem_filter.mp (Finset.mem_coe.mp hβ)
+      exact ⟨(hU' β hβU).1, (hU' β hβU).2, by rwa [div_mul_cancel₀ L hX₀.ne']⟩
+  rw [Set.ncard_coe_finset, show (c + 1) / 2 = (1 - (s : ℝ) / N) * κ / 2 by rw [hcdef]; ring]
+    at hwin
+  have hLle : L ≤ max ((1 + Ht) / rothDelta κ s (finrank K F) (finrank ℚ F)) X₀ := by
+    rw [hLdef, rothLargeThreshold_eq]
+    have hδ := (rothDelta_spec hκ s (finrank K F) (Nat.cast_nonneg (finrank ℚ F))).1
+    gcongr
+  have hq : 0 < Real.log ((1 - (s : ℝ) / N) * κ / 2) := Real.log_pos (by linarith)
+  have hLX₀ : 0 < L / X₀ :=
+    div_pos (lt_of_lt_of_le hX₀ (by rw [hLdef, rothLargeThreshold_eq]; exact le_max_right _ _))
+      hX₀
+  have hceil : ⌈Real.log (L / X₀) / Real.log ((1 - (s : ℝ) / N) * κ / 2)⌉₊
+      ≤ ⌈Real.log (max ((1 + Ht) / rothDelta κ s (finrank K F) (finrank ℚ F)) X₀ / X₀)
+        / Real.log ((1 - (s : ℝ) / N) * κ / 2)⌉₊ := by
+    gcongr
+  have hwin' := hwin.trans (Nat.mul_le_mul_right _ hceil)
+  rw [← hsdef] at hwin'
+  have htot : rothTotalCount κ s (finrank K F) (finrank ℚ F) Ht = rothLargeCount κ s (finrank K F)
+      + ⌈Real.log (max ((1 + Ht) / rothDelta κ s (finrank K F) (finrank ℚ F)) X₀ / X₀)
+        / Real.log ((1 - (s : ℝ) / N) * κ / 2)⌉₊ * (N + s).choose s := rfl
+  rw [htot]
+  omega
+
+/-- **The Davenport–Roth count** (Bombieri–Gubler 6.5.7; Davenport and Roth 1955 at one place).
+Above the height `rothGapHeight κ |S|`, which depends on `κ` and `|S|` alone, Roth's inequality
+`Λ(β) ≤ H(β) ^ (−κ)` has finitely many solutions, and at most
+`rothTotalCount κ |S| [F : K] [F : ℚ] Ht` of them, where `Ht` bounds the sum of the absolute
+heights of the targets. The bound grows like `log (1 + Ht)`. Finiteness comes from the count, not
+from Roth's theorem or Northcott's.
+
+⚠ The solutions of height at most `rothGapHeight κ |S|` are not counted; there are finitely many,
+but their number depends on `K`. -/
+theorem ncard_setOf_rothGapHeight_lt_absLogHeight₁_le (Sinf : Finset (InfinitePlace K))
+    (Sfin : Finset (FinitePlace K)) (w : AbsoluteValue K ℝ → AbsoluteValue F ℝ)
+    (hwInf : ∀ v ∈ Sinf, (w v.1).LiesOver v.1) (hwFin : ∀ v ∈ Sfin, (w v.1).LiesOver v.1)
+    (α : AbsoluteValue K ℝ → F) {κ : ℝ} (hκ : 2 < κ) {Ht : ℝ}
+    (hHt : ∑ a : ↥Sinf ⊕ ↥Sfin, absLogHeight₁ (α (sPlaceAbsValue a)) ≤ Ht) :
+    {β : K | (∏ v ∈ Sinf, min 1 (w v.1 (algebraMap K F β - α v.1)) ^ v.mult) *
+        ∏ v ∈ Sfin, min 1 (w v.1 (algebraMap K F β - α v.1)) ≤ mulHeight₁ β ^ (-κ) ∧
+      rothGapHeight κ (Sinf.card + Sfin.card) < absLogHeight₁ β}.Finite ∧
+    {β : K | (∏ v ∈ Sinf, min 1 (w v.1 (algebraMap K F β - α v.1)) ^ v.mult) *
+        ∏ v ∈ Sfin, min 1 (w v.1 (algebraMap K F β - α v.1)) ≤ mulHeight₁ β ^ (-κ) ∧
+      rothGapHeight κ (Sinf.card + Sfin.card) < absLogHeight₁ β}.ncard
+      ≤ rothTotalCount κ (Sinf.card + Sfin.card) (finrank K F) (finrank ℚ F) Ht := by
+  set U : Set K := {β : K | (∏ v ∈ Sinf, min 1 (w v.1 (algebraMap K F β - α v.1)) ^ v.mult) *
+        ∏ v ∈ Sfin, min 1 (w v.1 (algebraMap K F β - α v.1)) ≤ mulHeight₁ β ^ (-κ) ∧
+      rothGapHeight κ (Sinf.card + Sfin.card) < absLogHeight₁ β} with hUdef
+  have hfin : U.Finite := by
+    by_contra hinf
+    obtain ⟨t, ht, hcard⟩ := Set.Infinite.exists_subset_card_eq hinf
+      (rothTotalCount κ (Sinf.card + Sfin.card) (finrank K F) (finrank ℚ F) Ht + 1)
+    have := card_le_rothTotalCount Sinf Sfin w hwInf hwFin α hκ hHt t fun β hβ ↦ ht hβ
+    omega
+  refine ⟨hfin, ?_⟩
+  rw [Set.ncard_eq_toFinset_card U hfin]
+  exact card_le_rothTotalCount Sinf Sfin w hwInf hwFin α hκ hHt _
+    fun β hβ ↦ hfin.mem_toFinset.mp hβ
 
 /-! ### Acceptance criteria -/
 
@@ -474,7 +689,7 @@ example (Sinf : Finset (InfinitePlace K)) (Sfin : Finset (FinitePlace K))
         ∏ v ∈ Sfin, min 1 (w v.1 (algebraMap K F β - α v.1)) ≤ mulHeight₁ β ^ (-κ) ∧
       L < absLogHeight₁ β}.ncard ≤ B :=
   ⟨rothLargeCount κ (Sinf.card + Sfin.card) (finrank K F),
-    fun α ↦ exists_ncard_setOf_lt_absLogHeight₁_le Sinf Sfin w hwInf hwFin α hκ⟩
+    fun α ↦ ⟨_, (ncard_setOf_lt_absLogHeight₁_le Sinf Sfin w hwInf hwFin α hκ).2⟩⟩
 
 /-- **Conformance: the chain bound is sharp.** Heights `1` and `2` with ratio `3`: every block
 holds at most `2` points and no two points form a chain, and the set has exactly `1 · 2` points.

@@ -54,6 +54,8 @@ by Step 0.
 
 * `NumberField.rothEps`, `NumberField.rothClassSize`, `NumberField.rothChainLength` and
   `NumberField.rothRatio`: the `ε`, the `N`, the `m` and the `M` of the proof.
+* `NumberField.rothDelta` and `NumberField.rothThreshold`: the `δ` of the core with moving
+  targets and the threshold `L` above which no chain exists, both closed forms.
 
 ## Main results
 
@@ -61,8 +63,8 @@ by Step 0.
 * `NumberField.roth_no_moving_chain`: **the core of the proof, with moving targets** — no chain
   of `rothChainLength κ |S| [F : K] + 1` solutions in one class, each with its own targets, has
   `1 + ∑ v, h(α j v) ≤ δ h(β j)` throughout — which is what Layer 3.8 consumes.
-* `NumberField.roth_no_chain`: its constant case — no chain above a height `L` — which is what
-  Layer 3.7 counts with.
+* `NumberField.roth_no_chain`: its constant case — no chain above the height
+  `L = rothThreshold` — which is what Layer 3.7 counts with.
 * `NumberField.max_apply_one_le_mulHeight₁_sPlaceAbsValue`: the size of a target at a place of
   `S` is at most its height.
 * `Real.exists_le_and_mul_log_add_lt`: the elementary fact that replaces the book's `D → ∞`.
@@ -100,6 +102,14 @@ statements of those steps were generalized, and nothing outside Layer 3.2 quotes
 the size `|α j v|_v` bounded by the height, which the fixed-target proof could leave as a constant:
 `NumberField.max_apply_one_le_mulHeight₁_sPlaceAbsValue`, from Layer 0.1's classification.
 `NumberField.roth_no_chain` is then the constant case, with `L = [K : ℚ] (1 + ∑ v, h(α v)) / δ`.
+
+⚠ **`δ` and `L` are definitions, not existentials.** They are milestone Q0.1 of the
+`QuantitativeSubspace` roadmap. The core used to produce `δ` inside the proof, as the smaller of
+two margins. It now takes `δ` as a parameter, together with the two inequalities it has to
+satisfy, and `NumberField.rothDelta` is a closed form meeting both. The total weight
+`∑ v ∈ S, mult v` of the places is bounded by `2 |S|` (`NumberField.sum_sPlaceWeight_le`), so
+`δ` does not depend on which places are complex. The price is a smaller `δ`, and hence a larger
+`L`, when `S` has real places.
 
 ## References
 
@@ -143,6 +153,20 @@ noncomputable def rothChainLength (κ : ℝ) (s r : ℕ) : ℕ :=
 /-- **The ratio `M` of `(L, M)`-independence in Roth's proof**, `2 / ε ^ (2 ^ m)`: the heights of
 consecutive members of a chain must grow at least this fast for Roth's lemma to apply. -/
 noncomputable def rothRatio (κ : ℝ) (s r : ℕ) : ℝ := 2 / rothEps κ ^ 2 ^ rothChainLength κ s r
+
+/-- **The `δ` of Roth's proof with moving targets**: targets whose heights add up to at most
+`δ h(β) − 1` are small enough for Steps I to V. It is the smaller of two margins:
+- `σ / (12 (m + 1))`, what Roth's lemma leaves, with `σ = ε ^ (2 ^ m)` and
+  `m = rothChainLength κ s r`;
+- `(Θ − 1) / (2 (8 [F : ℚ] s + 8))`, what the final comparison leaves, with
+  `Θ = κ (1 − s / N) (1 / 2 − 4 ε)` and `N = rothClassSize κ s`.
+
+It depends on `κ`, `s = |S|`, `r = [F : K]` and `rF = [F : ℚ]` alone. The weights of the
+places are bounded by `2`, so no dependence on which places are complex remains. -/
+noncomputable def rothDelta (κ : ℝ) (s r : ℕ) (rF : ℝ) : ℝ :=
+  min (rothEps κ ^ 2 ^ rothChainLength κ s r / (12 * ((rothChainLength κ s r : ℝ) + 1)))
+    ((κ * (1 - (s : ℝ) / rothClassSize κ s) * (1 / 2 - 4 * rothEps κ) - 1)
+      / (2 * (8 * rF * s + 8)))
 
 /-- The three facts about `rothEps` that the proof uses. -/
 theorem rothEps_spec {κ : ℝ} (hκ : 2 < κ) :
@@ -258,6 +282,29 @@ theorem one_le_rothRatio {κ : ℝ} (hκ : 2 < κ) (s r : ℕ) : 1 ≤ rothRatio
   rw [rothRatio, le_div_iff₀ hσ0]
   linarith
 
+/-- The three facts about `rothDelta` that the proof uses: it is positive, and it fits under both
+margins. -/
+theorem rothDelta_spec {κ : ℝ} (hκ : 2 < κ) (s r : ℕ) {rF : ℝ} (hrF : 0 ≤ rF) :
+    0 < rothDelta κ s r rF ∧
+      12 * ((rothChainLength κ s r : ℝ) + 1) * rothDelta κ s r rF
+        ≤ rothEps κ ^ 2 ^ rothChainLength κ s r ∧
+      2 * (8 * rF * s + 8) * rothDelta κ s r rF
+        ≤ κ * (1 - (s : ℝ) / rothClassSize κ s) * (1 / 2 - 4 * rothEps κ) - 1 := by
+  obtain ⟨hε0, -, -⟩ := rothEps_spec hκ
+  have hΘ := (rothClassSize_spec hκ s).2.2
+  have hm : (0 : ℝ) < (rothChainLength κ s r : ℝ) + 1 := by positivity
+  have hW : (0 : ℝ) < 2 * (8 * rF * s + 8) := by positivity
+  refine ⟨lt_min (by positivity) (div_pos (by linarith) hW), ?_, ?_⟩
+  · rw [← le_div_iff₀' (by positivity)]
+    exact min_le_left _ _
+  · rw [← le_div_iff₀' hW]
+    exact min_le_right _ _
+
+/-- **`rothDelta` is positive** for `κ > 2`. -/
+theorem rothDelta_pos {κ : ℝ} (hκ : 2 < κ) (s r : ℕ) {rF : ℝ} (hrF : 0 ≤ rF) :
+    0 < rothDelta κ s r rF :=
+  (rothDelta_spec hκ s r hrF).1
+
 /-! ### The core of the proof -/
 
 /-- **The size of a target is bounded by its height** at every place of `S`: the absolute value
@@ -281,8 +328,11 @@ private theorem roth_no_moving_chain_aux (Sinf : Finset (InfinitePlace K))
     (hε4 : 0 < 1 / 2 - 4 * ε) {N : ℕ}
     (hΘ : 1 < κ * (1 - ((Sinf.card + Sfin.card : ℕ) : ℝ) / N) * (1 / 2 - 4 * ε)) {mnum : ℕ}
     (hfeasA : (finrank K F : ℝ) * ((Sinf.card + Sfin.card : ℕ) : ℝ)
-      * Real.exp (-(6 * ((mnum : ℝ) + 1) * ε ^ 2)) < 1 / 2) :
-    ∃ δ : ℝ, 0 < δ ∧ ∀ lam : (↥Sinf ⊕ ↥Sfin) → ℝ, (∀ a, 0 ≤ lam a) →
+      * Real.exp (-(6 * ((mnum : ℝ) + 1) * ε ^ 2)) < 1 / 2)
+    {δ : ℝ} (hδ0 : 0 < δ) (hδσ : 12 * ((mnum : ℝ) + 1) * δ ≤ ε ^ 2 ^ mnum)
+    (hδΘ : 2 * (8 * (finrank ℚ F : ℝ) * ((Sinf.card + Sfin.card : ℕ) : ℝ) + 8) * δ
+      ≤ κ * (1 - ((Sinf.card + Sfin.card : ℕ) : ℝ) / N) * (1 / 2 - 4 * ε) - 1) :
+    ∀ lam : (↥Sinf ⊕ ↥Sfin) → ℝ, (∀ a, 0 ≤ lam a) →
       1 - ((Sinf.card + Sfin.card : ℕ) : ℝ) / N ≤ ∑ a, lam a →
       ∀ (α : Fin (mnum + 1) → AbsoluteValue K ℝ → F) (β : Fin (mnum + 1) → K),
         (∀ j, 1 + ∑ a : ↥Sinf ⊕ ↥Sfin, absLogHeight₁ (α j (sPlaceAbsValue a))
@@ -328,24 +378,18 @@ private theorem roth_no_moving_chain_aux (Sinf : Finset (InfinitePlace K))
   clear_value Mind
   have hm1 : (0 : ℝ) < (mnum : ℝ) + 1 := by positivity
   have hW0 : (0 : ℝ) ≤ (Wsum : ℝ) := Nat.cast_nonneg _
-  set δ : ℝ := min (σ / (12 * ((mnum : ℝ) + 1))) ((Θ - 1) / (2 * (4 * rF * (Wsum : ℝ) + 8)))
-    with hδdef
-  have hδ0 : 0 < δ := lt_min (by positivity) (by positivity)
-  have hδσ : 12 * ((mnum : ℝ) + 1) * δ ≤ σ := by
-    have h := min_le_left (σ / (12 * ((mnum : ℝ) + 1)))
-      ((Θ - 1) / (2 * (4 * rF * (Wsum : ℝ) + 8)))
-    rw [← hδdef, le_div_iff₀ (by positivity)] at h
-    linarith
+  have hWle : (Wsum : ℝ) ≤ 2 * (SA : ℝ) := by
+    rw [hWdef, hSAdef]
+    exact_mod_cast sum_sPlaceWeight_le
   have hδΘ : 2 * (4 * rF * (Wsum : ℝ) + 8) * δ ≤ Θ - 1 := by
-    have h := min_le_right (σ / (12 * ((mnum : ℝ) + 1)))
-      ((Θ - 1) / (2 * (4 * rF * (Wsum : ℝ) + 8)))
-    rw [← hδdef, le_div_iff₀ (by positivity)] at h
+    have h1 : 4 * rF * (Wsum : ℝ) ≤ 8 * rF * (SA : ℝ) := by nlinarith
+    have h2 : 2 * (4 * rF * (Wsum : ℝ) + 8) * δ ≤ 2 * (8 * rF * (SA : ℝ) + 8) * δ :=
+      mul_le_mul_of_nonneg_right (by linarith) hδ0.le
     linarith
   have hδ1 : δ ≤ 1 := by
     have := mul_nonneg (Nat.cast_nonneg mnum : (0 : ℝ) ≤ mnum) hδ0.le
     linarith
-  clear_value δ
-  refine ⟨δ, hδ0, fun lam hlam0 hlamsum α β hαβ hchain hblocal ↦ ?_⟩
+  intro lam hlam0 hlamsum α β hαβ hchain hblocal
   -- the heights of the targets, against the heights of the chain
   set Hα : Fin (mnum + 1) → ℝ :=
     fun j ↦ ∑ a : ↥Sinf ⊕ ↥Sfin, absLogHeight₁ (α j (sPlaceAbsValue a)) with hHαdef
@@ -626,57 +670,73 @@ private theorem roth_no_moving_chain_aux (Sinf : Finset (InfinitePlace K))
   linarith only [hlhs, hkey, hb1, hb2, hQh, hsumdh, hδD, hDlog', hmH]
 
 /-- **The core of Roth's proof, with moving targets** (Bombieri–Gubler 6.4.5 to 6.4.10, as 6.5.2
-reads them): there is a `δ > 0` such that **no chain of `rothChainLength κ s r + 1` solutions in
-one approximation class, with heights growing by the ratio `rothRatio κ s r`, has targets small
-against it** — `1 + ∑ v ∈ S, h(α j v) ≤ δ h(β j)` for every member `β j`, whose own targets are
-`α j`. Here `s = |S|`, `r = [F : K]`, and the class is given by its vector of exponents `λ`, with
-`∑ λ ≥ 1 − s / N` for `N = rothClassSize κ s`. The number `δ` depends on `K`, `S`, `[F : ℚ]` and
-`κ` and on no target; the smallness condition is in absolute heights and the ratio, which reads
-the same in both normalizations, in Mathlib's relative ones. -/
+reads them): with `δ = rothDelta κ s r [F : ℚ]`, **no chain of `rothChainLength κ s r + 1`
+solutions in one approximation class, with heights growing by the ratio `rothRatio κ s r`, has
+targets small against it** — `1 + ∑ v ∈ S, h(α j v) ≤ δ h(β j)` for every member `β j`, whose own
+targets are `α j`. Here `s = |S|`, `r = [F : K]`, and the class is given by its vector of
+exponents `λ`, with `∑ λ ≥ 1 − s / N` for `N = rothClassSize κ s`. The number `δ` is explicit
+and depends on `κ`, `s`, `r` and `[F : ℚ]` alone (`NumberField.rothDelta_pos`); the smallness
+condition is in absolute heights and the ratio, which reads the same in both normalizations, in
+Mathlib's relative ones. -/
 theorem roth_no_moving_chain (Sinf : Finset (InfinitePlace K))
     (Sfin : Finset (FinitePlace K)) (w : AbsoluteValue K ℝ → AbsoluteValue F ℝ)
     (hwInf : ∀ v ∈ Sinf, (w v.1).LiesOver v.1) (hwFin : ∀ v ∈ Sfin, (w v.1).LiesOver v.1)
     {κ : ℝ} (hκ : 2 < κ) :
-    ∃ δ : ℝ, 0 < δ ∧ ∀ lam : (↥Sinf ⊕ ↥Sfin) → ℝ, (∀ a, 0 ≤ lam a) →
+    ∀ lam : (↥Sinf ⊕ ↥Sfin) → ℝ, (∀ a, 0 ≤ lam a) →
       1 - ((Sinf.card + Sfin.card : ℕ) : ℝ) / rothClassSize κ (Sinf.card + Sfin.card)
         ≤ ∑ a, lam a →
       ∀ (α : Fin (rothChainLength κ (Sinf.card + Sfin.card) (finrank K F) + 1) →
           AbsoluteValue K ℝ → F)
         (β : Fin (rothChainLength κ (Sinf.card + Sfin.card) (finrank K F) + 1) → K),
         (∀ j, 1 + ∑ a : ↥Sinf ⊕ ↥Sfin, absLogHeight₁ (α j (sPlaceAbsValue a))
-          ≤ δ * absLogHeight₁ (β j)) →
+          ≤ rothDelta κ (Sinf.card + Sfin.card) (finrank K F) (finrank ℚ F)
+            * absLogHeight₁ (β j)) →
         (∀ j : Fin (rothChainLength κ (Sinf.card + Sfin.card) (finrank K F)),
           rothRatio κ (Sinf.card + Sfin.card) (finrank K F) * logHeight₁ (β j.castSucc)
             ≤ logHeight₁ (β j.succ)) →
         ¬ ∀ j a, localApprox Sinf Sfin w (α j) a (β j) ≤ mulHeight₁ (β j) ^ (-κ * lam a) := by
   obtain ⟨hε0, hε1, hε4⟩ := rothEps_spec hκ
+  obtain ⟨hδ0, hδσ, hδΘ⟩ := rothDelta_spec hκ (Sinf.card + Sfin.card) (finrank K F)
+    (Nat.cast_nonneg (finrank ℚ F))
   exact roth_no_moving_chain_aux Sinf Sfin w hwInf hwFin (by linarith) hε0 hε1 hε4
-    (rothClassSize_spec hκ _).2.2 (rothChainLength_spec hκ _ _)
+    (rothClassSize_spec hκ _).2.2 (rothChainLength_spec hκ _ _) hδ0 hδσ (by exact_mod_cast hδΘ)
 
-/-- **The core of Roth's proof** (Bombieri–Gubler 6.4.5 to 6.4.10, read as in 6.5.7): there is a
-height `L` — depending on `K`, `S` and the targets — such that **no `(L, M)`-independent chain of
+/-- **The threshold of Roth's proof**, `L = [K : ℚ] (1 + ∑ v ∈ S, h(α v)) / δ` with
+`δ = rothDelta κ |S| [F : K] [F : ℚ]`: above it, in Mathlib's relative logarithmic height, there
+is no chain of solutions (`NumberField.roth_no_chain`). It is linear in the heights of the
+targets, and its coefficient depends on `κ`, `|S|`, `[K : ℚ]` and `[F : ℚ]` alone. -/
+noncomputable def rothThreshold (Sinf : Finset (InfinitePlace K)) (Sfin : Finset (FinitePlace K))
+    (α : AbsoluteValue K ℝ → F) (κ : ℝ) : ℝ :=
+  (totalWeight K : ℝ) * (1 + ∑ a : ↥Sinf ⊕ ↥Sfin, absLogHeight₁ (α (sPlaceAbsValue a)))
+    / rothDelta κ (Sinf.card + Sfin.card) (finrank K F) (finrank ℚ F)
+
+/-- **The core of Roth's proof** (Bombieri–Gubler 6.4.5 to 6.4.10, read as in 6.5.7): above the
+height `L = rothThreshold Sinf Sfin α κ` **no `(L, M)`-independent chain of
 `rothChainLength κ s r + 1` solutions lies in one approximation class**. Here `s = |S|`,
 `r = [F : K]`, `M = rothRatio κ s r` and the class is given by its vector of exponents `λ`, with
 `∑ λ ≥ 1 − s / N` for `N = rothClassSize κ s`; the length, the ratio and the class size depend on
-`κ`, `s` and `r` alone. Heights are Mathlib's relative ones. It is the fixed-target case of
-`NumberField.roth_no_moving_chain`, with `L = [K : ℚ] (1 + ∑ v ∈ S, h(α v)) / δ`. -/
+`κ`, `s` and `r` alone, and `L` is linear in the heights of the targets. Heights are Mathlib's
+relative ones. It is the fixed-target case of `NumberField.roth_no_moving_chain`. -/
 theorem roth_no_chain (Sinf : Finset (InfinitePlace K))
     (Sfin : Finset (FinitePlace K)) (w : AbsoluteValue K ℝ → AbsoluteValue F ℝ)
     (hwInf : ∀ v ∈ Sinf, (w v.1).LiesOver v.1) (hwFin : ∀ v ∈ Sfin, (w v.1).LiesOver v.1)
     (α : AbsoluteValue K ℝ → F) {κ : ℝ} (hκ : 2 < κ) :
-    ∃ L : ℝ, ∀ lam : (↥Sinf ⊕ ↥Sfin) → ℝ, (∀ a, 0 ≤ lam a) →
+    ∀ lam : (↥Sinf ⊕ ↥Sfin) → ℝ, (∀ a, 0 ≤ lam a) →
       1 - ((Sinf.card + Sfin.card : ℕ) : ℝ) / rothClassSize κ (Sinf.card + Sfin.card)
         ≤ ∑ a, lam a →
       ∀ β : Fin (rothChainLength κ (Sinf.card + Sfin.card) (finrank K F) + 1) → K,
-        L ≤ logHeight₁ (β 0) →
+        rothThreshold Sinf Sfin α κ ≤ logHeight₁ (β 0) →
         (∀ j : Fin (rothChainLength κ (Sinf.card + Sfin.card) (finrank K F)),
           rothRatio κ (Sinf.card + Sfin.card) (finrank K F) * logHeight₁ (β j.castSucc)
             ≤ logHeight₁ (β j.succ)) →
         ¬ ∀ j a, localApprox Sinf Sfin w α a (β j) ≤ mulHeight₁ (β j) ^ (-κ * lam a) := by
-  obtain ⟨δ, hδ0, hδ⟩ := roth_no_moving_chain Sinf Sfin w hwInf hwFin hκ
-  refine ⟨(totalWeight K : ℝ) * (1 + ∑ a : ↥Sinf ⊕ ↥Sfin, absLogHeight₁ (α (sPlaceAbsValue a)))
-      / δ, fun lam hlam0 hlamsum β hβL hchain ↦
-    hδ lam hlam0 hlamsum (fun _ ↦ α) β (fun j ↦ ?_) hchain⟩
+  have hδ0 := rothDelta_pos hκ (Sinf.card + Sfin.card) (finrank K F)
+    (Nat.cast_nonneg (finrank ℚ F))
+  have hδ := roth_no_moving_chain Sinf Sfin w hwInf hwFin hκ
+  set δ := rothDelta κ (Sinf.card + Sfin.card) (finrank K F) (finrank ℚ F) with hδdef
+  intro lam hlam0 hlamsum β hβL hchain
+  refine hδ lam hlam0 hlamsum (fun _ ↦ α) β (fun j ↦ ?_) hchain
+  rw [rothThreshold, ← hδdef] at hβL
   have hmono : Monotone fun j ↦ logHeight₁ (β j) :=
     Fin.monotone_iff_le_succ.mpr fun j ↦
       le_trans (le_mul_of_one_le_left (zero_le_logHeight₁ _) (one_le_rothRatio hκ _ _))
@@ -734,12 +794,12 @@ theorem finite_setOf_prod_min_one_le (Sinf : Finset (InfinitePlace K))
     fun a β _ ↦ localApprox_le_one _ _ _ _ _ _
   -- the parameters `ε` and `N`
   -- the core, fed by Step 0
-  obtain ⟨L, hL⟩ := roth_no_chain Sinf Sfin w hwInf hwFin α hκ
+  have hL := roth_no_chain Sinf Sfin w hwInf hwFin α hκ
   have hcard : Fintype.card (↥Sinf ⊕ ↥Sfin) = Sinf.card + Sfin.card := by
     rw [Fintype.card_sum, Fintype.card_coe, Fintype.card_coe]
   obtain ⟨lam, hlam0, hlamsum, b, -, hbind, hblocal⟩ :=
     exists_isHeightIndependent_forall_le_rpow (localApprox Sinf Sfin w α) hXinf hfpos hfle hκ0
-      hXsub hXh (rothClassSize_spec hκ (Sinf.card + Sfin.card)).1 L
+      hXsub hXh (rothClassSize_spec hκ (Sinf.card + Sfin.card)).1 (rothThreshold Sinf Sfin α κ)
       (rothRatio κ (Sinf.card + Sfin.card) (finrank K F))
   rw [hcard] at hlamsum
   refine hL lam hlam0 hlamsum (fun j ↦ b j.val) (by simpa using hbind.1) (fun j ↦ ?_)

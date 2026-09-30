@@ -34,6 +34,7 @@ domains that Layer 6.1 uses: the domain grows with its exponents, and so does th
   rounding up dominates, and costs at most one mesh.
 * `NumberField.abs_roundExponent_le`, `NumberField.finite_setOf_abs_le`: the rounded integers of a
   system confined to a box are bounded, and there are finitely many bounded families.
+* `NumberField.ncard_setOf_abs_le_le`: at most `(2 m + 1) ^ (#∞ · #σ)` of them.
 
 ## Implementation notes
 
@@ -207,6 +208,27 @@ theorem finite_setOf_abs_le (σ : Type*) [Finite σ] (m : ℤ) :
   intro g hg
   simp only [Set.mem_pi, Set.mem_univ, forall_const]
   exact fun w ↦ fun T ↦ Set.mem_Icc.2 (abs_le.1 (hg w T))
+
+/-- **The number of bounded families of integers**: at most `(2 m + 1) ^ (#∞ · #σ)` families
+`g : InfinitePlace K → σ → ℤ` have every entry of absolute value at most `m`. This bounds the
+number of grid systems, the classes of the parametric Subspace Theorem. -/
+theorem ncard_setOf_abs_le_le (σ : Type*) [Fintype σ] (m : ℤ) :
+    {g : InfinitePlace K → σ → ℤ | ∀ w T, |g w T| ≤ m}.ncard
+      ≤ (2 * m + 1).toNat ^ (Fintype.card (InfinitePlace K) * Fintype.card σ) := by
+  classical
+  have hsub : {g : InfinitePlace K → σ → ℤ | ∀ w T, |g w T| ≤ m}
+      ⊆ ↑(Fintype.piFinset fun _ : InfinitePlace K ↦
+          Fintype.piFinset fun _ : σ ↦ Finset.Icc (-m) m) := by
+    intro g hg
+    simp only [Fintype.coe_piFinset, Set.mem_pi, Set.mem_univ,
+      Finset.coe_Icc, Set.mem_Icc, forall_const]
+    exact fun w T ↦ abs_le.1 (hg w T)
+  refine (Set.ncard_le_ncard hsub (Finset.finite_toSet _)).trans (le_of_eq ?_)
+  rw [Set.ncard_coe_finset, Fintype.card_piFinset, Finset.prod_const, Finset.card_univ,
+    Fintype.card_piFinset, Finset.prod_const, Finset.card_univ, Int.card_Icc, ← pow_mul,
+    mul_comm (Fintype.card (InfinitePlace K))]
+  congr 2
+  ring
 
 end GridExponent
 

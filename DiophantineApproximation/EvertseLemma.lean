@@ -11,6 +11,7 @@ public import Mathlib.LinearAlgebra.Dual.Defs
 public import Mathlib.LinearAlgebra.Span.Defs
 public import Mathlib.NumberTheory.NumberField.Completion.FinitePlace
 public import Mathlib.NumberTheory.NumberField.InfinitePlace.Basic
+public import DiophantineApproximation.ReducedIntegralBasis
 
 -- Used only inside proofs.
 import DiophantineApproximation.RationalPlaces
@@ -116,6 +117,20 @@ open Module
 section Core
 
 variable {K : Type*} [Field K] {E : Type*} [AddCommGroup E] [Module K E]
+
+/-- **The constant of Evertse's lemma**, by the recursion of its proof: `1` for no vectors, and
+`max C (max (m C) (max (m A C) (2 max 1 (m (2 max (m A C) 1)))))` for `m + 1` vectors, where `C`
+is the constant for `m` and `A` the radius of simultaneous approximation. -/
+noncomputable def evertseConst (A : ℝ) : ℕ → ℝ
+  | 0 => 1
+  | m + 1 => max (evertseConst A m) (max (m * evertseConst A m) (max (m * A * evertseConst A m)
+      (2 * max 1 (m * (2 * max (m * A * evertseConst A m) 1)))))
+
+/-- The constant of Evertse's lemma is at least `1`. -/
+theorem one_le_evertseConst (A : ℝ) (m : ℕ) : 1 ≤ evertseConst A m := by
+  induction m with
+  | zero => exact le_rfl
+  | succ m ih => exact ih.trans (le_max_left _ _)
 
 namespace AbsoluteValue
 
@@ -333,9 +348,10 @@ Bombieri–Gubler, Lemma 7.5.29). Let `R ⊆ K` be a subring, `P` and `N` sets o
 place, bounded by `ν v k * μ v j` with `μ v` monotone, there are vectors `y j`, with `y j - x j` an
 `R`-combination of the `x l` with `l < j`, and bijections `π v` of `Fin m`, with
 `v (L v (π v i) (y j)) ≤ C * ν v (π v i) * min (μ v i) (μ v j)` on `P` and the same without `C` on
-`N`. The constant depends only on `A` and `m`. -/
+`N`. The constant is `evertseConst A m`. -/
 theorem exists_evertse_of_approx {A : ℝ} (hA : 0 ≤ A) (m : ℕ) : ∃ C : ℝ, 0 < C ∧
-    ∀ (R : Subring K) (P N : Set (AbsoluteValue K ℝ)), (∀ v ∈ N, IsNonarchimedean v) →
+    C = evertseConst A m ∧ ∀ (R : Subring K) (P N : Set (AbsoluteValue K ℝ)),
+    (∀ v ∈ N, IsNonarchimedean v) →
     (∀ γ : AbsoluteValue K ℝ → K, ∃ ξ ∈ R, (∀ v ∈ P, v (ξ + γ v) ≤ A) ∧
       ∀ v ∈ N, v (ξ + γ v) ≤ 1) →
     ∀ (x : Fin m → E) (L : AbsoluteValue K ℝ → Fin m → E →ₗ[K] K)
@@ -349,14 +365,14 @@ theorem exists_evertse_of_approx {A : ℝ} (hA : 0 ≤ A) (m : ℕ) : ∃ C : �
         ∀ v ∈ N, ∀ i j, v (L v (π v i) (y j)) ≤ ν v (π v i) * min (μ v i) (μ v j) := by
   induction m with
   | zero =>
-    exact ⟨1, one_pos, fun R P N _ _ x L μ ν _ _ _ _ ↦
+    exact ⟨1, one_pos, rfl, fun R P N _ _ x L μ ν _ _ _ _ ↦
       ⟨x, fun j ↦ j.elim0, fun j ↦ j.elim0, fun _ ↦ 1, fun _ _ i ↦ i.elim0,
         fun _ _ i ↦ i.elim0⟩⟩
   | succ m ih =>
-    obtain ⟨C, hC, ih⟩ := ih
+    obtain ⟨C, hC, hCeq, ih⟩ := ih
     set C' : ℝ := max C (max (m * C) (max (m * A * C)
       (2 * max 1 (m * (2 * max (m * A * C) 1))))) with hC'
-    refine ⟨C', lt_max_of_lt_left hC, ?_⟩
+    refine ⟨C', lt_max_of_lt_left hC, by rw [hC', hCeq, evertseConst], ?_⟩
     intro R P N hN happrox x L μ ν hL hμ hν hLx
     classical
     have hμ0 : ∀ v ∈ P ∪ N, ∀ j, 0 ≤ μ v j := fun v hv j ↦
@@ -535,6 +551,7 @@ infinite place and every place of `Sfin`, and a basis `x` of `Kⁱ` with
 `v (L v (π v i) (y j)) ≤ C * ν v (π v i) * min (μ v i) (μ v j)` at the infinite places and the same
 without `C` at the places of `Sfin`. -/
 theorem exists_evertse : ∃ C : ℝ, 0 < C ∧
+    C = evertseConst (finrank ℚ K * reducedBasisBound K) (Fintype.card ι) ∧
     ∀ (Sfin : Finset (FinitePlace K)) (L : AbsoluteValue K ℝ → ι → Dual K (ι → K)),
     (∀ w : InfinitePlace K, LinearIndependent K (L w.1)) →
     (∀ v ∈ Sfin, LinearIndependent K (L v.1)) →
@@ -553,10 +570,12 @@ theorem exists_evertse : ∃ C : ℝ, 0 < C ∧
           v (L v.1 (π v.1 i) (x j + ∑ l ∈ Finset.Iio j, ξ j l • x l)) ≤
             ν v.1 (π v.1 i) * min (μ v.1 i) (μ v.1 j) := by
   classical
-  obtain ⟨A, hA, happ⟩ := exists_forall_apply_add_le (K := K)
-  obtain ⟨C, hC, hcore⟩ :=
+  set A : ℝ := finrank ℚ K * reducedBasisBound K with hAdef
+  have hA : 0 ≤ A := by rw [hAdef, reducedBasisBound]; positivity
+  have happ := exists_forall_apply_add_le (K := K)
+  obtain ⟨C, hC, hCeq, hcore⟩ :=
     AbsoluteValue.exists_evertse_of_approx (K := K) (E := ι → K) hA (Fintype.card ι)
-  refine ⟨C, hC, fun Sfin L hLInf hLFin x hx μ ν hμ hν hInf hFin ↦ ?_⟩
+  refine ⟨C, hC, hCeq, fun Sfin L hLInf hLFin x hx μ ν hμ hν hInf hFin ↦ ?_⟩
   set e : Fin (Fintype.card ι) ≃ ι := (Fintype.equivFin ι).symm with he
   -- the `Sfin`-integers
   let R : Subring K :=
@@ -637,7 +656,7 @@ theorem exists_evertse_unweighted : ∃ C : ℝ, 0 < C ∧
         ∀ v ∈ Sfin, ∀ i j,
           v (L v.1 (π v.1 i) (x j + ∑ l ∈ Finset.Iio j, ξ j l • x l)) ≤
             min (μ v.1 i) (μ v.1 j) := by
-  obtain ⟨C, hC, h⟩ := exists_evertse K ι
+  obtain ⟨C, hC, -, h⟩ := exists_evertse K ι
   refine ⟨C, hC, fun Sfin L hLInf hLFin x hx μ hμ hInf hFin ↦ ?_⟩
   obtain ⟨ξ, hξ, π, hπInf, hπFin⟩ := h Sfin L hLInf hLFin x hx μ (fun _ _ ↦ 1) hμ
     (fun _ _ ↦ one_pos) (fun w i j ↦ by rw [one_mul]; exact hInf w i j)

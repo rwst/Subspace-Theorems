@@ -267,7 +267,7 @@ theorem exists_one_le_forall_exists_index_prod_le [Fintype ι] [Nonempty ι]
         set eT := Fintype.equivOfCardEq hcardT with heT
         have hli : LinearIndependent F fun i : ι ↦ M (eT i : κ) :=
           (hgp T hTB (by rw [Nat.card_eq_fintype_card]; exact hTc.le)).comp _ eT.injective
-        obtain ⟨c, hc1, hc⟩ := NumberField.exists_one_le_forall_apply_le W hli
+        obtain ⟨c, hc1, -, hc⟩ := NumberField.exists_one_le_forall_apply_le W hli
         exact ⟨c, hc1, fun _ _ z a ha hle j ↦ hc z a ha (fun i ↦ hle _ (eT i).2) j⟩
       · exact ⟨1, le_refl 1, fun h1 h2 ↦ absurd ⟨h1, h2⟩ hT⟩
     choose BT hBT1 hBT using hex

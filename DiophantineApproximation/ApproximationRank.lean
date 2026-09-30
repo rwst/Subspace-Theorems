@@ -297,6 +297,62 @@ theorem le_successiveMinimum_approx_pow [Nonempty ι]
             (isBounded_approxBody hLInf c Q) (by rw [Finset.mem_range] at hi; omega) hn
     _ = _ := by rw [Finset.prod_const, Finset.card_range]
 
+variable (Sfin L) in
+open scoped Classical in
+/-- **The rank threshold** for exponents of weight at most `-η`: `2 max 1 (X ^ (1 / η))` with
+`X = D! c_K ^ D approxConst / 2 ^ D` and `D = d #ι`. -/
+noncomputable def rankThreshold (η : ℝ) : ℝ :=
+  2 * max 1 (((finrank ℚ K * Fintype.card ι).factorial *
+    integralBasisHouse K ^ (finrank ℚ K * Fintype.card ι) * approxConst Sfin L /
+      2 ^ (finrank ℚ K * Fintype.card ι)) ^ η⁻¹)
+
+open scoped Classical in
+/-- **Bombieri–Gubler, Lemma 7.5.12, with an explicit level**: for exponents of weight at most
+`-η < 0`, the rank of the approximation domain is less than `#ι` at every level
+`Q ≥ rankThreshold Sfin L η` — the last minimum exceeds `1`. -/
+theorem finrank_approxSpan_lt_of_rankThreshold_le
+    (hLInf : ∀ w : InfinitePlace K, LinearIndependent K (L w.1))
+    (hLFin : ∀ v ∈ Sfin, LinearIndependent K (L v.1)) {c : AbsoluteValue K ℝ → ι → ℝ} {η : ℝ}
+    (hη : 0 < η) (hc : approxWeight Sfin c ≤ -η) {Q : ℝ} (hQ : rankThreshold Sfin L η ≤ Q) :
+    finrank K (approxSpan Sfin L c Q) < Fintype.card ι := by
+  have : Nonempty ι := by
+    by_contra h
+    rw [not_nonempty_iff] at h
+    simp [approxWeight] at hc
+    linarith
+  set D := finrank ℚ K * Fintype.card ι
+  set X : ℝ := D.factorial * integralBasisHouse K ^ D * approxConst Sfin L / 2 ^ D with hX
+  have hX0 : 0 < X := by
+    have := approxConst_pos hLInf hLFin
+    have := zero_lt_one.trans_le (one_le_integralBasisHouse K)
+    positivity
+  have hmax : X ^ η⁻¹ < Q := by
+    have h1 : X ^ η⁻¹ ≤ max 1 (X ^ η⁻¹) := le_max_right _ _
+    have h2 : 0 < max 1 (X ^ η⁻¹) := lt_max_of_lt_left one_pos
+    rw [rankThreshold] at hQ
+    linarith
+  have hQ1 : 1 < Q := by
+    rw [rankThreshold] at hQ
+    linarith [le_max_left 1 (X ^ η⁻¹)]
+  have hQ0 : 0 < Q := one_pos.trans hQ1
+  have hkey : 1 < 2 ^ D / (D.factorial * integralBasisHouse K ^ D * approxConst Sfin L) *
+      Q ^ (-approxWeight Sfin c) := by
+    have h1 : X < Q ^ η := by
+      have := Real.rpow_lt_rpow (Real.rpow_nonneg hX0.le _) hmax hη
+      rwa [← Real.rpow_mul hX0.le, inv_mul_cancel₀ hη.ne', Real.rpow_one] at this
+    have h2 : Q ^ η ≤ Q ^ (-approxWeight Sfin c) :=
+      Real.rpow_le_rpow_of_exponent_le hQ1.le (by linarith)
+    have hA : 2 ^ D / (D.factorial * integralBasisHouse K ^ D * approxConst Sfin L) = X⁻¹ := by
+      rw [hX, inv_div]
+    rw [hA, ← div_eq_inv_mul, one_lt_div hX0]
+    linarith
+  have hn : Fintype.card ι - 1 < Fintype.card ι := Nat.sub_lt Fintype.card_pos one_pos
+  by_contra hcon
+  push Not at hcon
+  have hle := (successiveMinimum_approx_le_one_iff hLInf hLFin c hQ0 hn).2 (by omega)
+  have hpow := pow_le_one₀ (n := D) (successiveMinimum_nonneg _ _ _) hle
+  linarith [le_successiveMinimum_approx_pow hLInf hLFin c hQ0]
+
 open scoped Classical in
 /-- **Bombieri–Gubler, Lemma 7.5.12, in parametric form**: for exponents of negative weight, the
 rank of the approximation domain is at most `n` at every large enough level — the last minimum
@@ -306,25 +362,8 @@ theorem eventually_finrank_approxSpan_lt
     (hLFin : ∀ v ∈ Sfin, LinearIndependent K (L v.1)) {c : AbsoluteValue K ℝ → ι → ℝ}
     (hc : approxWeight Sfin c < 0) :
     ∀ᶠ Q in atTop, finrank K (approxSpan Sfin L c Q) < Fintype.card ι := by
-  have : Nonempty ι := by
-    by_contra h
-    rw [not_nonempty_iff] at h
-    simp [approxWeight] at hc
-  set D := finrank ℚ K * Fintype.card ι
-  set A : ℝ := 2 ^ D / (D.factorial * integralBasisHouse K ^ D * approxConst Sfin L)
-  have hA : 0 < A := by
-    have := approxConst_pos hLInf hLFin
-    have := zero_lt_one.trans_le (one_le_integralBasisHouse K)
-    positivity
-  have hT : Tendsto (fun Q : ℝ ↦ A * Q ^ (-approxWeight Sfin c)) atTop atTop :=
-    (tendsto_rpow_atTop (neg_pos.2 hc)).const_mul_atTop hA
-  filter_upwards [hT.eventually_gt_atTop 1, eventually_gt_atTop 0] with Q hQ1 hQ
-  have hn : Fintype.card ι - 1 < Fintype.card ι := Nat.sub_lt Fintype.card_pos one_pos
-  by_contra hcon
-  push Not at hcon
-  have hle := (successiveMinimum_approx_le_one_iff hLInf hLFin c hQ hn).2 (by omega)
-  have hpow := pow_le_one₀ (n := D) (successiveMinimum_nonneg _ _ _) hle
-  linarith [le_successiveMinimum_approx_pow hLInf hLFin c hQ]
+  filter_upwards [eventually_ge_atTop (rankThreshold Sfin L (-approxWeight Sfin c))] with Q hQ
+  exact finrank_approxSpan_lt_of_rankThreshold_le hLInf hLFin (neg_pos.2 hc) (neg_neg _).ge hQ
 
 open scoped Classical in
 /-- **For exponents of negative weight, `V(Q)` is a proper subspace at every large enough

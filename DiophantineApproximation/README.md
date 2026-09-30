@@ -821,8 +821,10 @@ constant it had too.** That tuples of `Kⁱ` independent over `ℚ` have mixed e
 over `ℝ` is Mathlib's `linearIndependent_algebraMap_comp_iff` read in the coordinates of
 `latticeBasis`, whose coordinates on the mixed embedding are those of `integralBasis`
 (`latticeBasis_repr_apply`); `NumberField.mixedEmbedding.linearIndependent_pi` says so once. The
-constant `c_K` is Mathlib's `NumberField.house` of the members of `integralBasis K`, and
-`one_le_house_of_isIntegral` makes it at least `1`.
+constant `c_K` is the largest `NumberField.house` of a member of a reduced integral basis
+(`NumberField.reducedIntegralBasis`), and `one_le_house_of_isIntegral` makes it at least `1`. The
+reduced basis is Cassels' basis from the successive minima of `𝓞 K` in the mixed space, so that
+`c_K ≤ d · 2 ^ d · √|D_K|` (`NumberField.integralBasisHouse_le`).
 
 ⚠ **Layer 4.3 is landed, and it needed nothing from outside.** That a spanning set contains a
 basis of what it spans, indexed by `Fin` of the dimension, is Mathlib's
@@ -2190,9 +2192,14 @@ ineffectivity of the method, and the docstring of the count says so.
 
 The statements are `NumberField.mul_absLogHeight₁_sub_le_of_approxClass_eq` (the gap principle,
 for two solutions with one `NumberField.approxClass`), `NumberField.ncard_setOf_absLogHeight₁_mem_Ioc_le`
-(the window) and `NumberField.exists_ncard_setOf_lt_absLogHeight₁_le` (the large solutions,
+(the window) and `NumberField.ncard_setOf_lt_absLogHeight₁_le` (the large solutions,
 bounded by `NumberField.rothLargeCount κ |S| [F : K]`, whose type shows that it sees nothing
-else). Under the first, `NumberField.mul_absLogHeight₁_sub_le_of_localApprox_le` takes any vector
+else). `NumberField.ncard_setOf_rothGapHeight_lt_absLogHeight₁_le` adds the two: every solution
+above `NumberField.rothGapHeight κ |S| = log 16 / (c − 1)` is counted by
+`NumberField.rothTotalCount κ |S| [F : K] [F : ℚ] Ht`, where `Ht` bounds `∑ v, h(α v)`. Since
+`L` is linear in `Ht`, the window term is `O(log (1 + Ht))`: Davenport and Roth's shape
+`c₁ + c₂ log log H(α)`. Only the solutions below `log 16 / (c − 1)` are left to Northcott.
+Under the first, `NumberField.mul_absLogHeight₁_sub_le_of_localApprox_le` takes any vector
 of exponents `λ ≥ 0` governing the local factors of both points. The combinatorics is in two
 lemmas that know no heights: `Set.ncard_le_ceil_mul_ncard_of_gap`, points with a multiplicative
 gap in a window, and `Finset.card_le_mul_of_not_exists_chain`, a finite set with small blocks and
@@ -2242,7 +2249,8 @@ heights with a bounded shift, windows `[t - e, M t + e)` at Roth's parameters fo
 map `β ↦ (β - c)⁻¹` moves the height by at most `e`.
 
 **And it is fed to 9.4** — **landed**, in `DiophantineApproximation/RothSubspaceCount.lean`. For a
-normalized system in two variables, the solutions above a height `X₀` lie in at most
+normalized system in two variables, the solutions above the explicit height
+`NumberField.systemRothThreshold s r [F : ℚ] [K : ℚ] δ H` lie in at most
 `s + 1 + m (N + s).choose s · (1 + log (3 r s M) / log (1 + δ / 4))` proper subspaces
 (`NumberField.exists_finset_submodule_of_card_eq_two`), with `s` the number of places of the
 system, `r = [F : K]` and Roth's parameters at `2 + δ / 2`: a count depending on `δ`, `s` and `r`
@@ -2268,10 +2276,26 @@ alone. The link is three steps.
 many solutions, all in one subspace. That is why 9.4 had to take a set of solutions rather than
 the complement of one `U₀`.
 
-⚠ **The threshold is ineffective and the count is not Evertse's.** `X₀` comes from Roth's
-theorem and depends on the forms; Evertse's Theorem 2.1 counts above `max (2 H, n ^ (2 n / δ))`
-with `δ⁻¹`-shaped bounds from his Theorem 3.1. Roth's parameters are astronomically worse. What
-is proved is the link: an interval result, fed to 9.4, gives a count uniform in the forms.
+⚠ **The threshold is explicit, and the count is not Evertse's.** The count holds above
+`NumberField.systemRothThreshold s r [F : ℚ] [K : ℚ] δ H`, a formula in the bound `H` on the
+absolute heights of the coefficients (part of `IsNormalizedSystem`), `δ`, `s` and the degrees.
+It is assembled from:
+- the threshold `NumberField.rothOnePointBound` of Roth's interval result with targets at
+  infinity. Its Möbius base point is a natural number `j ≤ s` missing from the targets, the shift
+  is `log (2 (s + 1))`, and Liouville's inequality at one place bounds the distortion constant by
+  `2 H(a − j) ^ 2`;
+- the constants of the system (`Γ`, `systemConst C` and `κc` in `RothSubspaceCount.lean`). With
+  `G = H ^ [F : ℚ]`, each nonzero coefficient has local size in `[G⁻¹, G]`, by Liouville's
+  inequality at one place and its upper half. This bounds `Γ ≤ (16 G ^ 6) ^ s`,
+  `systemConst C ≤ (2 G ^ 2) ^ s` (through the determinant and `Matrix.det_le`), and
+  `κc ≥ (2 ^ [F : ℚ] G ^ 4) ^ (-s)`.
+
+So `log X₀ = O_{δ, s, r}(log H + 1)`. The counting lemmas no longer call qualitative Roth:
+finiteness comes from the count.
+
+Evertse's Theorem 2.1 counts above `max (2 H, n ^ (2 n / δ))`, with `δ⁻¹`-shaped bounds from his
+Theorem 3.1. Roth's parameters are astronomically worse. What is proved here is the link: an
+interval result, fed to 9.4, gives a count uniform in the forms.
 
 No acceptance or rejection tests were written for the restatement or the link.
 
@@ -2406,7 +2430,8 @@ minima of `ArithmeticHeights` 4.1 for `Λ` as a `ZLattice` of rank `d (n + 1)`,
 the extraction lemma, `ArithmeticHeights` 4.4 — and `λ (d l) ≤ c_K μ l`
 (`NumberField.successiveMinimum_mixedImage_le_mul`), where `c_K` is the largest absolute value of
 a conjugate of a member of a fixed integral basis `ω` of `𝓞 K` — the largest house of a member of
-Mathlib's `integralBasis K`, `NumberField.integralBasisHouse K ≥ 1`: if `x 1, …, x l` are
+the reduced basis `NumberField.reducedIntegralBasis K`, `NumberField.integralBasisHouse K ≥ 1`,
+at most `d · 2 ^ d · √|D_K|`: if `x 1, …, x l` are
 `K`-independent in `Λ ∩ t B` then the `d l` vectors `ω j • x i` lie in `Λ`, because `Λ` is an
 `𝓞 K`-module, are independent over `ℚ` and hence over `ℝ`, and lie in `c_K t B`, because `B` is
 balanced over every completion (for approximation domains, `NumberField.mul_mem_approxBody`).
@@ -3023,6 +3048,17 @@ level every such `V(Q)` is one of 5.4's exceptional subspaces
 spans by `NumberField.logHeight_approxSpan_le` — 5.4's upper bound restated without its
 hypothesis that `Q` be large — and Northcott for subspaces (`ArithmeticHeights` 3.7).
 
+Above a level, the levels at which `V(Q)` has rank `n` and is not exceptional have `log Q` in at
+most `m` intervals `[t, 4 σ⁻¹ t)`: `NumberField.exists_forall_mem_interval_approxSpan`, the
+interval form of 5.6, with the `m` and `σ` of the contradiction below. The greedy covering is
+`Set.exists_forall_mem_Ico_of_not_exists_chain`, and "beyond a level" is read off the intervals,
+with no `choose`-built sequence.
+The parameters are explicit: `m = NumberField.subspaceChainLength n |S| ε A` and
+`σ = NumberField.subspaceRatio n |S| ε A`, where `A` bounds `NumberField.approxAbsWeight`, and
+`𝒲` has at most `2 ^ ((n + 1) |S|)` members, one per pattern. The grid systems of 6.1, at most
+`(2 m' + 1) ^ (#∞ · #ρ)` of them (`NumberField.ncard_setOf_abs_le_le`), share one `A`
+(`NumberField.approxAbsWeight_gridExponent_le`), hence one `m` and one `σ`.
+
 The contradiction is `NumberField.exists_forall_not_chain`: there are `m`, `σ > 0` and `Qlow`
 such that no `m + 1` levels with `log Q h ≥ Qlow`, growing at the rate `2 σ⁻¹`, can all have
 rank `n` and height at least `ε log Q h / (4 |S|) − C₅`. Given such a chain, take
@@ -3124,6 +3160,18 @@ of finitely many, its domain has rank exactly `M − 1` because the wedges alrea
 hyperplane and 4.3 caps the rank, 5.6 in `⋀^p` makes those spans finite in number, and Lemma
 7.5.33 — read as the function `exteriorPower.recoverSpan` — recovers from each span the span of
 the first `k` minimal vectors, which contains `V(Q)` and is proper because `k ≤ n`.
+
+The statement is read off an interval form, `NumberField.exists_forall_mem_interval_approxDomain`.
+For `approxWeight ≤ −ε` and `approxAbsWeight ≤ A` there are at most
+`NumberField.parametricSubspaceCount` proper subspaces and a level `Q₀ > 0`. For every
+`Q₀' ≥ Q₀`, a level `Q` with `log Q ≥ Q₀'` either has its domain in one of those subspaces or has
+`log Q` in one of at most `NumberField.parametricIntervalCount` intervals `[t, ρ t)` with
+`t ≥ Q₀'`, where `ρ = NumberField.parametricRatio`. The two counts and `ρ` are closed forms in
+`n`, `[K : ℚ]`, the number of places, `ε` and `A`: every class `(k, g)` contributes 5.6's interval
+form in `⋀^p`, pulled back through `recoverSpan`, and the counts are summed over the classes. The
+minima exponent is `B = (n + 1)(A + 1)/[K : ℚ]`, the mesh, box and grid count follow from it, and
+the classes share one absolute-weight bound in each `⋀^p`. The per-`k` step is
+`NumberField.exists_forall_mem_interval_approxSpan_le`.
 ⚠ The book states its conclusion only along `Q = H(x_ν)` for a hypothetical sequence of solutions,
 because it is proving 6.2 by contradiction; but 7.5.32 opens with "let `(Q_ν)` be an unbounded
 family" and uses nothing else, and the statement above is what that argument proves. It is pinned
@@ -3153,7 +3201,8 @@ confine anything. The missing bound is arithmetic, not geometry of numbers: a no
 `Q` to the sum of the largest exponents, so `t` is at least a fixed negative power of `Q`
 (`NumberField.exists_pos_forall_rpow_le_successiveMinimum`); the upper bound is then Minkowski's,
 with the others replaced by that lower bound
-(`NumberField.exists_pos_forall_rpow_le_successiveMinimum_le`). Every constant is absorbed into
+(`NumberField.exists_pos_forall_rpow_le_successiveMinimum_le`). Both exponents are bounded in
+terms of the absolute weight of `c` alone: `B ≤ #ι (AW + 1) / [K : ℚ]`. Every constant is absorbed into
 one extra unit of exponent above a threshold, which keeps the grid free of constants.
 
 ⚠ **The grid is indexed by the infinite places, not by absolute values.** A system of exponents is
@@ -4351,10 +4400,19 @@ both use it). The count is the source's. `ω ≥ 1` is a hypothesis, since for `
 can be negative while the intervals are empty; the solutions in `U₀` are not counted, and an
 empty `ι` needs no case in the statement, every point being `0 ∈ U₀`.
 
-⚠ **The intervals are a hypothesis, and nothing here produces them.** The source feeds this step
-its Theorem 3.1, whose proof is the bulk of the paper and is outside this roadmap; so Evertse's
-Theorem 2.1 itself, the count of the large solutions, is not proved. For `N = 2` 3.7 supplies the
-intervals instead, above an ineffective height; see 3.7. The general form, for the solutions in
+⚠ **The intervals are a hypothesis, and for `N > 2` nothing here produces them yet.** The source
+feeds this step its Theorem 3.1, whose proof is the bulk of the paper and is outside this
+roadmap, so Evertse's Theorem 2.1 itself, the count of the large solutions, is not proved. For
+`N = 2`, 3.7 supplies the intervals instead, above an explicit height in the coefficient bound
+`H`; see 3.7. For general `N` the *contrapositive* of an interval result, at Schmidt's parameters rather
+than Evertse's, is already landed:
+- `NumberField.exists_forall_not_chain` (5.6) rules out a finite chain of explicit length and
+  growth;
+- `NumberField.exists_forall_mem_interval_approxSpan` (5.6) turns it into at most `m` intervals
+  of levels, for the approximation domains of one system of forms and exponents.
+
+Carrying those intervals from levels to solutions, with `m` uniform, is milestone Q0.2 of
+[`QuantitativeSubspace`](../QuantitativeSubspace/README.md). The general form, for the solutions in
 any set `X`, is `NumberField.exists_finset_submodule_of_forall_mem_interval_of_mem`; the link
 needs it, because it removes `s + 1` lines rather than one subspace.
 
@@ -5195,6 +5253,9 @@ intersection theory on products of projective spaces; with the Roth's lemma of 2
 bookkeeping yields only Schmidt's doubly exponential count (1989). The reformulation: uniformity
 in the field needs the **absolute** theory — twisted heights on `ℚ̄ⁿ`, and the absolute
 Minkowski theorem of Roy–Thunder and Zhang in place of Layer 4.2, whose constants depend on `K`.
+
+The route to it, paper by paper, is laid out in
+[`QuantitativeSubspace/README.md`](../QuantitativeSubspace/README.md).
 
 Also beyond this roadmap, each a roadmap of its own or part of one: **Vojta's refinement**, that
 outside one effectively determinable exceptional subspace `U₀` the solutions are finite in number

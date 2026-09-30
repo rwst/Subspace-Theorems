@@ -29,6 +29,7 @@ public import Challenge.DiophantineApproximation.MovingTargets
 public import Challenge.DiophantineApproximation.ParametricSubspace
 public import Challenge.DiophantineApproximation.RothRational
 public import Challenge.DiophantineApproximation.Ridout
+public import Challenge.DiophantineApproximation.RothIntervals
 public import Challenge.DiophantineApproximation.RothProjective
 public import Challenge.DiophantineApproximation.SubspaceTheorem
 public import Challenge.DiophantineApproximation.SubspaceAlgebraic

@@ -81,9 +81,10 @@ the base field.
 
 ⚠ **`o(h(β j))` cannot be weakened to `O(h(β j))`.** With the targets equal to the approximations,
 every term is a solution and `1 + h(α j) = O(h(β j))`; the acceptance criteria check it. The
-quantitative version, 6.5.3, replaces the `o` by `δ(κ) h(β j)` with an explicit `δ(κ)`; here
-`δ` is an existential of `NumberField.roth_no_moving_chain` and depends on `K`, `S` and `[F : ℚ]`
-as well as `κ`.
+quantitative version, 6.5.3, replaces the `o` by `δ(κ) h(β j)` with an explicit `δ(κ)`. Here
+`δ` is `NumberField.rothDelta κ |S| [F : K] [F : ℚ]`, the closed form with which
+`NumberField.roth_no_moving_chain` is stated. It depends on `|S|`, `[F : K]` and `[F : ℚ]` as
+well as on `κ`.
 
 ## References
 
@@ -129,7 +130,10 @@ theorem finite_setOf_prod_min_one_le_of_isLittleO (Sinf : Finset (InfinitePlace 
   set N := rothClassSize κ s with hNdef
   have hκ0 : (0 : ℝ) < κ := by linarith
   have hN : 0 < N := (rothClassSize_spec hκ s).1
-  obtain ⟨δ, hδ0, hδ⟩ := roth_no_moving_chain Sinf Sfin w hwInf hwFin hκ
+  have hδ0 := rothDelta_pos hκ (Sinf.card + Sfin.card) (finrank K F)
+    (Nat.cast_nonneg (finrank ℚ F))
+  have hδ := roth_no_moving_chain Sinf Sfin w hwInf hwFin hκ
+  set δ := rothDelta κ (Sinf.card + Sfin.card) (finrank K F) (finrank ℚ F) with hδdef
   set A : ℕ → ℝ := fun j ↦ ∑ v ∈ Sinf, absLogHeight₁ (α j v.1) + ∑ v ∈ Sfin, absLogHeight₁ (α j v.1)
     with hAdef
   have hA0 : ∀ j, 0 ≤ A j := fun j ↦

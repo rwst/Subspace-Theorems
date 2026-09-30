@@ -89,9 +89,9 @@ namespace Finset
 
 /-- A positive lower bound for a family, uniform over a `Finset`. -/
 theorem exists_pos_forall_le {α : Type*} (s : Finset α) (f : α → ℝ) (hf : ∀ a ∈ s, 0 < f a) :
-    ∃ κ : ℝ, 0 < κ ∧ ∀ a ∈ s, κ ≤ f a := by
+    ∃ κ : ℝ, 0 < κ ∧ κ = ∏ a ∈ s, min 1 (f a) ∧ ∀ a ∈ s, κ ≤ f a := by
   classical
-  refine ⟨∏ a ∈ s, min 1 (f a), Finset.prod_pos fun a ha ↦ lt_min zero_lt_one (hf a ha),
+  refine ⟨∏ a ∈ s, min 1 (f a), Finset.prod_pos fun a ha ↦ lt_min zero_lt_one (hf a ha), rfl,
     fun a ha ↦ ?_⟩
   have h1 : ∏ b ∈ s.erase a, min 1 (f b) ≤ 1 :=
     Finset.prod_le_one₀ (fun b hb ↦ le_min zero_le_one (hf b (Finset.mem_of_mem_erase hb)).le)
@@ -176,38 +176,141 @@ theorem Module.Dual.apply_eq_sum {K : Type*} [Field K] {ι : Type*} [Fintype ι]
   conv_lhs => rw [← (Pi.basisFun K ι).sum_repr x]
   simp [map_sum]
 
+open scoped Classical in
+/-- **The local size of the inverse of a system of forms**: `#ι (1 + ∑_{i,k} v ((M⁻¹) i k))`, for
+the matrix `M` of the system. -/
+noncomputable def NumberField.invFormBound {K : Type*} [Field K] {ι : Type*} [Fintype ι]
+    (v : AbsoluteValue K ℝ) (l : ι → Dual K (ι → K)) : ℝ :=
+  Fintype.card ι * (1 + ∑ p : ι × ι, v ((LinearMap.toMatrix' (LinearMap.pi l))⁻¹ p.1 p.2))
+
+open scoped Classical in
+/-- **The inverse matrix reads back the coordinates**: `x i = ∑_k (M⁻¹) i k · l k x`. -/
+theorem NumberField.sum_inv_toMatrix'_pi_mul {K : Type*} [Field K] {ι : Type*} [Fintype ι]
+    {l : ι → Dual K (ι → K)} (hl : LinearIndependent K l) (x : ι → K) (i : ι) :
+    ∑ k, (LinearMap.toMatrix' (LinearMap.pi l))⁻¹ i k * l k x = x i := by
+  set M := LinearMap.toMatrix' (LinearMap.pi l)
+  have hdet : IsUnit M.det := by
+    rw [LinearMap.det_toMatrix']
+    exact isUnit_iff_ne_zero.mpr (LinearMap.det_pi_ne_zero hl)
+  have hM : M *ᵥ x = fun k ↦ l k x := by
+    rw [LinearMap.toMatrix'_mulVec]
+    rfl
+  have h := congrFun (congrArg (fun y ↦ M⁻¹ *ᵥ y) hM) i
+  simp only [Matrix.mulVec_mulVec, Matrix.nonsing_inv_mul M hdet, Matrix.one_mulVec] at h
+  rw [h]
+  rfl
+
+open scoped Classical in
+/-- **A combination of some of the forms is bounded by those forms and the size of its
+coefficient vector.** If `ζ ⬝ x = ∑_{i ∈ T} β i · l i x` for every `x`, and the forms indexed by
+`T` are at most `b` at `x`, then `v (ζ ⬝ x) ≤ #ι · invFormBound v l · max_k v (ζ k) · b`: the
+coefficients are `β j = ζ ⬝ (M⁻¹ e_j)`. -/
+theorem NumberField.apply_dotProduct_le_of_forall_eq_sum {K : Type*} [Field K] {ι : Type*}
+    [Fintype ι] (v : AbsoluteValue K ℝ) {l : ι → Dual K (ι → K)} (hl : LinearIndependent K l)
+    {T : Finset ι} {ζ : ι → K} {β : ι → K} (hβT : ∀ i ∉ T, β i = 0)
+    (hβ : ∀ x : ι → K, ζ ⬝ᵥ x = ∑ i, β i * l i x) (x : ι → K) {b : ℝ} (hb : 0 ≤ b)
+    (hx : ∀ i ∈ T, v (l i x) ≤ b) :
+    v (ζ ⬝ᵥ x) ≤ Fintype.card ι * invFormBound v l * (⨆ k, v (ζ k)) * b := by
+  set M := LinearMap.toMatrix' (LinearMap.pi l) with hMdef
+  have hdet : IsUnit M.det := by
+    rw [hMdef, LinearMap.det_toMatrix']
+    exact isUnit_iff_ne_zero.mpr (LinearMap.det_pi_ne_zero hl)
+  set a : ℝ := ⨆ k, v (ζ k) with ha
+  have hak : ∀ k, v (ζ k) ≤ a := fun k ↦ Finite.le_ciSup_of_le k le_rfl
+  have ha0 : ∀ k, 0 ≤ a := fun k ↦ (v.nonneg _).trans (hak k)
+  have hsum0 : (0 : ℝ) ≤ ∑ p : ι × ι, v (M⁻¹ p.1 p.2) := Finset.sum_nonneg fun p _ ↦ v.nonneg _
+  have hIFB : invFormBound v l = Fintype.card ι * (1 + ∑ p : ι × ι, v (M⁻¹ p.1 p.2)) := rfl
+  -- the coefficients
+  have hIFB0 : 0 ≤ invFormBound v l := by rw [hIFB]; positivity
+  have hβj : ∀ j, v (β j) ≤ invFormBound v l * a := by
+    intro j
+    set y : ι → K := M⁻¹ *ᵥ Pi.single j 1 with hy
+    have hly : ∀ i, l i y = (Pi.single j (1 : K) : ι → K) i := by
+      intro i
+      have h1 : M *ᵥ y = Pi.single j 1 := by
+        rw [hy, Matrix.mulVec_mulVec, Matrix.mul_nonsing_inv M hdet, Matrix.one_mulVec]
+      have h2 : M *ᵥ y = fun k ↦ l k y := by
+        rw [hMdef, LinearMap.toMatrix'_mulVec]
+        rfl
+      rw [← h1, h2]
+    have hβy : β j = ζ ⬝ᵥ y := by
+      rw [hβ y]
+      simp only [hly, Pi.single_apply, mul_ite, mul_one, mul_zero, Finset.sum_ite_eq',
+        Finset.mem_univ, ↓reduceIte]
+    have hyk : ∀ k, y k = M⁻¹ k j := fun k ↦ by
+      rw [hy, Matrix.mulVec_single_one]
+      rfl
+    have hcol : ∑ k, v (M⁻¹ k j) ≤ ∑ p : ι × ι, v (M⁻¹ p.1 p.2) := by
+      rw [Fintype.sum_prod_type]
+      exact Finset.sum_le_sum fun k _ ↦
+        Finset.single_le_sum (f := fun j' ↦ v (M⁻¹ k j')) (fun _ _ ↦ v.nonneg _)
+          (Finset.mem_univ j)
+    have : Nonempty ι := ⟨j⟩
+    have hN : (1 : ℝ) ≤ Fintype.card ι := by
+      exact_mod_cast Nat.one_le_iff_ne_zero.mpr (Fintype.card_ne_zero (α := ι))
+    rw [hβy, dotProduct]
+    calc v (∑ k, ζ k * y k) ≤ ∑ k, v (ζ k * y k) := v.sum_le _ _
+      _ ≤ ∑ k, a * v (M⁻¹ k j) := Finset.sum_le_sum fun k _ ↦ by
+          rw [map_mul, hyk]
+          exact mul_le_mul_of_nonneg_right (hak k) (v.nonneg _)
+      _ = a * ∑ k, v (M⁻¹ k j) := (Finset.mul_sum _ _ _).symm
+      _ ≤ a * (Fintype.card ι * (1 + ∑ p : ι × ι, v (M⁻¹ p.1 p.2))) := by
+          refine mul_le_mul_of_nonneg_left ?_ (ha0 j)
+          nlinarith
+      _ = invFormBound v l * a := by rw [hIFB, mul_comm]
+  rw [hβ x]
+  calc v (∑ i, β i * l i x) ≤ ∑ i, v (β i * l i x) := v.sum_le _ _
+    _ ≤ ∑ _i : ι, invFormBound v l * a * b := Finset.sum_le_sum fun i _ ↦ by
+        rw [map_mul]
+        by_cases hi : i ∈ T
+        · exact mul_le_mul (hβj i) (hx i hi) (v.nonneg _) (mul_nonneg hIFB0 (ha0 i))
+        · rw [hβT i hi, map_zero, zero_mul]
+          exact mul_nonneg (mul_nonneg hIFB0 (ha0 i)) hb
+    _ = Fintype.card ι * invFormBound v l * (⨆ k, v (ζ k)) * b := by
+        rw [Finset.sum_const, Finset.card_univ, nsmul_eq_mul, ha]
+        ring
+
 /-- **At a place where the system of forms is invertible, the coordinates of a point are
-bounded by the values of the forms**, up to a constant depending only on the forms. -/
+bounded by the values of the forms**, up to the constant `NumberField.invFormBound v l`. -/
 theorem NumberField.exists_one_le_forall_apply_le {K : Type*} [Field K] {ι : Type*} [Finite ι]
     [Nonempty ι] (v : AbsoluteValue K ℝ) {l : ι → Dual K (ι → K)}
     (hl : LinearIndependent K l) :
-    ∃ B : ℝ, 1 ≤ B ∧ ∀ (x : ι → K) (b : ℝ), 0 ≤ b → (∀ k, v (l k x) ≤ b) →
-      ∀ i, v (x i) ≤ B * b := by
+    ∃ B : ℝ, 1 ≤ B ∧ (∀ _ : Fintype ι, B = invFormBound v l) ∧
+      ∀ (x : ι → K) (b : ℝ), 0 ≤ b → (∀ k, v (l k x) ≤ b) → ∀ i, v (x i) ≤ B * b := by
   classical
   have : Fintype ι := Fintype.ofFinite ι
-  obtain ⟨e, he⟩ := LinearMap.exists_inverse_forms hl
-  obtain ⟨B₀, hB₀, hB⟩ := Finset.exists_one_le_forall_le (univ : Finset (ι × ι))
-    fun p ↦ v (e p.1 (Pi.single p.2 1))
-  refine ⟨(Fintype.card ι : ℝ) * B₀, ?_, fun x b hb hx i ↦ ?_⟩
+  set M := LinearMap.toMatrix' (LinearMap.pi l) with hMdef
+  set B₀ : ℝ := 1 + ∑ p : ι × ι, v (M⁻¹ p.1 p.2) with hB₀def
+  have hB₀ : 1 ≤ B₀ := by
+    have : (0 : ℝ) ≤ ∑ p : ι × ι, v (M⁻¹ p.1 p.2) := Finset.sum_nonneg fun p _ ↦ v.nonneg _
+    linarith
+  have hB : ∀ i k, v (M⁻¹ i k) ≤ B₀ := fun i k ↦ by
+    have := Finset.single_le_sum (f := fun p : ι × ι ↦ v (M⁻¹ p.1 p.2))
+      (fun p _ ↦ v.nonneg _) (mem_univ (i, k))
+    simp only at this
+    linarith
+  refine ⟨(Fintype.card ι : ℝ) * B₀, ?_, fun inst ↦ ?_, fun x b hb hx i ↦ ?_⟩
   · have : (1 : ℝ) ≤ (Fintype.card ι : ℝ) := by
       exact_mod_cast Nat.one_le_iff_ne_zero.mpr Fintype.card_ne_zero
     nlinarith
-  · have hxi : x i = ∑ k, (l k x) * e i (Pi.single k 1) := by
-      rw [← Module.Dual.apply_eq_sum (e i) (fun k ↦ l k x), he x i]
+  · rw [Subsingleton.elim inst this]
+    rfl
+  · have hxi : x i = ∑ k, (l k x) * M⁻¹ i k := by
+      rw [← sum_inv_toMatrix'_pi_mul hl x i]
+      exact Finset.sum_congr rfl fun k _ ↦ mul_comm _ _
     rw [hxi]
-    refine (AbsoluteValue.apply_sum_mul_le v (fun k ↦ l k x) (fun k ↦ e i (Pi.single k 1))).trans ?_
+    refine (AbsoluteValue.apply_sum_mul_le v (fun k ↦ l k x) (fun k ↦ M⁻¹ i k)).trans ?_
     have h1 : (⨆ k, v (l k x)) ≤ b := Real.iSup_le hx hb
-    have h2 : (⨆ k, v (e i (Pi.single k 1))) ≤ B₀ :=
-      Real.iSup_le (fun k ↦ hB (i, k) (mem_univ _)) (le_trans zero_le_one hB₀)
+    have h2 : (⨆ k, v (M⁻¹ i k)) ≤ B₀ :=
+      Real.iSup_le (fun k ↦ hB i k) (le_trans zero_le_one hB₀)
     have h3 : (0 : ℝ) ≤ ⨆ k, v (l k x) :=
       le_trans (v.nonneg (l (Classical.ofNonempty) x)) (Finite.le_ciSup_of_le _ le_rfl)
-    have h5 : (0 : ℝ) ≤ ⨆ k, v (e i (Pi.single k 1)) :=
-      le_trans (v.nonneg (e i (Pi.single Classical.ofNonempty 1)))
-        (Finite.le_ciSup_of_le _ le_rfl)
-    have hkey : (⨆ s, v (l s x)) * (⨆ s, v (e i (Pi.single s 1))) ≤ b * B₀ :=
+    have h5 : (0 : ℝ) ≤ ⨆ k, v (M⁻¹ i k) :=
+      le_trans (v.nonneg (M⁻¹ i Classical.ofNonempty)) (Finite.le_ciSup_of_le _ le_rfl)
+    have hkey : (⨆ s, v (l s x)) * (⨆ s, v (M⁻¹ i s)) ≤ b * B₀ :=
       mul_le_mul h1 h2 h5 hb
     have h4 : (0 : ℝ) ≤ (Fintype.card ι : ℝ) := Nat.cast_nonneg _
-    calc (Fintype.card ι : ℝ) * ((⨆ s, v (l s x)) * ⨆ s, v (e i (Pi.single s 1)))
+    calc (Fintype.card ι : ℝ) * ((⨆ s, v (l s x)) * ⨆ s, v (M⁻¹ i s))
         ≤ (Fintype.card ι : ℝ) * (b * B₀) := by nlinarith
       _ = (Fintype.card ι : ℝ) * B₀ * b := by ring
 
@@ -225,7 +328,7 @@ theorem exists_one_le_forall_apply_plucker_le (v : AbsoluteValue K ℝ) {l : ι 
     (hl : LinearIndependent K l) :
     ∃ A : ℝ, 1 ≤ A ∧ ∀ (y : Fin n → ι → K) (b : ℝ), 0 ≤ b → (∀ j k, v (l k (y j)) ≤ b) →
       ∀ t : Set.powersetCard ι n, v (plucker n y t) ≤ A * b ^ n := by
-  obtain ⟨B, hB1, hB⟩ := exists_one_le_forall_apply_le v hl
+  obtain ⟨B, hB1, -, hB⟩ := exists_one_le_forall_apply_le v hl
   have h1 : (1 : ℝ) ≤ n.factorial := by exact_mod_cast n.factorial_pos
   have h2 : (1 : ℝ) ≤ B ^ n := one_le_pow₀ hB1
   refine ⟨n.factorial * B ^ n, by nlinarith, fun y b hb hy t ↦ ?_⟩
@@ -356,13 +459,30 @@ private theorem iSup_pos {ρ : Type*} [Finite ρ] {v : AbsoluteValue K ℝ} {a :
   obtain ⟨t, ht⟩ := Function.ne_iff.mp ha
   exact lt_of_lt_of_le (v.pos ht) (Finite.le_ciSup_of_le t le_rfl)
 
+variable (S₀ L n) in
+open scoped Classical in
+/-- **The constant of the lower bound of Lemma 7.5.21**: the minimum of
+`∏ min 1 (‖a‖_w ^ mult w / (N H(a)))` over the infinite places and of
+`∏ min 1 (‖a‖_v / (N H(a)))` over the places of `S₀`, where `a` runs through the coefficient
+vectors `wedgeFormCoeff (L v) n s` of the maximal minors, `‖a‖_v = max_t v (a t)` and
+`N = #(⋀^n) ^ d`. -/
+noncomputable def normalKappa : ℝ :=
+  min (∏ p : InfinitePlace K × Set.powersetCard ι n,
+      min 1 ((⨆ t, p.1 (wedgeFormCoeff (L p.1.1) n p.2 t)) ^ p.1.mult
+        / ((Fintype.card (Set.powersetCard ι n) : ℝ) ^ Height.totalWeight K
+          * Height.mulHeight (wedgeFormCoeff (L p.1.1) n p.2))))
+    (∏ p ∈ S₀ ×ˢ (univ : Finset (Set.powersetCard ι n)),
+      min 1 ((⨆ t, p.1 (wedgeFormCoeff (L p.1.1) n p.2 t))
+        / ((Fintype.card (Set.powersetCard ι n) : ℝ) ^ Height.totalWeight K
+          * Height.mulHeight (wedgeFormCoeff (L p.1.1) n p.2))))
+
 /-- **The lower bound of Bombieri–Gubler, Lemma 7.5.21, at one place**: a nonvanishing
 transformed Plücker coordinate is at least the local factor of the Plücker point divided by its
 height, up to a constant depending only on the forms. -/
 theorem exists_pos_forall_mul_iSup_le (hlk : 1 + n = Fintype.card ι)
     (hLinf : ∀ w : InfinitePlace K, LinearIndependent K (L w.1))
     (hLfin : ∀ w ∈ S₀, LinearIndependent K (L w.1)) :
-    ∃ κ : ℝ, 0 < κ ∧ ∀ y : Fin n → ι → K,
+    ∃ κ : ℝ, 0 < κ ∧ κ = normalKappa n S₀ L ∧ ∀ y : Fin n → ι → K,
       (∀ (w : InfinitePlace K) (s : Set.powersetCard ι n),
           plucker n (fun j i ↦ L w.1 i (y j)) s ≠ 0 →
           κ * (⨆ t, w (plucker n y t)) ^ w.mult
@@ -392,9 +512,10 @@ theorem exists_pos_forall_mul_iSup_le (hlk : 1 + n = Fintype.card ι)
     rw [Finset.mem_product] at hp
     exact div_pos (iSup_pos (wedgeCoeff_ne_zero (hLfin p.1 hp.1) p.2))
       (mul_pos hN0 (Height.mulHeight_pos _))
-  obtain ⟨κ₁, hκ₁, hκ₁le⟩ := Finset.exists_pos_forall_le univ κI fun p _ ↦ hposI p
-  obtain ⟨κ₂, hκ₂, hκ₂le⟩ := Finset.exists_pos_forall_le (S₀ ×ˢ univ) κF hposF
-  refine ⟨min κ₁ κ₂, lt_min hκ₁ hκ₂, fun y ↦ ⟨fun w s hD ↦ ?_, fun w hw s hD ↦ ?_⟩⟩
+  obtain ⟨κ₁, hκ₁, hκ₁eq, hκ₁le⟩ := Finset.exists_pos_forall_le univ κI fun p _ ↦ hposI p
+  obtain ⟨κ₂, hκ₂, hκ₂eq, hκ₂le⟩ := Finset.exists_pos_forall_le (S₀ ×ˢ univ) κF hposF
+  refine ⟨min κ₁ κ₂, lt_min hκ₁ hκ₂, by rw [hκ₁eq, hκ₂eq, normalKappa],
+    fun y ↦ ⟨fun w s hD ↦ ?_, fun w hw s hD ↦ ?_⟩⟩
   · set a := wedgeFormCoeff (L w.1) n s with hadef
     have hDz : (∑ t, a t * plucker n y t) = plucker n (fun j i ↦ L w.1 i (y j)) s := by
       rw [plucker_pi_apply, wedgeForms_eq_sum]
@@ -530,7 +651,8 @@ nonvanishing transformed Plücker coordinates is at least the height of the subs
 theorem exists_pos_forall_prod_le (hlk : 1 + n = Fintype.card ι)
     (hLinf : ∀ w : InfinitePlace K, LinearIndependent K (L w.1))
     (hLfin : ∀ w ∈ S₀, LinearIndependent K (L w.1)) :
-    ∃ κ : ℝ, 0 < κ ∧ ∀ {Q : ℝ} (y : Fin n → ι → K), LinearIndependent K y →
+    ∃ κ : ℝ, 0 < κ ∧ κ = normalKappa n S₀ L ∧
+      ∀ {Q : ℝ} (y : Fin n → ι → K), LinearIndependent K y →
       (∀ j, y j ∈ approxDomain S₀ L c Q) →
       ∀ s : AbsoluteValue K ℝ → Set.powersetCard ι n,
         (∀ w : InfinitePlace K, plucker n (fun j i ↦ L w.1 i (y j)) (s w.1) ≠ 0) →
@@ -540,8 +662,8 @@ theorem exists_pos_forall_prod_le (hlk : 1 + n = Fintype.card ι)
             * ((∏ w : InfinitePlace K,
                   w (plucker n (fun j i ↦ L w.1 i (y j)) (s w.1)) ^ w.mult)
                 * ∏ w ∈ S₀, w (plucker n (fun j i ↦ L w.1 i (y j)) (s w.1))) := by
-  obtain ⟨κ, hκ0, hκ⟩ := exists_pos_forall_mul_iSup_le hlk hLinf hLfin
-  refine ⟨κ, hκ0, fun {Q} y hyli hy s hsI hsF ↦ ?_⟩
+  obtain ⟨κ, hκ0, hκeq, hκ⟩ := exists_pos_forall_mul_iSup_le hlk hLinf hLfin
+  refine ⟨κ, hκ0, hκeq, fun {Q} y hyli hy s hsI hsF ↦ ?_⟩
   obtain ⟨hI, hF⟩ := hκ y
   set H := Height.mulHeight (plucker n y) with hHdef
   have hH0 : 0 < H := Height.mulHeight_pos _

@@ -8,7 +8,7 @@ module
 public import DiophantineApproximation.ApproximationRank
 
 -- Used only inside proofs.
-import DiophantineApproximation.SubspaceHeightBounds
+public import DiophantineApproximation.SubspaceHeightBounds
 
 /-!
 # The minima of an approximation domain lie between two powers of the level
@@ -21,7 +21,8 @@ For a number field `K`, forms `L` independent at every infinite place and at eve
 Q ^ (-B)  ≤  μ j  ≤  Q ^ B      for all  j < #ι  and all large  Q,
 ```
 
-with `B` depending on `K`, `Sfin`, the forms and `c` but not on `Q`. This is the one estimate
+with `B ≤ #ι (AW + 1) / [K : ℚ]` for the absolute weight `AW` of `c`, and a threshold for `Q`
+depending on `K`, `Sfin`, the forms and `c`. This is the one estimate
 Step IX of Bombieri–Gubler's proof needs that Layers 4.1–4.5 do not state: it is what confines the
 exponents of the wedge domain to a box, so that rounding them to a grid leaves finitely many
 systems of exponents.
@@ -40,7 +41,7 @@ by the first bound.
 * `NumberField.exists_pos_forall_rpow_le_successiveMinimum`: the first minimum is at least a
   negative power of `Q`.
 * `NumberField.exists_pos_forall_rpow_le_successiveMinimum_le`: **all the minima lie between
-  `Q ^ (-B)` and `Q ^ B`**.
+  `Q ^ (-B)` and `Q ^ B`**, with `B ≤ #ι (AW + 1) / d` for the absolute weight `AW` of `c`.
 
 ## Implementation notes
 
@@ -72,29 +73,54 @@ namespace NumberField
 variable {K : Type*} [Field K] [NumberField K] {ι : Type*} [Nonempty ι]
   {Sfin : Finset (FinitePlace K)} {L : AbsoluteValue K ℝ → ι → Dual K (ι → K)}
 
+variable (Sfin L) in
+/-- **The constant of the height bound for a point of a dilated domain**:
+`((1 + ∑_w B_w) (1 + ∑_{v ∈ Sfin} B_v)) ^ (d + |Sfin|)` with `B_v = invFormBound v (L v)`. -/
+noncomputable def pointHeightConst [Fintype ι] : ℝ :=
+  ((1 + ∑ w : InfinitePlace K, invFormBound w.1 (L w.1)) *
+    (1 + ∑ v : {v : FinitePlace K // v ∈ Sfin}, invFormBound v.1.1 (L v.1.1))) ^
+      (finrank ℚ K + #Sfin)
+
 /-- **A nonzero point of a dilated approximation domain is not too small**: its height is at
-least `1`, and its height is at most a constant times `t ^ d` times `Q` to the sum of the largest
-exponents. -/
-theorem exists_pos_forall_one_le_mul_pow_rpow [Finite ι]
+least `1`, and its height is at most `pointHeightConst Sfin L` times `t ^ d` times `Q` to the sum
+of the largest exponents. -/
+theorem exists_pos_forall_one_le_mul_pow_rpow [Fintype ι]
     (hLInf : ∀ w : InfinitePlace K, LinearIndependent K (L w.1))
     (hLFin : ∀ v ∈ Sfin, LinearIndependent K (L v.1)) (c : AbsoluteValue K ℝ → ι → ℝ) :
-    ∃ A : ℝ, 0 < A ∧ ∃ W : ℝ, ∀ Q t : ℝ, 1 ≤ Q → 0 < t → ∀ x : ι → K, x ≠ 0 →
+    ∃ A : ℝ, 0 < A ∧ A = pointHeightConst Sfin L ∧
+      ∀ Q t : ℝ, 1 ≤ Q → 0 < t → ∀ x : ι → K, x ≠ 0 →
       (∀ (w : InfinitePlace K) (i : ι), w (L w.1 i x) ≤ t * Q ^ c w.1 i) →
       (∀ v ∈ Sfin, ∀ i : ι, v (L v.1 i x) ≤ Q ^ c v.1 i) →
       (∀ v : FinitePlace K, v ∉ Sfin → ∀ j : ι, v (x j) ≤ 1) →
-      1 ≤ A * t ^ finrank ℚ K * Q ^ W := by
+      1 ≤ A * t ^ finrank ℚ K *
+        Q ^ (∑ w : InfinitePlace K, (w.mult : ℝ) * (⨆ i, c w.1 i)
+          + ∑ v ∈ Sfin, (⨆ i, c v.1 i)) := by
   classical
-  choose AI hAI1 hAI using fun w : InfinitePlace K ↦
+  choose AI hAI1 hAIeq hAI using fun w : InfinitePlace K ↦
     NumberField.exists_one_le_forall_apply_le w.1 (hLInf w)
-  choose AF hAF1 hAF using fun v : {v : FinitePlace K // v ∈ Sfin} ↦
+  choose AF hAF1 hAFeq hAF using fun v : {v : FinitePlace K // v ∈ Sfin} ↦
     NumberField.exists_one_le_forall_apply_le v.1.1 (hLFin v.1 v.2)
-  obtain ⟨A₁, hA₁, hA₁le⟩ := Finset.exists_one_le_forall_le (univ : Finset (InfinitePlace K)) AI
-  obtain ⟨A₂, hA₂, hA₂le⟩ :=
-    Finset.exists_one_le_forall_le (univ : Finset {v : FinitePlace K // v ∈ Sfin}) AF
+  set A₁ : ℝ := 1 + ∑ w, AI w with hA₁def
+  set A₂ : ℝ := 1 + ∑ v, AF v with hA₂def
+  have hA₁ : 1 ≤ A₁ := by
+    have : 0 ≤ ∑ w, AI w := Finset.sum_nonneg fun w _ ↦ zero_le_one.trans (hAI1 w)
+    linarith
+  have hA₂ : 1 ≤ A₂ := by
+    have : 0 ≤ ∑ v, AF v := Finset.sum_nonneg fun v _ ↦ zero_le_one.trans (hAF1 v)
+    linarith
+  have hA₁le : ∀ w ∈ (univ : Finset (InfinitePlace K)), AI w ≤ A₁ := fun w hw ↦ by
+    have := Finset.single_le_sum (fun w _ ↦ zero_le_one.trans (hAI1 w)) hw
+    linarith
+  have hA₂le : ∀ v ∈ (univ : Finset {v : FinitePlace K // v ∈ Sfin}), AF v ≤ A₂ := fun v hv ↦ by
+    have := Finset.single_le_sum (fun v _ ↦ zero_le_one.trans (hAF1 v)) hv
+    linarith
   set A' : ℝ := A₁ * A₂ with hA'
   have hA'1 : 1 ≤ A' := by nlinarith
-  refine ⟨A' ^ (finrank ℚ K + #Sfin), by positivity,
-    ∑ w : InfinitePlace K, (w.mult : ℝ) * (⨆ i, c w.1 i) + ∑ v ∈ Sfin, (⨆ i, c v.1 i), ?_⟩
+  refine ⟨A' ^ (finrank ℚ K + #Sfin), by positivity, ?_, ?_⟩
+  · rw [pointHeightConst, hA', hA₁def, hA₂def]
+    congr 3
+    · exact Finset.sum_congr rfl fun w _ ↦ hAIeq w _
+    · exact Finset.sum_congr rfl fun v _ ↦ hAFeq v _
   intro Q t hQ ht x hx hinf hfin hout
   have hQ0 : (0 : ℝ) < Q := lt_of_lt_of_le one_pos hQ
   have hnn : ∀ v : AbsoluteValue K ℝ, (0 : ℝ) ≤ ⨆ i, v (x i) :=
@@ -159,12 +185,29 @@ the dilation to the power `d` times `Q` to the sum of the largest exponents. -/
 theorem exists_pos_forall_rpow_le_successiveMinimum
     (hLInf : ∀ w : InfinitePlace K, LinearIndependent K (L w.1))
     (hLFin : ∀ v ∈ Sfin, LinearIndependent K (L v.1)) (c : AbsoluteValue K ℝ → ι → ℝ) :
-    ∃ B : ℝ, 0 < B ∧ ∃ Q₁ : ℝ, 1 ≤ Q₁ ∧ ∀ Q : ℝ, Q₁ ≤ Q →
-      Q ^ (-B) ≤ successiveMinimum (approxModule Sfin L c Q) (approxBody L c Q) 0 := by
-  obtain ⟨A, hA, W, hW⟩ := exists_pos_forall_one_le_mul_pow_rpow hLInf hLFin c
+    ∃ B : ℝ, 0 < B ∧
+      B ≤ (∑ w : InfinitePlace K, (w.mult : ℝ) * ∑ i, |c w.1 i| + ∑ v ∈ Sfin, ∑ i, |c v.1 i| + 1)
+        / finrank ℚ K ∧
+      ∃ Q₁ : ℝ, 1 ≤ Q₁ ∧ Q₁ = max 1 (pointHeightConst Sfin L) ∧ ∀ Q : ℝ, Q₁ ≤ Q →
+        Q ^ (-B) ≤ successiveMinimum (approxModule Sfin L c Q) (approxBody L c Q) 0 := by
+  obtain ⟨A, hA, hAeq, hW⟩ := exists_pos_forall_one_le_mul_pow_rpow hLInf hLFin c
+  set W : ℝ := ∑ w : InfinitePlace K, (w.mult : ℝ) * (⨆ i, c w.1 i) + ∑ v ∈ Sfin, (⨆ i, c v.1 i)
+    with hWdef
   have hd : 0 < finrank ℚ K := finrank_pos
   have hd0 : ((finrank ℚ K : ℝ)) ≠ 0 := by positivity
-  refine ⟨(max W 0 + 1) / finrank ℚ K, by positivity, max 1 A, le_max_left _ _, fun Q hQ ↦ ?_⟩
+  have hsup : ∀ v : AbsoluteValue K ℝ, (⨆ i, c v i) ≤ ∑ i, |c v i| := fun v ↦
+    ciSup_le fun i ↦ (le_abs_self _).trans
+      (Finset.single_le_sum (f := fun i ↦ |c v i|) (fun i _ ↦ abs_nonneg _) (mem_univ i))
+  have hWabs : max W 0
+      ≤ ∑ w : InfinitePlace K, (w.mult : ℝ) * ∑ i, |c w.1 i| + ∑ v ∈ Sfin, ∑ i, |c v.1 i| := by
+    refine max_le (add_le_add (Finset.sum_le_sum fun w _ ↦ ?_)
+      (Finset.sum_le_sum fun v _ ↦ hsup v.1)) (add_nonneg (Finset.sum_nonneg fun w _ ↦ ?_)
+      (Finset.sum_nonneg fun v _ ↦ Finset.sum_nonneg fun i _ ↦ abs_nonneg _))
+    · exact mul_le_mul_of_nonneg_left (hsup w.1) (Nat.cast_nonneg _)
+    · exact mul_nonneg (Nat.cast_nonneg _) (Finset.sum_nonneg fun i _ ↦ abs_nonneg _)
+  refine ⟨(max W 0 + 1) / finrank ℚ K, by positivity,
+    div_le_div_of_nonneg_right (by linarith) (Nat.cast_nonneg _), max 1 A, le_max_left _ _,
+    by rw [hAeq], fun Q hQ ↦ ?_⟩
   set B : ℝ := (max W 0 + 1) / finrank ℚ K with hB
   have hQ1 : (1 : ℝ) ≤ Q := le_trans (le_max_left _ _) hQ
   have hQA : A ≤ Q := le_trans (le_max_right _ _) hQ
@@ -223,6 +266,16 @@ theorem _root_.Real.rpow_le_of_pow_le_rpow {x Q a b : ℝ} {d : ℕ} (hQ : 1 ≤
     exact Real.rpow_le_rpow_of_exponent_le hQ hab
   exact (pow_le_pow_iff_left₀ hx (Real.rpow_nonneg hQ0.le b) hd).1 (h.trans h1)
 
+variable (Sfin L) in
+open scoped Classical in
+/-- **The level above which the minima lie between `Q ^ (-B)` and `Q ^ B`**: the larger of
+`max 1 (pointHeightConst Sfin L)` and `2 ^ (d #ι) ∏_{v ∈ Sfin} N(v) ^ #ι / approxConst Sfin L`. -/
+noncomputable def minimaThreshold : ℝ :=
+  max (max 1 (pointHeightConst Sfin L))
+    (max (2 ^ (finrank ℚ K * Fintype.card ι) *
+      (∏ v ∈ Sfin, (Ideal.absNorm v.maximalIdeal.asIdeal : ℝ) ^ Fintype.card ι) /
+        approxConst Sfin L) 1)
+
 open scoped Classical in
 /-- **The minima of an approximation domain lie between two powers of `Q`** (Bombieri–Gubler,
 Step IX): the first is at least `Q ^ (-B)` because a nonzero point has height at least `1`, and
@@ -230,14 +283,31 @@ the last is then at most `Q ^ B` by Minkowski's second theorem over `K` from abo
 theorem exists_pos_forall_rpow_le_successiveMinimum_le
     (hLInf : ∀ w : InfinitePlace K, LinearIndependent K (L w.1))
     (hLFin : ∀ v ∈ Sfin, LinearIndependent K (L v.1)) (c : AbsoluteValue K ℝ → ι → ℝ) :
-    ∃ B : ℝ, 0 < B ∧ ∃ Q₁ : ℝ, 1 ≤ Q₁ ∧ ∀ Q : ℝ, Q₁ ≤ Q → ∀ j < Fintype.card ι,
-      Q ^ (-B) ≤ successiveMinimum (approxModule Sfin L c Q) (approxBody L c Q) j ∧
-        successiveMinimum (approxModule Sfin L c Q) (approxBody L c Q) j ≤ Q ^ B := by
-  obtain ⟨B₀, hB₀, Q₁, hQ₁, hlow⟩ := exists_pos_forall_rpow_le_successiveMinimum hLInf hLFin c
+    ∃ B : ℝ, 0 < B ∧
+      B ≤ Fintype.card ι * (∑ w : InfinitePlace K, (w.mult : ℝ) * ∑ i, |c w.1 i|
+        + ∑ v ∈ Sfin, ∑ i, |c v.1 i| + 1) / finrank ℚ K ∧
+      ∃ Q₁ : ℝ, 1 ≤ Q₁ ∧ Q₁ = minimaThreshold Sfin L ∧ ∀ Q : ℝ, Q₁ ≤ Q → ∀ j < Fintype.card ι,
+        Q ^ (-B) ≤ successiveMinimum (approxModule Sfin L c Q) (approxBody L c Q) j ∧
+          successiveMinimum (approxModule Sfin L c Q) (approxBody L c Q) j ≤ Q ^ B := by
+  obtain ⟨B₀, hB₀, hB₀le, Q₁, hQ₁, hQ₁eq, hlow⟩ :=
+    exists_pos_forall_rpow_le_successiveMinimum hLInf hLFin c
   set N := Fintype.card ι with hN
   set d := finrank ℚ K with hd
   have hd0 : 0 < d := finrank_pos
   have hN0 : 0 < N := Fintype.card_pos
+  set Wa : ℝ := ∑ w : InfinitePlace K, (w.mult : ℝ) * ∑ i, |c w.1 i|
+    + ∑ v ∈ Sfin, ∑ i, |c v.1 i| with hWa
+  have hWa0 : 0 ≤ Wa := add_nonneg
+    (Finset.sum_nonneg fun w _ ↦ mul_nonneg (Nat.cast_nonneg _)
+      (Finset.sum_nonneg fun i _ ↦ abs_nonneg _))
+    (Finset.sum_nonneg fun v _ ↦ Finset.sum_nonneg fun i _ ↦ abs_nonneg _)
+  have hWle : |approxWeight Sfin c| ≤ Wa := by
+    rw [approxWeight]
+    refine (abs_add_le _ _).trans (add_le_add ((Finset.abs_sum_le_sum_abs _ _).trans
+      (Finset.sum_le_sum fun w _ ↦ ?_)) ((Finset.abs_sum_le_sum_abs _ _).trans
+      (Finset.sum_le_sum fun v _ ↦ Finset.abs_sum_le_sum_abs _ _)))
+    rw [abs_mul, Nat.abs_cast]
+    exact mul_le_mul_of_nonneg_left (Finset.abs_sum_le_sum_abs _ _) (Nat.cast_nonneg _)
   set A₂ : ℝ := 2 ^ (d * N) *
     (∏ v ∈ Sfin, (Ideal.absNorm v.maximalIdeal.asIdeal : ℝ) ^ N) / approxConst Sfin L with hA₂
   set m : ℕ := N - 1 with hm
@@ -245,7 +315,19 @@ theorem exists_pos_forall_rpow_le_successiveMinimum_le
   set W : ℝ := approxWeight Sfin c with hW
   set B : ℝ := max B₀ ((|W| + B₀ * m * d + 1) / d) with hBdef
   have hB : 0 < B := lt_of_lt_of_le hB₀ (le_max_left _ _)
-  refine ⟨B, hB, max Q₁ (max A₂ 1), le_trans hQ₁ (le_max_left _ _), fun Q hQ j hj ↦ ?_⟩
+  have hBle : B ≤ N * (Wa + 1) / d := by
+    have hd' : (0 : ℝ) < d := by exact_mod_cast hd0
+    have hN1 : (1 : ℝ) ≤ N := by exact_mod_cast hN0
+    have hmR : (m : ℝ) + 1 = N := by exact_mod_cast hmN
+    have hB₀d : B₀ * d ≤ Wa + 1 := by rwa [le_div_iff₀ hd'] at hB₀le
+    have hm0 : (0 : ℝ) ≤ m := Nat.cast_nonneg _
+    refine max_le ?_ ?_
+    · rw [le_div_iff₀ hd']
+      nlinarith
+    · rw [div_le_div_iff_of_pos_right hd']
+      nlinarith [mul_le_mul_of_nonneg_left hB₀d hm0]
+  refine ⟨B, hB, hBle, max Q₁ (max A₂ 1), le_trans hQ₁ (le_max_left _ _),
+    by rw [hQ₁eq, minimaThreshold], fun Q hQ j hj ↦ ?_⟩
   have hQ1 : (1 : ℝ) ≤ Q := le_trans (le_trans (le_max_right _ _) (le_max_right _ _)) hQ
   have hQA₂ : A₂ ≤ Q := le_trans (le_trans (le_max_left _ _) (le_max_right _ _)) hQ
   have hQQ₁ : Q₁ ≤ Q := le_trans (le_max_left _ _) hQ

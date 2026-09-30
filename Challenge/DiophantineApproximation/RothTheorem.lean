@@ -92,6 +92,10 @@ noncomputable def rothClassSize (κ : ℝ) (s : ℕ) : ℕ := ⌈2 * (s : ℝ) /
 noncomputable def rothChainLength (κ : ℝ) (s r : ℕ) : ℕ :=
   ⌈Real.log (2 * (r : ℝ) * s + 1) / (6 * rothEps κ ^ 2)⌉₊
 noncomputable def rothRatio (κ : ℝ) (s r : ℕ) : ℝ := 2 / rothEps κ ^ 2 ^ rothChainLength κ s r
+noncomputable def rothDelta (κ : ℝ) (s r : ℕ) (rF : ℝ) : ℝ :=
+  min (rothEps κ ^ 2 ^ rothChainLength κ s r / (12 * ((rothChainLength κ s r : ℝ) + 1)))
+    ((κ * (1 - (s : ℝ) / rothClassSize κ s) * (1 / 2 - 4 * rothEps κ) - 1)
+      / (2 * (8 * rF * s + 8)))
 theorem finite_setOf_prod_min_one_le (Sinf : Finset (InfinitePlace K))
     (Sfin : Finset (FinitePlace K)) (w : AbsoluteValue K ℝ → AbsoluteValue F ℝ)
     (hwInf : ∀ v ∈ Sinf, (w v.1).LiesOver v.1) (hwFin : ∀ v ∈ Sfin, (w v.1).LiesOver v.1)

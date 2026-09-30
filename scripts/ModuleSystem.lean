@@ -41,7 +41,8 @@ open Lean
 per roadmap. Keep in step with `LIBRARY_ROOTS` in `scripts/source-modules.sh`. -/
 def auditedRoots : List Name :=
   [`ForMathlib, `ArithmeticHeights, `DiophantineApproximation, `CorvajaZannier2004,
-    `AdamczewskiBugeaud2007, `Evertse1984]
+    `AdamczewskiBugeaud2007, `Evertse1984,
+    `NairKumarRout2025]
 
 /-- The audited roots as one string, for the audit's own messages. -/
 def auditedRootsString : String := ", ".intercalate (auditedRoots.map toString)

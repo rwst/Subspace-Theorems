@@ -255,6 +255,25 @@ theorem one_le_sPlaceWeight {Sinf : Finset (InfinitePlace K)} {Sfin : Finset (Fi
   | inl v => exact Nat.one_le_iff_ne_zero.mpr (v : InfinitePlace K).mult_ne_zero
   | inr v => exact le_rfl
 
+/-- The weight of a place of `S` is at most `2`. -/
+theorem sPlaceWeight_le_two {Sinf : Finset (InfinitePlace K)} {Sfin : Finset (FinitePlace K)}
+    (a : ↥Sinf ⊕ ↥Sfin) : sPlaceWeight a ≤ 2 := by
+  cases a with
+  | inl v =>
+    change (v : InfinitePlace K).mult ≤ 2
+    unfold InfinitePlace.mult
+    split_ifs <;> norm_num
+  | inr v => exact one_le_two
+
+/-- The weights of the places of `S` add up to at most `2 |S|`. -/
+theorem sum_sPlaceWeight_le {Sinf : Finset (InfinitePlace K)} {Sfin : Finset (FinitePlace K)} :
+    ∑ a : ↥Sinf ⊕ ↥Sfin, sPlaceWeight a ≤ 2 * (Sinf.card + Sfin.card) := by
+  calc ∑ a : ↥Sinf ⊕ ↥Sfin, sPlaceWeight a ≤ ∑ _a : ↥Sinf ⊕ ↥Sfin, 2 :=
+        Finset.sum_le_sum fun a _ ↦ sPlaceWeight_le_two a
+    _ = 2 * (Sinf.card + Sfin.card) := by
+        rw [Finset.sum_const, Finset.card_univ, Fintype.card_sum, Fintype.card_coe,
+          Fintype.card_coe, smul_eq_mul, mul_comm]
+
 /-- **The product-formula bound with the places of `S` collected into one index type.** -/
 theorem one_le_of_forall_apply_le_sum
     {y : K} (hy : y ≠ 0) {γ : Type*} [Finite γ] {x : γ → K} (hx : x ≠ 0)

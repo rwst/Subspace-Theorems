@@ -53,6 +53,9 @@ Liouville's theorem over `ℝ` with the constant named, and Mathlib's
 * `NumberField.exists_infinitePlace_comap_eq` and
   `NumberField.exists_finitePlace_rpow_liesOver`: Layer 0.1's classification in the shape this
   layer consumes it, with the place of `F` named and, at a finite place, the exponent bundled.
+* `NumberField.inv_mulHeight₁_le_min_one_of_infinitePlace` and
+  `NumberField.inv_mulHeight₁_le_min_one_of_finitePlace`: the inequality at one place,
+  `H(x)⁻¹ ≤ min 1 |x|_w` for `x ≠ 0` in `F`, which bounds a local size by a height.
 
 ## Implementation notes
 
@@ -255,6 +258,26 @@ theorem liouville_inequality (Sinf : Finset (InfinitePlace K)) (Sfin : Finset (F
           rw [totalWeight_eq_finrank, ← mulHeight₁_pow_finrank (L := F) β]; ring
   have hpos : 0 < mulHeight₁ γ := mulHeight₁_pos _
   gcongr
+
+/-- **Liouville's inequality at one place over an infinite place.** A nonzero `x ∈ F` has
+`min 1 |x|_w ≥ H(x)⁻¹` at every absolute value `w` of `F` lying over an infinite place of `K`. -/
+theorem inv_mulHeight₁_le_min_one_of_infinitePlace (v : InfinitePlace K) {w : AbsoluteValue F ℝ}
+    (hw : w.LiesOver v.1) {x : F} (hx : x ≠ 0) : (mulHeight₁ x)⁻¹ ≤ min 1 (w x) := by
+  obtain ⟨u, hu, -⟩ := exists_infinitePlace_comap_eq v w hw
+  have h := inv_mulHeight₁_le_prod_min_one_apply {u} (∅ : Finset (FinitePlace F)) hx
+  rw [Finset.prod_singleton, Finset.prod_empty, mul_one, hu] at h
+  exact h.trans (pow_le_of_le_one (le_min zero_le_one (w.nonneg x)) (min_le_left _ _)
+    u.mult_ne_zero)
+
+/-- **Liouville's inequality at one place over a finite place.** A nonzero `x ∈ F` has
+`min 1 |x|_w ≥ H(x)⁻¹` at every absolute value `w` of `F` lying over a finite place of `K`. -/
+theorem inv_mulHeight₁_le_min_one_of_finitePlace (v : FinitePlace K) {w : AbsoluteValue F ℝ}
+    (hw : w.LiesOver v.1) {x : F} (hx : x ≠ 0) : (mulHeight₁ x)⁻¹ ≤ min 1 (w x) := by
+  obtain ⟨u, t, ht0, ht1, -, hut⟩ := exists_finitePlace_rpow_liesOver v w hw
+  have h := inv_mulHeight₁_le_prod_min_one_apply (∅ : Finset (InfinitePlace F)) {u} hx
+  rw [Finset.prod_singleton, Finset.prod_empty, one_mul] at h
+  rw [hut]
+  exact h.trans (min_one_le_min_one_rpow (apply_nonneg _ _) ht0 ht1)
 
 end Extension
 

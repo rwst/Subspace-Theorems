@@ -13,6 +13,7 @@ import DiophantineApproximation.ApproxProd
 import DiophantineApproximation.LiouvilleInequality
 import DiophantineApproximation.ProjectiveTarget
 import DiophantineApproximation.SAdicHeight
+import Mathlib.LinearAlgebra.Matrix.AbsoluteValue
 
 /-!
 # Roth's interval result fed to Evertse's covering, for two variables
@@ -54,16 +55,25 @@ The link has three steps.
 * `NumberField.systemPlace_injective`: the places of a system are distinct absolute values.
 * `NumberField.exists_finset_submodule_of_card_eq_two`: **the large solutions of a normalized
   system in two variables lie in a number of proper subspaces depending on `δ`, `s` and `r`
-  alone**, by Roth's interval result and Evertse's covering.
+  alone**, by Roth's interval result and Evertse's covering, above the explicit height
+  `NumberField.systemRothThreshold`.
+* `NumberField.systemRothThreshold`: that height, a formula in the height bound `H` of the
+  coefficients, `δ`, `s` and the degrees.
 
 ## Implementation notes
 
-⚠ **The threshold is ineffective, and the count is not Evertse's.** The height `X₀` above which
-the count holds comes from Roth's theorem, which is ineffective, and depends on the forms; the
-count depends on `δ`, the number of places and `[F : K]`. Evertse's Theorem 2.1 counts the large
-solutions above `max (2 H, n ^ (2 n / δ))` with a bound of shape `δ⁻¹ log (…)` from his own
-interval result, Theorem 3.1, which this roadmap does not prove. Roth's parameters are far worse,
-and the point is the link, not the bound.
+⚠ **The threshold is explicit, and the count is not Evertse's.** The height above which the
+count holds is `NumberField.systemRothThreshold s r [F : ℚ] [K : ℚ] δ H`, a formula in the bound
+`H` on the absolute heights of the coefficients that `IsNormalizedSystem` carries. With
+`G = H ^ [F : ℚ]`, every coefficient has local size in `[G⁻¹, G]` when nonzero (Liouville's
+inequality at one place and its upper half), so the constant of each form is at most `4 G ^ 3`,
+the product of the system's constants at most `(2 G ^ 2) ^ s` through the determinant, the lower
+bounds of the height comparison at least `(2 ^ [F : ℚ] G ^ 4)⁻¹`, and the roots of the forms have
+height at most `2 log H`. The threshold is `exp (O_{δ, s, r}(log H + 1))`, the shape of Evertse's
+`max (2 H, n ^ (2 n / δ))` up to the power. The count depends only on `δ`, the number of places
+and `[F : K]`. Evertse's Theorem 2.1 has a bound of shape `δ⁻¹ log (…)` from his own interval
+result, Theorem 3.1, which this roadmap does not prove.
+Roth's parameters are far worse, and the point is the link, not the bound.
 
 ⚠ **The lines where a small form vanishes are counted separately.** On such a line the affine
 height is not bounded by the height of `β`, and the line can hold infinitely many solutions of
@@ -140,6 +150,200 @@ private theorem inv_le_min_one_pow_systemMult (S : Finset (HeightOneSpectrum (�
         · simp only [h, ↓reduceIte]; exact hp
         · simp only [h, ↓reduceIte]; exact h₀fin u) hne
     simpa [systemPlace, systemMult] using h
+
+/-- **A local size at a place of a system is at most the height** (Layer 0.4 on a single
+place, upper half). -/
+private theorem apply_le_mulHeight₁_systemPlace (S : Finset (HeightOneSpectrum (𝓞 K)))
+    (w : AbsoluteValue K ℝ → AbsoluteValue F ℝ) (p : InfinitePlace K ⊕ S)
+    (hp : (w (systemPlace S p)).LiesOver (systemPlace S p)) (x : F) :
+    w (systemPlace S p) x ≤ mulHeight₁ x := by
+  rcases p with v | v
+  · have : (w v.1).LiesOver v.1 := hp
+    exact (le_max_left _ _).trans
+      (max_apply_one_le_mulHeight₁_of_liesOver_infinitePlace v (w v.1) x)
+  · have : (w (FinitePlace.mk v.1).1).LiesOver (FinitePlace.mk v.1).1 := hp
+    exact (le_max_left _ _).trans (max_apply_one_le_mulHeight₁_of_liesOver_finitePlace
+      (FinitePlace.mk v.1) (w (FinitePlace.mk v.1).1) x)
+
+/-- **A nonzero local size at a place of a system is at least the reciprocal of the height**
+(Liouville's inequality at one place). -/
+private theorem inv_mulHeight₁_le_systemPlace (S : Finset (HeightOneSpectrum (𝓞 K)))
+    (w : AbsoluteValue K ℝ → AbsoluteValue F ℝ) (p : InfinitePlace K ⊕ S)
+    (hp : (w (systemPlace S p)).LiesOver (systemPlace S p)) {x : F} (hx : x ≠ 0) :
+    (mulHeight₁ x)⁻¹ ≤ w (systemPlace S p) x := by
+  rcases p with v | v
+  · exact (inv_mulHeight₁_le_min_one_of_infinitePlace v hp hx).trans (min_le_right _ _)
+  · exact (inv_mulHeight₁_le_min_one_of_finitePlace (FinitePlace.mk v.1) hp hx).trans
+      (min_le_right _ _)
+
+omit [NumberField K] in
+/-- The multiplicity of a place of a system is at most `2`. -/
+private theorem systemMult_le_two (S : Finset (HeightOneSpectrum (𝓞 K))) (p : InfinitePlace K ⊕ S) :
+    systemMult S p ≤ 2 := by
+  rcases p with v | v
+  · change v.mult ≤ 2
+    unfold InfinitePlace.mult
+    split_ifs <;> norm_num
+  · exact one_le_two
+
+omit [NumberField K] [NumberField F] [Algebra K F] in
+/-- **The constant of a form, bounded by bounds on its coefficients.** If both coefficients of a
+nonzero form have local size at most `G`, and each nonzero one at least `G⁻¹`, then its constant
+is at most `4 G ^ 3`. -/
+private theorem formConst_le_of_bounds {W : AbsoluteValue F ℝ} {a b : F} {G : ℝ} (hG1 : 1 ≤ G)
+    (hab : a ≠ 0 ∨ b ≠ 0) (hua : W a ≤ G) (hla : a ≠ 0 → G⁻¹ ≤ W a)
+    (hlb : b ≠ 0 → G⁻¹ ≤ W b) : W.formConst a b ≤ 4 * G ^ 3 := by
+  have hG0 : 0 < G := by linarith
+  have hG3 : G ≤ G ^ 3 := le_self_pow₀ hG1 (by norm_num)
+  by_cases hb : b = 0
+  · have ha := hab.resolve_right (not_not.mpr hb)
+    have h1 : (W a)⁻¹ ≤ G := by rw [inv_le_comm₀ (W.pos ha) hG0]; exact hla ha
+    simp only [AbsoluteValue.formConst, hb, ↓reduceIte]
+    linarith
+  · have hWb : 0 < W b := W.pos hb
+    have h1 : (W b)⁻¹ ≤ G := by rw [inv_le_comm₀ hWb hG0]; exact hlb hb
+    have h2 : 0 ≤ (W b)⁻¹ := (inv_pos.mpr hWb).le
+    simp only [AbsoluteValue.formConst, hb, ↓reduceIte, map_div₀]
+    rw [div_eq_mul_inv, div_eq_mul_inv]
+    have h4 : W a * (W b)⁻¹ ≤ G * G := mul_le_mul hua h1 h2 hG0.le
+    have h5 : (2 + 2 * (W a * (W b)⁻¹)) * (W b)⁻¹ ≤ (2 + 2 * (G * G)) * G :=
+      mul_le_mul (by linarith) h1 h2 (by positivity)
+    nlinarith
+
+omit [NumberField K] [Algebra K F] in
+/-- The height of the root `-a / b` of a form is at most the product of the heights of its
+coefficients. -/
+private theorem mulHeight₁_neg_div_le {a b : F} {G : ℝ} (hHa : mulHeight₁ a ≤ G)
+    (hHb : mulHeight₁ b ≤ G) : mulHeight₁ (-(a / b)) ≤ G ^ 2 := by
+  rw [mulHeight₁_neg, div_eq_mul_inv]
+  calc _ ≤ mulHeight₁ a * mulHeight₁ b⁻¹ := mulHeight₁_mul_le _ _
+    _ ≤ G * G := by
+        rw [mulHeight₁_inv]
+        exact mul_le_mul hHa hHb (mulHeight₁_pos _).le ((mulHeight₁_pos _).le.trans hHa)
+    _ = G ^ 2 := by ring
+
+omit [NumberField K] [Algebra K F] in
+open Classical in
+/-- **The lower bound for a small form at a point of Roth's inequality, bounded by heights.** -/
+private theorem inv_le_kap_of_bounds {W : AbsoluteValue F ℝ} {a b : F} {G : ℝ} {m : ℕ}
+    (hG1 : 1 ≤ G) (hm : m ≤ 2) (hab : a ≠ 0 ∨ b ≠ 0) (hHa : mulHeight₁ a ≤ G)
+    (hHb : mulHeight₁ b ≤ G) (hla : a ≠ 0 → G⁻¹ ≤ W a) (hlb : b ≠ 0 → G⁻¹ ≤ W b) :
+    (2 ^ finrank ℚ F * G ^ 4)⁻¹ ≤
+      if b = 0 then W a ^ m else W b ^ m * (2 ^ finrank ℚ F * mulHeight₁ (-(a / b)))⁻¹ := by
+  have hG0 : 0 < G := by linarith
+  have hGi : G⁻¹ ≤ 1 := inv_le_one_of_one_le₀ hG1
+  have hGi0 : 0 ≤ G⁻¹ := (inv_pos.mpr hG0).le
+  have h2F : (1 : ℝ) ≤ 2 ^ finrank ℚ F := one_le_pow₀ one_le_two
+  split_ifs with hb
+  · have ha := hab.resolve_right (not_not.mpr hb)
+    calc (2 ^ finrank ℚ F * G ^ 4)⁻¹ ≤ G⁻¹ ^ 2 := by
+          rw [inv_pow, inv_le_inv₀ (by positivity) (by positivity)]
+          calc G ^ 2 ≤ G ^ 4 := pow_le_pow_right₀ hG1 (by norm_num)
+            _ ≤ _ := le_mul_of_one_le_left (by positivity) h2F
+      _ ≤ G⁻¹ ^ m := pow_le_pow_of_le_one hGi0 hGi hm
+      _ ≤ _ := pow_le_pow_left₀ hGi0 (hla ha) _
+  · have hpos : 0 < 2 ^ finrank ℚ F * mulHeight₁ (-(a / b)) := by
+      have := mulHeight₁_pos (-(a / b)); positivity
+    calc (2 ^ finrank ℚ F * G ^ 4)⁻¹ = G⁻¹ ^ 2 * (2 ^ finrank ℚ F * G ^ 2)⁻¹ := by
+          field_simp
+      _ ≤ W b ^ m * (2 ^ finrank ℚ F * mulHeight₁ (-(a / b)))⁻¹ := by
+          refine mul_le_mul ?_ ?_ (by positivity) (pow_nonneg (W.nonneg _) _)
+          · exact (pow_le_pow_of_le_one hGi0 hGi hm).trans (pow_le_pow_left₀ hGi0 (hlb hb) _)
+          · rw [inv_le_inv₀ (by positivity) hpos]
+            exact mul_le_mul_of_nonneg_left (mulHeight₁_neg_div_le hHa hHb) (by positivity)
+
+omit [NumberField K] [Algebra K F] in
+/-- **The root of a form has absolute height at most `2 log H`** when both coefficients have
+relative height at most `H ^ [F : ℚ]`. -/
+private theorem onePointHeight_formRoot_le {a b : F} {H : ℝ} (hH1 : 1 ≤ H)
+    (hHa : mulHeight₁ a ≤ H ^ finrank ℚ F) (hHb : mulHeight₁ b ≤ H ^ finrank ℚ F) :
+    onePointHeight (OnePoint.formRoot a b) ≤ 2 * Real.log H := by
+  have hlogH : 0 ≤ Real.log H := Real.log_nonneg hH1
+  rw [OnePoint.formRoot]
+  split_ifs with hb
+  · rw [onePointHeight_infty]; linarith
+  · have hnF : (0 : ℝ) < finrank ℚ F := by exact_mod_cast Module.finrank_pos
+    rw [onePointHeight_coe, absLogHeight₁_eq_inv_mul, inv_mul_le_iff₀ hnF]
+    calc _ ≤ Real.log ((H ^ finrank ℚ F) ^ 2) :=
+          Real.log_le_log (mulHeight₁_pos _) (mulHeight₁_neg_div_le hHa hHb)
+      _ = _ := by rw [Real.log_pow, Real.log_pow, Nat.cast_ofNat]; ring
+
+omit [NumberField K] [NumberField F] [Algebra K F] in
+/-- A product of powers of at most `2` of factors in `[0, X]`, with `X ≥ 1`. -/
+private theorem prod_pow_le_of_le {P : Type*} [Fintype P] {f : P → ℝ} {m : P → ℕ} {X : ℝ}
+    (hX : 1 ≤ X) (hf0 : ∀ p, 0 ≤ f p) (hf : ∀ p, f p ≤ X) (hm : ∀ p, m p ≤ 2) :
+    ∏ p, f p ^ m p ≤ (X ^ 2) ^ Fintype.card P := by
+  rw [← Finset.card_univ, ← Finset.prod_const]
+  exact Finset.prod_le_prod₀ (fun p _ ↦ pow_nonneg (hf0 p) _) fun p _ ↦
+    (pow_le_pow_left₀ (hf0 p) (hf p) _).trans (pow_le_pow_right₀ hX (hm p))
+
+omit [NumberField K] [NumberField F] [Algebra K F] in
+/-- The logarithm of the constant of Roth's inequality, bounded by the coefficient bound `G`. -/
+private theorem log_max_mul_le {Γ Cs G : ℝ} {s : ℕ} (hG1 : 1 ≤ G) (hCs0 : 0 ≤ Cs)
+    (hΓ : Γ ≤ ((4 * G ^ 3) ^ 2) ^ s) (hCs : Cs ≤ (2 * G ^ 2) ^ s) :
+    Real.log (max (Γ * Cs) 1) ≤ s * (Real.log 32 + 8 * Real.log G) := by
+  have hG0 : 0 < G := by linarith
+  have h32 : (1 : ℝ) ≤ 32 * G ^ 8 := by nlinarith [one_le_pow₀ (n := 8) hG1]
+  have hle : max (Γ * Cs) 1 ≤ (32 * G ^ 8) ^ s := by
+    refine max_le ?_ (one_le_pow₀ h32)
+    calc Γ * Cs ≤ ((4 * G ^ 3) ^ 2) ^ s * (2 * G ^ 2) ^ s :=
+          mul_le_mul hΓ hCs hCs0 (by positivity)
+      _ = (32 * G ^ 8) ^ s := by rw [← mul_pow]; ring
+  calc _ ≤ Real.log ((32 * G ^ 8) ^ s) :=
+        Real.log_le_log (lt_of_lt_of_le one_pos (le_max_right _ _)) hle
+    _ = _ := by
+        rw [Real.log_pow, Real.log_mul (by norm_num) (by positivity), Real.log_pow,
+          Nat.cast_ofNat]
+
+omit [NumberField K] [NumberField F] [Algebra K F] in
+/-- The logarithm of the ratio of the constants of the height comparison, bounded by the
+coefficient bound `G`. -/
+private theorem log_div_le {Cs κc G : ℝ} {s n : ℕ} (hG1 : 1 ≤ G) (hCs0 : 0 < Cs)
+    (hκc0 : 0 < κc) (hCs : Cs ≤ (2 * G ^ 2) ^ s) (hκc : ((2 ^ n * G ^ 4) ^ s)⁻¹ ≤ κc) :
+    Real.log (Cs / κc) ≤ s * ((n + 1) * Real.log 2 + 6 * Real.log G) := by
+  have hG0 : 0 < G := by linarith
+  have hle : Cs / κc ≤ (2 * G ^ 2) ^ s * (2 ^ n * G ^ 4) ^ s := by
+    rw [div_le_iff₀ hκc0]
+    calc Cs ≤ (2 * G ^ 2) ^ s := hCs
+      _ = (2 * G ^ 2) ^ s * (2 ^ n * G ^ 4) ^ s * ((2 ^ n * G ^ 4) ^ s)⁻¹ := by field_simp
+      _ ≤ _ := mul_le_mul_of_nonneg_left hκc (by positivity)
+  calc Real.log (Cs / κc) ≤ Real.log ((2 * G ^ 2) ^ s * (2 ^ n * G ^ 4) ^ s) :=
+        Real.log_le_log (div_pos hCs0 hκc0) hle
+    _ = _ := by
+        rw [Real.log_mul (by positivity) (by positivity), Real.log_pow, Real.log_pow,
+          Real.log_mul (by norm_num) (by positivity), Real.log_mul (by positivity)
+            (by positivity), Real.log_pow, Real.log_pow, Real.log_pow, Nat.cast_ofNat,
+          Nat.cast_ofNat]
+        ring
+
+/-- **The product of the constants of a normalized system in two variables, bounded by the
+coefficients**: it is at most `(2 G ^ 2) ^ s` when every coefficient has local size at most `G`,
+through the determinant. -/
+private theorem systemConst_le_of_bounds {ι : Type*} [Fintype ι] [DecidableEq ι]
+    (hι : Fintype.card ι = 2) {S : Finset (HeightOneSpectrum (𝓞 K))}
+    {w : AbsoluteValue K ℝ → AbsoluteValue F ℝ} {L : AbsoluteValue K ℝ → ι → Dual F (ι → F)}
+    {C : InfinitePlace K ⊕ S → ℝ} {c : InfinitePlace K ⊕ S → ι → ℝ} {H : ℝ} {D R : ℕ} {δ : ℝ}
+    (hN : IsNormalizedSystem S w L C c H D R δ) {G : ℝ} (hG1 : 1 ≤ G)
+    (hup : ∀ p i j, w (systemPlace S p) (L (systemPlace S p) i (Pi.single j 1)) ≤ G) :
+    systemConst C ≤ (2 * G ^ 2) ^ Fintype.card (InfinitePlace K ⊕ S) := by
+  have : Nonempty ι := Fintype.card_pos_iff.mp (by omega)
+  have hdet : ∀ p, w (systemPlace S p) (LinearMap.det (LinearMap.pi (L (systemPlace S p))))
+      ≤ 2 * G ^ 2 := by
+    intro p
+    rw [← LinearMap.det_toMatrix']
+    have h := Matrix.det_le (abv := w (systemPlace S p))
+      (A := LinearMap.toMatrix' (LinearMap.pi (L (systemPlace S p)))) (x := G) fun i j ↦ by
+        rw [LinearMap.toMatrix'_apply, LinearMap.pi_apply]
+        exact hup p i j
+    rwa [hι, nsmul_eq_mul, Nat.factorial_two, Nat.cast_ofNat] at h
+  have h1 := systemConst_pow_le_systemDet hN
+  rw [hι] at h1
+  have h2 : systemDet S w L ≤ ((2 * G ^ 2) ^ Fintype.card (InfinitePlace K ⊕ S)) ^ 2 := by
+    rw [← pow_mul, mul_comm _ 2, pow_mul]
+    exact prod_pow_le_of_le (by nlinarith [one_le_pow₀ (n := 2) hG1])
+      (fun p ↦ apply_nonneg _ _) hdet (systemMult_le_two S)
+  have hC0 : 0 ≤ systemConst C := Finset.prod_nonneg fun p _ ↦ (hN.const_pos p).le
+  exact (pow_le_pow_iff_left₀ hC0 (by positivity) two_ne_zero).mp (h1.trans h2)
 
 omit [NumberField F] in
 /-- A linear form in two variables is read off its values at the two unit vectors. -/
@@ -241,13 +445,29 @@ private theorem lt_mul_of_window {A M t e E hb ha : ℝ} (hA : 1 ≤ A) (hM : 1 
   have h5 : 0 ≤ A * M * E := by linarith
   linarith
 
+/-- **The threshold of the count for a normalized system in two variables**, a formula in the
+height bound `H` of the coefficients, `δ`, the number `s` of places, `r = [F : K]`,
+`nF = [F : ℚ]` and `nK = [K : ℚ]`. With `e = mobiusShift s` and
+`E = s ((nF + 1) log 2 + 6 nF log H) / nK`, it is `exp (r s (L + e + 1) + E)`, where `L` is the
+largest of Roth's threshold with targets at infinity (`NumberField.rothOnePointBound`, with the
+targets of height at most `2 log H` and the constant at most `(32 H ^ (8 nF)) ^ s`), `2 e + E` and
+`e + (4 / δ) log 2`. -/
+noncomputable def systemRothThreshold (s r nF nK : ℕ) (δ H : ℝ) : ℝ :=
+  Real.exp (((r * s : ℕ) : ℝ) * (max (rothOnePointBound s r nF nK (2 * (s : ℝ) * Real.log H)
+      ((s : ℝ) * (Real.log 32 + 8 * (nF : ℝ) * Real.log H)) (2 + δ))
+    (max (2 * mobiusShift s
+        + (s : ℝ) * (((nF : ℝ) + 1) * Real.log 2 + 6 * (nF : ℝ) * Real.log H) / nK)
+      (mobiusShift s + 4 / δ * Real.log 2)) + mobiusShift s + 1)
+    + (s : ℝ) * (((nF : ℝ) + 1) * Real.log 2 + 6 * (nF : ℝ) * Real.log H) / nK)
+
 /-- **Roth's interval result fed to Evertse's covering** (Layers 3.7 and 9.4, for two variables).
-For a normalized system in two variables there are a height `X₀` and at most
+For a normalized system in two variables, at most
 `s + 1 + m (N + s).choose s · (1 + log (3 r s M) / log (1 + δ / 4))` proper subspaces of `K²`
-containing every solution of absolute affine height at least `X₀`. Here `s` is the number of
-places of the system, `r = [F : K]`, and `m`, `M` and `N` are Roth's chain length, ratio and class
-size at the exponent `2 + δ / 2`, so the count depends on `δ`, `s` and `r` alone; `X₀` depends on
-the forms and is ineffective. -/
+contain every solution of absolute affine height at least the explicit
+`systemRothThreshold s r [F : ℚ] [K : ℚ] δ H`. Here `s` is the number of places of the system,
+`r = [F : K]`, `H` bounds the absolute heights of the coefficients, and `m`, `M` and `N` are Roth's
+chain length, ratio and class size at the exponent `2 + δ / 2`, so the count depends on `δ`, `s`
+and `r` alone, and the threshold on these, `H` and the degrees. -/
 theorem exists_finset_submodule_of_card_eq_two {ι : Type*} [Fintype ι]
     (hι : Fintype.card ι = 2) (S : Finset (HeightOneSpectrum (𝓞 K)))
     (w : AbsoluteValue K ℝ → AbsoluteValue F ℝ)
@@ -256,7 +476,7 @@ theorem exists_finset_submodule_of_card_eq_two {ι : Type*} [Fintype ι]
     {L : AbsoluteValue K ℝ → ι → Dual F (ι → F)} {C : InfinitePlace K ⊕ S → ℝ}
     {c : InfinitePlace K ⊕ S → ι → ℝ} {H : ℝ} {D R : ℕ} {δ : ℝ}
     (hN : IsNormalizedSystem S w L C c H D R δ) :
-    ∃ X₀ : ℝ, ∃ T : Finset (Submodule K (ι → K)),
+    ∃ T : Finset (Submodule K (ι → K)),
       (T.card : ℝ) ≤ ((Fintype.card (InfinitePlace K) + S.card + 1 : ℕ) : ℝ) +
         ((rothChainLength (2 + δ / 2) (Fintype.card (InfinitePlace K) + S.card) (finrank K F) *
           (rothClassSize (2 + δ / 2) (Fintype.card (InfinitePlace K) + S.card) +
@@ -266,7 +486,9 @@ theorem exists_finset_submodule_of_card_eq_two {ι : Type*} [Fintype ι]
             rothRatio (2 + δ / 2) (Fintype.card (InfinitePlace K) + S.card) (finrank K F)) /
             Real.log (1 + δ / 4)) ∧
       (∀ U ∈ T, U ≠ ⊤) ∧
-      ∀ x ∈ systemSet S w L C c, X₀ ≤ mulHeightAff x ^ ((finrank ℚ K : ℝ)⁻¹) →
+      ∀ x ∈ systemSet S w L C c,
+        systemRothThreshold (Fintype.card (InfinitePlace K) + S.card) (finrank K F)
+          (finrank ℚ F) (finrank ℚ K) δ H ≤ mulHeightAff x ^ ((finrank ℚ K : ℝ)⁻¹) →
         ∃ U ∈ T, x ∈ U := by
   classical
   -- the two indices
@@ -360,12 +582,44 @@ theorem exists_finset_submodule_of_card_eq_two {ι : Type*} [Fintype ι]
         (mulHeight₁_pos _)))
   set κc : ℝ := ∏ p, kap p with hκcdef
   have hκc0 : 0 < κc := Finset.prod_pos fun p _ ↦ hkap0 p
+  -- the constants, bounded by the height bound `H` of the coefficients
+  set G : ℝ := H ^ finrank ℚ F with hGdef
+  have hcoef : ∀ p i j, mulHeight₁ (L (systemPlace S p) i (Pi.single j 1)) ≤ G := by
+    intro p i j
+    rw [← absMulHeight₁_pow_finrank, hGdef]
+    have h := hN.height_le p i j
+    rw [Pi.basisFun_apply] at h
+    exact pow_le_pow_left₀ (zero_le_one.trans (one_le_absMulHeight₁ _)) h _
+  obtain ⟨v₀⟩ : Nonempty (InfinitePlace K) := inferInstance
+  have hH1 : 1 ≤ H := (one_le_absMulHeight₁ _).trans (hN.height_le (Sum.inl v₀) i₀ i₀)
+  have hG1 : 1 ≤ G := one_le_pow₀ hH1
+  have hlogG : Real.log G = (finrank ℚ F : ℝ) * Real.log H := by rw [hGdef, Real.log_pow]
+  have hlogH : 0 ≤ Real.log H := Real.log_nonneg hH1
+  have hup : ∀ p i j, w (systemPlace S p) (L (systemPlace S p) i (Pi.single j 1)) ≤ G :=
+    fun p i j ↦ (apply_le_mulHeight₁_systemPlace S w p (hlies p) _).trans (hcoef p i j)
+  have hlo : ∀ p i j, L (systemPlace S p) i (Pi.single j 1) ≠ 0 →
+      G⁻¹ ≤ w (systemPlace S p) (L (systemPlace S p) i (Pi.single j 1)) := fun p i j hx ↦
+    (inv_anti₀ (mulHeight₁_pos _) (hcoef p i j)).trans
+      (inv_mulHeight₁_le_systemPlace S w p (hlies p) hx)
+  have hΓle : Γ ≤ ((4 * G ^ 3) ^ 2) ^ s := by
+    rw [hΓdef, ← hcardP]
+    exact prod_pow_le_of_le (by nlinarith [one_le_pow₀ (n := 3) hG1])
+      (fun p ↦ AbsoluteValue.formConst_nonneg _ _ _)
+      (fun p ↦ formConst_le_of_bounds hG1 (hab0 p (σ p)) (hup p (σ p) i₀) (hlo p (σ p) i₀)
+        (hlo p (σ p) i₁)) (systemMult_le_two S)
+  have hCsle : Cs ≤ (2 * G ^ 2) ^ s := by
+    rw [← hcardP]; exact systemConst_le_of_bounds hι hN hG1 hup
+  have hκcle : ((2 ^ finrank ℚ F * G ^ 4) ^ s)⁻¹ ≤ κc := by
+    rw [hκcdef, ← inv_pow, ← hcardP, ← Finset.card_univ, ← Finset.prod_const]
+    exact Finset.prod_le_prod₀ (fun p _ ↦ by positivity) fun p _ ↦
+      inv_le_kap_of_bounds hG1 (systemMult_le_two S p) (hab0 p (σ p)) (hcoef p (σ p) i₀)
+        (hcoef p (σ p) i₁) (hlo p (σ p) i₀) (hlo p (σ p) i₁)
   -- Roth's interval result with targets at infinity
   have hwFin' : ∀ v ∈ S.image FinitePlace.mk, (w v.1).LiesOver v.1 := by
     intro v hv
     obtain ⟨v', hv', rfl⟩ := Finset.mem_image.mp hv
     exact hwFin v' hv'
-  obtain ⟨LA, e, he0, hA⟩ := exists_forall_mem_interval_of_prod_onePointApprox_le
+  have hA := exists_forall_mem_interval_of_prod_onePointApprox_le
     Finset.univ (S.image FinitePlace.mk) w (fun v _ ↦ hwInf v) hwFin' tgt (Γ * Cs)
     (κ := 2 + δ) (by linarith)
   have hcardS : (Finset.univ : Finset (InfinitePlace K)).card + (S.image FinitePlace.mk).card
@@ -373,6 +627,33 @@ theorem exists_finset_submodule_of_card_eq_two {ι : Type*} [Fintype ι]
     rw [Finset.card_univ, Finset.card_image_of_injective _ FinitePlace.mk_injective]
   have hκ₁ : (2 + δ + 2) / 2 = 2 + δ / 2 := by ring
   rw [hcardS, hκ₁] at hA
+  set e : ℝ := mobiusShift s with hedef
+  have he0 : 0 ≤ e := mobiusShift_nonneg _
+  -- the threshold of the interval result, bounded by `H`
+  have htgt : ∀ p, onePointHeight (tgt (systemPlace S p)) ≤ 2 * Real.log H := fun p ↦ by
+    simp only [htgtdef, hσ' p]
+    exact onePointHeight_formRoot_le hH1 (hcoef p (σ p) i₀) (hcoef p (σ p) i₁)
+  have hHt : ∑ q : ↥(Finset.univ : Finset (InfinitePlace K)) ⊕ ↥(S.image FinitePlace.mk),
+      onePointHeight (tgt (sPlaceAbsValue q)) ≤ 2 * (s : ℝ) * Real.log H := by
+    calc _ ≤ ∑ _q : ↥(Finset.univ : Finset (InfinitePlace K)) ⊕ ↥(S.image FinitePlace.mk),
+          2 * Real.log H := Finset.sum_le_sum fun q _ ↦ by
+            rcases q with ⟨v, -⟩ | ⟨v, hv⟩
+            · exact htgt (Sum.inl v)
+            · obtain ⟨u, hu, rfl⟩ := Finset.mem_image.mp hv
+              exact htgt (Sum.inr ⟨u, hu⟩)
+      _ = 2 * (s : ℝ) * Real.log H := by
+          rw [Finset.sum_const, Finset.card_univ, Fintype.card_sum, Fintype.card_coe,
+            Fintype.card_coe, hcardS, nsmul_eq_mul]
+          ring
+  have hlogC : Real.log (max (Γ * Cs) 1)
+      ≤ (s : ℝ) * (Real.log 32 + 8 * (finrank ℚ F : ℝ) * Real.log H) :=
+    (log_max_mul_le hG1 hCs0.le hΓle hCsle).trans_eq (by rw [hlogG]; ring)
+  set LA₀ : ℝ := rothOnePointBound s r (finrank ℚ F) (finrank ℚ K) (2 * (s : ℝ) * Real.log H)
+    ((s : ℝ) * (Real.log 32 + 8 * (finrank ℚ F : ℝ) * Real.log H)) (2 + δ) with hLA₀def
+  have hLA : rothOnePointThreshold Finset.univ (S.image FinitePlace.mk) tgt (Γ * Cs) (2 + δ)
+      ≤ LA₀ := by
+    rw [rothOnePointThreshold, hcardS]
+    exact rothOnePointBound_mono (by linarith) hHt hlogC
   -- the local analysis of a solution
   set d : ℝ := (finrank ℚ K : ℝ) with hddef
   have hd : 0 < d := by rw [hddef]; exact_mod_cast Module.finrank_pos
@@ -383,7 +664,19 @@ theorem exists_finset_submodule_of_card_eq_two {ι : Type*} [Fintype ι]
       mulHeightAff x ^ ((finrank ℚ K : ℝ)⁻¹) = Real.exp (Real.log (mulHeightAff x) / d) :=
     fun x ↦ by rw [Real.rpow_def_of_pos (mulHeightAff_pos x), hddef, div_eq_mul_inv]
   set E : ℝ := max 0 (Real.log (Cs / κc)) / d with hEdef
-  have hE0 : 0 ≤ E := div_nonneg (le_max_left _ _) hd.le
+  set E₀ : ℝ := (s : ℝ) * (((finrank ℚ F : ℝ) + 1) * Real.log 2
+    + 6 * (finrank ℚ F : ℝ) * Real.log H) / d with hE₀def
+  have hnum0 : 0 ≤ (s : ℝ) * (((finrank ℚ F : ℝ) + 1) * Real.log 2
+      + 6 * (finrank ℚ F : ℝ) * Real.log H) := by
+    have h2 := Real.log_nonneg (by norm_num : (1 : ℝ) ≤ 2)
+    have h0 : (0 : ℝ) ≤ finrank ℚ F := Nat.cast_nonneg _
+    exact mul_nonneg (Nat.cast_nonneg _) (add_nonneg (mul_nonneg (by linarith) h2)
+      (mul_nonneg (by linarith) hlogH))
+  have hE₀0 : 0 ≤ E₀ := div_nonneg hnum0 hd.le
+  have hEE₀ : E ≤ E₀ := by
+    rw [hEdef, hE₀def]
+    refine div_le_div_of_nonneg_right (max_le hnum0 ?_) hd.le
+    exact (log_div_le hG1 hCs0 hκc0 hCsle hκcle).trans_eq (by rw [hlogG]; ring)
   set A : ℝ := ((r * s : ℕ) : ℝ) with hAdef
   have hA1 : 1 ≤ A := by rw [hAdef]; exact_mod_cast Nat.one_le_iff_ne_zero.mpr (by positivity)
   have hsol : ∀ x ∈ systemSet S w L C c, x i₀ ≠ 0 →
@@ -549,7 +842,7 @@ theorem exists_finset_submodule_of_card_eq_two {ι : Type*} [Fintype ι]
         have h1 : mulHeightAff x ≤ Cs / κc * mulHeight₁ β ^ (r * s) := by
           rw [div_mul_eq_mul_div, le_div_iff₀ hκc0, mul_comm]; exact hmain
         have h2 := Real.log_le_log hHa0 h1
-        rwa [Real.log_mul (by positivity) (by positivity), Real.log_pow] at h2
+        rwa [Real.log_mul (div_pos hCs0 hκc0).ne' (pow_pos hβpos _).ne', Real.log_pow] at h2
       rw [habs, hEdef, hAdef]
       have hmx : Real.log (Cs / κc) ≤ max 0 (Real.log (Cs / κc)) := le_max_right _ _
       have : Real.log (mulHeightAff x) / d ≤
@@ -564,11 +857,12 @@ theorem exists_finset_submodule_of_card_eq_two {ι : Type*} [Fintype ι]
   set ω : ℝ := 3 * A * MR with hωdef
   have hAM : 1 ≤ A * MR := one_le_mul_of_one_le_of_one_le hA1 hMR1
   have hω1 : 1 ≤ ω := by rw [hωdef, mul_assoc]; linarith
-  set L' : ℝ := max LA (max (2 * e + E) (e + 4 / δ * Real.log 2)) with hL'def
-  have hL'1 : 2 * e + E ≤ L' := (le_max_left _ _).trans (le_max_right _ _)
+  set L' : ℝ := max LA₀ (max (2 * e + E₀) (e + 4 / δ * Real.log 2)) with hL'def
+  have hL'1 : 2 * e + E₀ ≤ L' := (le_max_left _ _).trans (le_max_right _ _)
   have hL'2 : e + 4 / δ * Real.log 2 ≤ L' := (le_max_right _ _).trans (le_max_right _ _)
-  obtain ⟨k, hk, t, ht, hcov⟩ := hA L' (le_max_left _ _)
-  set X₀ : ℝ := Real.exp (A * (L' + e + 1) + E) with hX₀def
+  obtain ⟨k, hk, t, ht, hcov⟩ := hA L' (hLA.trans (le_max_left _ _))
+  set X₀ : ℝ := Real.exp (A * (L' + e + 1) + E₀) with hX₀def
+  have hX₀eq : systemRothThreshold s r (finrank ℚ F) (finrank ℚ K) δ H = X₀ := rfl
   set X : Set (ι → K) := {x | x i₀ ≠ 0 ∧
     (∀ p, L (systemPlace S p) (σ p) (fun j ↦ algebraMap K F (x j)) ≠ 0) ∧
     X₀ ≤ mulHeightAff x ^ ((finrank ℚ K : ℝ)⁻¹)} with hXdef
@@ -583,8 +877,9 @@ theorem exists_finset_submodule_of_card_eq_two {ι : Type*} [Fintype ι]
         mulHeightAff x ^ ((finrank ℚ K : ℝ)⁻¹) < Q i ^ ω := by
     rintro x hx ⟨hx0, hL, hX⟩
     obtain ⟨hroth, hle, hup⟩ := hsol x hx hx0
-    have hup' := hup hL
-    have hX' : A * (L' + e + 1) + E ≤ Real.log (mulHeightAff x) / d := by
+    have hup' : Real.log (mulHeightAff x) / d ≤ A * absLogHeight₁ (x i₁ / x i₀) + E₀ := by
+      linarith [hup hL]
+    have hX' : A * (L' + e + 1) + E₀ ≤ Real.log (mulHeightAff x) / d := by
       rw [hrpow, hX₀def] at hX
       exact Real.exp_le_exp.mp hX
     have hβL : L' + e < absLogHeight₁ (x i₁ / x i₀) := by
@@ -596,7 +891,7 @@ theorem exists_finset_submodule_of_card_eq_two {ι : Type*} [Fintype ι]
     · rw [hrpow, hQdef]
       exact Real.exp_le_exp.mpr (by linarith)
     · rw [hrpow, hQdef, ← Real.exp_mul]
-      exact Real.exp_lt_exp.mpr (lt_mul_of_window hA1 hMR1 he0 hE0 (hL'1.trans (ht i).le) hup'
+      exact Real.exp_lt_exp.mpr (lt_mul_of_window hA1 hMR1 he0 hE₀0 (hL'1.trans (ht i).le) hup'
         hhi)
   obtain ⟨T, hTcard, hTtop, hTcov⟩ :=
     exists_finset_submodule_of_forall_mem_interval_of_mem S w hwInf hwFin hN X Q hQ hω1 hint
@@ -610,7 +905,7 @@ theorem exists_finset_submodule_of_card_eq_two {ι : Type*} [Fintype ι]
       LinearMap.coe_restrictScalars]
     rfl
   set V₀ : Submodule K (ι → K) := LinearMap.ker (LinearMap.proj i₀) with hV₀def
-  refine ⟨X₀, insert V₀ (T ∪ Finset.univ.image kerL), ?_, ?_, ?_⟩
+  refine ⟨insert V₀ (T ∪ Finset.univ.image kerL), ?_, ?_, ?_⟩
   · have h1 : ((insert V₀ (T ∪ Finset.univ.image kerL)).card : ℝ) ≤ T.card + (s + 1 : ℕ) := by
       have h2 := Finset.card_insert_le V₀ (T ∪ Finset.univ.image kerL)
       have h3 := Finset.card_union_le T (Finset.univ.image kerL)
@@ -658,7 +953,7 @@ theorem exists_finset_submodule_of_card_eq_two {ι : Type*} [Fintype ι]
       exact ⟨kerL p, Finset.mem_insert_of_mem (Finset.mem_union_right _
         (Finset.mem_image_of_mem _ (Finset.mem_univ p))), (hmemker p x).mpr hp⟩
     · push Not at hL
-      obtain ⟨U, hU, hxU⟩ := hTcov x hx ⟨hx0, hL, hX⟩
+      obtain ⟨U, hU, hxU⟩ := hTcov x hx ⟨hx0, hL, hX₀eq ▸ hX⟩
       exact ⟨U, Finset.mem_insert_of_mem (Finset.mem_union_left _ hU), hxU⟩
 
 end NumberField

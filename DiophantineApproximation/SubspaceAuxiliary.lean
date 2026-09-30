@@ -997,7 +997,12 @@ theorem exists_ne_zero_isMultiHomogeneous_forall_coeff_blockSubst_hasseDeriv_eq_
     {η : ℝ} (hη : 0 < η)
     (hm : 4 * Real.log (2 * ((n : ℝ) + 1) * Fintype.card S)
       < ((n : ℝ) + 1) * ((n : ℝ) + 2) * η ^ 2 * Fintype.card κ) :
-    ∃ C₂ C₃ : ℝ, ∃ D₀ : ℕ, ∀ d : κ → ℕ, (∀ h, D₀ ≤ d h) →
+    ∃ C₂ C₃ : ℝ, C₂ = 2⁻¹ * Real.log |(NumberField.discr K : ℝ)|
+        + ((Module.finrank ℚ K : ℝ) / 2 * Fintype.card ι
+          + Height.totalWeight K * Real.log (Fintype.card ι)
+          + Real.log (Height.mulHeight
+              (Sum.elim (fun p : S × ι × ι ↦ ((A p.1)⁻¹) p.2.1 p.2.2) (fun _ : Unit ↦ (1 : K))))) ∧
+      ∃ D₀ : ℕ, ∀ d : κ → ℕ, (∀ h, D₀ ≤ d h) →
       ∃ P : MvPolynomial (κ × ι) K, P ≠ 0 ∧ IsMultiHomogeneous d P ∧
         P.logHeight ≤ C₂ * ∑ h, (d h : ℝ) ∧
         (∀ (v : S) (I : κ × ι →₀ ℕ),
@@ -1011,11 +1016,12 @@ theorem exists_ne_zero_isMultiHomogeneous_forall_coeff_blockSubst_hasseDeriv_eq_
           (blockSubst (A v)⁻¹ (hasseDeriv I P)).coeff J = 0 := by
   classical
   -- a reference tuple collecting the entries of all the matrices `(A v)⁻¹` and `1`
-  obtain ⟨y, hy0, hMy⟩ : ∃ y : (S × ι × ι) ⊕ Unit → K, y ≠ 0 ∧
-      ∀ (v : S) (w : AbsoluteValue K ℝ),
-        (⨆ p : ι × ι, w (((A v)⁻¹) p.1 p.2)) ⊔ 1 ≤ ⨆ s, w (y s) := by
-    refine ⟨Sum.elim (fun p : S × ι × ι ↦ ((A p.1)⁻¹) p.2.1 p.2.2) (fun _ : Unit ↦ 1),
-      fun hc ↦ one_ne_zero (congrFun hc (Sum.inr ())), fun v w ↦ ?_⟩
+  set y : (S × ι × ι) ⊕ Unit → K :=
+    Sum.elim (fun p : S × ι × ι ↦ ((A p.1)⁻¹) p.2.1 p.2.2) (fun _ : Unit ↦ 1) with hydef
+  have hy0 : y ≠ 0 := fun hc ↦ one_ne_zero (congrFun hc (Sum.inr ()))
+  have hMy : ∀ (v : S) (w : AbsoluteValue K ℝ),
+      (⨆ p : ι × ι, w (((A v)⁻¹) p.1 p.2)) ⊔ 1 ≤ ⨆ s, w (y s) := by
+    intro v w
     set z : (S × ι × ι) ⊕ Unit → K :=
       Sum.elim (fun p : S × ι × ι ↦ ((A p.1)⁻¹) p.2.1 p.2.2) (fun _ : Unit ↦ 1) with hz
     have hb : ∀ s, w (z s) ≤ ⨆ s', w (z s') :=
@@ -1055,7 +1061,7 @@ theorem exists_ne_zero_isMultiHomogeneous_forall_coeff_blockSubst_hasseDeriv_eq_
         + ((Module.finrank ℚ K : ℝ) / 2 * Fintype.card ι
             + Height.totalWeight K * Real.log (Fintype.card ι)
             + Real.log (Height.mulHeight y)))
-      + Real.log (Height.mulHeight y), D₀, fun d hd ↦ ?_⟩
+      + Real.log (Height.mulHeight y), rfl, D₀, fun d hd ↦ ?_⟩
   have hd1 : ∀ h, 1 ≤ d h := fun h ↦ le_trans hD₀1 (hd h)
   have hdpos : ∀ h, (0 : ℝ) < (d h : ℝ) := fun h ↦ by exact_mod_cast hd1 h
   have hDcast : ((∑ h, d h : ℕ) : ℝ) = ∑ h, (d h : ℝ) := by push_cast; ring

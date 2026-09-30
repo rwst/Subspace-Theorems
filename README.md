@@ -1,6 +1,6 @@
 # Subspace-Theorems
 
-A working repository for **two roadmaps**, one standing on the other.
+A working repository for **three roadmaps**, each standing on the one before.
 
 - The **`ArithmeticHeights` roadmap** — arithmetic heights of polynomials, matrices and linear
   subspaces, Northcott and Kronecker, successive minima, Siegel's lemma and Bombieri–Vaaler. The
@@ -11,6 +11,10 @@ A working repository for **two roadmaps**, one standing on the other.
   decomposable-form equations it exists to prove. The roadmap is
   [`DiophantineApproximation/README.md`](DiophantineApproximation/README.md); it consumes the first
   one by milestone number and rebuilds none of it.
+- The **`QuantitativeSubspace` roadmap**: a paper-level plan with no Lean files yet. It runs from
+  Schmidt's first count (1989) to the records of Evertse–Ferretti (2013) and the higher-degree
+  work since then. The roadmap is [`QuantitativeSubspace/README.md`](QuantitativeSubspace/README.md).
+  It continues from the long horizon of `DiophantineApproximation`.
 
 The suggested Lean signatures for the milestones most likely to drift are
 [`Roadmap/Suggested.lean`](Roadmap/Suggested.lean), which also indexes the milestones already
