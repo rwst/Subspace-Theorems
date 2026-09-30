@@ -205,7 +205,7 @@ automation:
         Direction and release. Ralf Stephan chose the paper, the conventions
         and the gates, steered the agent turn by turn, and releases the
         repository.
-  spend_usd: "subscription-based Claude Code usage; time not recorded"
+  spend_usd: "a few hours of subscription-based Claude Code usage"
   notes: >-
     The library is held to the repository's rules by scripts/check.sh (a
     build with Mathlib's linter set as errors, the axiom audit against the
