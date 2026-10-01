@@ -61,6 +61,21 @@ lean_lib DiophantineApproximation where
     ⟨`warningAsError, true⟩
   ]
 
+-- `QuantitativeSubspace/` is the third roadmap (`QuantitativeSubspace/README.md`): the
+-- quantitative Subspace Theorems, standing on the two above and on `ForMathlib/`. Results specific
+-- to the roadmap (Rémond's product theorem and what follows) live here; the general commutative
+-- algebra they need goes to `ForMathlib/`.
+@[default_target]
+lean_lib QuantitativeSubspace where
+  globs := #[.submodules `QuantitativeSubspace]
+  leanOptions := #[
+    ⟨`weak.linter.mathlibStandardSet, true⟩,
+    ⟨`weak.linter.style.longFile, .ofNat 1500⟩,
+    ⟨`weak.linter.style.longFileDefValue, .ofNat 1500⟩,
+    ⟨`weak.linter.style.header, true⟩,
+    ⟨`warningAsError, true⟩
+  ]
+
 -- `ForMathlib/` holds general material Mathlib lacks that more than one library here needs, on
 -- Mathlib's directory layout (`ForMathlib/NumberTheory/PisotNumber.lean` mirrors
 -- `Mathlib/NumberTheory/…`), so that each file is a candidate upstream contribution.

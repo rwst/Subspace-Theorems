@@ -42,7 +42,7 @@ with its own record holder. The summit of this roadmap is the conjunction of the
 
 | Axis | Best known | Status in this repo |
 |---|---|---|
-| Number of subspaces containing the **large** solutions, linear forms, number field `K` | Evertse–Ferretti 2013: `10^9 · 2^{2n} · n^{14} · δ^{-3} · log(3δ^{-1}RD) · log(δ^{-1} log 3RD)` (as stated in Evertse 2010, Thm 2.1) | Q0 landed at Schmidt's parameters (Q0.3). DA 9.4 turns any *interval result* into this kind of count. DA 6.1 now has one with explicit counts and ratio (Q0.2d), and its threshold `Q₀` is at most `a · (formLogHeight + log |D_K| + ∑ log N(v) + 1)` with `a` explicit in `N`, `d`, `|S|`, `ε` and `A` (Q0.2e, `parametricThreshold_le`). Q0.3 feeds it to 9.4: the solutions of a normalized system above `X₀`, linear in `log H`, lie in a number of subspaces depending on `n`, `δ`, the degrees, the number of places and `|S|` alone; all solutions in that plus `O(log X₀)` plus 9.3's count (`exists_finset_submodule_of_isNormalizedSystem`). |
+| Number of subspaces containing the **large** solutions, linear forms, number field `K` | Evertse–Ferretti 2013: `10^9 · 2^{2n} · n^{14} · δ^{-3} · log(3δ^{-1}RD) · log(δ^{-1} log 3RD)` (as stated in Evertse 2010, Thm 2.1) | Q0 landed at Schmidt's parameters (Q0.3). Q1 started: the multigraded Hilbert polynomial and its degrees (Q1.1a–d, the excess Bézout inequality modulo Cohen–Macaulay) and the multiplicity estimate against degree (Q1.1e, with the transversal equations and the positivity of the degree in characteristic `0`, i.e. Rémond 2001 Prop. 2.1 modulo unmixedness) are in `ForMathlib`. Q1.2, the geometric product theorem with its degree bound and corollary (Rémond 2001 Thm 1.1 and Cor. 1.1, i.e. Ev95 Thm 1 and Corollary with better constants), is in `QuantitativeSubspace/`, modulo the same unmixedness. DA 9.4 turns any *interval result* into this kind of count. DA 6.1 now has one with explicit counts and ratio (Q0.2d), and its threshold `Q₀` is at most `a · (formLogHeight + log |D_K| + ∑ log N(v) + 1)` with `a` explicit in `N`, `d`, `|S|`, `ε` and `A` (Q0.2e, `parametricThreshold_le`). Q0.3 feeds it to 9.4: the solutions of a normalized system above `X₀`, linear in `log H`, lie in a number of subspaces depending on `n`, `δ`, the degrees, the number of places and `|S|` alone; all solutions in that plus `O(log X₀)` plus 9.3's count (`exists_finset_submodule_of_isNormalizedSystem`). |
 | Number of subspaces containing the **small** solutions | Evertse 2010, Thm 2.2: `δ^{-1}((10^3 n)^{nd} + 4n log log 4H)`; over `ℚ`, `δ^{-1}(10^{3n} + 4n log log 4H)` | **Landed**, DA 9.3. |
 | **Absolute** form: points in `ℚ̄ⁿ`, count independent of the field | Evertse–Schlickewei 2002 (parametric, twisted heights), sharpened by Evertse–Ferretti 2013 | Not started. |
 | `n = 2`: **quantitative Roth / Ridout** | Bugeaud–Evertse 2008, Appendix (improving Davenport–Roth 1955, Bombieri–van der Poorten 1988, Evertse 1996/97) | Davenport–Roth-strength count landed, DA 3.7. |
@@ -358,20 +358,269 @@ Two consequences for the plan:
   associativity formula over the minimal primes. Everything is finite-dimensional linear algebra
   over `k`, which suits Mathlib; the multigrading already exists
   (`MvPolynomial.weightedHomogeneousSubmodule`, `weightedGradedAlgebra`). Sub-milestones:
-  - **Q1.1a** Setup: the blocks of variables, `Γ(d)`, `dim Γ(d) = ∏ C(d_h + n_h, n_h)`,
-    multihomogeneous ideals and their Hilbert functions.
-  - **Q1.1b** Exact-sequence calculus: `h_{𝔭+(f)}(d) = h_𝔭(d) − h_𝔭(d − e)` for `f ∈ Γ(e) ∖ 𝔭`;
-    additivity along filtrations with prime quotients.
-  - **Q1.1c** Polynomiality, a multigraded Hilbert–Serre theorem: `h_I` agrees with a polynomial of
-    total degree `dim V(I)` for `d ≫ 0`. **The hard core of the layer.** Follow LNM 1752
-    Ch. 5, Lemmas 2.5–2.9 and Thm 2.10.
-  - **Q1.1d** Intersection numbers as top coefficients; Ev95 Lemmas 1, 2, 4 and 5.
-  - **Q1.1e** Projections and Ev95 Lemma 3; smooth points and the length bound of Lemma 10.
+  - **Q1.1a** ✅ Setup (2026-09-30, `ForMathlib/RingTheory/MvPolynomial/Multigraded.lean`): the
+    blocks `b : σ → ι` and the grading `multiWeight b`; `Γ(d)`; the count
+    `#(blockMonomials b d) = ∏ i, C(N_i + d i - 1, d i)` (`card_blockMonomials`) and
+    `dim Γ(d)` equal to it (`finrank_multiWeight`); multihomogeneous ideals
+    (`Ideal.IsWeightedHomogeneous`, closed under `⊔`, colon and span of homogeneous elements);
+    the Hilbert function `hilbertFunction b I d`.
+  - **Q1.1b** ✅ Exact-sequence calculus: `dim (J + (g))_{d+e} + dim (J : g)_d = dim J_{d+e} +
+    dim Γ(d)` (`finrank_sup_span_singleton_add_finrank_colon`), and at the level of Hilbert
+    polynomials `H_{J+(g)}(T) = H_J(T) − H_{(J:g)}(T − e)` (`hilbertPoly_sup_span_singleton`),
+    with the prime case `H_{𝔭+(g)}(T) = H_𝔭(T) − H_𝔭(T − e)` for `g ∉ 𝔭`. Additivity along prime
+    filtrations moves to Q1.1d, where it is needed.
+  - **Q1.1c** ✅ Polynomiality (`ForMathlib/RingTheory/MvPolynomial/HilbertPolynomial.lean`,
+    `exists_hilbertPolynomial`; the polynomial `hilbertPoly`, unique by
+    `hilbertPoly_eq_of_forall_le`; for the whole space `hilbertPoly_bot = ∏ i, C(T_i + n_i, n_i)`).
+    **The proof is not Rémond's.** It goes through leading monomials
+    (`ForMathlib/RingTheory/MvPolynomial/StandardMonomials.lean`). For any monomial order,
+    `dim I_d` is the number of leading monomials of `I` of multidegree `d`, with no Gröbner basis
+    needed. So `h_I(d)` counts the monomials outside an upper set, which Dickson's lemma generates
+    by finitely many monomials `G`. Removing one generator `g` changes the count by the count for
+    `G − g` in multidegree `d − deg g`, and induction on `#G` gives a polynomial. There are no
+    prime filtrations and no Krull dimension. What this route does *not* yet give is Rémond's
+    Thm 2.10 (1)–(3): total degree equal to `dim V(I)`, positive leading coefficients, and the
+    partial degrees. These move to Q1.1d.
+  - **Q1.1d** Degrees. Pieces, in order:
+    - (i) ✅ **Positivity** (2026-09-30,
+      `ForMathlib/RingTheory/MvPolynomial/MultiprojectiveDegree.lean`, with the top-form calculus
+      `MvPolynomial.AgreeAbove` in `.../AgreeAbove.lean`). If every generator of the leading-monomial upper set has coordinates `≤ k`, being standard depends only
+      on the truncation `min(c, k)`, so the standard monomials are a disjoint union of cones
+      `a + ℕ^V` (a Stanley decomposition with no induction). Each cone contributes a product of
+      binomials whose top form is the positive monomial `∏ T_i^{N_i - 1}/(N_i - 1)!`, and positive
+      top forms cannot cancel. So `α! · [T^α] H_I` is the number of cones of type `α` for
+      `|α| ≥ deg H_I` (`coeff_hilbertPoly_mul_factorial`), a natural number
+      (`exists_multidegree_eq_natCast`), and nonnegative (`coeff_hilbertPoly_nonneg`).
+      **Dimension is taken to be `deg H_I`** throughout. Its identification with the Krull
+      dimension of `V(I)` (Rémond Thm 2.10(1)) and the partial degrees (Thm 2.10(2)) are not
+      formalized; nothing downstream needs them so far, as long as Q1.1d–Q1.2 use `deg H_I`
+      consistently.
+    - (ii) ✅ **Degrees and Ev95 Lemma 1(iv)** (same file). `multidegree b I α = α! · [T^α] H_I`.
+      First-order Taylor formula: the top part of `P(T) − P(T − e)` is `∑ e_i ∂_i P`
+      (`agreeAbove_sub_shiftPoly`). Hence for a prime `𝔭` and `g ∉ 𝔭` of multidegree `e`,
+      `d_β(𝔭 + (g)) = ∑_i e_i · d_{β+ε_i}(𝔭)` for `|β| ≥ dim 𝔭 − 1`
+      (`multidegree_sup_span_singleton_of_isPrime`), and the dimension drops by exactly one when
+      every `e_i > 0` and `dim 𝔭 ≥ 1` (`totalDegree_hilbertPoly_sup_span_singleton`).
+    - (iii) ✅ **The associativity formula** (2026-09-30,
+      `ForMathlib/RingTheory/MvPolynomial/Associativity.lean`, with localized lengths in
+      `ForMathlib/RingTheory/Ideal/LocalLength.lean`). `d_α(I) = ∑_𝔭 ℓ(B_𝔭/I_𝔭) d_α(𝔭)` for
+      `|α| ≥ dim I`, over the finite set of multihomogeneous primes `𝔭 ⊇ I` with `H_𝔭 ≠ 0` and
+      `dim 𝔭 = dim I`, all of whose lengths are finite (`multidegree_eq_sum_localLength`,
+      `coeff_hilbertPoly_eq_sum_localLength`). The proof builds a prime filtration by colon ideals,
+      `J_k = J_{k-1} + (f_k)` with `(J_{k-1} : f_k) = 𝔮_k` prime (`exists_primeFiltration`). A
+      maximal colon ideal is prime by Mathlib's graded criterion, transported to `Lex (ι → ℕ)`
+      (`Ideal.IsWeightedHomogeneous.isPrime_of_mem_or_mem`). Each step gives
+      `H_{J_{k-1}} = H_{J_k} + H_{𝔮_k}(T − a_k)` and the exact sequence
+      `0 → B/(J : f) → B/J → B/(J + (f)) → 0` for lengths. The shifted summands have nonnegative
+      top forms, which cannot cancel (`totalDegree_le_totalDegree_sum`). This also gives dimension
+      monotone in the ideal (`totalDegree_hilbertPoly_le_of_le`) and strictly decreasing along
+      primes (`totalDegree_hilbertPoly_lt_of_lt`), so a prime of maximal dimension meets the
+      filtration only in the factors `𝔮_k = 𝔭`, and the length at `𝔭` counts them. The sum is over
+      primes of maximal *dimension* (`deg H`); since the Krull dimension is not formalized, their
+      minimality over `I` is not stated.
+    - (iv) Bézout and products. ✅ (2026-09-30), the excess form modulo unmixedness of `B_𝔭`.
+      - ✅ **Sections by nonzerodivisors** (`MultiprojectiveDegree.lean`): Lemma 1(iv) holds for
+        any multihomogeneous `J` and `g` with `(J : g) = J`
+        (`multidegree_sup_span_singleton_of_colon_eq`, with the exact dimension drop); the prime
+        case is a corollary.
+      - ✅ **Bézout with multiplicities for complete intersections**
+        (`ForMathlib/RingTheory/MvPolynomial/Bezout.lean`). Along a regular sequence
+        (`IsRegularSeq`) of multidegrees `e_j`,
+        `d_β(J + (g_1, …, g_t)) = ∑_{f : Fin t → ι} ∏_j e_j(f j) · d_{β + ∑ ε_{f j}}(J)`
+        (`multidegree_sup_span_range_of_isRegularSeq`), and the dimension drops by exactly `t` when
+        all degrees are positive. The whole space has `d_α = [α = n]` (`multidegree_bot`). With
+        the associativity formula: `∑_𝔭 ℓ(B_𝔭/I_𝔭) d_β(𝔭)` over the primes of maximal dimension
+        of `I = (g_1, …, g_t)` equals the weighted number of `f` with `β + ∑ ε_{f j} = n`
+        (`sum_localLength_mul_multidegree_eq_bezout`).
+      - ✅ **Products, Ev95 Lemma 2** (`ForMathlib/RingTheory/MvPolynomial/Product.lean`). For
+        `I₁ ⊆ K[X]`, `I₂ ⊆ K[Y]`: `h_{I₁ × I₂}(d₁, d₂) = h₁(d₁) h₂(d₂)`
+        (`hilbertFunction_prodIdeal`), by linear algebra in each degree: complements of `(I_i)_{d_i}`
+        for `≤`, and the map `K[X, Y] → K[X]/I₁ ⊗ K[Y]/I₂` for `≥`. Hence `H = H₁ H₂`,
+        dimensions add, and `d_{(α₁, α₂)} = d_{α₁}(I₁) d_{α₂}(I₂)` (`multidegree_prodIdeal`).
+      - ✅ **The excess form, Ev95 Lemma 4 / Rémond 2001 Prop. 3.2 (degree part), modulo
+        unmixedness** (`ForMathlib/RingTheory/MvPolynomial/ExcessBezout.lean`). For `I` generated
+        by a set `R` of multihomogeneous polynomials of multidegree `e`, and a multihomogeneous
+        prime `𝔭` minimal over `I` with `H_𝔭 ≠ 0` and `ht 𝔭 = t`:
+        `ℓ(B_𝔭/I_𝔭) · d_β(𝔭) ≤ ∑_{f : β + ∑ ε_{f j} = n} ∏ j, e (f j)` for `|β| ≥ |n| - t`, and
+        `dim 𝔭 ≤ |n| - t` (`exists_localLength_span_mul_multidegree_le`). The version with
+        `P_1, …, P_t` in the `K`-span of `R` in place of `I` is
+        `exists_localLength_mul_multidegree_le`, which is Rémond's statement. The proof is Ev95
+        Lemma 5 / Philippon's scheme, with contractions of `(P_1, …, P_k) B_𝔭` in place of cycles:
+        they are multihomogeneous because associated primes of multigraded quotients are
+        (`isWeightedHomogeneous_of_mem_associatedPrimes`), and degrees are monotone in the ideal
+        (`multidegree_le_of_le` in `Associativity.lean`). `K` must be infinite, for prime
+        avoidance in a vector space.
+        - ⚠ **Hypothesis: `IsUnmixedRing (Localization.AtPrime 𝔭)`**, Macaulay's unmixedness
+          (an ideal of height `k` generated by `k` elements has only associated primes of height
+          `k`). It holds because `B_𝔭` is regular, hence Cohen–Macaulay (Matsumura Thm. 17.6),
+          and it cannot be dropped: `J = (x², xy)`, `g = y` gives `ℓ = 2 > 1`. Mathlib has
+          regular local rings, `MvPolynomial` over a field as a regular ring, and Rees's theorem on
+          depth, but not "regular ⇒ Cohen–Macaulay ⇒ unmixed". That is formalized in N. Guan et
+          al., *Formalization of Auslander–Buchsbaum–Serre criterion in Lean4* (arXiv:2510.24818),
+          and is being upstreamed; the hypothesis is to be discharged from there. Proving it here
+          would need regular ⇒ domain, a regular sequence of length `dim`, and depth of a quotient
+          by a nonzerodivisor (via Rees).
+        - No dimension–height link is needed: dimension stays `deg H`, and height enters only
+          through `B_𝔭`.
+  - **Q1.1e** Multiplicities, projections and Ev95 Lemma 3 (Rémond LNM Ch. 5 Thm 2.10(3)). The
+    multiplicity side follows Rémond 2001 rather than Ev95 Lemma 10.
+    - ✅ **The multiplicity estimate, Rémond 2001 Prop. 3.1 with Lemma 3.1, without Samuel
+      multiplicities** (2026-09-30, `ForMathlib/RingTheory/MvPolynomial/Multiplicity.lean`, with
+      `ForMathlib/RingTheory/Ideal/LengthPow.lean`). Let `Q_1, …, Q_d ∈ 𝔭` and directions
+      `v_1, …, v_d` satisfy `∂Q_β/∂X_{v_α} ∈ 𝔭` exactly when `α ≠ β`, and give `v_α` the weight
+      `1/δ_α`, `δ_α ∈ ℕ_{>0}`. If every `P ∈ I` vanishes at the generic point of `𝔭` to weighted
+      order `> ε` along the `v_α`, then `ε^d ∏ δ_α ≤ ℓ(B_𝔭/(x_1, …, x_d)B_𝔭)` for any `x_α ∈ I`
+      (`prod_mul_pow_le_localLength`). Rémond's two statements are only ever used together, and
+      together they need no Samuel multiplicity:
+      - upper bound `ℓ(A/J^n) ≤ C(n - 1 + d, d) ℓ(A/J)` for `J = (x_1, …, x_d)`, since
+        `J^k/J^{k+1}` is a quotient of `(A/J)^{#monomials}` (`length_quotient_span_range_pow_le`);
+      - lower bound `ℓ(B_𝔭/I^n B_𝔭) ≥ #{γ : ∑ γ_α/δ_α ≤ nε} ≥ C(⌊nε⌋, d) ∏ δ_α`, by a chain of
+        the `Q^γ` in order of decreasing degree whose colon ideals lie in `𝔭`
+        (`card_le_localLength_comap_weightIdeal`). Vanishing is expressed by the **Taylor map**
+        `taylorAtPrime 𝔭 v : B → (B/𝔭)[Z_1, …, Z_d]`, `X_s ↦ (X_s mod 𝔭) + ∑_{v_α = s} Z_α`, a ring
+        homomorphism, so Leibniz rules and `I^n ↦` weight `> nε` are free. Its degree-`≤ 1`
+        coefficients are `P mod 𝔭` and the gradient mod `𝔭`; the coefficient of `Z^γ` in
+        `taylorAtPrime (y Q^γ)` is `ȳ ∏ ∂_αQ_α^{γ_α} ≠ 0`, and it vanishes on the earlier links;
+      - `n → ∞`. Nothing uses the characteristic.
+    - ✅ **Multiplicity against degree** (`.../MultiplicityBezout.lean`,
+      `prod_mul_pow_mul_multidegree_le`): with Q1.1d(iv),
+      `ε^t (∏ δ_α) d_β(𝔭) ≤ ∑_{f : β + ∑ ε_{f j} = n} ∏ e(f j)` for a multihomogeneous minimal
+      prime `𝔭` of height `t`, `|β| ≥ |n| - t`. This is the inequality Rémond's Prop. 2.1 (degree
+      part) is derived from.
+    - ✅ **The Hasse-derivative bridge** (`DiophantineApproximation/TaylorAtPrimeHasse.lean`,
+      which imports both the Hasse calculus and `ForMathlib`). For injective `v`, the coefficient
+      of `Z^γ` in `taylorAtPrime 𝔭 v P` is `∂_{v_* γ} P mod 𝔭` (`coeff_taylorAtPrime`, from
+      `coeff_taylor` of `MvHasseDerivTaylor.lean` and Mathlib's `killCompl`); so vanishing to
+      weighted order `> a` means `∂_{v_* γ} P ∈ 𝔭` for every `γ` of weight `≤ a`
+      (`taylorAtPrime_mem_weightIdeal_iff`). A transversal family forces `v` injective
+      (`injective_of_pderiv_mem`). `prod_mul_pow_mul_multidegree_le_of_hasseDeriv` is the degree
+      inequality with Rémond's hypothesis on Hasse derivatives, asked of the generators of `I`
+      only. Q1.2 should define Rémond's `Z_σ(P)` by Hasse derivatives (equivalent to his `∂^κ` in
+      characteristic 0), as the index in `PolynomialIndex.lean` already is.
+    - ✅ **The transversal `Q_α`, in characteristic `0`, without Kähler differentials**
+      (`ForMathlib/RingTheory/MvPolynomial/Transversal.lean`, `.../TransversalHeight.lean`).
+      Rémond gets them from exact sequences of differentials (§4); here they come from
+      separability. A transcendence basis `(x_t)_{t ∈ T}` of `B/𝔭` is chosen greedily in order of
+      decreasing factor, so each `x_s`, `s ∉ T`, is algebraic over the `x_t` of factor `≥ b s`; a
+      relation `f(x_s) = 0` of least degree has `f'(x_s) ≠ 0`, and lifting it gives `Q_s ∈ 𝔭` in
+      `X_s` and those `X_t` only, so `∂Q_s/∂X_{s'} = 0` for `s' ∉ T`, `s' ≠ s`, and
+      `∂Q_s/∂X_s ∉ 𝔭` (`exists_isTranscendenceBasis_transversal`). Their number is `ht 𝔭`: `𝔭` is
+      minimal over the `Q_s` (a smaller prime would force a nonzero polynomial in the `X_t` into
+      `𝔭`), so Krull's height theorem gives `≤`; and `le_of_localLength_eq` (in `Multiplicity.lean`:
+      `d` transversal equations and `ℓ(B_𝔭/(x_1, …, x_e)) < ∞` force `d ≤ e`, comparing growth
+      `n^d` against `n^e`), applied to a system of parameters, gives `≥`
+      (`exists_isTranscendenceBasis_transversal_height`). By-product: the dimension formula
+      `ht 𝔭 + trdeg_K (B/𝔭) = |σ|` (`height_add_trdeg`). With this,
+      `prod_pow_mul_pow_mul_multidegree_le` (in `TaylorAtPrimeHasse.lean`) is the degree inequality
+      with Rémond's hypothesis: if every generator has `∂_κ P ∈ 𝔭` for all `κ` with
+      `∑_s κ_s/δ_{b s} ≤ ε`, then `ε^t (∏_i δ_i^{c_i}) d_β(𝔭) ≤` the Bézout number, `c_i` the number
+      of variables of factor `i` outside the adapted transcendence basis.
+    - ✅ **Projections: the degree in the type of the basis is positive** (2026-10-01,
+      `ForMathlib/RingTheory/MvPolynomial/Projection.lean`; Rémond LNM Ch. 5 Thm 2.10(3)). For a
+      transcendence basis `(x_t)_{t ∈ T}` of `B/𝔭` made of variables and meeting every block,
+      `deg H_𝔭 = |T| - |ι|` and `d_β(𝔭) ≥ 1` for `β_i = |T ∩ block i| - 1`
+      (`totalDegree_hilbertPoly_eq_and_one_le_multidegree`). No projections are formed and no
+      Krull dimension enters: in the cone decomposition of the standard monomials (now for any
+      lexicographic order, `exists_hilbertPoly_eq_sum_conePoly_lex`), the free variables `V` of a
+      cone are algebraically independent modulo `𝔭` (`X^a f`, `f ∈ 𝔭 ∩ K[X_V]`, would have a
+      standard leading monomial), so `|V| ≤ |T|`; and for the lexicographic order with the
+      variables outside `T` first, the monomials in `X_T` are standard, so `T` is itself the set
+      of free variables of a cone. `d_β(𝔭)` counts the cones of type `β`
+      (`totalDegree_eq_sup_of_eq_sum_conePoly`). The adapted basis of the transversal equations
+      meets every block when `H_𝔭 ≠ 0`, because `X_s ∉ 𝔭` is transcendental over the variables
+      of the other blocks by homogeneity in the block of `s` alone
+      (`not_isAlgebraic_of_isWeightedHomogeneous`,
+      `exists_transversal_fin_of_hilbertPoly_ne_zero`). Together:
+      **`prod_pow_mul_pow_le`** (in `TaylorAtPrimeHasse.lean`), Rémond 2001 Prop. 2.1 (degree
+      part) in characteristic `0`, modulo the unmixedness of `B_𝔭`: under Rémond's
+      Hasse-derivative hypothesis, `ε^t ∏_i δ_i^{c_i} ≤ ∑_{f : β + ∑ ε_{f j} = n} ∏ e(f j)` with
+      `β` the type of `T` and `c_i = |block i \ T|`. Rémond writes the exponent as
+      `ht 𝔭_i - ht 𝔭_{i+1}` (traces on the last factors); `c_i` is that number by adaptedness
+      and `height_add_trdeg` on each `B_i`, which nothing downstream needs as long as the
+      exponents are kept in the form `c_i`.
+    - Open: only the unmixedness hypothesis (Q1.1d(iv)).
 - **Q1.2** Ev95 Thm 1 and its Corollary, the geometric product theorem with explicit constants.
+  - ✅ **Done, modulo the unmixedness of `B_𝔭`** (Q1.1d(iv)). This is the geometric part of
+    Rémond 2001 Thm 1.1 and Cor. 1.1, which is Ev95 Thm 1 and its Corollary with better constants.
+    Everything is in `QuantitativeSubspace/`, the first files of this library.
+    - `productTheorem` (`ProductTheorem.lean`). Let `𝔭` be minimal over generators of
+      multidegree `δ`, and let some generating set `R'` of a larger ideal have `∂_κ P ∈ 𝔭` for
+      every `P ∈ R'` and every `κ` of weight `≤ ε`. Suppose `δ` decreases with
+      `δ_i / δ_{i+1} > (m/ε)^t`, where `t = ht 𝔭`. Then two things hold. First, `𝔭` is minimal over
+      the ideal generated by its traces on the blocks, so `V(𝔭)` is a component of
+      `Z_1 × ⋯ × Z_m`. Second, `ε^t d_β(𝔭) ≤ #{f : β + ∑ ε_{f j} = n} ≤ m^t` with `β_i = dim Z_i`;
+      the count is the multinomial coefficient `t!/∏ (codim Z_i)!`, which is Rémond's
+      `d(Z) ≤ ρ(ε, Z)`. The proof uses ranks in the algebraic matroid of the variables
+      (`ForMathlib/RingTheory/MvPolynomial/ProductStructure.lean`) in place of heights of primes.
+      It compares two transcendence bases, one adapted to the last blocks and one to the first,
+      by Abel summation over the cuts.
+    - `productTheorem_indexIdeal` (`ZerosOfIndex.lean`) is Thm 1.1 as Rémond states it, for
+      `indexIdeal b δ P σ`, the ideal of the zeros `Z_σ(P)` of index `σ`. It applies to a
+      component of both `Z_σ(P)` and `Z_{σ+ε}(P)`. The reduction pads `∂_κ P` to multidegree `δ`
+      with a monomial in variables outside `𝔭`, so it needs no Leibniz rule.
+    - `exists_productTheorem_indexIdeal` is Cor. 1.1. Let `N = |σ| - m` and suppose
+      `δ_i / δ_{i+1} > max(1, (mN/ε)^N)`. Then every irreducible subvariety of `Z_ε(P)` lies in a
+      product `Z ≠ ℙ`, with the degree bound at `ε/N`. The proof descends along
+      `Z_0 ⊇ Z_{ε/N} ⊇ ⋯ ⊇ Z_ε`. A minimal prime of a multihomogeneous ideal is multihomogeneous
+      (`Ideal.IsWeightedHomogeneous.of_mem_minimalPrimes`).
+    - Not formalized, and not needed downstream so far:
+      - Rémond's `N^{-1} d(Z_1)⋯d(Z_m)`, where `N` is the number of components of the product.
+        His identification of it with `d(Z)` assumes that the components of `Z_1 × ⋯ × Z_m` all
+        have the same degree. This fails in general (Galois orbits on pairs of geometric
+        components can have different sizes). Over an algebraically closed field the product of
+        primes is prime, so `d(Z) = ∏ d(Z_i)`; that would need the `m`-fold version of
+        `Product.lean`.
+      - Rémond's Cor. 1.2 (a weaker ratio condition, by a different proof).
+      - The height bounds of Thm 1.1 and Cor. 1.1, which belong to Q1.3.
 - **Q1.3** Heights of subvarieties: Ev95 §3, Lemmas 6–9, or their analogue in Rémond's setting.
   Use elimination-theoretic heights (Philippon, Rémond), not Arakelov theory; Ev95 (1.6) cites
-  Philippon and Soulé for the comparison between the two. ⚠ Choose between (i) and (ii) below
-  before writing milestones.
+  Philippon and Soulé for the comparison between the two.
+  - 🔶 **Interface route, chosen 2026-10-01.** Rémond's heights `h_β(V)` (LNM 1752 Ch. 7) are
+    not constructed. `MultiprojectiveHeight b` (`MultiprojectiveHeight.lean`) is a structure
+    whose fields are the properties §5 of Rémond 2001 uses, like the unmixedness hypothesis of
+    Q1.1–Q1.2:
+    - `height_nonneg` (Ch. 7 Prop. 2.5 with Bost–Gillet–Soulé Prop. 3.2.4). (?) Check this
+      citation.
+    - `height_bot_single`, `height_bot_of_ne`: the heights of `ℙ` are the Stoll numbers
+      (Ch. 7 Cor. 2.4).
+    - `cycleHeight_sup_le`: the arithmetic intersection inequality
+      `h_β(V · div p) ≤ ∑_i δ_i h_{β+ε_i}(V) + d_β(V) h_m(p)` for cycles (Ch. 7 Thm 3.4 with
+      Cor. 3.6). For non-prime `J` this needs the length formula
+      `ℓ_𝔯(J + (p)) = ∑_𝔮 ℓ_𝔮(J) ℓ_𝔯(𝔮 + (p))`, which is not proved.
+
+    The polynomial height `h_m` (`bombieriLogHeight`, the weighted `ℓ²` norm at the infinite
+    places) and the heights of cycles (`cycleHeight`, summed over components with their
+    lengths) are concrete. All heights are relative to `K`, in Mathlib's
+    `Height.AdmissibleAbsValues` normalization, so `[K : ℚ]` times Rémond's.
+  - ✅ For every such structure:
+    - Rémond's Lemma 5.1, natural combinations avoiding finitely many subspaces
+      (`ForMathlib/LinearAlgebra/SmallCombination.lean`).
+    - Prop. 3.2, height part (`exists_localLength_mul_height_le`, `ArithmeticBezout.lean`):
+      Rémond's chain `J_{k+1} = (J_k + (P_{k+1}))B_𝔭 ∩ B` with `P_{k+1}` a combination of the
+      generators with coefficients `≤ |δ|^k`, and
+      `ℓ_𝔭 h_β(𝔭) ≤ ∑ δ^f h(ℙ) + (∑_j max(h_m(P_j), 0)) · ∑ δ^g d(ℙ)`.
+    - Thm 1.1, height part (`productTheorem_height`, `ProductTheoremHeight.lean`), for a
+      monotone bound `B` on `h_m` of the nonzero natural combinations of the generators, and
+      `productTheorem_height_coeff` with
+      `B(s) = h(R) + [K : ℚ](log s + log (∑_{μ ∈ M} 1/C(δ, μ))^{1/2})`
+      (`bombieriLogHeight_sum_nsmul_le`, `PolynomialHeight.lean`), `h(R)` the height of the
+      tuple of coefficients. This is `h(𝔭)` in place of Rémond's `N⁻¹ ∏_{j ≠ k} d(Z_j) h(Z_k)`.
+    - Thm 1.1 and Cor. 1.1 for the zeros of index `σ`, with heights
+      (`productTheorem_indexIdeal_height`, `exists_productTheorem_indexIdeal_height`,
+      `ZerosOfIndexHeight.lean`). The padded derivatives `∂_κ P · X^{κ'}` have coefficients
+      `c P_ν` with `c ≤ 2^{|δ|}`, so their height is at most `h(P) + [K : ℚ] |δ| log 2`
+      (`logHeight_le_of_forall_eq_natCast_mul`), and the error term is
+      `∑_{j < t} max(h(P) + [K : ℚ](|δ| log 2 + j log |δ| + |√n|), 0)`, Rémond's, with
+      `|√n| = ∑_i √n_i`.
+    - Rémond's Lemma 5.2, `∑_{|a| = d} a₀! ⋯ aₙ!/d! ≤ e^{2√n}`
+      (`Finset.sum_inv_multinomial_le`, `ForMathlib/Data/Nat/Choose/MultinomialSum.lean`), so
+      `log (∑_{μ ∈ M_δ} 1/C(δ, μ))^{1/2} ≤ |√n|` (`log_sqrt_sum_inv_blockMultinomial_le`,
+      `PolynomialHeight.lean`). The combinatorial half is Rémond's recurrence for the sums over
+      compositions with positive parts, an identity of natural numbers proved by the bijection
+      `m ↦ m - e_t`. The analytic half replaces his Stirling estimate and numerical checks by a
+      termwise comparison with the series of `e^{2√n}`, using `C(2j + 1, j) ≤ 4^j`.
+  - Open: constructing actual heights satisfying the interface, by route (ii) (chosen
+    2026-10-01); see "Q1.3, route (ii): plan" below.
 - **Q1.4** Ev95 Thm 2 and Thm 3, the improved Roth lemma on `(ℙ¹)^m`.
 - **Q1.5** Ev96 Lemma 26, the grid form that replaces DA 5.3 in the Subspace proofs.
 - **Q1.6** Re-run Q0 with Q1.5. That gives Ev96's singly exponential count, and on the way the
@@ -471,7 +720,81 @@ Two consequences for the plan:
   That is bookkeeping of the kind Ev95 §5 does. (?) It remains to check that the constants still
   give Ev96's shape.
 
-Q1.1 does not depend on the Q1.3 decision and can start now, from Ch. 5 §2.
+**Q1.3, route (ii): plan (2026-10-01).**
+
+*What the proofs use.*
+- The height parts of Thm 1.1 and Cor. 1.1 use only upper bounds: for `h(ℙ)`, and for the
+  intersection inequality. Additive errors of size `c(n) |δ| d_β(V)` per cut are harmless.
+- Ev95 §5 (Roth's lemma, Q1.4) also uses two lower bounds:
+  - All mixed heights are nonnegative (Lemma 7(iii)), so the expansion of `h(Z, L^{m-s+1})`
+    can drop terms.
+  - The point bound (L): if the `h`-th projection of `Z` is a point `P_h`, then
+    `h(Z, L^e L_h) ≥ log H(P_h) (Z · L^e)` (p. 247). In Rémond's terms the resultant form
+    of `Z` of index `(ε_h, rest)` is `λ (u · P_h)^{d_e(Z)}`.
+- (?) The errors should go into the `d_1 + ⋯ + d_m` term of Thm 3, at the price of a worse
+  constant. Confirm this in the Q1.4 bookkeeping.
+
+*Definition (LNM 1752 Ch. 7 §2.3).*
+- `h_a(V)` is the height of `α_d f`, where `f` is a resultant (Chow) form of `V` of index
+  `(ε_1^{a_1}, …, ε_q^{a_q})`, i.e. in generic linear forms.
+- The height of a form is `∑_v [K_v : ℚ_v]/[K : ℚ] log M_v`. At a finite place `M_v` is the
+  maximum of the coefficients; at an infinite place it is the sphere Mahler measure.
+- Route (ii) keeps the eliminants and the finite places. At the infinite places it replaces
+  the Mahler measure by a coefficient norm: the Bombieri `ℓ²` norm (`bombieriNorm`, which is
+  what `α_d` encodes) or the `ℓ¹` norm.
+- With a coefficient norm, nonnegativity is the product formula (Mathlib's
+  `Height.logHeight` is `≥ 0`). The bound (L) uses `[L^D] = [L]^D` for linear `L` in the
+  Bombieri norm.
+
+*Milestones.* H1 and H2 are pure algebra and are needed by both routes.
+- **H1. Elimination (Ch. 5 §2).**
+  - Characteristic and eliminant ideals `𝔈_d(I) = 𝔄_d(I) ∩ A[d]` of a multihomogeneous
+    ideal (Def. 2.1).
+  - The elimination theorem (Thm 2.2). The proof is elementary: a determinant trick, then a
+    maximal ideal of `K[X]/ρ(I[d])` that avoids `1 - X_{j_1}^{(1)} ⋯ X_{j_q}^{(q)}`.
+  - Principality for primes (Thm 2.13, Cor. 2.15): `A[d]` is a UFD (Mathlib), so a
+    height-`≤ 1` prime is principal. Then the eliminant forms `elim_d(𝔭)`.
+- **H2. Resultant forms (Ch. 5 §3).**
+  - `∏_𝔮 elim_d(𝔮)^{ℓ_𝔮}` over the components.
+  - Degree in `u^{(1)}` = multidegree (Prop. 3.4).
+  - Separation of variables (Prop. 3.5).
+  - Hypersurface section (Prop. 3.6): specializing `u^{(1)}` to the coefficients of `P`
+    gives a resultant form of `V · div P`.
+  - Specializations factor into point evaluations (Prop. 2.16).
+- **H3. Heights of forms with a coefficient norm.**
+  - Finite places: Gauss's lemma (Mathlib `Polynomial.gaussNorm_mul`,
+    `MvPowerSeries.gaussNorm_mul_eq_mul`).
+  - Infinite places: Gelfond-type lower bounds `‖F‖ ‖G‖ ≤ c^{deg} ‖FG‖`. Mathlib has the
+    one-variable Mahler measure, its multiplicativity and Mignotte's bound. The
+    several-variable case goes through iterated one-variable integrals (?).
+- **H4. The heights `h_a(V)` and their easy properties.**
+  - Nonnegativity.
+  - An upper bound for `h(ℙ)`: the resultant form of `ℙ` is a product of determinants.
+  - The point bound (L).
+- **H5. The intersection inequality with an error.**
+  `h_a(V · div P) ≤ ∑_i δ_i h_{a+ε_i}(V) + d_a(V) (h_m(P) + c(n) |δ|)`.
+  - The substitution step (Prop. 3.6) only needs upper bounds on coefficients, so it is
+    elementary.
+  - The exact change of index (Ch. 7 Thm 2.2) has to become an inequality
+    `h(f_{(δ, …)}) ≤ ∑_i δ_i h(f_{(ε_i, …)}) + error`, via Prop. 3.5 and H3.
+  - ⚠ This is the main risk of route (ii). If it fails, H1–H2 and H4 still stand, and only
+    the infinite places switch to Rémond's Mahler measure (route (i)).
+- **H6. Interface.**
+  - Weaken `height_bot_*` and `cycleHeight_sup_le` to inequalities with explicit errors, and
+    add (L).
+  - Re-run the height theorems of Q1.1–Q1.2, and instantiate the interface with H4–H5.
+
+Q1.1 does not depend on the Q1.3 decision. Q1.1a–d have landed, the excess Bézout inequality of
+Q1.1d(iv) modulo the unmixedness of `B_𝔭` (Cohen–Macaulay, expected from Mathlib). Q1.1e has the
+multiplicity estimate, its combination with Bézout, the Hasse-derivative form of its
+hypothesis and, in characteristic `0`, the transversal `Q_α` with the dimension formula
+`ht 𝔭 + trdeg = |σ|` and the positivity of the degree in the type of the adapted basis
+(`prod_pow_mul_pow_le`, Rémond 2001 Prop. 2.1 modulo unmixedness). Q1.2 is done modulo
+unmixedness: Rémond's Thm 1.1 and Cor. 1.1, geometric parts (`productTheorem_indexIdeal`,
+`exists_productTheorem_indexIdeal`). Q1.3 (heights) has started on the interface route: the
+height parts of Thm 1.1 and Cor. 1.1 hold for every `MultiprojectiveHeight`
+(`productTheorem_indexIdeal_height`, `exists_productTheorem_indexIdeal_height`), with Rémond's
+error term via his Lemma 5.2.
 
 ### Layer Q2: the absolute theory (Roy–Thunder 1996, Evertse–Schlickewei 1999/2002)
 
