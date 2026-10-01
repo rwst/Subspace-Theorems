@@ -110,7 +110,7 @@ theorem productTheorem_indexIdeal_height [Fintype σ] [CharZero K] [Height.Admis
           β + ∑ j, Finsupp.single (f j) 1 = bottomType b) ≤ m ^ t ∧
         ∀ k, β k < bottomType b k →
           ε ^ t * δ k * H.height 𝔭 (β + Finsupp.single k 1) ≤
-            ∑ l, Height.totalWeight K * stollNumber (bottomType b l) * δ l *
+            ∑ l, Height.totalWeight K * H.botBound (bottomType b l) * δ l *
                 #(univ.filter fun f : Fin t → Fin m ↦ β + Finsupp.single k 1 +
                   ∑ j, Finsupp.single (f j) 1 = bottomType b + Finsupp.single l 1) +
               (∑ j ∈ range t, max (Height.logHeight (fun ν : P.support ↦ P.coeff ν) +
@@ -218,7 +218,7 @@ theorem exists_productTheorem_indexIdeal_height [Fintype σ] [CharZero K]
             β + ∑ j, Finsupp.single (f j) 1 = bottomType b) ≤ m ^ t ∧
           ∀ k, β k < bottomType b k →
             (ε / N) ^ t * δ k * H.height 𝔭 (β + Finsupp.single k 1) ≤
-              ∑ l, Height.totalWeight K * stollNumber (bottomType b l) * δ l *
+              ∑ l, Height.totalWeight K * H.botBound (bottomType b l) * δ l *
                   #(univ.filter fun f : Fin t → Fin m ↦ β + Finsupp.single k 1 +
                     ∑ j, Finsupp.single (f j) 1 = bottomType b + Finsupp.single l 1) +
                 (∑ j ∈ range t, max (Height.logHeight (fun ν : P.support ↦ P.coeff ν) +

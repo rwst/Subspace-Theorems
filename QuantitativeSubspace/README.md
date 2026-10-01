@@ -575,14 +575,16 @@ Two consequences for the plan:
 - **Q1.3** Heights of subvarieties: Ev95 §3, Lemmas 6–9, or their analogue in Rémond's setting.
   Use elimination-theoretic heights (Philippon, Rémond), not Arakelov theory; Ev95 (1.6) cites
   Philippon and Soulé for the comparison between the two.
-  - 🔶 **Interface route, chosen 2026-10-01.** Rémond's heights `h_β(V)` (LNM 1752 Ch. 7) are
-    not constructed. `MultiprojectiveHeight b` (`MultiprojectiveHeight.lean`) is a structure
+  - ✅ **Interface route, chosen 2026-10-01.** The height bounds use only the interface
+    `MultiprojectiveHeight b`; a variant of Rémond's heights `h_β(V)` (LNM 1752 Ch. 7)
+    instantiates it (below). `MultiprojectiveHeight b` (`MultiprojectiveHeight.lean`) is a structure
     whose fields are the properties §5 of Rémond 2001 uses, like the unmixedness hypothesis of
     Q1.1–Q1.2:
     - `height_nonneg` (Ch. 7 Prop. 2.5 with Bost–Gillet–Soulé Prop. 3.2.4). (?) Check this
       citation.
-    - `height_bot_single`, `height_bot_of_ne`: the heights of `ℙ` are the Stoll numbers
-      (Ch. 7 Cor. 2.4).
+    - `height_bot_single_le`, `height_bot_of_ne`: the heights of `ℙ` are at most
+      `[K : ℚ] botBound(n_l)` in the indices `n + ε_l`, and `0` otherwise. For Rémond's heights
+      `botBound` is the Stoll number (Ch. 7 Cor. 2.4). Weakened from equality on 2026-10-01.
     - `cycleHeight_sup_le`: the arithmetic intersection inequality
       `h_β(V · div p) ≤ ∑_i δ_i h_{β+ε_i}(V) + d_β(V) h_m(p)` for cycles (Ch. 7 Thm 3.4 with
       Cor. 3.6). For non-prime `J` this needs the length formula
@@ -619,8 +621,14 @@ Two consequences for the plan:
       compositions with positive parts, an identity of natural numbers proved by the bijection
       `m ↦ m - e_t`. The analytic half replaces his Stirling estimate and numerical checks by a
       termwise comparison with the series of `e^{2√n}`, using `C(2j + 1, j) ≤ 4^j`.
-  - Open: constructing actual heights satisfying the interface, by route (ii) (chosen
-    2026-10-01); see "Q1.3, route (ii): plan" below.
+  - ✅ **Actual heights satisfy the interface** (`resultantHeight`, `ResultantHeights.lean`,
+    2026-10-01), over every field whose archimedean absolute values come from complex
+    embeddings, e.g. number fields. `h_β(𝔮)` is the height of Rémond's remodeled resultant form
+    in `|β|` generic linear forms, with a Gaussian Mahler measure in place of the sphere measure
+    at the archimedean places. `botBound n = log M(det_{n+1})`, the Gaussian Mahler measure of
+    the generic determinant. H1–H2 follow route (ii), H3–H6 route (i); see the milestones below.
+  - Open: an explicit numerical bound for `log M(det_{n+1})` (Hadamard or second moments), and
+    the point bound (L) of Ev95 §5, which Q1.4 needs.
 - **Q1.4** Ev95 Thm 2 and Thm 3, the improved Roth lemma on `(ℙ¹)^m`.
 - **Q1.5** Ev96 Lemma 26, the grid form that replaces DA 5.3 in the Subspace proofs.
 - **Q1.6** Re-run Q0 with Q1.5. That gives Ev96's singly exponential count, and on the way the
@@ -748,41 +756,106 @@ Two consequences for the plan:
 
 *Milestones.* H1 and H2 are pure algebra and are needed by both routes.
 - **H1. Elimination (Ch. 5 §2).**
-  - Characteristic and eliminant ideals `𝔈_d(I) = 𝔄_d(I) ∩ A[d]` of a multihomogeneous
-    ideal (Def. 2.1).
-  - The elimination theorem (Thm 2.2). The proof is elementary: a determinant trick, then a
-    maximal ideal of `K[X]/ρ(I[d])` that avoids `1 - X_{j_1}^{(1)} ⋯ X_{j_q}^{(q)}`.
-  - Principality for primes (Thm 2.13, Cor. 2.15): `A[d]` is a UFD (Mathlib), so a
-    height-`≤ 1` prime is principal. Then the eliminant forms `elim_d(𝔭)`.
+  - ✅ §2.1 (`ForMathlib/RingTheory/MvPolynomial/Elimination.lean`):
+    - The characteristic and eliminant ideals `𝔈_d(I) = 𝔄_d(I) ∩ A[d]` (Def. 2.1).
+    - The elimination theorem (Thm 2.2) over an algebraically closed field: the
+      Nullstellensatz, then the determinant trick in one multidegree.
+    - Rémond's substitution `δ` and Lemma 2.3, by inverting `∏_i X_{t_i}`.
+    - Lemma 2.4: for primes, `𝔄_d(𝔭)` and `𝔈_d(𝔭)` are prime and `𝔄_d(𝔭) ∩ K[X] = 𝔭`; both
+      ideals commute with intersections.
+  - ✅ Partial degrees for primes (Thm 2.10(1), (3), Lemma 2.7;
+    `ForMathlib/RingTheory/MvPolynomial/PartialDegree.lean`): `e_J = r_J - |J|` with `r_J` a
+    rank in the algebraic matroid of the variables, via the cone decomposition and nested bases.
+  - ✅ Lemma 2.12 (passage to `L = Frac(K[u^{(1)}])`): `𝔮 = 𝔄_{(d_1)}(𝔭) L[X]` is prime,
+    `H_𝔮 = Δ_{d_1} H_𝔭`, `deg 𝔮 = deg 𝔭 * d_1` (`GenericSection.lean`, with `BaseChange.lean` for
+    the Hilbert function under field extension and `Saturation.lean` for `H_{J : 𝔪^∞} = H_J`).
+    ✅ The splitting `𝔄_{d'}(𝔮) = 𝔄_d(𝔭) L[d'][X]`, `𝔈_{d'}(𝔮) = 𝔈_d(𝔭) L[d']`, via
+    `K[d] ≅ K[u^{(1)}][d']` (`Splitting.lean`); the assertion on `e_J` as a transfer of ranks
+    (`blockRank_add_blockRank_le`).
+  - ✅ Thm 2.13 (1) over any field (`EliminantCriterion.lean`): `𝔈_d(𝔭) = 0 ⟺ 𝔪 ⊄ 𝔭` and
+    `e_J(𝔭) ≥ r_J(d)` for all `J`. Rémond's specializations and Lemma 2.8 are replaced by partial
+    degrees of `Δ_{d_0} H_𝔭` and positivity of its top coefficients.
+  - ✅ Thm 2.13 (2) (`Principality.lean`): if `e_J(𝔭) ≥ r_J(d) - 1` for all `J`, then
+    `𝔈_d(𝔭)` is principal. The tight sets `J` are stable under `∩`; a form supported in the
+    smallest one is dropped, `𝔈_d(𝔭) ∩ K[d ∖ Z] = 0` for `Z = u^{(0)}_{m_0}` by Rémond's
+    specialization, and Gauss's lemma in `K[d ∖ Z][Z]` (`Polynomial/PrimeOverZero.lean`).
+  - ✅ Cor. 2.15 (`EliminantForm.lean`): the eliminant forms `elim_d(𝔭)`, up to a constant
+    (a generator of `𝔈_d(𝔭)` if principal and proper, else `1`). In case (3), `𝔈_d(𝔭)` is
+    not principal when `𝔪 ⊄ 𝔭`.
+  - ✅ Prop. 2.16 (`Specialization.lean`): the specializations of `elim_d(𝔭)` in all forms
+    but the first are `c ∏ U(z_i)`. The zero sets are compared via the elimination theorem
+    and the Nullstellensatz; each factor comes from a minimal prime `q` of the specialized
+    ideal whose eliminant ideal is nonzero, so the relevant blocks have rank one modulo `q`
+    (Thm 2.13 (1)) and the projection is a point.
 - **H2. Resultant forms (Ch. 5 §3).**
-  - `∏_𝔮 elim_d(𝔮)^{ℓ_𝔮}` over the components.
-  - Degree in `u^{(1)}` = multidegree (Prop. 3.4).
-  - Separation of variables (Prop. 3.5).
-  - Hypersurface section (Prop. 3.6): specializing `u^{(1)}` to the coefficients of `P`
-    gives a resultant form of `V · div P`.
-  - Specializations factor into point evaluations (Prop. 2.16).
-- **H3. Heights of forms with a coefficient norm.**
-  - Finite places: Gauss's lemma (Mathlib `Polynomial.gaussNorm_mul`,
-    `MvPowerSeries.gaussNorm_mul_eq_mul`).
-  - Infinite places: Gelfond-type lower bounds `‖F‖ ‖G‖ ≤ c^{deg} ‖FG‖`. Mathlib has the
-    one-variable Mahler measure, its multiplicativity and Mignotte's bound. The
-    several-variable case goes through iterated one-variable integrals (?).
+  - ✅ The characteristic form `χ(M) = ∏_π π^{ℓ(M_π)}` of a torsion `K[d]`-module, as the gcd
+    of the maximal minors of a presentation (Lemma 3.1; `CharForm.lean`, `DetIdeal.lean`).
+  - ✅ `res_d(I)`, the eventual value of `χ((B[d]/I[d])_k)` (Lemma 3.2), and
+    `res_d(I) = ∏_𝔭 res_d(𝔭)^{ℓ(B_𝔭/I_𝔭)}` over the top-dimensional components (Thm 3.3;
+    `ResultantForm.lean`). Rémond's flatness argument is replaced by `𝔄(J) : f = 𝔄(J : f)`
+    (Lemma 2.3).
+  - ✅ Degree in `u^{(l₀)}` = `(∏_{l ≠ l₀} Δ_{d_l}) H_I`, i.e. `deg(I) * d_2 * ⋯ * d_r`
+    (Prop. 3.4; `ResultantDegree.lean`). For one form `χ` is the determinant of the
+    multiplication by `U`; the induction passes to `L = Frac(K[u^{(l)}])` by Lemma 2.12, and
+    homogeneity of `χ` descends from the localization `K[d] → L[d']`. No algebraic closure.
+  - ✅ Separation of variables (Prop. 3.5, two factors; `ResultantProduct.lean`): specializing
+    `U_1` of multidegree `e + e'` to a product `V W` of generic forms gives
+    `res_{(e, …)}(I) · res_{(e', …)}(I)` up to a constant. Rémond's zero-set comparison over an
+    algebraic closure is replaced by divisibility (the exact sequence of multiplication by `V`,
+    and `χ` unchanged by dummy variables) plus equal degrees (Prop. 3.4). Iterating and
+    identifying variables gives Rémond's product of linear forms.
+  - ✅ Hypersurface section (Prop. 3.6; `ResultantSection.lean`): specializing `u^{(1)}` to
+    the coefficients of a non-zero-divisor `P` gives `res_{d'}(I + (P))` up to a constant.
+    Graded pieces commute with the specialization (`GradedPieceBaseChange.lean`), so
+    `ρ(res_d(I)) ∣ res_{d'}(I + (P))`, and both have the same degrees by Prop. 3.4.
+  - ✅ Lemma 3.7 for linear forms (`ResultantSpace.lean`): with `n_i` generic linear forms in
+    the block `i ≠ j` and `n_j + 1` in the block `j`, the resultant form of `ℙ` is the
+    determinant of the coefficients of the block `j`, and it is a unit for every other
+    distribution of the forms. The determinant lies in the eliminant ideal (Cramer), is prime
+    (`IrreducibleDet.lean`), and Prop. 3.4 gives degree `1`. Rémond's general `U_{n+1}(Δ)`
+    is not needed for `h(ℙ)`.
+- **H3–H5 switched to route (i) (2026-10-01).** With a coefficient norm, Thm 2.2 needs a lower
+  bound on `‖ω(f)‖`. The torus-Mahler Gelfond bound loses the sum of the partial degrees over
+  all `u^{(1)}` variables, which is exponential in `δ`. The Bombieri inequality loses about
+  `t |δ| log t`. Only the sphere Mahler measure gives Rémond's exact equality.
+- **H3. Mahler measures at the infinite places.** Rémond's sphere measure is replaced by a
+  **Gaussian** one: `log M(F) = ∫ log |F| dγ - c · deg F`, with `γ` the product of standard
+  complex Gaussians and `c = ∫ log |w| dγ₁(w)`. For multihomogeneous `F` this is Rémond's
+  `M(F)`, by the polar decomposition, but that is never needed. The Gaussian makes his
+  properties easy:
+  - Fubini, and invariance under dummy variables: `γ` is a product measure.
+  - `M(∑ a_s z_s) = ‖a‖₂`: the law of `∑ a_s z_s` is that of `‖a‖₂ w` (characteristic
+    functions, Mathlib `stdGaussian`, `charFun`).
+  - Multiplicativity: `log |F|` is integrable for `F ≠ 0`. The proof is Tonelli, induction
+    on the variables, the roots of a polynomial in one variable, and Landau's
+    `∏ max(1, |r|) ≤ ‖p‖₁ / |lead p|`.
+  - Lemma 2.1: (1) averaging over specializations is Fubini; (2) is Cauchy–Schwarz.
+  Finite places: the maximum of the coefficients, with Gauss's lemma. Lemma 2.1 (1) there
+  needs specializations whose reduction avoids a hypersurface (an infinite residue field).
+- ✅ **H3** (`ForMathlib/Probability/ComplexGaussian.lean`,
+  `ForMathlib/Analysis/Polynomial/GaussianMahler*.lean`, `ResultantMahler.lean`,
+  `ForMathlib/RingTheory/MvPolynomial/GaussNorm.lean`, `ResultantGauss.lean`). Thm 2.2 holds at
+  every place, and as `h(α res_{(δ, d')}) = ∑_i δ_i h(α res_{(ε_i, d')})`
+  (`ForMathlib/NumberTheory/Height/ResultantHeight.lean`). The finite places use a valuation
+  ring of an algebraic closure of `K(u)` instead of Rémond's specializations avoiding a
+  hypersurface.
 - **H4. The heights `h_a(V)` and their easy properties.**
-  - Nonnegativity.
-  - An upper bound for `h(ℙ)`: the resultant form of `ℙ` is a product of determinants.
-  - The point bound (L).
-- **H5. The intersection inequality with an error.**
-  `h_a(V · div P) ≤ ∑_i δ_i h_{a+ε_i}(V) + d_a(V) (h_m(P) + c(n) |δ|)`.
-  - The substitution step (Prop. 3.6) only needs upper bounds on coefficients, so it is
-    elementary.
-  - The exact change of index (Ch. 7 Thm 2.2) has to become an inequality
-    `h(f_{(δ, …)}) ≤ ∑_i δ_i h(f_{(ε_i, …)}) + error`, via Prop. 3.5 and H3.
-  - ⚠ This is the main risk of route (ii). If it fails, H1–H2 and H4 still stand, and only
-    the infinite places switch to Rémond's Mahler measure (route (i)).
-- **H6. Interface.**
-  - Weaken `height_bot_*` and `cycleHeight_sup_le` to inequalities with explicit errors, and
-    add (L).
-  - Re-run the height theorems of Q1.1–Q1.2, and instantiate the interface with H4–H5.
+  - ✅ Nonnegativity: `|f_m| ≤ M(f)` for a monomial `m` depending only on the support (Jensen and
+    rotation invariance), then the product formula (`gaussHeight_nonneg`). Rémond's Arakelov
+    argument is not needed.
+  - ✅ `h(ℙ) ≤ [K : ℚ] log M(det_{n_j+1})` (`ForMathlib/NumberTheory/Height/SpaceHeight.lean`).
+  - Open: the point bound (L).
+- ✅ **H5. The intersection inequality** (`ForMathlib/NumberTheory/Height/SectionHeight.lean`;
+  for cycles via Thm 3.3 for heights, `LinearHeight.lean`, and the degree in the first form,
+  `ResultantLinear.lean`). The error is exactly Rémond's `d_β(V) h_m(P)`.
+  `h_a(V · div P) ≤ ∑_i δ_i h_{a+ε_i}(V) + d_a(V) (h_2(P) + c(n) |δ|)`.
+  - `h_a(V · div P) = h(ρ(f))` (Prop. 3.6) and `M(ρ(f)) ≤ M(α_d f) ‖P‖₂^{d_a}` (Lemma 2.1 (2)
+    with Prop. 2.16). Rémond's exact formula (Lemma 3.5, integrals over `V`) is not needed.
+  - `h(α_d f) = ∑_i δ_i h(f_{(ε_i, …)})` (Thm 2.2), via Prop. 3.5, Lemma 2.1 (1) and
+    Prop. 2.16.
+- ✅ **H6. Interface.** Only `height_bot_*` had to be weakened (to `height_bot_single_le` with a
+  field `botBound`); `cycleHeight_sup_le` holds as stated. The height theorems of Q1.1–Q1.2 were
+  re-run, and `resultantHeight` instantiates the interface. (L) is still to be added.
 
 Q1.1 does not depend on the Q1.3 decision. Q1.1a–d have landed, the excess Bézout inequality of
 Q1.1d(iv) modulo the unmixedness of `B_𝔭` (Cohen–Macaulay, expected from Mathlib). Q1.1e has the
@@ -791,10 +864,11 @@ hypothesis and, in characteristic `0`, the transversal `Q_α` with the dimension
 `ht 𝔭 + trdeg = |σ|` and the positivity of the degree in the type of the adapted basis
 (`prod_pow_mul_pow_le`, Rémond 2001 Prop. 2.1 modulo unmixedness). Q1.2 is done modulo
 unmixedness: Rémond's Thm 1.1 and Cor. 1.1, geometric parts (`productTheorem_indexIdeal`,
-`exists_productTheorem_indexIdeal`). Q1.3 (heights) has started on the interface route: the
-height parts of Thm 1.1 and Cor. 1.1 hold for every `MultiprojectiveHeight`
-(`productTheorem_indexIdeal_height`, `exists_productTheorem_indexIdeal_height`), with Rémond's
-error term via his Lemma 5.2.
+`exists_productTheorem_indexIdeal`). Q1.3 (heights): the height parts of Thm 1.1 and Cor. 1.1
+hold for every `MultiprojectiveHeight` (`productTheorem_indexIdeal_height`,
+`exists_productTheorem_indexIdeal_height`), with Rémond's error term via his Lemma 5.2, and
+actual heights of resultant forms satisfy the interface (`resultantHeight`). Left for Q1.4: the
+point bound (L) and a numerical bound for `log M(det_{n+1})`.
 
 ### Layer Q2: the absolute theory (Roy–Thunder 1996, Evertse–Schlickewei 1999/2002)
 

@@ -7,6 +7,8 @@ module
 
 public import ForMathlib.RingTheory.MvPolynomial.Associativity
 public import ForMathlib.RingTheory.MvPolynomial.Bezout
+public import ForMathlib.NumberTheory.Height.BombieriHeight
+public import ForMathlib.RingTheory.MvPolynomial.BlockMultinomial
 public import Mathlib.Data.Nat.Choose.Multinomial
 public import Mathlib.NumberTheory.Height.Basic
 public import Mathlib.RingTheory.Ideal.MinimalPrime.Noetherian
@@ -23,16 +25,19 @@ Nombres Bordeaux **13** (2001), Thm 1.1 and Cor. 1.1) use the heights `h_β(V)` 
 of `ℙ^{n_1} × ⋯ × ℙ^{n_m}` defined by Rémond in *Géométrie diophantienne multiprojective*,
 Chapter 7 of Nesterenko–Philippon (eds.), *Introduction to algebraic independence theory*, LNM
 **1752** (2001). They are the heights of resultant forms, with Philippon's sphere Mahler measure at
-the infinite places, and are not formalized here. Instead, `MvPolynomial.MultiprojectiveHeight`
-records the properties of them that the product theorem uses, as the fields of a structure; the
-height bounds are then proved for every such structure. The fields are:
+the infinite places. `MvPolynomial.MultiprojectiveHeight` records the properties of them that the
+product theorem uses, as the fields of a structure; the height bounds are then proved for every
+such structure. `MvPolynomial.resultantHeight` (`QuantitativeSubspace/ResultantHeights.lean`)
+instantiates it with the heights of resultant forms, a Gaussian Mahler measure replacing the
+sphere measure. The fields are:
 
 * `height_nonneg`: heights of (relevant) varieties are nonnegative. Rémond's heights agree with
   the Faltings multiheights of the closures in `ℙ_{O_K}` for the Fubini–Study metrics (LNM 1752,
   Ch. 7, Prop. 2.5), which are nonnegative because the coordinates are sections of sup norm `≤ 1`
   (J.-B. Bost, H. Gillet, C. Soulé, J. Amer. Math. Soc. **7** (1994), Prop. 3.2.4).
-* `height_bot_single`, `height_bot_of_ne`: the heights of `ℙ^{n_1} × ⋯ × ℙ^{n_m}` itself are the
-  Stoll numbers `h(ℙ^n) = ∑_{j ≤ n} ∑_{i ≤ j} 1/(2i)` in the indices `n + ε_l`, and `0` otherwise
+* `height_bot_single_le`, `height_bot_of_ne`: the heights of `ℙ^{n_1} × ⋯ × ℙ^{n_m}` itself are at
+  most `[K : ℚ] botBound n_l` in the indices `n + ε_l`, and `0` otherwise. For Rémond's heights
+  `botBound` is the Stoll number `h(ℙ^n) = ∑_{j ≤ n} ∑_{i ≤ j} 1/(2i)`
   (LNM 1752, Ch. 7, Cor. 2.4).
 * `cycleHeight_sup_le`: **the arithmetic intersection inequality**. For a multihomogeneous `p` of
   multidegree `δ`, a nonzerodivisor modulo `J`, and `|β| = dim V(J)`,
@@ -46,18 +51,17 @@ height bounds are then proved for every such structure. The fields are:
 Heights of cycles (`MvPolynomial.cycleHeight`) are defined here from the heights of primes: the
 height of index `β` of `V(J)` is `∑_𝔮 ℓ(K[X]_𝔮/J_𝔮) h_β(𝔮)`, over the minimal primes `𝔮` of `J`
 of dimension `|β| - 1` with `H_𝔮 ≠ 0`. The polynomial height `h_m` of LNM 1752, Ch. 7, §3.2 is
-also concrete (`MvPolynomial.bombieriLogHeight`): the maximum of the coefficients at the finite
-places, and the norm `(∑_m |p_m|_v² / C(δ, m))^{1/2}` at the infinite ones, with the
-multinomial coefficients `C(δ, m) = ∏_i δ_i! / ∏_s m_s!` (`MvPolynomial.blockMultinomial`).
+also concrete (`MvPolynomial.bombieriLogHeight`, in `ForMathlib`): the maximum of the
+coefficients at the finite places, and the norm `(∑_m |p_m|_v² / C(δ, m))^{1/2}` at the infinite
+ones, with the multinomial coefficients `C(δ, m) = ∏_i δ_i! / ∏_s m_s!`
+(`MvPolynomial.blockMultinomial`).
 
 All heights are relative to `K`, in Mathlib's normalization (`Height.AdmissibleAbsValues`): they
-are `[K : ℚ]` times Rémond's absolute heights, so that `h(ℙ^n) = [K : ℚ] s_n` in the field
-`height_bot_single` (with `[K : ℚ] = Height.totalWeight K`).
+are `[K : ℚ]` times Rémond's absolute heights, so that theirs satisfy `height_bot_single_le` with
+`h(ℙ^n) = [K : ℚ] s_n` (with `[K : ℚ] = Height.totalWeight K`).
 
 ## Main definitions
 
-* `MvPolynomial.blockMultinomial`, `MvPolynomial.bombieriNorm`, `MvPolynomial.bombieriLogHeight`:
-  the polynomial height `h_m`.
 * `MvPolynomial.stollNumber`: `s_n = ∑_{j ≤ n} ∑_{i ≤ j} 1/(2i)`.
 * `MvPolynomial.components`, `MvPolynomial.primeMult`, `MvPolynomial.cycleHeight`: the components
   of dimension `d`, their multiplicities, and the heights of cycles.
@@ -79,45 +83,6 @@ open Finset Height Height.AdmissibleAbsValues
 variable {σ ι K : Type*}
 
 namespace MvPolynomial
-
-section PolynomialHeight
-
-variable [Fintype σ] [Fintype ι] [DecidableEq ι] [Field K]
-
-/-- The multinomial coefficient `C(δ, m) = ∏_i δ_i! / ∏_{b s = i} m_s!` of a monomial `m`, where
-`δ_i` is its degree in block `i`. -/
-noncomputable def blockMultinomial (b : σ → ι) (m : σ →₀ ℕ) : ℕ :=
-  ∏ i, Nat.multinomial {s | b s = i} m
-
-theorem blockMultinomial_pos (b : σ → ι) (m : σ →₀ ℕ) : 0 < blockMultinomial b m :=
-  Finset.prod_pos fun _ _ ↦ Nat.multinomial_pos _ _
-
-/-- The local norm `‖P‖_{v,2} = (∑_m |p_m|_v² / C(δ, m))^{1/2}` at an archimedean place (LNM 1752,
-Ch. 7, §3.2). -/
-noncomputable def bombieriNorm (b : σ → ι) (v : AbsoluteValue K ℝ) (P : MvPolynomial σ K) : ℝ :=
-  √(∑ m ∈ P.support, v (P.coeff m) ^ 2 / blockMultinomial b m)
-
-open Classical in
-/-- **The polynomial height `h_m(P)`** of LNM 1752, Ch. 7, §3.2, relative to `K`: the logarithm of
-`∏_{v | ∞} ‖P‖_{v,2} · ∏_{v ∤ ∞} max_m |p_m|_v`, and `0` for `P = 0`. -/
-noncomputable def bombieriLogHeight [AdmissibleAbsValues K] (b : σ → ι) (P : MvPolynomial σ K) :
-    ℝ :=
-  if P = 0 then 0 else
-    Real.log ((archAbsVal.map fun v ↦ bombieriNorm b v P).prod *
-      ∏ᶠ v : nonarchAbsVal, ⨆ m : P.support, v.val (P.coeff m))
-
-@[simp]
-theorem bombieriLogHeight_zero [AdmissibleAbsValues K] (b : σ → ι) :
-    bombieriLogHeight b (0 : MvPolynomial σ K) = 0 := by
-  simp [bombieriLogHeight]
-
-theorem bombieriLogHeight_of_ne_zero [AdmissibleAbsValues K] (b : σ → ι) {P : MvPolynomial σ K}
-    (hP : P ≠ 0) :
-    bombieriLogHeight b P = Real.log ((archAbsVal.map fun v ↦ bombieriNorm b v P).prod *
-      ∏ᶠ v : nonarchAbsVal, ⨆ m : P.support, v.val (P.coeff m)) := by
-  simp [bombieriLogHeight, hP]
-
-end PolynomialHeight
 
 /-- The Stoll number `s_n = ∑_{j=1}^{n} ∑_{i=1}^{j} 1/(2i)`, the height of `ℙ^n`. -/
 noncomputable def stollNumber (n : ℕ) : ℝ :=
@@ -153,6 +118,11 @@ theorem mem_components {b : σ → ι} {J 𝔮 : Ideal (MvPolynomial σ K)} {d :
   classical
   simp [components]
 
+theorem components_top (b : σ → ι) (d : ℕ) :
+    components b (⊤ : Ideal (MvPolynomial σ K)) d = ∅ :=
+  eq_empty_of_forall_notMem fun _ h ↦ (mem_components.1 h).1.1.1.ne_top
+    (top_le_iff.1 (mem_components.1 h).1.1.2)
+
 omit [Finite σ] [DecidableEq ι] in
 theorem primeMult_eq {𝔮 J : Ideal (MvPolynomial σ K)} [h : 𝔮.IsPrime] :
     primeMult 𝔮 J = (Ideal.localLength 𝔮 J).toNat := by
@@ -174,9 +144,12 @@ structure MultiprojectiveHeight (b : σ → ι) where
   /-- Heights of varieties are nonnegative. -/
   height_nonneg : ∀ 𝔮 : Ideal (MvPolynomial σ K), 𝔮.IsPrime →
     𝔮.IsWeightedHomogeneous (multiWeight b) → hilbertPoly b 𝔮 ≠ 0 → ∀ β, 0 ≤ height 𝔮 β
-  /-- The height of `ℙ` in the index `n + ε_l` is the Stoll number of `ℙ^{n_l}`. -/
-  height_bot_single : ∀ l : ι,
-    height ⊥ (bottomType b + Finsupp.single l 1) = totalWeight K * stollNumber (bottomType b l)
+  /-- A bound for the heights of `ℙ^n`, per unit of `[K : ℚ]`. For Rémond's heights it is the
+  Stoll number `stollNumber n` (LNM 1752, Ch. 7, Cor. 2.4). -/
+  botBound : ℕ → ℝ
+  /-- The height of `ℙ` in the index `n + ε_l` is at most `[K : ℚ] botBound n_l`. -/
+  height_bot_single_le : ∀ l : ι,
+    height ⊥ (bottomType b + Finsupp.single l 1) ≤ totalWeight K * botBound (bottomType b l)
   /-- The other heights of `ℙ` vanish. -/
   height_bot_of_ne : ∀ β : ι →₀ ℕ, β.degree = (bottomType b).degree + 1 →
     (∀ l, β ≠ bottomType b + Finsupp.single l 1) → height ⊥ β = 0

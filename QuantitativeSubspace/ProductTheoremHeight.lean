@@ -181,7 +181,7 @@ theorem productTheorem_height [CharZero K] [Height.AdmissibleAbsValues K] {m : �
           β + ∑ j, Finsupp.single (f j) 1 = bottomType b) ≤ m ^ t ∧
         ∀ k, β k < bottomType b k →
           ε ^ t * δ k * H.height 𝔭 (β + Finsupp.single k 1) ≤
-            ∑ l, Height.totalWeight K * stollNumber (bottomType b l) * δ l *
+            ∑ l, Height.totalWeight K * H.botBound (bottomType b l) * δ l *
                 #(univ.filter fun f : Fin t → Fin m ↦ β + Finsupp.single k 1 +
                   ∑ j, Finsupp.single (f j) 1 = bottomType b + Finsupp.single l 1) +
               (∑ j ∈ range t, max (B ((∑ i, δ i) ^ j)) 0) *
@@ -245,15 +245,15 @@ theorem productTheorem_height [CharZero K] [Height.AdmissibleAbsValues K] {m : �
     rw [map_add, map_sum, hγdeg]
     simp
   -- The term `∑_f ∏ δ_{f j} h(ℙ, γ + ∑ ε_{f j})`.
-  have h1 : (δ k : ℝ) * bezoutSum δ t (H.height ⊥) γ =
-      Pc * ∑ l, Height.totalWeight K * stollNumber (bottomType b l) * δ l *
+  have h1 : (δ k : ℝ) * bezoutSum δ t (H.height ⊥) γ ≤
+      Pc * ∑ l, Height.totalWeight K * H.botBound (bottomType b l) * δ l *
         #(univ.filter fun f : Fin t → Fin m ↦
           γ + ∑ j, Finsupp.single (f j) 1 = bottomType b + Finsupp.single l 1) := by
     rw [bezoutSum, Finset.mul_sum, Finset.mul_sum]
     have hterm : ∀ f : Fin t → Fin m, (δ k : ℝ) * ((∏ j, (δ (f j) : ℝ)) *
-        H.height ⊥ (γ + ∑ j, Finsupp.single (f j) 1)) =
+        H.height ⊥ (γ + ∑ j, Finsupp.single (f j) 1)) ≤
           ∑ l, if γ + ∑ j, Finsupp.single (f j) 1 = bottomType b + Finsupp.single l 1 then
-            Pc * (Height.totalWeight K * stollNumber (bottomType b l) * δ l) else 0 := by
+            Pc * (Height.totalWeight K * H.botBound (bottomType b l) * δ l) else 0 := by
       intro f
       by_cases hex : ∃ l, γ + ∑ j, Finsupp.single (f j) 1 = bottomType b + Finsupp.single l 1
       · obtain ⟨l, hl⟩ := hex
@@ -267,12 +267,17 @@ theorem productTheorem_height [CharZero K] [Height.AdmissibleAbsValues K] {m : �
           · rintro rfl
             rfl
         simp only [hiff, Finset.sum_ite_eq', Finset.mem_univ, ↓reduceIte]
-        rw [← mul_assoc, hprod f _ hl, hl, H.height_bot_single l, prod_pow_single]
-        ring
+        rw [← mul_assoc, hprod f _ hl, hl, prod_pow_single]
+        have := mul_le_mul_of_nonneg_left (H.height_bot_single_le l)
+          (mul_nonneg hPc.le (Nat.cast_nonneg (δ l)))
+        calc Pc * (δ l : ℝ) * H.height ⊥ (bottomType b + Finsupp.single l 1)
+            ≤ Pc * δ l * (Height.totalWeight K * H.botBound (bottomType b l)) := this
+          _ = _ := by ring
       · push Not at hex
         rw [H.height_bot_of_ne _ (by rw [hdeg_f]; omega) hex]
         simp [hex]
-    rw [Finset.sum_congr rfl fun f _ ↦ hterm f, Finset.sum_comm]
+    refine (Finset.sum_le_sum fun f _ ↦ hterm f).trans (le_of_eq ?_)
+    rw [Finset.sum_comm]
     refine Finset.sum_congr rfl fun l _ ↦ ?_
     rw [Finset.sum_ite, Finset.sum_const_zero, add_zero, Finset.sum_const, nsmul_eq_mul]
     ring
@@ -308,18 +313,18 @@ theorem productTheorem_height [CharZero K] [Height.AdmissibleAbsValues K] {m : �
   have hS0 : 0 ≤ ∑ j, max (bombieriLogHeight b (P j)) 0 :=
     Finset.sum_nonneg fun _ _ ↦ le_max_right _ _
   have hmul := mul_le_mul_of_nonneg_left hmain hk0.le
-  set X := ∑ l, Height.totalWeight K * stollNumber (bottomType b l) * δ l *
+  set X := ∑ l, Height.totalWeight K * H.botBound (bottomType b l) * δ l *
     #(univ.filter fun f : Fin t → Fin m ↦
       γ + ∑ j, Finsupp.single (f j) 1 = bottomType b + Finsupp.single l 1)
   set G := #(univ.filter fun g : Fin (t - 1) → Fin m ↦
     γ + ∑ j, Finsupp.single (g j) 1 = bottomType b)
   set S := ∑ j, max (bombieriLogHeight b (P j)) 0
   have hR : (δ k : ℝ) * (bezoutSum δ t (H.height ⊥) γ + S * bezoutSum δ (t - 1)
-      (fun γ' ↦ (multidegree b (⊥ : Ideal (MvPolynomial σ K)) γ' : ℝ)) γ) =
+      (fun γ' ↦ (multidegree b (⊥ : Ideal (MvPolynomial σ K)) γ' : ℝ)) γ) ≤
         Pc * X + S * (Pc * G) := by
-    rw [← h1, ← h2]
-    ring
-  rw [hR] at hmul
+    rw [← h2, mul_add, mul_left_comm _ S]
+    exact add_le_add h1 le_rfl
+  replace hmul := hmul.trans hR
   refine le_of_mul_le_mul_left ?_ hPc
   calc Pc * (ε ^ t * δ k * H.height 𝔭 γ) = δ k * (Pc * ε ^ t * H.height 𝔭 γ) := by ring
     _ ≤ Pc * X + S * (Pc * G) := hmul
@@ -356,7 +361,7 @@ theorem productTheorem_height_coeff [CharZero K] [Height.AdmissibleAbsValues K] 
           β + ∑ j, Finsupp.single (f j) 1 = bottomType b) ≤ m ^ t ∧
         ∀ k, β k < bottomType b k →
           ε ^ t * δ k * H.height 𝔭 (β + Finsupp.single k 1) ≤
-            ∑ l, Height.totalWeight K * stollNumber (bottomType b l) * δ l *
+            ∑ l, Height.totalWeight K * H.botBound (bottomType b l) * δ l *
                 #(univ.filter fun f : Fin t → Fin m ↦ β + Finsupp.single k 1 +
                   ∑ j, Finsupp.single (f j) 1 = bottomType b + Finsupp.single l 1) +
               (∑ j ∈ range t, max (Height.logHeight (coeffTuple R M) +
