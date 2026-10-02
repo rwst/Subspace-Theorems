@@ -871,11 +871,12 @@ theorem abs_log_normalKappa_le (hLInf : ∀ w : InfinitePlace K, LinearIndepende
 /-- **The coefficient of the threshold of Layer 5.6** for forms in `N` variables, `d = [K : ℚ]`,
 `r` infinite places, `t` finite places of `S`, the dimension `n`, the margin `ε` and the weight
 bound `A`: `1 + c₁ + c₂ + c₃`, one term for each argument of `penultimateThreshold`. -/
-noncomputable def penultimateCoeff (d N r t n : ℕ) (ε A : ℝ) : ℝ :=
+noncomputable def penultimateCoeff (R : RothParams) (d N r t n : ℕ) (ε A : ℝ) : ℝ :=
   1 + 8 * ((n : ℝ) + 1) * (d * Real.log (2 * ((n : ℝ) + 1) * n) + auxCoeff d N r t
       + 2 * refCoeff d N r t ⌈2 * (n : ℝ) / subspaceEta n ε A + 1⌉₊) / ε
-    + 8 * ((r + t : ℕ) : ℝ) * ((n : ℝ) * (subspaceRatio n (r + t) ε A)⁻¹
-        * ((subspaceChainLength n (r + t) ε A : ℝ) + 1) * (auxCoeff d N r t + 4 * d)
+    + 8 * ((r + t : ℕ) : ℝ) * (R.factor n (r + t) ε A
+        * ((subspaceChainLength n (r + t) ε A : ℝ) + 1)
+        * (auxCoeff d N r t + R.shift n (r + t) ε A * d)
       + kappaCoeff d (N.choose n) n (r + t)) / ε
     + (4 * ((d + t) * patternConstCoeff d N r t + patternHeightCoeff d N r t) + 1) / ε
 
@@ -883,23 +884,36 @@ theorem log_two_mul_add_one_mul_nonneg (n : ℕ) : 0 ≤ Real.log (2 * ((n : ℝ
   have : (2 * ((n : ℝ) + 1) * n) = ((2 * (n + 1) * n : ℕ) : ℝ) := by push_cast; ring
   rw [this]; exact Real.log_natCast_nonneg _
 
-theorem penultimateCoeff_nonneg (d N r t n : ℕ) {ε A : ℝ} (hε : 0 < ε) (hA : 0 ≤ A) :
-    0 ≤ penultimateCoeff d N r t n ε A := by
+theorem penultimateCoeff_nonneg (R : RothParams) (d N r t n : ℕ) {ε A : ℝ} (hε : 0 < ε)
+    (hA : 0 ≤ A) : 0 ≤ penultimateCoeff R d N r t n ε A := by
   have := auxCoeff_nonneg d N r t
   have := refCoeff_nonneg d N r t ⌈2 * (n : ℝ) / subspaceEta n ε A + 1⌉₊
   have := kappaCoeff_nonneg d (N.choose n) n (r + t)
   have := patternConstCoeff_nonneg d N r t
   have := patternHeightCoeff_nonneg d N r t
   have := log_two_mul_add_one_mul_nonneg n
-  have := subspaceRatio_pos (n := n) (s := r + t) hε hA
+  have := R.factor_nonneg (n := n) (s := r + t) hε hA
+  have := R.shift_nonneg (n := n) (s := r + t) hε hA
   rw [penultimateCoeff]; positivity
 
+/-- `penultimateCoeff` is monotone in the height cost of the Roth lemma. -/
+theorem penultimateCoeff_mono {R R' : RothParams} (d N r t n : ℕ) {ε A : ℝ} (hε : 0 < ε)
+    (hA : 0 ≤ A) (hF : R.factor n (r + t) ε A ≤ R'.factor n (r + t) ε A)
+    (hg : R.shift n (r + t) ε A ≤ R'.shift n (r + t) ε A) :
+    penultimateCoeff R d N r t n ε A ≤ penultimateCoeff R' d N r t n ε A := by
+  have := auxCoeff_nonneg d N r t
+  have := R.factor_nonneg (n := n) (s := r + t) hε hA
+  have := R.shift_nonneg (n := n) (s := r + t) hε hA
+  have := R'.factor_nonneg (n := n) (s := r + t) hε hA
+  unfold penultimateCoeff
+  gcongr
+
 /-- **The threshold of Layer 5.6 is at most `penultimateCoeff Λ`.** -/
-theorem penultimateThreshold_le [DecidableEq ι] [Nonempty ι]
+theorem penultimateThreshold_le [DecidableEq ι] [Nonempty ι] (R : RothParams)
     (hLInf : ∀ w : InfinitePlace K, LinearIndependent K (L w.1))
     (hLFin : ∀ v ∈ Sfin, LinearIndependent K (L v.1)) {n : ℕ} (hn : n ≤ Fintype.card ι)
     {ε : ℝ} (hε : 0 < ε) {A : ℝ} (hA : 0 ≤ A) :
-    penultimateThreshold Sfin L n ε A ≤ penultimateCoeff (finrank ℚ K) (Fintype.card ι)
+    penultimateThreshold Sfin L R n ε A ≤ penultimateCoeff R (finrank ℚ K) (Fintype.card ι)
       (Fintype.card (InfinitePlace K)) #Sfin n ε A * thresholdScale Sfin L := by
   obtain rfl : ‹DecidableEq ι› = fun a b ↦ LinearOrder.toDecidableEq a b := Subsingleton.elim _ _
   set Λ := thresholdScale Sfin L
@@ -909,9 +923,11 @@ theorem penultimateThreshold_le [DecidableEq ι] [Nonempty ι]
   set r := Fintype.card (InfinitePlace K)
   set t := #Sfin
   set B := ⌈2 * (n : ℝ) / subspaceEta n ε A + 1⌉₊
-  set σ := subspaceRatio n (r + t) ε A
+  set F := R.factor n (r + t) ε A
+  set g := R.shift n (r + t) ε A
   set m := subspaceChainLength n (r + t) ε A
-  have hσ : 0 < σ := subspaceRatio_pos hε hA
+  have hF : 0 ≤ F := R.factor_nonneg hε hA
+  have hg : 0 ≤ g := R.shift_nonneg hε hA
   have haux := max_auxHeightConst_le (Sfin := Sfin) (L := L)
   have hauxc := auxCoeff_nonneg d N r t
   have href := sum_log_mulHeight₁_refFamily_le_mul (Sfin := Sfin) (L := L) B
@@ -925,13 +941,13 @@ theorem penultimateThreshold_le [DecidableEq ι] [Nonempty ι]
   have hlg := log_two_mul_add_one_mul_nonneg n
   set a₁ := (d : ℝ) * Real.log (2 * ((n : ℝ) + 1) * n) + auxCoeff d N r t + 2 * refCoeff d N r t B
     with ha₁
-  set a₂ := (n : ℝ) * σ⁻¹ * ((m : ℝ) + 1) * (auxCoeff d N r t + 4 * d)
+  set a₂ := F * ((m : ℝ) + 1) * (auxCoeff d N r t + g * d)
       + kappaCoeff d (N.choose n) n (r + t) with ha₂
   set a₃ := 4 * ((d + t) * patternConstCoeff d N r t + patternHeightCoeff d N r t) + 1 with ha₃
   have ha₁0 : 0 ≤ a₁ := by positivity
   have ha₂0 : 0 ≤ a₂ := by positivity
   have ha₃0 : 0 ≤ a₃ := by positivity
-  have hsplit : penultimateCoeff d N r t n ε A * Λ
+  have hsplit : penultimateCoeff R d N r t n ε A * Λ
       = Λ + 8 * ((n : ℝ) + 1) * (a₁ * Λ) / ε + 8 * ((r + t : ℕ) : ℝ) * (a₂ * Λ) / ε
         + a₃ * Λ / ε := by
     rw [penultimateCoeff]; ring
@@ -950,12 +966,12 @@ theorem penultimateThreshold_le [DecidableEq ι] [Nonempty ι]
     nlinarith
   · refine le_trans ?_ (by linarith : 8 * ((r + t : ℕ) : ℝ) * (a₂ * Λ) / ε ≤ _)
     gcongr
-    have h1 : max (auxHeightConst Sfin L) 0 + 4 * (totalWeight K : ℝ)
-        ≤ (auxCoeff d N r t + 4 * d) * Λ := by
-      have : (4 : ℝ) * d ≤ 4 * d * Λ := le_mul_of_one_le_right (by positivity) hΛ
+    have h1 : max (auxHeightConst Sfin L) 0 + g * (totalWeight K : ℝ)
+        ≤ (auxCoeff d N r t + g * d) * Λ := by
+      have : g * d ≤ g * d * Λ := le_mul_of_one_le_right (by positivity) hΛ
       rw [totalWeight_eq_finrank]; nlinarith
     have h2 := mul_le_mul_of_nonneg_left h1
-      (by positivity : (0 : ℝ) ≤ (n : ℝ) * σ⁻¹ * ((m : ℝ) + 1))
+      (by positivity : (0 : ℝ) ≤ F * ((m : ℝ) + 1))
     have h3 := max_le hkap (by positivity :
       (0 : ℝ) ≤ kappaCoeff d (N.choose n) n (r + t) * Λ)
     rw [ha₂]
@@ -1015,34 +1031,47 @@ theorem thresholdScale_wedgeForms_le (p : ℕ) [DecidableEq (Set.powersetCard ι
 
 /-- **The coefficient of the threshold of Layer 6.1 along one size `p` of subsets**: one term for
 each argument of `parametricStepThreshold`, the wedge terms scaled by `wedgeScaleCoeff`. -/
-noncomputable def parametricStepCoeff (d N r t p : ℕ) (ε A : ℝ) : ℝ :=
+noncomputable def parametricStepCoeff (R : RothParams) (d N r t p : ℕ) (ε A : ℝ) : ℝ :=
   1 + minimaCoeff d N r t + Real.log 2 + 2 * wedgeWeightCoeff d N t p / ε + pluckerCoeff d N
     + (rankCoeff d (N.choose p) t (parametricDelta N ε / 2)
-      + penultimateCoeff d (N.choose p) r t (N.choose p - 1) (parametricDelta N ε)
+      + penultimateCoeff R d (N.choose p) r t (N.choose p - 1) (parametricDelta N ε)
         (parametricWedgeAbsWeight N d p ε A)) * wedgeScaleCoeff d N r t p
 
 theorem minimaCoeff_nonneg (d N r t : ℕ) : 0 ≤ minimaCoeff d N r t :=
   add_nonneg (pointCoeff_nonneg d N r t) (normCoeff_nonneg d N t)
 
-theorem parametricStepCoeff_nonneg (d N r t p : ℕ) {ε A : ℝ} (hN : 0 < N) (hε : 0 < ε)
-    (hA : 0 ≤ A) : 0 ≤ parametricStepCoeff d N r t p ε A := by
+theorem parametricStepCoeff_nonneg (R : RothParams) (d N r t p : ℕ) {ε A : ℝ} (hN : 0 < N)
+    (hε : 0 < ε) (hA : 0 ≤ A) : 0 ≤ parametricStepCoeff R d N r t p ε A := by
   have hδ := parametricDelta_pos hN hε
   have := minimaCoeff_nonneg d N r t
   have := wedgeWeightCoeff_nonneg d N t p
   have := pluckerCoeff_nonneg d N
   have := rankCoeff_nonneg d (N.choose p) t (by linarith : 0 ≤ parametricDelta N ε / 2)
-  have := penultimateCoeff_nonneg d (N.choose p) r t (N.choose p - 1) hδ
+  have := penultimateCoeff_nonneg R d (N.choose p) r t (N.choose p - 1) hδ
     (parametricWedgeAbsWeight_nonneg N d p hε.le hA)
   have := one_le_wedgeScaleCoeff d N r t p
   have := Real.log_nonneg (one_le_two : (1 : ℝ) ≤ 2)
   rw [parametricStepCoeff]; positivity
 
+/-- `parametricStepCoeff` is monotone in the height cost of the Roth lemma. -/
+theorem parametricStepCoeff_mono {R R' : RothParams} (d N r t p : ℕ) {ε A : ℝ} (hN : 0 < N)
+    (hε : 0 < ε) (hA : 0 ≤ A)
+    (hF : ∀ n s ε A, 0 < ε → 0 ≤ A → R.factor n s ε A ≤ R'.factor n s ε A)
+    (hg : ∀ n s ε A, 0 < ε → 0 ≤ A → R.shift n s ε A ≤ R'.shift n s ε A) :
+    parametricStepCoeff R d N r t p ε A ≤ parametricStepCoeff R' d N r t p ε A := by
+  have hδ := parametricDelta_pos hN hε
+  have hA' := parametricWedgeAbsWeight_nonneg N d p hε.le hA
+  have := one_le_wedgeScaleCoeff d N r t p
+  unfold parametricStepCoeff
+  gcongr
+  exact penultimateCoeff_mono _ _ _ _ _ hδ hA' (hF _ _ _ _ hδ hA') (hg _ _ _ _ hδ hA')
+
 /-- **The threshold of Layer 6.1 along one size `p` is at most `parametricStepCoeff Λ`.** -/
-theorem parametricStepThreshold_le [Nonempty ι]
+theorem parametricStepThreshold_le [Nonempty ι] (R : RothParams)
     (hLInf : ∀ w : InfinitePlace K, LinearIndependent K (L w.1))
     (hLFin : ∀ v ∈ Sfin, LinearIndependent K (L v.1)) {ε : ℝ} (hε : 0 < ε) {A : ℝ} (hA : 0 ≤ A)
     {p : ℕ} (hp : p ≤ Fintype.card ι) :
-    parametricStepThreshold Sfin L ε A p ≤ parametricStepCoeff (finrank ℚ K) (Fintype.card ι)
+    parametricStepThreshold Sfin L R ε A p ≤ parametricStepCoeff R (finrank ℚ K) (Fintype.card ι)
       (Fintype.card (InfinitePlace K)) #Sfin p ε A * thresholdScale Sfin L := by
   let : LinearOrder (Set.powersetCard ι p) :=
     LinearOrder.lift' (Fintype.equivFin _) (Equiv.injective _)
@@ -1068,12 +1097,12 @@ theorem parametricStepThreshold_le [Nonempty ι]
   set ws := wedgeScaleCoeff d N r t p
   have hrank := log_rankThreshold_le (Sfin := Sfin)
     (L := fun v ↦ exteriorPower.wedgeForms (L v) p) hWInf hWFin (half_pos hδ)
-  have hpen := penultimateThreshold_le (Sfin := Sfin)
+  have hpen := penultimateThreshold_le (Sfin := Sfin) R
     (L := fun v ↦ exteriorPower.wedgeForms (L v) p) hWInf hWFin (n := M - 1)
     (by rw [hM]; omega) hδ hA'
   rw [hM] at hrank hpen
   have hrc := rankCoeff_nonneg d M t (by linarith : 0 ≤ parametricDelta N ε / 2)
-  have hpc := penultimateCoeff_nonneg d M r t (M - 1) hδ hA'
+  have hpc := penultimateCoeff_nonneg R d M r t (M - 1) hδ hA'
   have hmin := log_minimaThreshold_le hLInf hLFin (Sfin := Sfin) (L := L)
   have hminc := minimaCoeff_nonneg d N r t
   have hww := log_wedgeWeightConst_le hLInf hLFin (Sfin := Sfin) (L := L) p
@@ -1089,11 +1118,11 @@ theorem parametricStepThreshold_le [Nonempty ι]
     exact div_le_div_of_nonneg_right (mul_le_mul_of_nonneg_left hww zero_le_two) hε.le
   have hwwc' : 0 ≤ 2 * wedgeWeightCoeff d N t p / ε * Λ := by positivity
   have h2 : Real.log 2 ≤ Real.log 2 * Λ := le_mul_of_one_le_right hlog2 hΛ
-  have hsplit : parametricStepCoeff d N r t p ε A * Λ
+  have hsplit : parametricStepCoeff R d N r t p ε A * Λ
       = Λ + minimaCoeff d N r t * Λ + Real.log 2 * Λ + 2 * wedgeWeightCoeff d N t p / ε * Λ
         + pluckerCoeff d N * Λ
         + rankCoeff d M t (parametricDelta N ε / 2) * (ws * Λ)
-        + penultimateCoeff d M r t (M - 1) (parametricDelta N ε)
+        + penultimateCoeff R d M r t (M - 1) (parametricDelta N ε)
             (parametricWedgeAbsWeight N d p ε A) * (ws * Λ) := by
     rw [parametricStepCoeff]; ring
   have hΛ0 : 0 ≤ Λ := by linarith
@@ -1101,7 +1130,7 @@ theorem parametricStepThreshold_le [Nonempty ι]
   have e2 : 0 ≤ Real.log 2 * Λ := mul_nonneg hlog2 hΛ0
   have e3 : 0 ≤ pluckerCoeff d N * Λ := mul_nonneg hplc hΛ0
   have e4 : 0 ≤ rankCoeff d M t (parametricDelta N ε / 2) * (ws * Λ) := by positivity
-  have e5 : 0 ≤ penultimateCoeff d M r t (M - 1) (parametricDelta N ε)
+  have e5 : 0 ≤ penultimateCoeff R d M r t (M - 1) (parametricDelta N ε)
       (parametricWedgeAbsWeight N d p ε A) * (ws * Λ) := by positivity
   rw [hsplit, parametricStepThreshold]
   refine max_le (by linarith) (max_le (by linarith) (max_le (max_le (by linarith)
@@ -1124,29 +1153,41 @@ theorem thresholdScale_congr [Fintype ι] (i j : DecidableEq ι) :
 /-- **The coefficient `a` of the threshold of Layer 6.1**: `1 + rankCoeff d N t ε` plus the sum
 over `0 < p < N` of `parametricStepCoeff`, and `1` for `p = 0`. It depends on `N = #ι`,
 `d = [K : ℚ]`, the number `r` of infinite places, `t = #Sfin`, `ε` and `A` alone. -/
-noncomputable def parametricCoeff (d N r t : ℕ) (ε A : ℝ) : ℝ :=
+noncomputable def parametricCoeff (R : RothParams) (d N r t : ℕ) (ε A : ℝ) : ℝ :=
   1 + rankCoeff d N t ε
-    + ∑ p ∈ Finset.range N, if 0 < p then parametricStepCoeff d N r t p ε A else 1
+    + ∑ p ∈ Finset.range N, if 0 < p then parametricStepCoeff R d N r t p ε A else 1
 
-theorem parametricCoeff_nonneg (d N r t : ℕ) {ε A : ℝ} (hN : 0 < N) (hε : 0 < ε) (hA : 0 ≤ A) :
-    0 ≤ parametricCoeff d N r t ε A := by
+theorem parametricCoeff_nonneg (R : RothParams) (d N r t : ℕ) {ε A : ℝ} (hN : 0 < N)
+    (hε : 0 < ε) (hA : 0 ≤ A) : 0 ≤ parametricCoeff R d N r t ε A := by
   have := rankCoeff_nonneg d N t hε.le
   have : 0 ≤ ∑ p ∈ Finset.range N,
-      if 0 < p then parametricStepCoeff d N r t p ε A else 1 :=
+      if 0 < p then parametricStepCoeff R d N r t p ε A else 1 :=
     Finset.sum_nonneg fun p _ ↦ by
       split_ifs
-      · exact parametricStepCoeff_nonneg d N r t p hN hε hA
+      · exact parametricStepCoeff_nonneg R d N r t p hN hε hA
       · exact zero_le_one
   rw [parametricCoeff]; positivity
+
+/-- `parametricCoeff` is monotone in the height cost of the Roth lemma. -/
+theorem parametricCoeff_mono {R R' : RothParams} (d N r t : ℕ) {ε A : ℝ} (hN : 0 < N)
+    (hε : 0 < ε) (hA : 0 ≤ A)
+    (hF : ∀ n s ε A, 0 < ε → 0 ≤ A → R.factor n s ε A ≤ R'.factor n s ε A)
+    (hg : ∀ n s ε A, 0 < ε → 0 ≤ A → R.shift n s ε A ≤ R'.shift n s ε A) :
+    parametricCoeff R d N r t ε A ≤ parametricCoeff R' d N r t ε A := by
+  unfold parametricCoeff
+  gcongr with p
+  split_ifs
+  · exact parametricStepCoeff_mono d N r t p hN hε hA hF hg
+  · exact le_rfl
 
 open scoped Classical in
 /-- **The threshold of Layer 6.1 is linear in the heights**: `parametricThreshold ≤ a Λ` with
 `a = parametricCoeff` a formula in `#ι`, `[K : ℚ]`, the number of infinite places, `#Sfin`, `ε`
 and `A`, and `Λ = formLogHeight + log |D_K| + ∑_{v ∈ Sfin} log N(v) + 1`. -/
-theorem parametricThreshold_le [Nonempty ι]
+theorem parametricThreshold_le [Nonempty ι] (R : RothParams)
     (hLInf : ∀ w : InfinitePlace K, LinearIndependent K (L w.1))
     (hLFin : ∀ v ∈ Sfin, LinearIndependent K (L v.1)) {ε : ℝ} (hε : 0 < ε) {A : ℝ} (hA : 0 ≤ A) :
-    parametricThreshold Sfin L ε A ≤ parametricCoeff (finrank ℚ K) (Fintype.card ι)
+    parametricThreshold Sfin L R ε A ≤ parametricCoeff R (finrank ℚ K) (Fintype.card ι)
       (Fintype.card (InfinitePlace K)) #Sfin ε A * thresholdScale Sfin L := by
   set Λ := thresholdScale Sfin L
   have hΛ : 1 ≤ Λ := one_le_thresholdScale Sfin L
@@ -1162,23 +1203,24 @@ theorem parametricThreshold_le [Nonempty ι]
     have h := log_rankThreshold_le hLInf hLFin hε (Sfin := Sfin) (L := L)
     rw [hsc] at h; exact h
   have hrc := rankCoeff_nonneg d N t hε.le
-  have hstep : ∀ p ∈ Finset.range N, (if 0 < p then parametricStepThreshold Sfin L ε A p else 1)
-      ≤ (if 0 < p then parametricStepCoeff d N r t p ε A else 1) * Λ := fun p hp ↦ by
+  have hstep : ∀ p ∈ Finset.range N,
+      (if 0 < p then parametricStepThreshold Sfin L R ε A p else 1)
+      ≤ (if 0 < p then parametricStepCoeff R d N r t p ε A else 1) * Λ := fun p hp ↦ by
     split_ifs
-    · have h := parametricStepThreshold_le hLInf hLFin hε hA (Sfin := Sfin) (L := L)
+    · have h := parametricStepThreshold_le R hLInf hLFin hε hA (Sfin := Sfin) (L := L)
         (p := p) (Finset.mem_range.1 hp).le
       rwa [hsc] at h
     · rw [one_mul]; exact hΛ
   have hsum := Finset.sum_le_sum hstep
   rw [← Finset.sum_mul] at hsum
   have hsum0 : 0 ≤ ∑ p ∈ Finset.range N,
-      if 0 < p then parametricStepCoeff d N r t p ε A else 1 :=
+      if 0 < p then parametricStepCoeff R d N r t p ε A else 1 :=
     Finset.sum_nonneg fun p _ ↦ by
       split_ifs
-      · exact parametricStepCoeff_nonneg d N r t p hN hε hA
+      · exact parametricStepCoeff_nonneg R d N r t p hN hε hA
       · exact zero_le_one
-  have hsplit : parametricCoeff d N r t ε A * Λ = Λ + rankCoeff d N t ε * Λ
-      + (∑ p ∈ Finset.range N, if 0 < p then parametricStepCoeff d N r t p ε A else 1) * Λ := by
+  have hsplit : parametricCoeff R d N r t ε A * Λ = Λ + rankCoeff d N t ε * Λ
+      + (∑ p ∈ Finset.range N, if 0 < p then parametricStepCoeff R d N r t p ε A else 1) * Λ := by
     rw [parametricCoeff]; ring
   have e1 : 0 ≤ rankCoeff d N t ε * Λ := mul_nonneg hrc (by linarith)
   have e2 := mul_nonneg hsum0 (by linarith : 0 ≤ Λ)

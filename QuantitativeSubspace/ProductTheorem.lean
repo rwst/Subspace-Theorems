@@ -271,37 +271,23 @@ theorem mul_multidegree_le_card {ι : Type*} [Fintype ι] [DecidableEq ι] [Line
   rw [mul_assoc, mul_comm] at h'
   exact le_of_mul_le_mul_right h' hP
 
-/-- **The product theorem from an adapted basis** (Rémond 2001, Prop. 2.1 and Thm. 1.1, geometric
-part). Let `T` be a transcendence basis of `K[X]/𝔭` made of variables, adapted to the last blocks
-(each `x_s`, `s ∉ T`, algebraic over the `x_t`, `t ∈ T`, with `b t ≥ b s`), meeting every block,
-with `t + |T| = |σ|`, for which the degree inequality
-`ε^t ∏_i δ_i^{c_i} d_β(𝔭) ≤ ∑_{f : β + ∑ ε_{f j} = n} ∏ δ_{f j}` holds (`c_i = |block i \ T|`).
-If `δ` is decreasing and `δ_i / δ_{i+1} > (m/ε)^t`, then `V(𝔭)` is a component of the product of
-its projections, `T` meets every block in a basis of it, and the type `β = coneType b T` of `T`
-satisfies `ε^t d_β(𝔭) ≤ #{f : Fin t → Fin m | β + ∑_j ε_{f j} = n} ≤ m^t`. -/
-theorem productTheorem_of_basis [CharZero K] {m : ℕ} {b : σ → Fin m}
+/-- **The cuts of two adapted bases.** Let `T` be a transcendence basis of `K[X]/𝔭` made of
+variables, adapted to the last blocks. There is a transcendence basis `T'` made of variables,
+adapted to the first blocks and meeting every block, with `|T'| = |T| = r(σ)`, such that the cut
+`P_k = {s | b s < k}` has rank `|T' ∩ P_k|` and its complement has rank `|T \ P_k|` in the
+algebraic matroid of the variables. -/
+theorem exists_isTranscendenceBasis_cuts {m : ℕ} {b : σ → Fin m}
     (hb : Function.Surjective b) (h𝔭 : 𝔭.IsWeightedHomogeneous (multiWeight b))
-    (hne : hilbertPoly b 𝔭 ≠ 0) {t : ℕ} {δ : Fin m → ℕ} (hδ : ∀ i, 0 < δ i) {ε : ℝ}
-    (hε : 0 < ε) (hanti : Antitone δ)
-    (hratio : ∀ i j : Fin m, (i : ℕ) + 1 = j → (m : ℝ) ^ t < ε ^ t * (δ i / δ j))
-    {T : Finset σ}
+    (hne : hilbertPoly b 𝔭 ≠ 0) {T : Finset σ}
     (hB : IsTranscendenceBasis K (fun t : (T : Set σ) ↦ Ideal.Quotient.mk 𝔭 (X (t : σ))))
     (hadapt : ∀ s ∉ T, IsAlgebraic (Algebra.adjoin K
       ((fun t ↦ Ideal.Quotient.mk 𝔭 (X t)) '' {t | t ∈ T ∧ b s ≤ b t}))
-        (Ideal.Quotient.mk 𝔭 (X s)))
-    (hTb : ∀ i, ∃ s ∈ T, b s = i) (hcard : t + #T = Nat.card σ)
-    (hineq : ∀ β : Fin m →₀ ℕ, (bottomType b).degree - t ≤ β.degree →
-      (∏ i, (δ i : ℝ) ^ {s | s ∉ T ∧ b s = i}.ncard) * ε ^ t * multidegree b 𝔭 β ≤
-        ∑ f : Fin t → Fin m with β + ∑ j, Finsupp.single (f j) 1 = bottomType b,
-          ∏ j, (δ (f j) : ℝ)) :
-    𝔭 ∈ (Ideal.span {f | f ∈ 𝔭 ∧ ∃ i, f ∈ supported K {s | b s = i}}).minimalPrimes ∧
-      (∀ i, (coneType b T i : ℕ∞) + 1 = (varMatroid 𝔭).eRk {s | b s = i}) ∧
-      1 ≤ multidegree b 𝔭 (coneType b T) ∧
-      ε ^ t * multidegree b 𝔭 (coneType b T) ≤
-        #(univ.filter fun f : Fin t → Fin m ↦
-          coneType b T + ∑ j, Finsupp.single (f j) 1 = bottomType b) ∧
-      #(univ.filter fun f : Fin t → Fin m ↦
-        coneType b T + ∑ j, Finsupp.single (f j) 1 = bottomType b) ≤ m ^ t := by
+        (Ideal.Quotient.mk 𝔭 (X s))) :
+    ∃ T' : Finset σ,
+      IsTranscendenceBasis K (fun t : (T' : Set σ) ↦ Ideal.Quotient.mk 𝔭 (X (t : σ))) ∧
+      (∀ i, ∃ s ∈ T', b s = i) ∧ #T' = #T ∧ (varMatroid 𝔭).eRk Set.univ = #T ∧
+      (∀ k : ℕ, (varMatroid 𝔭).eRk {s | (b s : ℕ) < k} = #(T'.filter fun s ↦ (b s : ℕ) < k)) ∧
+      ∀ k : ℕ, (varMatroid 𝔭).eRk {s | k ≤ (b s : ℕ)} = #(T.filter fun s ↦ k ≤ (b s : ℕ)) := by
   classical
   have := Fintype.ofFinite σ
   set x : σ → MvPolynomial σ K ⧸ 𝔭 := fun s ↦ Ideal.Quotient.mk 𝔭 (X s)
@@ -310,14 +296,6 @@ theorem productTheorem_of_basis [CharZero K] {m : ℕ} {b : σ → Fin m}
   obtain ⟨T', hB', hadapt', hTb'⟩ :=
     exists_isTranscendenceBasis_adapted (fun s ↦ OrderDual.toDual (b s)) hb 𝔭 h𝔭 hne
   -- Ranks of the cuts.
-  have hspan : ∀ (S : Finset σ), IsTranscendenceBasis K (fun t : (S : Set σ) ↦ x t) →
-      ∀ (W : Set σ), (∀ s ∉ S, IsAlgebraic (Algebra.adjoin K (x '' W)) (x s)) →
-        (W ⊆ S) → ∀ s, IsAlgebraic (Algebra.adjoin K (x '' S)) (x s) := by
-    intro S _ W hW hWS s
-    by_cases hs : s ∈ S
-    · exact isAlgebraic_algebraMap (⟨_, Algebra.subset_adjoin ⟨s, hs, rfl⟩⟩ :
-        Algebra.adjoin K (x '' (S : Set σ)))
-    · exact (hW s hs).tower_top_of_subalgebra_le (Algebra.adjoin_mono (Set.image_mono hWS))
   have hrank : ∀ (S : Finset σ), IsTranscendenceBasis K (fun t : (S : Set σ) ↦ x t) →
       (∀ s, IsAlgebraic (Algebra.adjoin K (x '' S)) (x s)) → N.eRk Set.univ = #S := by
     intro S hS hSa
@@ -360,6 +338,43 @@ theorem productTheorem_of_basis [CharZero K] {m : ℕ} {b : σ → Fin m}
     · refine (hadapt s hsT).tower_top_of_subalgebra_le
         (Algebra.adjoin_mono (Set.image_mono fun u hu ↦ mem_filter.mpr ⟨hu.1, ?_⟩))
       exact le_trans (Set.mem_ofPred_eq.mp hs) (Fin.le_iff_val_le_val.mp hu.2)
+  exact ⟨T', hB', hTb', hTT', hrT, hP, hQ⟩
+
+/-- **The product theorem from an adapted basis** (Rémond 2001, Prop. 2.1 and Thm. 1.1, geometric
+part). Let `T` be a transcendence basis of `K[X]/𝔭` made of variables, adapted to the last blocks
+(each `x_s`, `s ∉ T`, algebraic over the `x_t`, `t ∈ T`, with `b t ≥ b s`), meeting every block,
+with `t + |T| = |σ|`, for which the degree inequality
+`ε^t ∏_i δ_i^{c_i} d_β(𝔭) ≤ ∑_{f : β + ∑ ε_{f j} = n} ∏ δ_{f j}` holds (`c_i = |block i \ T|`).
+If `δ` is decreasing and `δ_i / δ_{i+1} > (m/ε)^t`, then `V(𝔭)` is a component of the product of
+its projections, `T` meets every block in a basis of it, and the type `β = coneType b T` of `T`
+satisfies `ε^t d_β(𝔭) ≤ #{f : Fin t → Fin m | β + ∑_j ε_{f j} = n} ≤ m^t`. -/
+theorem productTheorem_of_basis [CharZero K] {m : ℕ} {b : σ → Fin m}
+    (hb : Function.Surjective b) (h𝔭 : 𝔭.IsWeightedHomogeneous (multiWeight b))
+    (hne : hilbertPoly b 𝔭 ≠ 0) {t : ℕ} {δ : Fin m → ℕ} (hδ : ∀ i, 0 < δ i) {ε : ℝ}
+    (hε : 0 < ε) (hanti : Antitone δ)
+    (hratio : ∀ i j : Fin m, (i : ℕ) + 1 = j → (m : ℝ) ^ t < ε ^ t * (δ i / δ j))
+    {T : Finset σ}
+    (hB : IsTranscendenceBasis K (fun t : (T : Set σ) ↦ Ideal.Quotient.mk 𝔭 (X (t : σ))))
+    (hadapt : ∀ s ∉ T, IsAlgebraic (Algebra.adjoin K
+      ((fun t ↦ Ideal.Quotient.mk 𝔭 (X t)) '' {t | t ∈ T ∧ b s ≤ b t}))
+        (Ideal.Quotient.mk 𝔭 (X s)))
+    (hTb : ∀ i, ∃ s ∈ T, b s = i) (hcard : t + #T = Nat.card σ)
+    (hineq : ∀ β : Fin m →₀ ℕ, (bottomType b).degree - t ≤ β.degree →
+      (∏ i, (δ i : ℝ) ^ {s | s ∉ T ∧ b s = i}.ncard) * ε ^ t * multidegree b 𝔭 β ≤
+        ∑ f : Fin t → Fin m with β + ∑ j, Finsupp.single (f j) 1 = bottomType b,
+          ∏ j, (δ (f j) : ℝ)) :
+    𝔭 ∈ (Ideal.span {f | f ∈ 𝔭 ∧ ∃ i, f ∈ supported K {s | b s = i}}).minimalPrimes ∧
+      (∀ i, (coneType b T i : ℕ∞) + 1 = (varMatroid 𝔭).eRk {s | b s = i}) ∧
+      1 ≤ multidegree b 𝔭 (coneType b T) ∧
+      ε ^ t * multidegree b 𝔭 (coneType b T) ≤
+        #(univ.filter fun f : Fin t → Fin m ↦
+          coneType b T + ∑ j, Finsupp.single (f j) 1 = bottomType b) ∧
+      #(univ.filter fun f : Fin t → Fin m ↦
+        coneType b T + ∑ j, Finsupp.single (f j) 1 = bottomType b) ≤ m ^ t := by
+  classical
+  have := Fintype.ofFinite σ
+  set N := varMatroid 𝔭
+  obtain ⟨T', hB', hTb', hTT', hrT, hP, hQ⟩ := exists_isTranscendenceBasis_cuts hb h𝔭 hne hB hadapt
   have hsplit : ∀ (S : Finset σ) (k : ℕ),
       #(S.filter fun s ↦ k ≤ (b s : ℕ)) + #(S.filter fun s ↦ (b s : ℕ) < k) = #S := by
     intro S k

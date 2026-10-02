@@ -85,40 +85,26 @@ theorem le_of_hasseDeriv_ne_zero (hP : IsWeightedHomogeneous (multiWeight b) P �
 variable {m : ℕ} {b : σ → Fin m} {δ : Fin m → ℕ}
 
 omit [Finite σ] in
-/-- **Rémond's product theorem for the zeros of index `a`, with heights** (Rémond 2001, Thm. 1.1).
-Under the hypotheses of `MvPolynomial.productTheorem_indexIdeal`, for a multiprojective height
-theory `H`: `V(𝔭)` is a component of the product of its projections, of type `β` with
-`ε^t d_β(𝔭) ≤ #F ≤ m^t`, and for every `k` with `β_k < n_k`,
-`ε^t δ_k h_{β + ε_k}(𝔭) ≤ ∑_l h(ℙ^{n_l}) δ_l #F_l + S · #G_k` with
-`S = ∑_{j < t} max(h(P) + [K : ℚ] (|δ| log 2 + j log |δ| + log c(δ)^{1/2}), 0)`,
-`h(P)` the height of the coefficients of `P` and `c(δ) = ∑_μ 1/C(δ, μ)` over the monomials of
-multidegree `δ`. -/
-theorem productTheorem_indexIdeal_height [Fintype σ] [CharZero K] [Height.AdmissibleAbsValues K]
-    (hb : Function.Surjective b) (H : MultiprojectiveHeight b) (hδ : ∀ i, 0 < δ i)
-    (hP : IsWeightedHomogeneous (multiWeight b) P δ) {a ε : ℝ} (hε : 0 < ε)
-    {𝔭 : Ideal (MvPolynomial σ K)} [𝔭.IsPrime] (hU : IsUnmixedRing (Localization.AtPrime 𝔭))
+/-- **The padded generators of `Z_a(P)`** (Rémond 2001, proof of Thm. 1.1). For a component `𝔭`
+of `Z_a(P)` lying in `Z_{a+ε}(P)`, the padded Hasse derivatives `∂_κ P · X^{κ'}` of weight `≤ a`
+form a finite family `R` of polynomials of multidegree `δ` over which `𝔭` is minimal, whose
+derivatives of weight `≤ ε` lie in `𝔭` (through the unpadded `R'`), supported in the monomials of
+multidegree `δ`, and with coefficients of height at most `h(P) + [K : ℚ] |δ| log 2`. -/
+theorem exists_finset_indexIdeal [Fintype σ] [Height.AdmissibleAbsValues K]
+    (hb : Function.Surjective b) (hP : IsWeightedHomogeneous (multiWeight b) P δ) {a ε : ℝ}
+    {𝔭 : Ideal (MvPolynomial σ K)} [𝔭.IsPrime]
     (h𝔭a : 𝔭 ∈ (indexIdeal b δ P a).minimalPrimes) (h𝔭ε : indexIdeal b δ P (a + ε) ≤ 𝔭)
-    (hne : hilbertPoly b 𝔭 ≠ 0) {t : ℕ} (ht : 𝔭.height = t) (hanti : Antitone δ)
-    (hratio : ∀ i j : Fin m, (i : ℕ) + 1 = j → (m : ℝ) ^ t < ε ^ t * (δ i / δ j)) :
-    𝔭 ∈ (Ideal.span {f | f ∈ 𝔭 ∧ ∃ i, f ∈ supported K {s | b s = i}}).minimalPrimes ∧
-      ∃ β : Fin m →₀ ℕ, (∀ i, (β i : ℕ∞) + 1 = (varMatroid 𝔭).eRk {s | b s = i}) ∧
-        1 ≤ multidegree b 𝔭 β ∧
-        ε ^ t * multidegree b 𝔭 β ≤
-          #(univ.filter fun f : Fin t → Fin m ↦
-            β + ∑ j, Finsupp.single (f j) 1 = bottomType b) ∧
-        #(univ.filter fun f : Fin t → Fin m ↦
-          β + ∑ j, Finsupp.single (f j) 1 = bottomType b) ≤ m ^ t ∧
-        ∀ k, β k < bottomType b k →
-          ε ^ t * δ k * H.height 𝔭 (β + Finsupp.single k 1) ≤
-            ∑ l, Height.totalWeight K * H.botBound (bottomType b l) * δ l *
-                #(univ.filter fun f : Fin t → Fin m ↦ β + Finsupp.single k 1 +
-                  ∑ j, Finsupp.single (f j) 1 = bottomType b + Finsupp.single l 1) +
-              (∑ j ∈ range t, max (Height.logHeight (fun ν : P.support ↦ P.coeff ν) +
-                Height.totalWeight K * ((∑ i, δ i : ℕ) * Real.log 2 +
-                  j * Real.log (∑ i, δ i : ℕ) +
-                  ∑ i, √((#({s | b s = i} : Finset σ) : ℝ) - 1))) 0) *
-                #(univ.filter fun g : Fin (t - 1) → Fin m ↦ β + Finsupp.single k 1 +
-                  ∑ j, Finsupp.single (g j) 1 = bottomType b) := by
+    (hne : hilbertPoly b 𝔭 ≠ 0) :
+    ∃ (R : Finset (MvPolynomial σ K)) (R' : Set (MvPolynomial σ K)),
+      (∀ r ∈ R, IsWeightedHomogeneous (multiWeight b) r δ) ∧
+      𝔭 ∈ (Ideal.span (R : Set (MvPolynomial σ K))).minimalPrimes ∧
+      Ideal.span (R : Set (MvPolynomial σ K)) ≤ Ideal.span R' ∧
+      (∀ Q ∈ R', ∀ κ : σ →₀ ℕ, Finsupp.weight (fun s ↦ ((δ (b s) : ℝ))⁻¹) κ ≤ ε →
+        hasseDeriv κ Q ∈ 𝔭) ∧
+      (∀ r ∈ R, r.support ⊆ blockMonomials b δ) ∧
+      Height.logHeight (coeffTuple R (blockMonomials b δ)) ≤
+        Height.logHeight (fun ν : P.support ↦ P.coeff ν) +
+          Height.totalWeight K * ((∑ i, δ i : ℕ) * Real.log 2) := by
   classical
   have h𝔭 : 𝔭.IsWeightedHomogeneous (multiWeight b) :=
     (isWeightedHomogeneous_indexIdeal hP a).of_mem_minimalPrimes h𝔭a
@@ -182,6 +168,47 @@ theorem productTheorem_indexIdeal_height [Fintype σ] [CharZero K] [Height.Admis
     by_cases hν : P.coeff ν = 0
     · exact absurd (by rw [coeffTuple, hcoeff, hν, mul_zero]) hx
     exact ⟨⟨ν, mem_support_iff.mpr hν⟩, c, hc, hcoeff⟩
+  exact ⟨R, R', hR, h𝔭R, hRR', hI, hM, hh⟩
+
+omit [Finite σ] in
+/-- **Rémond's product theorem for the zeros of index `a`, with heights** (Rémond 2001, Thm. 1.1).
+Under the hypotheses of `MvPolynomial.productTheorem_indexIdeal`, for a multiprojective height
+theory `H`: `V(𝔭)` is a component of the product of its projections, of type `β` with
+`ε^t d_β(𝔭) ≤ #F ≤ m^t`, and for every `k` with `β_k < n_k`,
+`ε^t δ_k h_{β + ε_k}(𝔭) ≤ ∑_l h(ℙ^{n_l}) δ_l #F_l + S · #G_k` with
+`S = ∑_{j < t} max(h(P) + [K : ℚ] (|δ| log 2 + j log |δ| + log c(δ)^{1/2}), 0)`,
+`h(P)` the height of the coefficients of `P` and `c(δ) = ∑_μ 1/C(δ, μ)` over the monomials of
+multidegree `δ`. -/
+theorem productTheorem_indexIdeal_height [Fintype σ] [CharZero K] [Height.AdmissibleAbsValues K]
+    (hb : Function.Surjective b) (H : MultiprojectiveHeight b) (hδ : ∀ i, 0 < δ i)
+    (hP : IsWeightedHomogeneous (multiWeight b) P δ) {a ε : ℝ} (hε : 0 < ε)
+    {𝔭 : Ideal (MvPolynomial σ K)} [𝔭.IsPrime] (hU : IsUnmixedRing (Localization.AtPrime 𝔭))
+    (h𝔭a : 𝔭 ∈ (indexIdeal b δ P a).minimalPrimes) (h𝔭ε : indexIdeal b δ P (a + ε) ≤ 𝔭)
+    (hne : hilbertPoly b 𝔭 ≠ 0) {t : ℕ} (ht : 𝔭.height = t) (hanti : Antitone δ)
+    (hratio : ∀ i j : Fin m, (i : ℕ) + 1 = j → (m : ℝ) ^ t < ε ^ t * (δ i / δ j)) :
+    𝔭 ∈ (Ideal.span {f | f ∈ 𝔭 ∧ ∃ i, f ∈ supported K {s | b s = i}}).minimalPrimes ∧
+      ∃ β : Fin m →₀ ℕ, (∀ i, (β i : ℕ∞) + 1 = (varMatroid 𝔭).eRk {s | b s = i}) ∧
+        1 ≤ multidegree b 𝔭 β ∧
+        ε ^ t * multidegree b 𝔭 β ≤
+          #(univ.filter fun f : Fin t → Fin m ↦
+            β + ∑ j, Finsupp.single (f j) 1 = bottomType b) ∧
+        #(univ.filter fun f : Fin t → Fin m ↦
+          β + ∑ j, Finsupp.single (f j) 1 = bottomType b) ≤ m ^ t ∧
+        ∀ k, β k < bottomType b k →
+          ε ^ t * δ k * H.height 𝔭 (β + Finsupp.single k 1) ≤
+            ∑ l, Height.totalWeight K * H.botBound (bottomType b l) * δ l *
+                #(univ.filter fun f : Fin t → Fin m ↦ β + Finsupp.single k 1 +
+                  ∑ j, Finsupp.single (f j) 1 = bottomType b + Finsupp.single l 1) +
+              (∑ j ∈ range t, max (Height.logHeight (fun ν : P.support ↦ P.coeff ν) +
+                Height.totalWeight K * ((∑ i, δ i : ℕ) * Real.log 2 +
+                  j * Real.log (∑ i, δ i : ℕ) +
+                  ∑ i, √((#({s | b s = i} : Finset σ) : ℝ) - 1))) 0) *
+                #(univ.filter fun g : Fin (t - 1) → Fin m ↦ β + Finsupp.single k 1 +
+                  ∑ j, Finsupp.single (g j) 1 = bottomType b) := by
+  classical
+  obtain ⟨R, R', hR, h𝔭R, hRR', hI, hM, hh⟩ := exists_finset_indexIdeal hb hP h𝔭a h𝔭ε hne
+  have h𝔭 : 𝔭.IsWeightedHomogeneous (multiWeight b) :=
+    (isWeightedHomogeneous_indexIdeal hP a).of_mem_minimalPrimes h𝔭a
   obtain ⟨hmin, β, hrk, hpos, hle, hcount, hheight⟩ := productTheorem_height_coeff hb H hU hR
     h𝔭R h𝔭 hne ht hδ hε hRR' hI hanti hratio hM
   refine ⟨hmin, β, hrk, hpos, hle, hcount, fun k hk ↦ (hheight k hk).trans ?_⟩

@@ -47,6 +47,11 @@ sphere measure. The fields are:
   components of maximal dimension, by the length formula
   `ℓ_𝔯(J + (p)) = ∑_𝔮 ℓ_𝔮(J) ℓ_𝔯(𝔮 + (p))` for a nonzerodivisor `p` (Rémond 2001, proof of
   Prop. 3.2, §5).
+* `logHeight_mul_le_cycleHeight`: **the point bound** used by Evertse's Roth lemma (J.-H. Evertse,
+  *An explicit version of Faltings' Product theorem and an improvement of Roth's lemma*, Acta
+  Arith. **73** (1995), §5, p. 247). If `V(J)` projects to a point `P` in the block `h`, then
+  `h_{β + ε_h}(V(J)) ≥ d_β(V(J)) log H(P)`: the resultant form is `λ (u · P)^{d_β} g` up to a
+  constant, and `u · P` has height at least `log H(P)`.
 
 Heights of cycles (`MvPolynomial.cycleHeight`) are defined here from the heights of primes: the
 height of index `β` of `V(J)` is `∑_𝔮 ℓ(K[X]_𝔮/J_𝔮) h_β(𝔮)`, over the minimal primes `𝔮` of `J`
@@ -161,6 +166,15 @@ structure MultiprojectiveHeight (b : σ → ι) where
     cycleHeight b height (J ⊔ Ideal.span {p}) β ≤
       ∑ i, (δ i : ℝ) * cycleHeight b height J (β + Finsupp.single i 1) +
         (multidegree b J β : ℝ) * bombieriLogHeight b p
+  /-- **The point bound** (Evertse 1995, §5, p. 247): if `V(J)` projects to the point `P` in the
+  block `h`, i.e. `J` contains the `P_s X_t - P_t X_s` (`b s = b t = h`), then
+  `h_{β + ε_h}(V(J)) ≥ d_β(V(J)) log H(P)`. -/
+  logHeight_mul_le_cycleHeight : ∀ (J : Ideal (MvPolynomial σ K)) (h : ι) (P : σ → K) (s₀ : σ),
+    J.IsWeightedHomogeneous (multiWeight b) → b s₀ = h → P s₀ ≠ 0 →
+    (∀ s t, b s = h → b t = h → C (P s) * X t - C (P t) * X s ∈ J) →
+    ∀ β : ι →₀ ℕ, (hilbertPoly b J).totalDegree ≤ β.degree →
+    (multidegree b J β : ℝ) * Height.logHeight (fun t : {t // b t = h} ↦ P t) ≤
+      cycleHeight b height J (β + Finsupp.single h 1)
 
 end Interface
 

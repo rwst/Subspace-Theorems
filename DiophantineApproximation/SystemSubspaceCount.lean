@@ -27,6 +27,11 @@ places and coefficients of absolute height at most `H`:
 * `X₀` is linear in `log H`, with coefficients depending on `n`, `δ`, the fields and `S`
   (`systemThreshold_le`). It does not depend on the constants `C p`.
 
+Everything is stated for a generalized Roth lemma `R` (`NumberField.SubspaceRoth`), which Layer
+5.6 uses; the threshold and `systemLargeCount` see it through its parameters. Bombieri–Gubler's
+(`NumberField.SubspaceRoth.bombieriGubler`) gives Q0.3; Evertse's gives Q1.6
+(`QuantitativeSubspace/SubspaceCount.lean`).
+
 The route, for a solution `x` above `X₀`:
 
 1. **Exponents from the solution** (`IsNormalizedSystem.exists_gridExponent`). The exponents
@@ -54,7 +59,13 @@ of the conjugated forms are those of the coefficients (`logHeight₁_algEquiv`,
 
 ## Main results
 
-* `NumberField.exists_finset_submodule_of_systemThreshold_le`: the large solutions above `X₀`.
+* `NumberField.exists_finset_submodule_of_forall_interval`: steps 1, 2 and 4 for **any** interval
+  result above `X₀` for the conjugated forms, with counts `NS`, `NI` and ratio `ρ`. Layer 6.1 is
+  one; for `n = 2` Layer 5.6 is one (`QuantitativeSubspace/SubspaceCountTwo.lean`).
+* `NumberField.exists_finset_submodule_of_systemThreshold_le`: the large solutions above `X₀`,
+  with Layer 6.1's interval result.
+* `NumberField.exists_finset_submodule_of_isNormalizedSystem_of_large`: all solutions, from any
+  count of the large ones above any `X₀`.
 * `NumberField.exists_finset_submodule_of_isNormalizedSystem`: all solutions.
 * `NumberField.systemThreshold_le`: `X₀` in terms of `log H`, `|D_E|` and the norms of the
   primes of `E` above `S`.
@@ -89,6 +100,8 @@ This is milestone Q0.3 of the `QuantitativeSubspace` roadmap.
 
 open Finset Module NumberField IsDedekindDomain Height
 
+universe u
+
 namespace LinearMap
 
 variable {F : Type*} [Field F] {ι : Type*} [Finite ι]
@@ -113,7 +126,7 @@ end LinearMap
 namespace NumberField
 
 variable {K E : Type*} [Field K] [NumberField K] [Field E] [NumberField E] [Algebra K E]
-variable {ι : Type*} [Fintype ι]
+variable {ι : Type u} [Fintype ι]
 
 /-- **The forms of a normalized system are independent at every place of the system**: the
 normalization makes the determinant product positive. -/
@@ -129,34 +142,27 @@ theorem IsNormalizedSystem.linearIndependent [Nonempty ι] {S : Finset (HeightOn
     rw [systemAbs, h0, map_zero, zero_pow (systemMult_ne_zero S p)]
   exact hpos.ne' (Finset.prod_eq_zero (Finset.mem_univ p) h)
 
-/-- `σ ≤ 1`. -/
-theorem subspaceRatio_le_one {n s : ℕ} {ε A : ℝ} (hε : 0 < ε) (hA : 0 ≤ A) :
-    subspaceRatio n s ε A ≤ 1 := by
-  have h0 := subspaceEta_pos (n := n) hε hA
-  have h1 : subspaceEta n ε A ≤ 1 := min_le_left _ _
-  exact pow_le_one₀ (by positivity) (by linarith)
-
 /-- The ratio of every grid system is at least `4`. -/
-theorem four_le_parametricStepRatio {N : ℕ} (d s p : ℕ) {ε A : ℝ} (hN : 0 < N) (hε : 0 < ε)
-    (hA : 0 ≤ A) : 4 ≤ parametricStepRatio N d s p ε A := by
+theorem four_le_parametricStepRatio (R : RothParams) {N : ℕ} (d s p : ℕ) {ε A : ℝ} (hN : 0 < N)
+    (hε : 0 < ε) (hA : 0 ≤ A) : 4 ≤ parametricStepRatio R N d s p ε A := by
   have hδ := parametricDelta_pos hN hε
   have hW := parametricWedgeAbsWeight_nonneg N d p hε.le hA
-  have h0 := subspaceRatio_pos (n := N.choose p - 1) (s := s) hδ hW
-  have h1 := subspaceRatio_le_one (n := N.choose p - 1) (s := s) hδ hW
-  have h2 : 1 ≤ (subspaceRatio (N.choose p - 1) s (parametricDelta N ε)
+  have h0 := R.ratio_pos (n := N.choose p - 1) (s := s) hδ hW
+  have h1 := R.ratio_le_one (n := N.choose p - 1) (s := s) hδ hW
+  have h2 : 1 ≤ (R.ratio (N.choose p - 1) s (parametricDelta N ε)
       (parametricWedgeAbsWeight N d p ε A))⁻¹ := (one_le_inv₀ h0).2 h1
   rw [parametricStepRatio]
   linarith
 
 /-- **The ratio of the parametric Subspace Theorem is at least `1`.** -/
-theorem one_le_parametricRatio {N : ℕ} (d s : ℕ) {ε A : ℝ} (hN : 0 < N) (hε : 0 < ε)
-    (hA : 0 ≤ A) : 1 ≤ parametricRatio N d s ε A := by
+theorem one_le_parametricRatio (R : RothParams) {N : ℕ} (d s : ℕ) {ε A : ℝ} (hN : 0 < N)
+    (hε : 0 < ε) (hA : 0 ≤ A) : 1 ≤ parametricRatio R N d s ε A := by
   rw [parametricRatio]
-  calc (1 : ℝ) ≤ parametricStepRatio N d s 0 ε A := by
-        linarith [four_le_parametricStepRatio d s 0 hN hε hA]
-    _ ≤ ∑ p ∈ Finset.range N, parametricStepRatio N d s p ε A :=
-        Finset.single_le_sum (f := fun p ↦ parametricStepRatio N d s p ε A)
-          (fun p _ ↦ (parametricStepRatio_pos d s p hN hε hA).le) (Finset.mem_range.2 hN)
+  calc (1 : ℝ) ≤ parametricStepRatio R N d s 0 ε A := by
+        linarith [four_le_parametricStepRatio R d s 0 hN hε hA]
+    _ ≤ ∑ p ∈ Finset.range N, parametricStepRatio R N d s p ε A :=
+        Finset.single_le_sum (f := fun p ↦ parametricStepRatio R N d s p ε A)
+          (fun p _ ↦ (parametricStepRatio_pos R d s p hN hε hA).le) (Finset.mem_range.2 hN)
 
 variable (K E ι) in
 /-- The `K`-linear inclusion `Kⁱ → Eⁱ`. -/
@@ -402,39 +408,25 @@ theorem card_systemPlacesOver_le (S : Finset (HeightOneSpectrum (𝓞 K))) :
           (fun V _ ↦ V.localDegree_pos)
     _ = finrank K E * #S := by rw [Finset.sum_const, Finset.card_attach, smul_eq_mul, mul_comm]
 
-theorem subspaceChainLength_mono {n s s' : ℕ} {ε A : ℝ} (hε : 0 < ε) (hA : 0 ≤ A) (hs : 1 ≤ s)
-    (hss : s ≤ s') : subspaceChainLength n s ε A ≤ subspaceChainLength n s' ε A := by
-  have hη := subspaceEta_pos (n := n) hε hA
-  refine Nat.ceil_mono (div_le_div_of_nonneg_right ?_ (by positivity))
-  refine mul_le_mul_of_nonneg_left (Real.log_le_log (by positivity) ?_) (by norm_num)
-  have : (s : ℝ) ≤ s' := by exact_mod_cast hss
-  gcongr
-
-theorem subspaceRatio_anti {n s s' : ℕ} {ε A : ℝ} (hε : 0 < ε) (hA : 0 ≤ A) (hs : 1 ≤ s)
-    (hss : s ≤ s') : subspaceRatio n s' ε A ≤ subspaceRatio n s ε A := by
-  have hη := subspaceEta_pos (n := n) hε hA
-  have h1 : subspaceEta n ε A ≤ 1 := min_le_left _ _
-  exact pow_le_pow_of_le_one (by positivity) (by linarith)
-    (Nat.pow_le_pow_right two_pos (subspaceChainLength_mono hε hA hs hss))
-
 theorem parametricChainLength_mono {N d s s' p : ℕ} {ε A : ℝ} (hN : 0 < N) (hε : 0 < ε)
     (hA : 0 ≤ A) (hs : 1 ≤ s) (hss : s ≤ s') :
     parametricChainLength N d s p ε A ≤ parametricChainLength N d s' p ε A :=
   subspaceChainLength_mono (parametricDelta_pos hN hε)
     (parametricWedgeAbsWeight_nonneg N d p hε.le hA) hs hss
 
-theorem parametricStepRatio_mono {N d s s' p : ℕ} {ε A : ℝ} (hN : 0 < N) (hε : 0 < ε)
-    (hA : 0 ≤ A) (hs : 1 ≤ s) (hss : s ≤ s') :
-    parametricStepRatio N d s p ε A ≤ parametricStepRatio N d s' p ε A := by
+theorem parametricStepRatio_mono (R : RothParams) {N d s s' p : ℕ} {ε A : ℝ} (hN : 0 < N)
+    (hε : 0 < ε) (hA : 0 ≤ A) (hs : 1 ≤ s) (hss : s ≤ s') :
+    parametricStepRatio R N d s p ε A ≤ parametricStepRatio R N d s' p ε A := by
   have hδ := parametricDelta_pos hN hε
   have hW := parametricWedgeAbsWeight_nonneg N d p hε.le hA
   rw [parametricStepRatio, parametricStepRatio]
-  exact mul_le_mul_of_nonneg_left ((inv_le_inv₀ (subspaceRatio_pos hδ hW)
-    (subspaceRatio_pos hδ hW)).2 (subspaceRatio_anti hδ hW hs hss)) four_pos.le
+  exact mul_le_mul_of_nonneg_left ((inv_le_inv₀ (R.ratio_pos hδ hW)
+    (R.ratio_pos hδ hW)).2 (R.ratio_anti hδ hW hs hss)) four_pos.le
 
-theorem parametricRatio_mono {N d s s' : ℕ} {ε A : ℝ} (hN : 0 < N) (hε : 0 < ε) (hA : 0 ≤ A)
-    (hs : 1 ≤ s) (hss : s ≤ s') : parametricRatio N d s ε A ≤ parametricRatio N d s' ε A :=
-  Finset.sum_le_sum fun _ _ ↦ parametricStepRatio_mono hN hε hA hs hss
+theorem parametricRatio_mono (R : RothParams) {N d s s' : ℕ} {ε A : ℝ} (hN : 0 < N) (hε : 0 < ε)
+    (hA : 0 ≤ A) (hs : 1 ≤ s) (hss : s ≤ s') :
+    parametricRatio R N d s ε A ≤ parametricRatio R N d s' ε A :=
+  Finset.sum_le_sum fun _ _ ↦ parametricStepRatio_mono R hN hε hA hs hss
 
 theorem one_le_parametricGridBase (N d p : ℕ) {ε A : ℝ} (hε : 0 ≤ ε) (hA : 0 ≤ A) :
     1 ≤ (2 * parametricBox N d p ε A + 1).toNat := by
@@ -503,8 +495,8 @@ by all grid systems), of `[K : ℚ] (2 n / δ) log n` (so that the gap principle
 `systemHeightThreshold`. It does not depend on the constants `C`. -/
 noncomputable def systemThreshold (S : Finset (HeightOneSpectrum (𝓞 K)))
     (w : AbsoluteValue K ℝ → AbsoluteValue E ℝ) (L : AbsoluteValue K ℝ → ι → Dual E (ι → E))
-    (H δ : ℝ) : ℝ :=
-  max (parametricThreshold (systemPlacesOver E S) (conjSystem univ (S.image FinitePlace.mk) w L)
+    (R : RothParams) (H δ : ℝ) : ℝ :=
+  max (parametricThreshold (systemPlacesOver E S) (conjSystem univ (S.image FinitePlace.mk) w L) R
       (systemEps (finrank K E) δ)
       (systemAbsBound (finrank K E) (Fintype.card ι) (Fintype.card (InfinitePlace K) + #S)))
     (max (finrank ℚ K * (2 * Fintype.card ι / δ) * Real.log (Fintype.card ι))
@@ -516,11 +508,11 @@ exceptional subspaces over `E` and, for each of its intervals, the windows of th
 The parameters are `n` forms, `d = [E : ℚ]`, `e = [E : K]`, `t` places of the system and
 `|S| = u`; Layer 6.1's counts are taken at `d` infinite places and `d + e u` places, which bound
 those of `E`. -/
-noncomputable def systemLargeCount (n d e t u : ℕ) (δ : ℝ) : ℝ :=
+noncomputable def systemLargeCount (R : RothParams) (n d e t u : ℕ) (δ : ℝ) : ℝ :=
   systemGridCount n t δ *
     (parametricSubspaceCount n d d (d + e * u) (systemEps e δ) (systemAbsBound e n t) +
       parametricIntervalCount n d d (d + e * u) (systemEps e δ) (systemAbsBound e n t) *
-        (1 + Real.log (parametricRatio n d (d + e * u) (systemEps e δ) (systemAbsBound e n t)) /
+        (1 + Real.log (parametricRatio R n d (d + e * u) (systemEps e δ) (systemAbsBound e n t)) /
           Real.log (1 + δ / (2 * n))))
 
 /-- **The ratio of the middle interval**: the large solutions below the threshold `X` have
@@ -731,31 +723,49 @@ theorem IsNormalizedSystem.exists_gridExponent {S : Finset (HeightOneSpectrum (�
 /-! ### The large solutions -/
 
 open scoped Classical in
-/-- **The quantitative Subspace Theorem for the large solutions of a system** (Q0.3). Under the
-normalization (2.4), with forms over a Galois extension `E / K`, the solutions `x` with
-`log H(x) ≥ systemThreshold` lie in at most `systemLargeCount` proper subspaces of `Kⁿ`, a
-number that depends on `n`, `δ`, `[E : ℚ]`, `[E : K]`, the number of infinite places of `K` and
-`|S|` only. -/
-theorem exists_finset_submodule_of_systemThreshold_le [IsGalois K E]
+/-- **The large solutions of a system, from any interval result** (the assembly of Q0.3). Under
+the normalization (2.4), with forms over a Galois extension `E / K`, suppose that every system of
+exponents over `E` of weight at most `-systemEps [E : K] δ` and absolute weight at most
+`systemAbsBound [E : K] n t` has an interval result above `X₀` for the conjugated forms: its
+domains at levels `log Q ≥ X₀` lie in one of at most `NS` proper subspaces of `Eⁿ`, or `log Q`
+lies in one of at most `NI` intervals `[s, ρ s)` with `s ≥ X₀`. If `X₀` is at least
+`systemHeightThreshold` and `[K : ℚ] (2 n / δ) log n`, the solutions with `log H(x) ≥ X₀` lie in
+at most `systemGridCount n t δ (NS + NI (1 + log ρ / log (1 + δ / (2 n))))` proper subspaces of
+`Kⁿ`. Layer 6.1 supplies such an interval result for every `n`
+(`NumberField.exists_finset_submodule_of_systemThreshold_le`); for `n = 2` Layer 5.6 does, without
+the grids of 6.1. -/
+theorem exists_finset_submodule_of_forall_interval [IsGalois K E]
     (S : Finset (HeightOneSpectrum (𝓞 K))) (w : AbsoluteValue K ℝ → AbsoluteValue E ℝ)
     (hwInf : ∀ v : InfinitePlace K, (w v.1).LiesOver v.1)
     (hwFin : ∀ v ∈ S, (w (FinitePlace.mk v).1).LiesOver (FinitePlace.mk v).1)
     {L : AbsoluteValue K ℝ → ι → Dual E (ι → E)} {C : InfinitePlace K ⊕ S → ℝ}
     {c : InfinitePlace K ⊕ S → ι → ℝ} {H : ℝ} {D R : ℕ} {δ : ℝ}
-    (hN : IsNormalizedSystem S w L C c H D R δ) :
+    (hN : IsNormalizedSystem S w L C c H D R δ) {X₀ ρ : ℝ} {NS NI : ℕ}
+    (hX₀H : systemHeightThreshold (Fintype.card ι) (finrank ℚ E)
+      (Fintype.card (InfinitePlace K) + #S) δ H ≤ X₀)
+    (hX₀n : finrank ℚ K * (2 * Fintype.card ι / δ) * Real.log (Fintype.card ι) ≤ X₀)
+    (hρ1 : 1 ≤ ρ)
+    (hint : ∀ c' : AbsoluteValue E ℝ → ι → ℝ,
+      approxWeight (systemPlacesOver E S) c' ≤ -systemEps (finrank K E) δ →
+      approxAbsWeight (systemPlacesOver E S) c' ≤
+        systemAbsBound (finrank K E) (Fintype.card ι) (Fintype.card (InfinitePlace K) + #S) →
+      ∃ T : Finset (Submodule E (ι → E)), #T ≤ NS ∧ (∀ W ∈ T, W ≠ ⊤) ∧
+        ∃ 𝒯 : Finset ℝ, #𝒯 ≤ NI ∧ (∀ s ∈ 𝒯, X₀ ≤ s) ∧
+          ∀ Q : ℝ, 1 < Q → X₀ ≤ Real.log Q →
+            (∃ W ∈ T, approxDomain (systemPlacesOver E S)
+              (conjSystem univ (S.image FinitePlace.mk) w L) c' Q ⊆ W) ∨
+              ∃ s ∈ 𝒯, s ≤ Real.log Q ∧ Real.log Q < ρ * s) :
     ∃ T : Finset (Submodule K (ι → K)),
-      (#T : ℝ) ≤ systemLargeCount (Fintype.card ι) (finrank ℚ E) (finrank K E)
-        (Fintype.card (InfinitePlace K) + #S) #S δ ∧
+      (#T : ℝ) ≤ systemGridCount (Fintype.card ι) (Fintype.card (InfinitePlace K) + #S) δ *
+        (NS + NI * (1 + Real.log ρ / Real.log (1 + δ / (2 * Fintype.card ι)))) ∧
       (∀ U ∈ T, U ≠ ⊤) ∧
-      ∀ x ∈ systemSet S w L C c, systemThreshold E S w L H δ ≤ Real.log (mulHeightAff x) →
-        ∃ U ∈ T, x ∈ U := by
+      ∀ x ∈ systemSet S w L C c, X₀ ≤ Real.log (mulHeightAff x) → ∃ U ∈ T, x ∈ U := by
   set n := Fintype.card ι with hn
   have hn2 : 2 ≤ n := hN.two_le_card
-  have : Nontrivial ι := Fintype.one_lt_card_iff_nontrivial.1 (by omega)
+  have : Nonempty ι := Fintype.card_pos_iff.1 (by omega)
   have hn0 : (0 : ℝ) < n := by exact_mod_cast (by omega : 0 < n)
   have hδ := hN.delta_pos
   set e := finrank K E with he
-  set dE := finrank ℚ E with hdE
   set t := Fintype.card (InfinitePlace K) + #S with ht
   set M := systemClamp n t with hM
   set m := systemGridDen n t δ with hm
@@ -782,43 +792,24 @@ theorem exists_finset_submodule_of_systemThreshold_le [IsGalois K E]
     fun k p i ↦ (k p i : ℝ) / m with hg
   set Sfin' := systemPlacesOver E S with hSfin'
   set L' := conjSystem univ (S.image FinitePlace.mk) w L with hL'
-  set ε := systemEps e δ with hε
-  set A := systemAbsBound e n t with hA
-  have hε0 : 0 < ε := by rw [hε, systemEps]; positivity
-  have hA0 : 0 ≤ A := by rw [hA, systemAbsBound]; positivity
-  set rE := Fintype.card (InfinitePlace E) with hrE
-  set sE := rE + #Sfin' with hsE
-  have hrE : rE ≤ dE := card_infinitePlace_le_finrank
-  have hsE : sE ≤ dE + e * #S := Nat.add_le_add hrE (card_systemPlacesOver_le S)
-  have hsE1 : 1 ≤ sE := by
-    have := Fintype.card_pos (α := InfinitePlace E)
-    omega
-  have hLI : ∀ v : InfinitePlace K, LinearIndependent E (L v.1) := fun v ↦
-    hN.linearIndependent (.inl v)
-  have hLF : ∀ p ∈ S, LinearIndependent E (L (FinitePlace.mk p).1) := fun p hp ↦
-    hN.linearIndependent (.inr ⟨p, hp⟩)
-  set X₀ := systemThreshold E S w L H δ with hX₀
-  have hX₀P : parametricThreshold Sfin' L' ε A ≤ X₀ := le_max_left _ _
-  have hX₀n : (finrank ℚ K : ℝ) * (2 * n / δ) * Real.log n ≤ X₀ :=
-    (le_max_left _ _).trans (le_max_right _ _)
-  have hX₀H : systemHeightThreshold n dE t δ H ≤ X₀ := (le_max_right _ _).trans (le_max_right _ _)
-  have hX₀1 : 1 ≤ X₀ := (le_max_left _ _).trans hX₀P
-  set ρE := parametricRatio n dE sE ε A with hρE
-  -- Layer 6.1 for every grid system of weight at most `-δ / 4`
+  have hX₀0 : 0 ≤ X₀ := by
+    have hl : 0 ≤ Real.log n := Real.log_nonneg (by exact_mod_cast (by omega : 1 ≤ n))
+    exact (by positivity : (0 : ℝ) ≤ finrank ℚ K * (2 * n / δ) * Real.log n).trans hX₀n
+  -- the interval result for every grid system of weight at most `-δ / 4`
   have hfam : ∀ k : InfinitePlace K ⊕ S → ι → ℤ, ∃ T : Finset (Submodule E (ι → E)),
-      #T ≤ parametricSubspaceCount n dE rE sE ε A ∧ (∀ W ∈ T, W ≠ ⊤) ∧
-      ∃ 𝒯 : Finset ℝ, #𝒯 ≤ parametricIntervalCount n dE rE sE ε A ∧ (∀ s ∈ 𝒯, X₀ ≤ s) ∧
+      #T ≤ NS ∧ (∀ W ∈ T, W ≠ ⊤) ∧
+      ∃ 𝒯 : Finset ℝ, #𝒯 ≤ NI ∧ (∀ s ∈ 𝒯, X₀ ≤ s) ∧
         (k ∈ Gr → systemWeight (g k) ≤ -(δ / 4) → ∀ Q : ℝ, 1 < Q → X₀ ≤ Real.log Q →
           (∃ W ∈ T, approxDomain Sfin' L' (conjExponent S (g k)) Q ⊆ W) ∨
-            ∃ s ∈ 𝒯, s ≤ Real.log Q ∧ Real.log Q < ρE * s) := by
+            ∃ s ∈ 𝒯, s ≤ Real.log Q ∧ Real.log Q < ρ * s) := by
     intro k
     by_cases hk : k ∈ Gr ∧ systemWeight (g k) ≤ -(δ / 4)
     · obtain ⟨hkG, hkw⟩ := hk
-      have hcw : approxWeight Sfin' (conjExponent S (g k)) ≤ -ε := by
-        rw [approxWeight_conjExponent, hε, systemEps]
+      have hcw : approxWeight Sfin' (conjExponent S (g k)) ≤ -systemEps e δ := by
+        rw [approxWeight_conjExponent, systemEps]
         nlinarith
-      have hcA : approxAbsWeight Sfin' (conjExponent S (g k)) ≤ A := by
-        rw [approxAbsWeight_conjExponent, hA, systemAbsBound]
+      have hcA : approxAbsWeight Sfin' (conjExponent S (g k)) ≤ systemAbsBound e n t := by
+        rw [approxAbsWeight_conjExponent, systemAbsBound]
         refine mul_le_mul_of_nonneg_left ?_ he0.le
         have hbd : ∀ p i, |g k p i| ≤ (M : ℝ) + 2 := fun p i ↦ by
           have hki := Finset.mem_Icc.1 (Fintype.mem_piFinset.1 (Fintype.mem_piFinset.1 hkG p) i)
@@ -833,11 +824,7 @@ theorem exists_finset_submodule_of_systemThreshold_le [IsGalois K E]
               simp only [Finset.sum_const, Finset.card_univ, Fintype.card_sum, Fintype.card_coe,
                 nsmul_eq_mul, ht]
               push_cast; ring
-      obtain ⟨T, hTcard, hTtop, Q₀, -, hQ₀eq, hint⟩ :=
-        exists_forall_mem_interval_approxDomain (K := E) (Sfin := Sfin') (L := L')
-          (linearIndependent_conjSystem_infinitePlace hwInf hLI)
-          (fun V hV ↦ linearIndependent_conjSystem_systemPlacesOver hwFin hLF hV) hε0 hcw hcA
-      obtain ⟨𝒯, h𝒯card, h𝒯ge, hQint⟩ := hint X₀ (hQ₀eq ▸ hX₀P)
+      obtain ⟨T, hTcard, hTtop, 𝒯, h𝒯card, h𝒯ge, hQint⟩ := hint _ hcw hcA
       exact ⟨T, hTcard, hTtop, 𝒯, h𝒯card, h𝒯ge, fun _ _ ↦ hQint⟩
     · exact ⟨∅, by simp, by simp, ∅, by simp, by simp, fun hkG hkw ↦ absurd ⟨hkG, hkw⟩ hk⟩
   choose Tk hTkcard hTktop 𝒯k h𝒯kcard h𝒯kge hTkint using hfam
@@ -847,9 +834,6 @@ theorem exists_finset_submodule_of_systemThreshold_le [IsGalois K E]
   -- the intervals, as intervals of the absolute affine height
   set d := finrank ℚ K with hd
   have hd0 : (0 : ℝ) < d := by exact_mod_cast (finrank_pos : 0 < finrank ℚ K)
-  set ρ := parametricRatio n dE (dE + e * #S) ε A with hρ
-  have hρ1 : 1 ≤ ρ := one_le_parametricRatio _ _ (by omega) hε0 hA0
-  have hρρ : ρE ≤ ρ := parametricRatio_mono (by omega) hε0 hA0 hsE1 hsE
   set Q : Fin #𝒯 → ℝ := fun i ↦ Real.exp ((𝒯.equivFin.symm i : ℝ) / d) with hQ
   have hQn : ∀ i, (n : ℝ) ^ (2 * n / δ) ≤ Q i := fun i ↦ by
     rw [Real.rpow_def_of_pos hn0]
@@ -867,12 +851,15 @@ theorem exists_finset_submodule_of_systemThreshold_le [IsGalois K E]
         Finset.mem_Icc.2 (hkG p i)
       have hy := mem_approxDomain_conjSystem hwInf hwFin L hH.le hx.1 (e := g k) hkv
       have hH1 : 1 < mulHeightAff x := by
-        rw [← Real.log_pos_iff hH.le]; linarith
+        rw [← Real.log_pos_iff hH.le]
+        have hX₀pos : 0 < X₀ := by
+          have hl : 0 < Real.log n := Real.log_pos (by exact_mod_cast (by omega : 1 < n))
+          exact (by positivity : (0 : ℝ) < finrank ℚ K * (2 * n / δ) * Real.log n).trans_le hX₀n
+        linarith
       rcases hTkint k hkGr hkw (mulHeightAff x) hH1 hlogH with ⟨W, hW, hsub⟩ | ⟨s, hs, h1, h2⟩
       · exact absurd (hsub hy) fun hyW ↦ hxT _ (Finset.mem_image_of_mem _
           (Finset.mem_biUnion.2 ⟨k, hkGr, hW⟩)) hyW
       · have hs𝒯 : s ∈ 𝒯 := Finset.mem_biUnion.2 ⟨k, hkGr, hs⟩
-        have hs0 : 0 ≤ s := by linarith [h𝒯kge k s hs]
         refine ⟨𝒯.equivFin ⟨s, hs𝒯⟩, ?_, ?_⟩
         · simp only [hQ, Equiv.symm_apply_apply]
           rw [Real.rpow_def_of_pos hH]
@@ -883,36 +870,27 @@ theorem exists_finset_submodule_of_systemThreshold_le [IsGalois K E]
           rw [Real.rpow_def_of_pos hH, ← Real.exp_mul]
           refine Real.exp_lt_exp.2 ?_
           rw [div_mul_eq_mul_div, mul_comm (s : ℝ) ρ, div_eq_mul_inv]
-          exact mul_lt_mul_of_pos_right (h2.trans_le (mul_le_mul_of_nonneg_right hρρ hs0))
-            (inv_pos.2 hd0))
+          exact mul_lt_mul_of_pos_right h2 (inv_pos.2 hd0))
   refine ⟨T₁ ∪ T₂, ?_, fun U hU ↦ ?_, fun x hx hlogH ↦ ?_⟩
   · have hl : 0 < Real.log (1 + δ / (2 * n)) := Real.log_pos (by
       have : 0 < δ / (2 * n) := by positivity
       linarith)
     have hfac : 0 ≤ 1 + Real.log ρ / Real.log (1 + δ / (2 * n)) :=
       add_nonneg zero_le_one (div_nonneg (Real.log_nonneg hρ1) hl.le)
-    have hSC : parametricSubspaceCount n dE rE sE ε A ≤
-        parametricSubspaceCount n dE dE (dE + e * #S) ε A :=
-      parametricSubspaceCount_mono hε0.le hA0 hrE hsE
-    have hIC : parametricIntervalCount n dE rE sE ε A ≤
-        parametricIntervalCount n dE dE (dE + e * #S) ε A :=
-      parametricIntervalCount_mono (by omega) hε0 hA0 hsE1 hrE hsE
-    have hT₀ : #T₀ ≤ systemGridCount n t δ * parametricSubspaceCount n dE dE (dE + e * #S) ε A :=
-      Finset.card_biUnion_le.trans ((Finset.sum_le_sum fun k _ ↦ (hTkcard k).trans hSC).trans
+    have hT₀ : #T₀ ≤ systemGridCount n t δ * NS :=
+      Finset.card_biUnion_le.trans ((Finset.sum_le_sum fun k _ ↦ hTkcard k).trans
         (by rw [Finset.sum_const, smul_eq_mul, hGrcard]))
-    have h𝒯c : #𝒯 ≤ systemGridCount n t δ * parametricIntervalCount n dE dE (dE + e * #S) ε A :=
-      Finset.card_biUnion_le.trans ((Finset.sum_le_sum fun k _ ↦ (h𝒯kcard k).trans hIC).trans
+    have h𝒯c : #𝒯 ≤ systemGridCount n t δ * NI :=
+      Finset.card_biUnion_le.trans ((Finset.sum_le_sum fun k _ ↦ h𝒯kcard k).trans
         (by rw [Finset.sum_const, smul_eq_mul, hGrcard]))
     calc (#(T₁ ∪ T₂) : ℝ) ≤ #T₀ + #T₂ := by
           exact_mod_cast (Finset.card_union_le _ _).trans
             (Nat.add_le_add_right Finset.card_image_le _)
-      _ ≤ systemGridCount n t δ * parametricSubspaceCount n dE dE (dE + e * #S) ε A +
-          (systemGridCount n t δ * parametricIntervalCount n dE dE (dE + e * #S) ε A : ℕ) *
+      _ ≤ systemGridCount n t δ * NS + (systemGridCount n t δ * NI : ℕ) *
             (1 + Real.log ρ / Real.log (1 + δ / (2 * n))) := by
           refine add_le_add (by exact_mod_cast hT₀) (hT₂card.trans ?_)
           exact mul_le_mul_of_nonneg_right (by exact_mod_cast h𝒯c) hfac
       _ = _ := by
-          rw [systemLargeCount]
           push_cast
           ring
   · rcases Finset.mem_union.1 hU with hU | hU
@@ -927,21 +905,15 @@ theorem exists_finset_submodule_of_systemThreshold_le [IsGalois K E]
       obtain ⟨U, hU, hxU⟩ := hT₂ x hx ⟨hlogH, hxT⟩
       exact ⟨U, Finset.mem_union_right _ hU, hxU⟩
 
-/-! ### All solutions -/
-
 open scoped Classical in
-/-- **The quantitative Subspace Theorem for a system** (Q0.3). Under the normalization (2.4), with
-forms over a Galois extension `E / K`, all solutions lie in at most
-
-`δ⁻¹ ((10³ n) ^ (n [K : ℚ]) + 4 n log log (4 H)) + 1 + log ω / log (1 + δ / (2 n))`
-`+ systemLargeCount`
-
-proper subspaces of `Kⁿ`: the solutions that are not large by Layer 9.3, the large ones below
-`X₀ = systemThreshold` by one interval of Layer 9.4 with ratio `ω = systemMiddleRatio`, and the
-rest by `NumberField.exists_finset_submodule_of_systemThreshold_le`. Only `ω` depends on the
-coefficient height `H` beyond `log log (4 H)`, through `log X₀`; `X₀` is linear in `log H`
-(`NumberField.systemThreshold_le`). -/
-theorem exists_finset_submodule_of_isNormalizedSystem [IsGalois K E]
+/-- **The quantitative Subspace Theorem for the large solutions of a system** (Q0.3). Under the
+normalization (2.4), with forms over a Galois extension `E / K`, the solutions `x` with
+`log H(x) ≥ systemThreshold` lie in at most `systemLargeCount` proper subspaces of `Kⁿ`, a
+number that depends on `n`, `δ`, `[E : ℚ]`, `[E : K]`, the number of infinite places of `K` and
+`|S|` only. It is `NumberField.exists_finset_submodule_of_forall_interval` with Layer 6.1's
+interval result, whose counts over `E` are bounded by those at `[E : ℚ]` infinite places and
+`[E : ℚ] + [E : K] |S|` places. -/
+theorem exists_finset_submodule_of_systemThreshold_le [IsGalois K E] (RL : SubspaceRoth.{u} E)
     (S : Finset (HeightOneSpectrum (𝓞 K))) (w : AbsoluteValue K ℝ → AbsoluteValue E ℝ)
     (hwInf : ∀ v : InfinitePlace K, (w v.1).LiesOver v.1)
     (hwFin : ∀ v ∈ S, (w (FinitePlace.mk v).1).LiesOver (FinitePlace.mk v).1)
@@ -949,12 +921,87 @@ theorem exists_finset_submodule_of_isNormalizedSystem [IsGalois K E]
     {c : InfinitePlace K ⊕ S → ι → ℝ} {H : ℝ} {D R : ℕ} {δ : ℝ}
     (hN : IsNormalizedSystem S w L C c H D R δ) :
     ∃ T : Finset (Submodule K (ι → K)),
+      (#T : ℝ) ≤ systemLargeCount RL.toRothParams (Fintype.card ι) (finrank ℚ E) (finrank K E)
+        (Fintype.card (InfinitePlace K) + #S) #S δ ∧
+      (∀ U ∈ T, U ≠ ⊤) ∧
+      ∀ x ∈ systemSet S w L C c,
+        systemThreshold E S w L RL.toRothParams H δ ≤ Real.log (mulHeightAff x) →
+        ∃ U ∈ T, x ∈ U := by
+  set n := Fintype.card ι with hn
+  have hn2 : 2 ≤ n := hN.two_le_card
+  have : Nontrivial ι := Fintype.one_lt_card_iff_nontrivial.1 (by omega)
+  have hδ := hN.delta_pos
+  set e := finrank K E with he
+  set dE := finrank ℚ E with hdE
+  set t := Fintype.card (InfinitePlace K) + #S with ht
+  have he0 : (0 : ℝ) < e := by exact_mod_cast (finrank_pos : 0 < finrank K E)
+  set Sfin' := systemPlacesOver E S with hSfin'
+  set L' := conjSystem univ (S.image FinitePlace.mk) w L with hL'
+  set ε := systemEps e δ with hε
+  set A := systemAbsBound e n t with hA
+  have hε0 : 0 < ε := by rw [hε, systemEps]; positivity
+  have hA0 : 0 ≤ A := by rw [hA, systemAbsBound]; positivity
+  set rE := Fintype.card (InfinitePlace E) with hrE
+  set sE := rE + #Sfin' with hsE
+  have hrE : rE ≤ dE := card_infinitePlace_le_finrank
+  have hsE : sE ≤ dE + e * #S := Nat.add_le_add hrE (card_systemPlacesOver_le S)
+  have hsE1 : 1 ≤ sE := by
+    have := Fintype.card_pos (α := InfinitePlace E)
+    omega
+  have hLI : ∀ v : InfinitePlace K, LinearIndependent E (L v.1) := fun v ↦
+    hN.linearIndependent (.inl v)
+  have hLF : ∀ p ∈ S, LinearIndependent E (L (FinitePlace.mk p).1) := fun p hp ↦
+    hN.linearIndependent (.inr ⟨p, hp⟩)
+  set X₀ := systemThreshold E S w L RL.toRothParams H δ with hX₀
+  have hX₀P : parametricThreshold Sfin' L' RL.toRothParams ε A ≤ X₀ := le_max_left _ _
+  set ρ := parametricRatio RL.toRothParams n dE (dE + e * #S) ε A with hρ
+  have hρρ : parametricRatio RL.toRothParams n dE sE ε A ≤ ρ :=
+    parametricRatio_mono RL.toRothParams (by omega) hε0 hA0 hsE1 hsE
+  obtain ⟨T, hTcard, hTtop, hT⟩ := exists_finset_submodule_of_forall_interval S w hwInf hwFin hN
+    (X₀ := X₀) (ρ := ρ)
+    (NS := parametricSubspaceCount n dE dE (dE + e * #S) ε A)
+    (NI := parametricIntervalCount n dE dE (dE + e * #S) ε A)
+    ((le_max_right _ _).trans (le_max_right _ _)) ((le_max_left _ _).trans (le_max_right _ _))
+    (one_le_parametricRatio RL.toRothParams _ _ (by omega) hε0 hA0) fun c' hcw hcA ↦ by
+      obtain ⟨T, hTcard, hTtop, Q₀, -, hQ₀eq, hint⟩ :=
+        exists_forall_mem_interval_approxDomain (K := E) (Sfin := Sfin') (L := L') RL
+          (linearIndependent_conjSystem_infinitePlace hwInf hLI)
+          (fun V hV ↦ linearIndependent_conjSystem_systemPlacesOver hwFin hLF hV) hε0 hcw hcA
+      obtain ⟨𝒯, h𝒯card, h𝒯ge, hQint⟩ := hint X₀ (hQ₀eq ▸ hX₀P)
+      refine ⟨T, hTcard.trans (parametricSubspaceCount_mono hε0.le hA0 hrE hsE), hTtop, 𝒯,
+        h𝒯card.trans (parametricIntervalCount_mono (by omega) hε0 hA0 hsE1 hrE hsE), h𝒯ge,
+        fun Q hQ1 hQ ↦ (hQint Q hQ1 hQ).imp id fun ⟨s, hs, h1, h2⟩ ↦ ⟨s, hs, h1, ?_⟩⟩
+      have hl : 0 ≤ Real.log n := Real.log_nonneg (by exact_mod_cast (by omega : 1 ≤ n))
+      have hs0 : 0 ≤ s := ((by positivity : (0 : ℝ) ≤ finrank ℚ K * (2 * n / δ) *
+        Real.log n).trans ((le_max_left _ _).trans (le_max_right _ _))).trans (h𝒯ge s hs)
+      exact h2.trans_le (mul_le_mul_of_nonneg_right hρρ hs0)
+  exact ⟨T, hTcard.trans_eq (by rw [systemLargeCount]), hTtop, hT⟩
+
+/-! ### All solutions -/
+
+open scoped Classical in
+/-- **All solutions of a system, from a count of the large ones above `X₀`** (the last step of
+Q0.3). Under the normalization (2.4), with forms over a Galois extension `E / K`, if the solutions
+with `log H(x) ≥ X₀` lie in at most `NL` proper subspaces, then all solutions lie in at most
+
+`δ⁻¹ ((10³ n) ^ (n [K : ℚ]) + 4 n log log (4 H)) + 1 + log ω / log (1 + δ / (2 n)) + NL`
+
+proper subspaces of `Kⁿ`, with `ω = systemMiddleRatio [K : ℚ] n H δ X₀`: the solutions that are
+not large by Layer 9.3 and the large ones below `X₀` by one interval of Layer 9.4. -/
+theorem exists_finset_submodule_of_isNormalizedSystem_of_large [IsGalois K E]
+    (S : Finset (HeightOneSpectrum (𝓞 K))) (w : AbsoluteValue K ℝ → AbsoluteValue E ℝ)
+    (hwInf : ∀ v : InfinitePlace K, (w v.1).LiesOver v.1)
+    (hwFin : ∀ v ∈ S, (w (FinitePlace.mk v).1).LiesOver (FinitePlace.mk v).1)
+    {L : AbsoluteValue K ℝ → ι → Dual E (ι → E)} {C : InfinitePlace K ⊕ S → ℝ}
+    {c : InfinitePlace K ⊕ S → ι → ℝ} {H : ℝ} {D R : ℕ} {δ : ℝ}
+    (hN : IsNormalizedSystem S w L C c H D R δ) {X₀ NL : ℝ}
+    (hlarge : ∃ T : Finset (Submodule K (ι → K)), (#T : ℝ) ≤ NL ∧ (∀ U ∈ T, U ≠ ⊤) ∧
+      ∀ x ∈ systemSet S w L C c, X₀ ≤ Real.log (mulHeightAff x) → ∃ U ∈ T, x ∈ U) :
+    ∃ T : Finset (Submodule K (ι → K)),
       (#T : ℝ) ≤ δ⁻¹ * ((10 ^ 3 * Fintype.card ι) ^ (Fintype.card ι * finrank ℚ K) +
           4 * Fintype.card ι * Real.log (Real.log (4 * H))) +
-        (1 + Real.log (systemMiddleRatio (finrank ℚ K) (Fintype.card ι) H δ
-            (systemThreshold E S w L H δ)) / Real.log (1 + δ / (2 * Fintype.card ι))) +
-        systemLargeCount (Fintype.card ι) (finrank ℚ E) (finrank K E)
-          (Fintype.card (InfinitePlace K) + #S) #S δ ∧
+        (1 + Real.log (systemMiddleRatio (finrank ℚ K) (Fintype.card ι) H δ X₀) /
+              Real.log (1 + δ / (2 * Fintype.card ι))) + NL ∧
       (∀ U ∈ T, U ≠ ⊤) ∧ ∀ x ∈ systemSet S w L C c, ∃ U ∈ T, x ∈ U := by
   set n := Fintype.card ι with hn
   have hn2 : 2 ≤ n := hN.two_le_card
@@ -962,7 +1009,6 @@ theorem exists_finset_submodule_of_isNormalizedSystem [IsGalois K E]
   have hδ := hN.delta_pos
   set d := finrank ℚ K with hd
   have hd0 : (0 : ℝ) < d := by exact_mod_cast (finrank_pos : 0 < finrank ℚ K)
-  set X₀ := systemThreshold E S w L H δ with hX₀
   set QL := max (2 * H) ((n : ℝ) ^ (2 * n / δ)) with hQL
   have hQL1 : 1 < QL := (Real.one_lt_rpow (by exact_mod_cast (by omega : 1 < n))
     (by positivity)).trans_le (le_max_right _ _)
@@ -983,8 +1029,7 @@ theorem exists_finset_submodule_of_isNormalizedSystem [IsGalois K E]
         rw [← div_le_iff₀ (by positivity)]; exact le_max_right _ _
       rw [← div_eq_mul_inv, div_lt_iff₀ hd0]
       nlinarith)
-  obtain ⟨T₃, hT₃card, hT₃top, hT₃⟩ := exists_finset_submodule_of_systemThreshold_le S w hwInf
-    hwFin hN
+  obtain ⟨T₃, hT₃card, hT₃top, hT₃⟩ := hlarge
   refine ⟨T₁ ∪ T₂ ∪ T₃, ?_, fun U hU ↦ ?_, fun x hx ↦ ?_⟩
   · calc (#(T₁ ∪ T₂ ∪ T₃) : ℝ) ≤ #T₁ + #T₂ + #T₃ := by
           exact_mod_cast (Finset.card_union_le _ _).trans
@@ -1006,6 +1051,37 @@ theorem exists_finset_submodule_of_isNormalizedSystem [IsGalois K E]
     · obtain ⟨U, hU, hxU⟩ := hT₁ x hx hlarge
       exact ⟨U, Finset.mem_union_left _ (Finset.mem_union_left _ hU), hxU⟩
 
+open scoped Classical in
+/-- **The quantitative Subspace Theorem for a system** (Q0.3). Under the normalization (2.4), with
+forms over a Galois extension `E / K`, all solutions lie in at most
+
+`δ⁻¹ ((10³ n) ^ (n [K : ℚ]) + 4 n log log (4 H)) + 1 + log ω / log (1 + δ / (2 n))`
+`+ systemLargeCount`
+
+proper subspaces of `Kⁿ`: the solutions that are not large by Layer 9.3, the large ones below
+`X₀ = systemThreshold` by one interval of Layer 9.4 with ratio `ω = systemMiddleRatio`, and the
+rest by `NumberField.exists_finset_submodule_of_systemThreshold_le`. Only `ω` depends on the
+coefficient height `H` beyond `log log (4 H)`, through `log X₀`; `X₀` is linear in `log H`
+(`NumberField.systemThreshold_le`). -/
+theorem exists_finset_submodule_of_isNormalizedSystem [IsGalois K E] (RL : SubspaceRoth.{u} E)
+    (S : Finset (HeightOneSpectrum (𝓞 K))) (w : AbsoluteValue K ℝ → AbsoluteValue E ℝ)
+    (hwInf : ∀ v : InfinitePlace K, (w v.1).LiesOver v.1)
+    (hwFin : ∀ v ∈ S, (w (FinitePlace.mk v).1).LiesOver (FinitePlace.mk v).1)
+    {L : AbsoluteValue K ℝ → ι → Dual E (ι → E)} {C : InfinitePlace K ⊕ S → ℝ}
+    {c : InfinitePlace K ⊕ S → ι → ℝ} {H : ℝ} {D R : ℕ} {δ : ℝ}
+    (hN : IsNormalizedSystem S w L C c H D R δ) :
+    ∃ T : Finset (Submodule K (ι → K)),
+      (#T : ℝ) ≤ δ⁻¹ * ((10 ^ 3 * Fintype.card ι) ^ (Fintype.card ι * finrank ℚ K) +
+          4 * Fintype.card ι * Real.log (Real.log (4 * H))) +
+        (1 + Real.log (systemMiddleRatio (finrank ℚ K) (Fintype.card ι) H δ
+            (systemThreshold E S w L RL.toRothParams H δ)) /
+              Real.log (1 + δ / (2 * Fintype.card ι))) +
+        systemLargeCount RL.toRothParams (Fintype.card ι) (finrank ℚ E) (finrank K E)
+          (Fintype.card (InfinitePlace K) + #S) #S δ ∧
+      (∀ U ∈ T, U ≠ ⊤) ∧ ∀ x ∈ systemSet S w L C c, ∃ U ∈ T, x ∈ U :=
+  exists_finset_submodule_of_isNormalizedSystem_of_large S w hwInf hwFin hN
+    (exists_finset_submodule_of_systemThreshold_le RL S w hwInf hwFin hN)
+
 /-! ### The threshold in terms of heights -/
 
 open scoped Classical in
@@ -1014,15 +1090,15 @@ conjugated forms bounded by Galois invariance): `systemThreshold` is at most the
 `parametricCoeff · ((r_E + s_E) n² [E : ℚ] log H + log |D_E| + ∑ log N(V) + 1)`, the sum over
 the places `V` of `E` above `S`, of `[K : ℚ] (2 n / δ) log n` and of `systemHeightThreshold`.
 Besides `log H` it sees only the fields and `S`. -/
-theorem systemThreshold_le [IsGalois K E] {S : Finset (HeightOneSpectrum (𝓞 K))}
+theorem systemThreshold_le [IsGalois K E] (RL : RothParams) {S : Finset (HeightOneSpectrum (𝓞 K))}
     {w : AbsoluteValue K ℝ → AbsoluteValue E ℝ}
     (hwInf : ∀ v : InfinitePlace K, (w v.1).LiesOver v.1)
     (hwFin : ∀ v ∈ S, (w (FinitePlace.mk v).1).LiesOver (FinitePlace.mk v).1)
     {L : AbsoluteValue K ℝ → ι → Dual E (ι → E)} {C : InfinitePlace K ⊕ S → ℝ}
     {c : InfinitePlace K ⊕ S → ι → ℝ} {H : ℝ} {D R : ℕ} {δ : ℝ}
     (hN : IsNormalizedSystem S w L C c H D R δ) :
-    systemThreshold E S w L H δ ≤
-      max (parametricCoeff (finrank ℚ E) (Fintype.card ι) (Fintype.card (InfinitePlace E))
+    systemThreshold E S w L RL H δ ≤
+      max (parametricCoeff RL (finrank ℚ E) (Fintype.card ι) (Fintype.card (InfinitePlace E))
           #(systemPlacesOver E S) (systemEps (finrank K E) δ)
           (systemAbsBound (finrank K E) (Fintype.card ι) (Fintype.card (InfinitePlace K) + #S)) *
           ((Fintype.card (InfinitePlace E) + #(systemPlacesOver E S)) * Fintype.card ι ^ 2 *
@@ -1039,11 +1115,11 @@ theorem systemThreshold_le [IsGalois K E] {S : Finset (HeightOneSpectrum (𝓞 K
   have hA : 0 ≤ systemAbsBound (finrank K E) (Fintype.card ι)
       (Fintype.card (InfinitePlace K) + #S) := by rw [systemAbsBound]; positivity
   refine max_le_max ?_ le_rfl
-  refine (parametricThreshold_le (linearIndependent_conjSystem_infinitePlace hwInf
+  refine (parametricThreshold_le RL (linearIndependent_conjSystem_infinitePlace hwInf
     fun v ↦ hN.linearIndependent (.inl v))
     (fun V hV ↦ linearIndependent_conjSystem_systemPlacesOver hwFin
       (fun p hp ↦ hN.linearIndependent (.inr ⟨p, hp⟩)) hV) hε hA).trans ?_
-  refine mul_le_mul_of_nonneg_left ?_ (parametricCoeff_nonneg _ _ _ _ (by omega) hε hA)
+  refine mul_le_mul_of_nonneg_left ?_ (parametricCoeff_nonneg RL _ _ _ _ (by omega) hε hA)
   rw [thresholdScale]
   gcongr
   exact hN.formLogHeight_conjSystem_le hwInf hwFin

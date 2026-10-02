@@ -46,13 +46,16 @@ contradiction.
 * `NumberField.subspaceEta`, `NumberField.subspaceChainLength` and `NumberField.subspaceRatio`:
   the `η`, `m` and `σ` of Steps IV and VI, as functions of `n`, `|S|`, `ε` and a bound `A` on
   the weight of the absolute values of the exponents.
+* `NumberField.RothParams` and `NumberField.SubspaceRoth`: the generalized Roth lemma as an input
+  of Steps IV and VI, through its ratio `σ` and its height cost. Bombieri–Gubler's Lemma 7.5.19 is
+  `NumberField.SubspaceRoth.bombieriGubler`, with `σ = subspaceRatio`.
 
 ## Main results
 
 * `NumberField.exists_forall_not_chain`: **Steps IV and VI**, the whole contradiction. There is
   `Qlow` such that no `m + 1` levels with `log (Q h) ≥ Qlow`, growing at the rate `2 σ⁻¹`, can all
-  have rank `n` and height at least `ε log (Q h) / (4 |S|) - C₅`. Here `m` and `σ` are the
-  explicit `subspaceChainLength` and `subspaceRatio`.
+  have rank `n` and height at least `ε log (Q h) / (4 |S|) - C₅`. Here `m` is the explicit
+  `subspaceChainLength` and `σ` is the ratio of the Roth lemma used.
 * `NumberField.exists_forall_mem_interval_approxSpan`: **the interval result**. Above a level,
   the levels at which `V(Q)` has rank `n` and is not exceptional have `log Q` in at most `m`
   intervals `[t, 4 σ⁻¹ t)`, with the `m` and `σ` of Steps IV and VI, outside a set `𝒲` of at
@@ -100,6 +103,13 @@ is that choice.
 local bound carries no constant and the point is integral, so the product formula is applied
 with `Sinf = univ`. This is the same convention as Layers 4 and 5.4.
 
+⚠ **The Roth lemma is a parameter.** Steps IV and VI use Layer 5.3 once, and everything after
+sees it only through the ratio `σ` and the height cost `F (h(P) + g (m + 1) d₀ [K : ℚ])`, which
+enter the growth `2 σ⁻¹` of the chain and the level `Qlow`. So the theorems from
+`NumberField.exists_forall_not_chain` on take a `NumberField.SubspaceRoth`, and the files of Layer
+6.1 and of Q0 pass it on. The qualitative statements use Bombieri–Gubler's; the
+`QuantitativeSubspace` roadmap supplies Evertse's (Q1.6).
+
 ⚠ **The heartbeat budget is per declaration, which is why the arithmetic is factored out.** The
 proof of `exists_forall_not_chain` constructs a dozen parameters before it can state the
 hypothesis of Layer 5.3, and every `field_simp`, `positivity` and `linarith` on the way spends
@@ -132,6 +142,8 @@ finitely many spans. Bombieri–Gubler leave this to the reader.
 @[expose] public section
 
 open Finset Module
+
+universe u v
 
 noncomputable section
 
@@ -425,7 +437,7 @@ namespace NumberField
 
 open MvPolynomial Height exteriorPower PenultimateMinimum
 
-variable {K : Type*} [Field K] [NumberField K] {ι : Type*} [Fintype ι] [DecidableEq ι]
+variable {K : Type*} [Field K] [NumberField K] {ι : Type u} [Fintype ι] [DecidableEq ι]
   [LinearOrder ι] [Nonempty ι]
 
 omit [DecidableEq ι] in
@@ -489,6 +501,123 @@ theorem subspaceRatio_pos {n s : ℕ} {ε A : ℝ} (hε : 0 < ε) (hA : 0 ≤ A)
     0 < subspaceRatio n s ε A :=
   pow_pos (div_pos (subspaceEta_pos hε hA) four_pos) _
 
+/-- `σ ≤ 1`. -/
+theorem subspaceRatio_le_one {n s : ℕ} {ε A : ℝ} (hε : 0 < ε) (hA : 0 ≤ A) :
+    subspaceRatio n s ε A ≤ 1 := by
+  have h0 := subspaceEta_pos (n := n) hε hA
+  have h1 : subspaceEta n ε A ≤ 1 := min_le_left _ _
+  exact pow_le_one₀ (by positivity) (by linarith)
+
+theorem subspaceChainLength_mono {n s s' : ℕ} {ε A : ℝ} (hε : 0 < ε) (hA : 0 ≤ A) (hs : 1 ≤ s)
+    (hss : s ≤ s') : subspaceChainLength n s ε A ≤ subspaceChainLength n s' ε A := by
+  have hη := subspaceEta_pos (n := n) hε hA
+  refine Nat.ceil_mono (div_le_div_of_nonneg_right ?_ (by positivity))
+  refine mul_le_mul_of_nonneg_left (Real.log_le_log (by positivity) ?_) (by norm_num)
+  have : (s : ℝ) ≤ s' := by exact_mod_cast hss
+  gcongr
+
+theorem subspaceRatio_anti {n s s' : ℕ} {ε A : ℝ} (hε : 0 < ε) (hA : 0 ≤ A) (hs : 1 ≤ s)
+    (hss : s ≤ s') : subspaceRatio n s' ε A ≤ subspaceRatio n s ε A := by
+  have hη := subspaceEta_pos (n := n) hε hA
+  have h1 : subspaceEta n ε A ≤ 1 := min_le_left _ _
+  exact pow_le_pow_of_le_one (by positivity) (by linarith)
+    (Nat.pow_le_pow_right two_pos (subspaceChainLength_mono hε hA hs hss))
+
+/-! ### The generalized Roth lemma as an input
+
+Steps IV and VI use Layer 5.3 once, as a black box: for `m + 1 = subspaceChainLength n s ε A + 1`
+blocks of `n + 1` variables, multidegrees falling by a ratio `σ`, and forms of large height, the
+index of the auxiliary polynomial along the forms is at most `(m + 1) η / 2`. Everything after
+(the interval result, the thresholds and the counts) depends on the lemma only through `σ` and
+the height cost. `NumberField.SubspaceRoth` packages these, so that a sharper Roth lemma
+(Evertse's, in `QuantitativeSubspace/`) can be run through the same proof.
+-/
+
+/-- **The parameters of a generalized Roth lemma for Steps IV and VI**, as functions of the
+dimension `n`, the number `s` of places of `S`, the margin `ε` and the bound `A` on the absolute
+weight: a ratio `0 < σ ≤ 1` of consecutive multidegrees, which may only shrink as `s` grows, and
+the factor `F` and the weight `g` of the height cost `F (h(P) + g (m + 1) d₀ [K : ℚ])`. They are
+all that the interval result, the thresholds and the counts see of the lemma. -/
+structure RothParams where
+  /-- The ratio `σ` of consecutive multidegrees. -/
+  ratio : ℕ → ℕ → ℝ → ℝ → ℝ
+  /-- The factor `F` of the height cost. -/
+  factor : ℕ → ℕ → ℝ → ℝ → ℝ
+  /-- The weight `g` of the degree in the height cost. -/
+  shift : ℕ → ℕ → ℝ → ℝ → ℝ
+  ratio_pos {n s : ℕ} {ε A : ℝ} : 0 < ε → 0 ≤ A → 0 < ratio n s ε A
+  ratio_le_one {n s : ℕ} {ε A : ℝ} : 0 < ε → 0 ≤ A → ratio n s ε A ≤ 1
+  ratio_anti {n s s' : ℕ} {ε A : ℝ} : 0 < ε → 0 ≤ A → 1 ≤ s → s ≤ s' →
+    ratio n s' ε A ≤ ratio n s ε A
+  factor_nonneg {n s : ℕ} {ε A : ℝ} : 0 < ε → 0 ≤ A → 0 ≤ factor n s ε A
+  shift_nonneg {n s : ℕ} {ε A : ℝ} : 0 < ε → 0 ≤ A → 0 ≤ shift n s ε A
+
+/-- **A generalized Roth lemma for Steps IV and VI**: for the parameters `σ`, `F`, `g`, a nonzero
+multihomogeneous polynomial in `m + 1 = subspaceChainLength n s ε A + 1` blocks of `n + 1`
+variables, with multidegrees falling by `σ` and forms of height cost at most
+`F (h(P) + g (m + 1) d₀ [K : ℚ])`, has index at most `(m + 1) η / 2` along the forms, where
+`η = subspaceEta n ε A`. Bombieri–Gubler's Lemma 7.5.19 is one
+(`NumberField.SubspaceRoth.bombieriGubler`). -/
+structure SubspaceRoth (K : Type v) [Field K] [NumberField K] extends RothParams where
+  /-- The generalized Roth lemma itself. -/
+  formIndex_le {ι : Type u} [Fintype ι] [DecidableEq ι] {n s : ℕ} {ε A : ℝ} (hn : 1 ≤ n)
+    (hcard : Fintype.card ι = n + 1) (hε : 0 < ε) (hA : 0 ≤ A)
+    {d : Fin (subspaceChainLength n s ε A + 1) → ℕ} (hd : ∀ h, 1 ≤ d h)
+    (hratio : ∀ h : Fin (subspaceChainLength n s ε A),
+      (d h.succ : ℝ) ≤ ratio n s ε A * d h.castSucc)
+    {P : MvPolynomial (Fin (subspaceChainLength n s ε A + 1) × ι) K} (hP0 : P ≠ 0)
+    (hP : MvPolynomial.IsMultiHomogeneous d P)
+    {M : Fin (subspaceChainLength n s ε A + 1) → ι → K} (hM : ∀ h, M h ≠ 0)
+    (hheight : ∀ h, factor n s ε A * (P.logHeight + shift n s ε A
+        * ((subspaceChainLength n s ε A : ℝ) + 1) * d 0 * Height.totalWeight K)
+      ≤ d h * Height.logHeight (M h)) :
+    MvPolynomial.formIndex (fun h ↦ (d h : ℝ)) M P
+      ≤ ENNReal.ofReal (((subspaceChainLength n s ε A : ℝ) + 1) * subspaceEta n ε A / 2)
+
+/-- **The parameters of Bombieri–Gubler's generalized Roth lemma**: the ratio
+`σ = (η / 4) ^ (2 ^ m)` and the height cost `n σ⁻¹ (h(P) + 4 (m + 1) d₀ [K : ℚ])`. -/
+noncomputable def RothParams.bombieriGubler : RothParams where
+  ratio := subspaceRatio
+  factor n s ε A := n * (subspaceRatio n s ε A)⁻¹
+  shift _ _ _ _ := 4
+  ratio_pos := subspaceRatio_pos
+  ratio_le_one := subspaceRatio_le_one
+  ratio_anti := subspaceRatio_anti
+  factor_nonneg hε hA := mul_nonneg (Nat.cast_nonneg _) (inv_nonneg.2 (subspaceRatio_pos hε hA).le)
+  shift_nonneg _ _ := by norm_num
+
+/-- **Bombieri–Gubler's generalized Roth lemma** (Lemma 7.5.19, Layer 5.3) as an input of Steps
+IV and VI, with the parameters `NumberField.RothParams.bombieriGubler`. -/
+noncomputable def SubspaceRoth.bombieriGubler (K : Type v) [Field K] [NumberField K] :
+    SubspaceRoth.{u} K where
+  toRothParams := RothParams.bombieriGubler
+  formIndex_le {ι} _ _ n s ε A hn hcard hε hA d hd hratio P hP0 hP M hM hheight := by
+    dsimp only [RothParams.bombieriGubler] at hratio hheight
+    set m := subspaceChainLength n s ε A
+    set η := subspaceEta n ε A
+    set σ := subspaceRatio n s ε A
+    have hη0 : 0 < η := subspaceEta_pos hε hA
+    have hη1 : η ≤ 1 := min_le_left _ _
+    have hη40 : (0 : ℝ) < η / 4 := by linarith
+    have hσ0 : 0 < σ := subspaceRatio_pos hε hA
+    have hσ1 : σ ≤ 1 / 2 := by
+      have h1 : σ ≤ (η / 4) ^ 1 :=
+        pow_le_pow_of_le_one hη40.le (by linarith) Nat.one_le_two_pow
+      rw [pow_one] at h1
+      linarith
+    have hσrpow : σ ^ ((1 / 2 : ℝ) ^ m) = η / 4 := by
+      rw [show σ = (η / 4) ^ (2 ^ m) from rfl, ← Real.rpow_natCast (η / 4) (2 ^ m),
+        ← Real.rpow_mul hη40.le]
+      have hmul : ((2 ^ m : ℕ) : ℝ) * (1 / 2 : ℝ) ^ m = 1 := by
+        push_cast
+        rw [← mul_pow]
+        norm_num
+      rw [hmul, Real.rpow_one]
+    have h := MvPolynomial.formIndex_le_of_degree_ratio hn hcard hd hσ0 hσ1 hratio hP0 hP
+      (fun h ↦ le_rfl) hM fun h ↦ (le_of_eq (by ring)).trans (hheight h)
+    rw [hσrpow] at h
+    exact h.trans (le_of_eq (congrArg ENNReal.ofReal (by ring)))
+
 variable (Sfin : Finset (FinitePlace K)) (L : AbsoluteValue K ℝ → ι → Dual K (ι → K)) in
 /-- **The constant `C₂` of the auxiliary polynomial** of Layer 5.2, for the matrices of the forms
 at the places of `S`: `log |D_K| / 2 + d #ι / 2 + d log #ι + log H(y)`, where `y` collects the
@@ -503,26 +632,28 @@ noncomputable def auxHeightConst : ℝ :=
 
 variable (Sfin : Finset (FinitePlace K)) (L : AbsoluteValue K ℝ → ι → Dual K (ι → K)) in
 /-- **The level `Qlow` of Steps IV and VI**, as a formula in `n`, `|S|`, `ε`, `A`, `C₅`, the
-constant `auxHeightConst` of the auxiliary polynomial and the heights of the reference family
-`refFamily` (the entries of the inverse matrices and the integers up to `⌈2 n / η + 1⌉`). -/
-noncomputable def chainThreshold (n : ℕ) (ε A C₅ : ℝ) : ℝ :=
+height cost of the Roth lemma `R`, the constant `auxHeightConst` of the auxiliary polynomial and
+the heights of the reference family `refFamily` (the entries of the inverse matrices and the
+integers up to `⌈2 n / η + 1⌉`). -/
+noncomputable def chainThreshold (R : RothParams) (n : ℕ) (ε A C₅ : ℝ) : ℝ :=
   max 1 (max (8 * ((n : ℝ) + 1) *
       max ((Height.totalWeight K : ℝ) * Real.log (2 * ((n : ℝ) + 1) * (n : ℝ))
         + max (auxHeightConst Sfin L) 0
         + 2 * ∑ θ, Real.log (Height.mulHeight₁
             (refFamily L Sfin ⌈2 * (n : ℝ) / subspaceEta n ε A + 1⌉₊ θ))) 0 / ε)
     (8 * ((Fintype.card (InfinitePlace K) + Sfin.card : ℕ) : ℝ) *
-      ((n : ℝ) * (subspaceRatio n (Fintype.card (InfinitePlace K) + Sfin.card) ε A)⁻¹ *
+      (R.factor n (Fintype.card (InfinitePlace K) + Sfin.card) ε A *
           ((subspaceChainLength n (Fintype.card (InfinitePlace K) + Sfin.card) ε A : ℝ) + 1) *
-          (max (auxHeightConst Sfin L) 0 + 4 * (Height.totalWeight K : ℝ))
+          (max (auxHeightConst Sfin L) 0 + R.shift n (Fintype.card (InfinitePlace K) + Sfin.card)
+            ε A * (Height.totalWeight K : ℝ))
         + max C₅ 0) / ε))
 
 variable (Sfin : Finset (FinitePlace K)) (L : AbsoluteValue K ℝ → ι → Dual K (ι → K)) in
 /-- **The threshold of the interval form of Layer 5.6**: `max 1 (max Qlow (C₄ / ε))`, with
 `Qlow = chainThreshold` at `C₅ = |s log κ⁻¹ + d log n!|` for `κ = normalKappa` and
 `C₄ = 4 ((d + |Sfin|) log patternConst + log (2 patternHeightBound)) + 1`. -/
-noncomputable def penultimateThreshold (n : ℕ) (ε A : ℝ) : ℝ :=
-  max 1 (max (chainThreshold Sfin L n ε A
+noncomputable def penultimateThreshold (R : RothParams) (n : ℕ) (ε A : ℝ) : ℝ :=
+  max 1 (max (chainThreshold Sfin L R n ε A
       |((Fintype.card (InfinitePlace K) + #Sfin : ℕ) : ℝ) * Real.log (normalKappa n Sfin L)⁻¹
         + (Height.totalWeight K : ℝ) * Real.log n.factorial|)
     ((4 * ((Height.totalWeight K + #Sfin : ℕ) * Real.log (patternConst Sfin L)
@@ -531,21 +662,21 @@ noncomputable def penultimateThreshold (n : ℕ) (ε A : ℝ) : ℝ :=
 /-- **No chain of levels of rank `n` whose heights grow with the level**, which is the whole of
 Bombieri--Gubler's Steps IV and VI. For exponents whose absolute values have weight at most `A`,
 no `m + 1` levels with `log Q ≥ Qlow`, growing at the rate `2 σ⁻¹`, can all have rank `n` and
-height at least `ε log Q / (4 |S|) - C₅`, where `m = subspaceChainLength n |S| ε A` and
-`σ = subspaceRatio n |S| ε A` depend on `n`, `|S|`, `ε` and `A` alone. Only `Qlow` depends on the
-forms and the exponents. -/
-theorem exists_forall_not_chain {n : ℕ} (hn : 1 ≤ n) (hcard : Fintype.card ι = n + 1)
-    {Sfin : Finset (FinitePlace K)} {L : AbsoluteValue K ℝ → ι → Dual K (ι → K)}
-    {cf : AbsoluteValue K ℝ → ι → ℝ}
+height at least `ε log Q / (4 |S|) - C₅`, where `m = subspaceChainLength n |S| ε A` and the ratio
+`σ = R.ratio n |S| ε A` of the generalized Roth lemma `R` depend on `n`, `|S|`, `ε` and `A`
+alone. Only `Qlow` depends on the forms and the exponents. -/
+theorem exists_forall_not_chain (R : SubspaceRoth.{u} K) {n : ℕ} (hn : 1 ≤ n)
+    (hcard : Fintype.card ι = n + 1) {Sfin : Finset (FinitePlace K)}
+    {L : AbsoluteValue K ℝ → ι → Dual K (ι → K)} {cf : AbsoluteValue K ℝ → ι → ℝ}
     (hLinf : ∀ w : InfinitePlace K, LinearIndependent K (L w.1))
     (hLfin : ∀ w ∈ Sfin, LinearIndependent K (L w.1))
     {ε : ℝ} (hε : 0 < ε) (hweight : approxWeight Sfin cf ≤ -ε / 2) {A : ℝ}
     (hA : approxAbsWeight Sfin cf ≤ A) (C₅ : ℝ) :
-    ∃ Qlow : ℝ, Qlow = chainThreshold Sfin L n ε A C₅ ∧
+    ∃ Qlow : ℝ, Qlow = chainThreshold Sfin L R.toRothParams n ε A C₅ ∧
       ∀ Q : Fin (subspaceChainLength n (Fintype.card (InfinitePlace K) + Sfin.card)
         ε A + 1) → ℝ, (∀ h, 1 < Q h) → (∀ h, Qlow ≤ Real.log (Q h)) →
         (∀ h : Fin (subspaceChainLength n (Fintype.card (InfinitePlace K) + Sfin.card) ε A),
-          2 * (subspaceRatio n (Fintype.card (InfinitePlace K) + Sfin.card) ε A)⁻¹
+          2 * (R.ratio n (Fintype.card (InfinitePlace K) + Sfin.card) ε A)⁻¹
             * Real.log (Q h.castSucc) ≤ Real.log (Q h.succ)) →
         (∀ h, Module.finrank K (approxSpan Sfin L cf (Q h)) = n) →
         (∀ h, ε * Real.log (Q h)
@@ -587,22 +718,14 @@ theorem exists_forall_not_chain {n : ℕ} (hn : 1 ≤ n) (hcard : Fintype.card �
       exact Nat.le_ceil _
     rw [div_lt_iff₀ hpos] at hmm
     linarith only [hmm, hpos]
-  -- the ratio `σ` of consecutive multidegrees
-  set σ : ℝ := (η / 4) ^ (2 ^ m) with hσdef
-  have hη40 : (0 : ℝ) < η / 4 := by linarith
-  have hσ0 : 0 < σ := by positivity
-  have hσ1 : σ ≤ 1 / 2 := by
-    have h1 : σ ≤ (η / 4) ^ 1 :=
-      pow_le_pow_of_le_one hη40.le (by linarith) Nat.one_le_two_pow
-    rw [pow_one] at h1
-    linarith
-  have hσrpow : σ ^ ((1 / 2 : ℝ) ^ m) = η / 4 := by
-    rw [hσdef, ← Real.rpow_natCast (η / 4) (2 ^ m), ← Real.rpow_mul hη40.le]
-    have hmul : ((2 ^ m : ℕ) : ℝ) * (1 / 2 : ℝ) ^ m = 1 := by
-      push_cast
-      rw [← mul_pow]
-      norm_num
-    rw [hmul, Real.rpow_one]
+  -- the ratio `σ` of consecutive multidegrees and the height cost of the Roth lemma
+  set s : ℕ := Fintype.card (InfinitePlace K) + Sfin.card with hsdef
+  set σ : ℝ := R.ratio n s ε A with hσdef
+  have hσ0 : 0 < σ := R.ratio_pos hε hA0
+  set F : ℝ := R.factor n s ε A with hFdef
+  have hF0 : 0 ≤ F := R.factor_nonneg hε hA0
+  set g : ℝ := R.shift n s ε A with hgdef
+  have hg0 : 0 ≤ g := R.shift_nonneg hε hA0
   -- Layer 5.2: the auxiliary polynomial
   have hmκ : 4 * Real.log (2 * ((n : ℝ) + 1) * (Fintype.card (InfinitePlace K ⊕ ↥Sfin) : ℕ))
       < ((n : ℝ) + 1) * ((n : ℝ) + 2) * η ^ 2 * (Fintype.card (Fin (m + 1)) : ℕ) := by
@@ -619,7 +742,7 @@ theorem exists_forall_not_chain {n : ℕ} (hn : 1 ≤ n) (hcard : Fintype.card �
   set Ca : ℝ := 2 * tw * ((n : ℝ) + 1) with hCadef
   set Cb : ℝ :=
     max (tw * Real.log (2 * ((n : ℝ) + 1) * (n : ℝ)) + max C₂ 0 + 2 * Hβ) 0 with hCbdef
-  set K₁ : ℝ := (n : ℝ) * σ⁻¹ * ((m : ℝ) + 1) * (max C₂ 0 + 4 * tw) with hK1def
+  set K₁ : ℝ := F * ((m : ℝ) + 1) * (max C₂ 0 + g * tw) with hK1def
   set Qlow : ℝ :=
     max 1 (max (8 * ((n : ℝ) + 1) * Cb / ε) (8 * Scard * (K₁ + max C₅ 0) / ε)) with hQlowdef
   refine ⟨Qlow, by rw [hQlowdef, hK1def, hCbdef, hC₂eq]; rfl, ?_⟩
@@ -705,7 +828,7 @@ theorem exists_forall_not_chain {n : ℕ} (hn : 1 ≤ n) (hcard : Fintype.card �
           ring
   have hK10 : 0 ≤ K₁ := by
     rw [hK1def]
-    have : (0 : ℝ) ≤ max C₂ 0 + 4 * tw := by positivity
+    have : (0 : ℝ) ≤ max C₂ 0 + g * tw := by positivity
     positivity
   have hScard0 : (0 : ℝ) < Scard := by
     rw [hScard]
@@ -721,36 +844,30 @@ theorem exists_forall_not_chain {n : ℕ} (hn : 1 ≤ n) (hcard : Fintype.card �
     le_trans (le_max_right _ _) (le_max_right _ _)
   have hDbig : 8 * Scard * K₁ / ε ≤ D := le_trans (le_max_right _ _) hDD₁
   -- the height hypothesis of the generalized Roth lemma
-  have hheight53 : ∀ h, (n : ℝ) * σ⁻¹ * (P.logHeight + 4 * ((m : ℝ) + 1) * (d 0 : ℝ) * tw)
+  have hheight53 : ∀ h, F * (P.logHeight + g * ((m : ℝ) + 1) * (d 0 : ℝ) * tw)
       ≤ (d h : ℝ) * Height.logHeight (M h) := by
     intro h
     have hlow : ε * q h / (4 * Scard) - C₅ ≤ Height.logHeight (M h) := by
       rw [hMh h]; exact hhgt h
-    have hlhs : (n : ℝ) * σ⁻¹ * (P.logHeight + 4 * ((m : ℝ) + 1) * (d 0 : ℝ) * tw)
+    have hlhs : F * (P.logHeight + g * ((m : ℝ) + 1) * (d 0 : ℝ) * tw)
         ≤ K₁ * (D / Qlow + 1) := by
       have hPle2 : P.logHeight ≤ max C₂ 0 * (((m : ℝ) + 1) * (D / Qlow + 1)) :=
         le_trans hPle (mul_le_mul_of_nonneg_left hDsumle (le_max_right _ _))
-      have hd0 : 4 * ((m : ℝ) + 1) * (d 0 : ℝ) * tw
-          ≤ 4 * ((m : ℝ) + 1) * (D / Qlow + 1) * tw :=
+      have hd0 : g * ((m : ℝ) + 1) * (d 0 : ℝ) * tw
+          ≤ g * ((m : ℝ) + 1) * (D / Qlow + 1) * tw :=
         mul_le_mul_of_nonneg_right
           (mul_le_mul_of_nonneg_left (hdle 0) (by positivity)) htw0
-      have hmul := mul_le_mul_of_nonneg_left (add_le_add hPle2 hd0)
-        (show (0 : ℝ) ≤ (n : ℝ) * σ⁻¹ by positivity)
+      have hmul := mul_le_mul_of_nonneg_left (add_le_add hPle2 hd0) hF0
       refine le_trans hmul (le_of_eq ?_)
       rw [hK1def]; ring
     exact le_mul_of_le_mul_div_add_one hε hScard0 hQlowpos hD0 (hq0 h) (hQlowh h)
       (Height.logHeight_nonneg _) (le_max_left C₅ 0) (le_max_right C₅ 0) hQbig hDbig hlow
       (Nat.le_ceil _) hlhs
   -- Layer 5.3: the index of `P` along the forms is small
-  have hindex := MvPolynomial.formIndex_le_of_degree_ratio hn hcard hd1 hσ0 hσ1 hratio hP0 hPhom
-    (fun h ↦ le_rfl) hM0 hheight53
-  rw [hσrpow] at hindex
-  have ht0 : (0 : ℝ) ≤ ((m : ℝ) + 1) * η / 2 := by positivity
   have hindex2 : MvPolynomial.formIndex (fun h ↦ (d h : ℝ)) M P
-      ≤ ENNReal.ofReal (((m : ℝ) + 1) * η / 2) := by
-    refine le_trans hindex (le_of_eq ?_)
-    congr 1
-    ring
+      ≤ ENNReal.ofReal (((m : ℝ) + 1) * η / 2) :=
+    R.formIndex_le hn hcard hε hA0 hd1 hratio hP0 hPhom hM0 hheight53
+  have ht0 : (0 : ℝ) ≤ ((m : ℝ) + 1) * η / 2 := by positivity
   -- the bridge: a derivative of small order surviving on `V(Q 0) × ⋯ × V(Q m)`
   have hyspan : ∀ (h : Fin (m + 1)) (x : ι → K), ∑ i, M h i * x i = 0 →
       x ∈ Submodule.span K (Set.range (yb h)) := by
@@ -860,7 +977,7 @@ most `m = subspaceChainLength n s ε A` intervals `[t, 4 σ⁻¹ t)` with `t ≥
 The proof is Lemma 7.5.21's dichotomy, Steps IV and VI (`NumberField.exists_forall_not_chain`),
 and a greedy covering (`Set.exists_forall_mem_Ico_of_not_exists_chain`). It picks no unbounded
 sequence of levels and does not use Northcott. -/
-theorem exists_forall_mem_interval_approxSpan {n : ℕ} (hn : 1 ≤ n)
+theorem exists_forall_mem_interval_approxSpan (R : SubspaceRoth.{u} K) {n : ℕ} (hn : 1 ≤ n)
     (hcard : Fintype.card ι = n + 1) {Sfin : Finset (FinitePlace K)}
     {L : AbsoluteValue K ℝ → ι → Dual K (ι → K)} {cf : AbsoluteValue K ℝ → ι → ℝ}
     (hLinf : ∀ w : InfinitePlace K, LinearIndependent K (L w.1))
@@ -869,20 +986,20 @@ theorem exists_forall_mem_interval_approxSpan {n : ℕ} (hn : 1 ≤ n)
     (hA : approxAbsWeight Sfin cf ≤ A) :
     ∃ (𝒲 : Set (Submodule K (ι → K))) (Q₀ : ℝ), 𝒲.Finite ∧
       𝒲.ncard ≤ 2 ^ ((n + 1) * (Fintype.card (InfinitePlace K) + Sfin.card)) ∧ 0 < Q₀ ∧
-      Q₀ = penultimateThreshold Sfin L n ε A ∧ ∀ Q₀' : ℝ, Q₀ ≤ Q₀' →
+      Q₀ = penultimateThreshold Sfin L R.toRothParams n ε A ∧ ∀ Q₀' : ℝ, Q₀ ≤ Q₀' →
         ∃ k ≤ subspaceChainLength n (Fintype.card (InfinitePlace K) + Sfin.card) ε A,
         ∃ t : Fin k → ℝ, (∀ i, Q₀' ≤ t i) ∧
         ∀ Q : ℝ, 1 < Q → Q₀' ≤ Real.log Q →
           Module.finrank K (approxSpan Sfin L cf Q) = n → approxSpan Sfin L cf Q ∉ 𝒲 →
           ∃ i, t i ≤ Real.log Q ∧ Real.log Q
-            < 4 * (subspaceRatio n (Fintype.card (InfinitePlace K) + Sfin.card) ε A)⁻¹ * t i := by
+            < 4 * (R.ratio n (Fintype.card (InfinitePlace K) + Sfin.card) ε A)⁻¹ * t i := by
   classical
   have hlk : 1 + n = Fintype.card ι := by rw [hcard]; ring
   obtain ⟨𝒲, C₄, C₅, C₆, h𝒲fin, h𝒲card, hC₄eq, hC₅eq, hdich⟩ :=
     exists_finite_forall_logHeight_approxSpan hlk hLinf hLfin hε hweight
   obtain ⟨Qlow, hQloweq, hchain⟩ :=
-    exists_forall_not_chain hn hcard hLinf hLfin hε hweight hA C₅
-  set σ := subspaceRatio n (Fintype.card (InfinitePlace K) + Sfin.card) ε A with hσdef
+    exists_forall_not_chain R hn hcard hLinf hLfin hε hweight hA C₅
+  set σ := R.ratio n (Fintype.card (InfinitePlace K) + Sfin.card) ε A with hσdef
   set m := subspaceChainLength n (Fintype.card (InfinitePlace K) + Sfin.card) ε A with hmdef
   set Q₀ : ℝ := max 1 (max Qlow (C₄ / ε)) with hQ₀def
   have hQ₀1 : 1 ≤ Q₀ := le_max_left _ _
@@ -923,9 +1040,10 @@ theorem exists_forall_approxSpan_mem {n : ℕ} (hn : 1 ≤ n) (hcard : Fintype.c
       Module.finrank K (approxSpan Sfin L cf Q) = n → approxSpan Sfin L cf Q ∈ 𝒲 := by
   classical
   obtain ⟨𝒲, Q₀, h𝒲fin, -, hQ₀, -, hint⟩ :=
-    exists_forall_mem_interval_approxSpan hn hcard hLinf hLfin hε hweight le_rfl
+    exists_forall_mem_interval_approxSpan (SubspaceRoth.bombieriGubler K) hn hcard hLinf hLfin hε
+      hweight le_rfl
   obtain ⟨k, -, t, -, ht⟩ := hint Q₀ le_rfl
-  set σ := subspaceRatio n (Fintype.card (InfinitePlace K) + Sfin.card) ε
+  set σ := (SubspaceRoth.bombieriGubler K).ratio n (Fintype.card (InfinitePlace K) + Sfin.card) ε
     (approxAbsWeight Sfin cf)
   have hsum0 : 0 ≤ ∑ i, |4 * σ⁻¹ * t i| := Finset.sum_nonneg fun i _ ↦ abs_nonneg _
   refine ⟨𝒲, h𝒲fin, Q₀ + ∑ i, |4 * σ⁻¹ * t i|, fun Q hQ1 hQ hrank ↦ ?_⟩

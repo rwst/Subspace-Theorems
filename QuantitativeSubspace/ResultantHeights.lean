@@ -5,6 +5,7 @@ Authors: Ralf Stephan
 -/
 module
 
+public import ForMathlib.NumberTheory.Height.PointHeight
 public import ForMathlib.NumberTheory.Height.SectionHeight
 public import ForMathlib.NumberTheory.Height.SpaceHeight
 public import QuantitativeSubspace.MultiprojectiveHeight
@@ -21,11 +22,14 @@ complex embeddings, e.g. number fields (`MvPolynomial.archEmbedded_of_numberFiel
 
 * nonnegativity is the product formula and `|f_m| ≤ M(f)` (`MvPolynomial.gaussHeight_nonneg`);
 * `h(ℙ) ≤ [K : ℚ] log M(det_{n_l + 1})` (`MvPolynomial.gaussHeight_resForm_bot_le`), so
-  `botBound n = log M(det_{n + 1})`;
+  `botBound n = log M(det_{n + 1}) ≤ (n + 1)(log (2(n + 1)) / 2 + 2)`
+  (`MvPolynomial.resultantHeight_botBound_le`);
 * the intersection inequality is `MvPolynomial.gaussHeight_resForm_sup_le` (Rémond's Thm 3.4 with
   Cor. 3.6, via Thm 2.2), split over the components by Thm 3.3
   (`MvPolynomial.resHeight_eq_cycleHeight`). The degree in the first form is the multidegree
-  (`MvPolynomial.exists_isWeightedHomogeneous_resForm_leftIndex_linIndex`).
+  (`MvPolynomial.exists_isWeightedHomogeneous_resForm_leftIndex_linIndex`);
+* the point bound is `MvPolynomial.logHeight_mul_le_gaussHeight_resForm`, transported to the
+  heights `h_β` by the same reindexing (`MvPolynomial.logHeight_mul_le_cycleHeight`).
 -/
 
 @[expose] public section
@@ -202,6 +206,38 @@ theorem cycleHeight_resHeight_sup_le (hK : ArchEmbedded K) (hb : Function.Surjec
   congr 2
   exact_mod_cast hD
 
+/-- **The point bound** (Evertse 1995, §5, p. 247) for the heights `h_β`: if `V(J)` projects to
+the point `P` in the block `h`, i.e. `J` contains the `P_s X_t - P_t X_s` (`b s = b t = h`), then
+`h_{β + ε_h}(V(J)) ≥ d_β(V(J)) log H(P)`. -/
+theorem logHeight_mul_le_cycleHeight (hK : ArchEmbedded K) (hb : Function.Surjective b)
+    {J : Ideal (MvPolynomial σ K)} (hJ : J.IsWeightedHomogeneous (multiWeight b)) {h : ι}
+    (P : σ → K) {s₀ : σ} (hs₀ : b s₀ = h) (hP₀ : P s₀ ≠ 0)
+    (hPJ : ∀ s t, b s = h → b t = h → C (P s) * X t - C (P t) * X s ∈ J) (β : ι →₀ ℕ)
+    (hβ : (hilbertPoly b J).totalDegree ≤ β.degree) :
+    (multidegree b J β : ℝ) * Height.logHeight (fun t : {t // b t = h} ↦ P t) ≤
+      cycleHeight b (resHeight b) J (β + Finsupp.single h 1) := by
+  obtain ⟨D, hD, hhom⟩ := exists_isWeightedHomogeneous_resForm_leftIndex_linIndex hb hJ
+    (Sigma.fst : LinForms β → ι) (by rw [card_linForms]; exact hβ) (Pi.single h 1)
+  rw [formCount_linForms] at hD
+  have hdeg : (hilbertPoly b J).totalDegree + 1 ≤ (β + Finsupp.single h 1).degree := by
+    rw [map_add, Finsupp.degree_single]
+    omega
+  have hcard : (hilbertPoly b J).totalDegree + 1 ≤ Nat.card (Option (LinForms β)) := by
+    rw [Nat.card_eq_fintype_card, Fintype.card_option, card_linForms]
+    omega
+  have key := logHeight_mul_le_gaussHeight_resForm hK hb hJ hcard rfl P hs₀ hP₀ hPJ hhom
+  rw [leftIndex_single_linIndex, gaussHeight_resForm_linIndex_congr hK
+    (τ := (Sigma.fst : LinForms (β + Finsupp.single h 1) → ι))
+    (by rw [formCount_linForms, formCount_option, formCount_linForms]) hb hJ
+    (by rw [card_linForms]; exact hdeg)] at key
+  rw [← resHeight_eq_cycleHeight hK hb hJ hdeg]
+  have hDR : (multidegree b J β : ℝ) = D := by
+    rw [← hD]
+    push_cast
+    rfl
+  rw [hDR]
+  exact key
+
 omit [Fintype ι] [Field K] [AdmissibleAbsValues K] in
 theorem card_block [Finite ι] (hb : Function.Surjective b) (i : ι) :
     #{s | b s = i} = bottomType b i + 1 := by
@@ -282,5 +318,12 @@ noncomputable def resultantHeight (hK : ArchEmbedded K) (hb : Function.Surjectiv
   height_bot_of_ne _ hβ hne := resHeight_bot_of_ne hK hb hβ hne
   cycleHeight_sup_le _ p δ hJ hp hcol β h1 hβ :=
     cycleHeight_resHeight_sup_le hK hb p δ hJ hp hcol β h1 hβ
+  logHeight_mul_le_cycleHeight _ _ P _ hJ hs₀ hP₀ hPJ β hβ :=
+    logHeight_mul_le_cycleHeight hK hb hJ P hs₀ hP₀ hPJ β hβ
+
+/-- The bound for `h(ℙ^n)` is at most `(n + 1)(log (2(n + 1)) / 2 + 2)`. -/
+theorem resultantHeight_botBound_le (hK : ArchEmbedded K) (hb : Function.Surjective b) (n : ℕ) :
+    (resultantHeight hK hb).botBound n ≤ (n + 1 : ℕ) * (Real.log (2 * (n + 1 : ℕ)) / 2 + 2) :=
+  detLogMahler_le (n + 1)
 
 end MvPolynomial

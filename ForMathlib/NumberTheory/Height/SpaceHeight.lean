@@ -5,6 +5,7 @@ Authors: Ralf Stephan
 -/
 module
 
+public import ForMathlib.Analysis.Polynomial.GaussianMahlerDet
 public import ForMathlib.NumberTheory.Height.LinearHeight
 public import ForMathlib.RingTheory.MvPolynomial.ResultantSpace
 public import Mathlib.LinearAlgebra.Matrix.MvPolynomial
@@ -18,8 +19,9 @@ By Rémond's Lemma 3.7 (`MvPolynomial.associated_resForm_bot`), the resultant fo
 contribute at most `0`, and each archimedean place `log M(det)`. Hence
 `h(α res(ℙ)) ≤ [K : ℚ] log M(det_{n_j + 1})` (`MvPolynomial.gaussHeight_resForm_bot_le`), with
 the Gaussian Mahler measure `MvPolynomial.detLogMahler` of the generic determinant, and
-`h(α res(ℙ)) = 0` in the degenerate cases (`MvPolynomial.gaussHeight_resForm_bot_of_isUnit`).
-(Rémond computes these heights exactly, LNM 1752, Ch. 7, Cor. 2.4.)
+`h(α res(ℙ)) = 0` in the degenerate cases (`MvPolynomial.gaussHeight_resForm_bot_eq_zero`).
+Numerically, `log M(det_N) ≤ N (log (2N) / 2 + 2)` (`MvPolynomial.detLogMahler_le`). (Rémond
+computes these heights exactly, LNM 1752, Ch. 7, Cor. 2.4.)
 -/
 
 @[expose] public section
@@ -31,6 +33,10 @@ namespace MvPolynomial
 /-- `log M(det (x_{ij}))`: the Gaussian Mahler measure of the generic `N × N` determinant. -/
 noncomputable def detLogMahler (N : ℕ) : ℝ :=
   gaussLogMahler (Matrix.mvPolynomialX (Fin N) (Fin N) ℂ).det
+
+/-- `log M(det_N) ≤ N (log (2N) / 2 + 2)`, by Hadamard's inequality. -/
+theorem detLogMahler_le (N : ℕ) : detLogMahler N ≤ N * (log (2 * N) / 2 + 2) :=
+  gaussLogMahler_det_mvPolynomialX_le N
 
 theorem scaleVars_one {τ : Type*} (P : MvPolynomial τ ℂ) : scaleVars (fun _ ↦ 1) P = P := by
   change aeval (fun t ↦ C 1 * X t) P = P

@@ -45,7 +45,7 @@ with its own record holder. The summit of this roadmap is the conjunction of the
 | Number of subspaces containing the **large** solutions, linear forms, number field `K` | Evertse–Ferretti 2013: `10^9 · 2^{2n} · n^{14} · δ^{-3} · log(3δ^{-1}RD) · log(δ^{-1} log 3RD)` (as stated in Evertse 2010, Thm 2.1) | Q0 landed at Schmidt's parameters (Q0.3). Q1 started: the multigraded Hilbert polynomial and its degrees (Q1.1a–d, the excess Bézout inequality modulo Cohen–Macaulay) and the multiplicity estimate against degree (Q1.1e, with the transversal equations and the positivity of the degree in characteristic `0`, i.e. Rémond 2001 Prop. 2.1 modulo unmixedness) are in `ForMathlib`. Q1.2, the geometric product theorem with its degree bound and corollary (Rémond 2001 Thm 1.1 and Cor. 1.1, i.e. Ev95 Thm 1 and Corollary with better constants), is in `QuantitativeSubspace/`, modulo the same unmixedness. DA 9.4 turns any *interval result* into this kind of count. DA 6.1 now has one with explicit counts and ratio (Q0.2d), and its threshold `Q₀` is at most `a · (formLogHeight + log |D_K| + ∑ log N(v) + 1)` with `a` explicit in `N`, `d`, `|S|`, `ε` and `A` (Q0.2e, `parametricThreshold_le`). Q0.3 feeds it to 9.4: the solutions of a normalized system above `X₀`, linear in `log H`, lie in a number of subspaces depending on `n`, `δ`, the degrees, the number of places and `|S|` alone; all solutions in that plus `O(log X₀)` plus 9.3's count (`exists_finset_submodule_of_isNormalizedSystem`). |
 | Number of subspaces containing the **small** solutions | Evertse 2010, Thm 2.2: `δ^{-1}((10^3 n)^{nd} + 4n log log 4H)`; over `ℚ`, `δ^{-1}(10^{3n} + 4n log log 4H)` | **Landed**, DA 9.3. |
 | **Absolute** form: points in `ℚ̄ⁿ`, count independent of the field | Evertse–Schlickewei 2002 (parametric, twisted heights), sharpened by Evertse–Ferretti 2013 | Not started. |
-| `n = 2`: **quantitative Roth / Ridout** | Bugeaud–Evertse 2008, Appendix (improving Davenport–Roth 1955, Bombieri–van der Poorten 1988, Evertse 1996/97) | Davenport–Roth-strength count landed, DA 3.7. |
+| `n = 2`: **quantitative Roth / Ridout** | Bugeaud–Evertse 2008, Appendix (improving Davenport–Roth 1955, Bombieri–van der Poorten 1988, Evertse 1996/97) | Davenport–Roth-strength count landed, DA 3.7. Bugeaud–Evertse's `δ⁻³ log · log` shape landed for systems in two variables (Q1.6, `systemLargeCountTwo_evertse_le`), with extra factors `t⁴`, `4 ^ s` and the grid count. |
 | **Higher degree**: hypersurfaces and projective varieties | Evertse–Ferretti 2008 (general position); Quang 2022 (subgeneral position, better Chow-weight bound) | Not started. |
 
 **No improvement of the Evertse–Ferretti 2013 count for linear forms was found in the literature
@@ -346,7 +346,9 @@ Two consequences for the plan:
 - **What the later papers consume is not Thm 3 itself** but Ev96 Lemma 26 (= EF13 Prop. 12.1): a
   non-vanishing statement at grid points of hyperplanes `T_h ⊂ ℚ̄^N`, with `r_h/r_{h+1} ≥ 2m²/ε`
   and `H₂(T_h)^{r_h} ≥ (e^{r₁+⋯+r_m} H₂(P))^{(N−1)(3m²/ε)^m}`. It is the analogue of DA 5.3.
-  (?) How Ev96 derives it from Ev95 (Thm 3 or the Corollary) is still to be read.
+  ✅ Read (2026-10-02): from Thm 3 alone. Ev96 Lemma 24 reduces hyperplanes to points of `ℙ¹`
+  by Schmidt's elimination (Bombieri–Gubler 7.5.19's reduction), and Lemma 26 adds a grid
+  argument (Lemma 25, Schmidt's Lemma 8A), which is DA Layers 5.5–5.6.
 
 **Milestones.**
 
@@ -626,13 +628,121 @@ Two consequences for the plan:
     embeddings, e.g. number fields. `h_β(𝔮)` is the height of Rémond's remodeled resultant form
     in `|β|` generic linear forms, with a Gaussian Mahler measure in place of the sphere measure
     at the archimedean places. `botBound n = log M(det_{n+1})`, the Gaussian Mahler measure of
-    the generic determinant. H1–H2 follow route (ii), H3–H6 route (i); see the milestones below.
-  - Open: an explicit numerical bound for `log M(det_{n+1})` (Hadamard or second moments), and
-    the point bound (L) of Ev95 §5, which Q1.4 needs.
+    the generic determinant, and `log M(det_N) ≤ N (log (2N) / 2 + 2)`
+    (`resultantHeight_botBound_le`, by Hadamard's inequality and Jensen;
+    `ForMathlib/Analysis/Polynomial/GaussianMahlerDet.lean`). H1–H2 follow route (ii), H3–H6
+    route (i); see the milestones below.
+  - ✅ The point bound (L) of Ev95 §5 (p. 247), as the interface field
+    `logHeight_mul_le_cycleHeight`: if `J ∋ P_s X_t - P_t X_s` (`b s = b t = h`), then
+    `h_{β + ε_h}(V(J)) ≥ d_β(V(J)) log H(P)` (2026-10-01). Specializing the other forms into an
+    algebraic closure, the resultant form becomes `c (u · P)^D`: its zeros come from zeros of `J`
+    (`exists_zero_of_eval_specEval_resForm`), which are proportional to `P` in the block `h`.
+    Lifting back gives `P_{s₀}^D res = (u · P)^D g` (`C_mul_resForm_eq`,
+    `ForMathlib/RingTheory/MvPolynomial/ResultantPoint.lean`), and Gauss additivity with
+    nonnegativity gives the bound (`ForMathlib/NumberTheory/Height/PointHeight.lean`).
 - **Q1.4** Ev95 Thm 2 and Thm 3, the improved Roth lemma on `(ℙ¹)^m`.
+  - ✅ Thm 3, Roth's lemma (`exists_mul_logHeight_le`, `RothLemma.lean`, 2026-10-01), for every
+    `MultiprojectiveHeight`, modulo unmixedness as in Q1.2. If `δ_i / δ_{i+1} > m²/ε` and `F`
+    vanishes to index `ε` at `P ∈ (ℙ¹(K))^m`, then some `k` has
+    `δ_k h(P_k) ≤ max(1, m²/ε)^m ([K : ℚ] h(ℙ¹) |δ| + m (h(F) + [K : ℚ] (|δ| log 2 +
+    m log |δ| + m)))`.
+    Evertse's condition is `δ_i / δ_{i+1} ≥ 2m³/ε`.
+  - The geometric heart is a sharper product theorem for any blocks
+    (`exists_eRk_lt_and_mul_height_le`): with `δ_i / δ_{i+1} > m/ε` in place of Rémond's
+    `(m/ε)^t`, some projection of `V(𝔭)` is not onto. Ev95's Lemma 11 (tangent spaces at smooth
+    points) becomes the bound `∑_k G_k ≥ ∑_i r(B_i) - r(σ)` on the cut excesses
+    `G_k = r(P_k) + r(σ \ P_k) - r(σ)` of the algebraic matroid of the variables, by
+    submodularity (`exists_cutExcess`). The descent runs below the point ideal of `P`
+    (`ForMathlib/RingTheory/MvPolynomial/PointIdeal.lean`), and the point bound (L) closes it.
+  - Not done: Thm 2 (the height bound for the factors of a product). Q1.5 did not need it.
 - **Q1.5** Ev96 Lemma 26, the grid form that replaces DA 5.3 in the Subspace proofs.
-- **Q1.6** Re-run Q0 with Q1.5. That gives Ev96's singly exponential count, and on the way the
-  quantitative Roth theorem of Bugeaud–Evertse 2008 (Appendix), the best known for `n = 2`.
+  - ✅ Ev96 Lemma 24 (`formIndex_le_of_sq_lt_ratio`, `GeneralizedRothLemma.lean`, 2026-10-02),
+    stated like DA 5.3 (`formIndex_le_of_degree_ratio`) so that it can replace it: if
+    `d_h / d_{h+1} > m²/θ`, `P ≠ 0` has multidegree at most `d` in blocks of `n + 1` variables,
+    and every form has `d_h h(M_h) > n B` with `B` the bound of Q1.4 at `h(P)`, then the index
+    of `P` along the forms is at most `θ`. With Evertse's `Θ = θ/m` the ratio condition is
+    `m/Θ` against his `2m²/Θ`. The proof is DA 5.3's elimination to two coordinates per block,
+    then the bridge `formIndex_le_index` (index along forms ≤ index at their common zero), a
+    renaming to `(ℙ¹)^m`, padding the multidegree to `d`, and Q1.4.
+  - The grid half of Lemma 26 is DA 5.5–5.6 unchanged
+    (`exists_linSubst_hasseDeriv_ne_zero_of_formIndex_le`, `exists_eval_hasseDeriv_ne_zero`):
+    they take the index along the forms as input, so Q1.6 only swaps the 5.3 call.
+- **Q1.6** Re-run Q0 with Q1.5, and the quantitative Roth theorem of Bugeaud–Evertse 2008
+  (Appendix), the best known for `n = 2`. **Done** (2026-10-02). Ev96's singly exponential count
+  for general `n` turned out to need more than the Roth lemma; it is Q1.7.
+  - ✅ The Q0 chain takes the Roth lemma as a parameter (2026-10-02). Steps IV and VI use DA 5.3
+    once, and everything after sees it only through the ratio `σ` and the height cost
+    `F (h(P) + g (m + 1) d₀ [K : ℚ])`. `NumberField.RothParams` (`σ`, `F`, `g`) and
+    `NumberField.SubspaceRoth` (those plus the index bound) in `PenultimateMinimum.lean` are
+    threaded through 5.6, 6.1 (`ParametricSubspace.lean`), the thresholds (`ThresholdBound.lean`)
+    and Q0.3 (`SystemSubspaceCount.lean`). Bombieri–Gubler's is `SubspaceRoth.bombieriGubler`; the
+    qualitative milestones use it and keep their statements.
+  - ✅ Evertse's (`SubspaceRoth.evertse`, `QuantitativeSubspace/SubspaceCount.lean`), from Q1.5
+    with `θ = (m + 1) η / 2`: `σ = η / (4 (m + 1))` in place of `(η / 4) ^ (2 ^ m)`, so the
+    intervals have ratio `16 (m + 1) / η` (`four_mul_inv_evertseRatio`) and the `log ρ` in the
+    counts drops from `2 ^ m log (4 / η)` to `log (16 (m + 1) / η)`. The height cost is
+    `F = n max(1, 2 (m + 1) / η) ^ (m + 1) (m + 1)`, `g = max(h(ℙ¹), 0) + m + 2`. Corollaries:
+    5.6 as an interval result (`exists_forall_mem_interval_approxSpan_evertse`) and Q0.3's count
+    (`exists_finset_submodule_of_isNormalizedSystem_evertse`). They take a `MultiprojectiveHeight`
+    on `(ℙ¹)^m` and the Cohen–Macaulay hypothesis for every `m`, as Q1.4 does for one.
+  - ✅ Closed forms (2026-10-02). With `X = 1 + 8 (n + 1) ^ 2 (A + 1) / ε ≥ η⁻¹` and
+    `T = 2 (1 + log (2 (n + 1) s)) X ^ 2 ≥ m + 1` (`inv_subspaceEta_le`,
+    `subspaceChainLength_add_one_le`):
+    - the ratio: `4 σ⁻¹ ≤ 16 T X` (`four_mul_inv_evertseRatio_le`), so
+      `log ρ = O(log (n s (A + 1) / ε))`; summed over the steps of 6.1:
+      `parametricRatio_evertse_le`;
+    - the thresholds: the coefficients of DA are monotone in the height cost
+      (`penultimateCoeff_mono`, `parametricCoeff_mono`, `ThresholdBound.lean`), and Evertse's cost
+      is at most `F ≤ n T exp (T log (2 T X))`, `g ≤ max(β, 0) + T + 1` for `β ≥ h(ℙ¹)`
+      (`evertse_factor_le`, `evertse_shift_le`). These are the parameters
+      `RothParams.evertseBound`, and `penultimateThreshold_evertse_le`,
+      `parametricThreshold_evertse_le` bound the thresholds of 5.6 and 6.1 by their coefficients
+      times `Λ`. The logarithm of the coefficient is now `O(T log (T X))`, polynomial in
+      `(A + 1) / ε`, against `2 ^ m log (4 / η)` for Bombieri–Gubler.
+  - ✅ The count in closed form against Ev96 (`SubspaceCountBound.lean`, 2026-10-02):
+    `systemLargeCount_evertse_le` gives `Z ^ (t n + 2 ^ n (2 d + e u) + 13)` with
+    `Z = 2 ^ (n + 12) n ^ 6 t ^ 2 d ^ 2 / δ`, `d = [E : ℚ]`, `e = [E : K]`, `t = |S|`, `u = |S_fin|`;
+    Q0.3 with it: `exists_finset_submodule_of_isNormalizedSystem_evertse_le`. Ev96 Thm (i):
+    `(2 ^ (60 n ^ 2) δ ^ (-7 n)) ^ s log 4D log log 4D`. So:
+    - `δ`: polynomial in `δ⁻¹` like Ev96 (with Bombieri–Gubler's lemma it is exponential in a
+      power of `δ⁻¹`), exponent `t n + 2 ^ n (2 d + e u)` against `7 n s`;
+    - `n`: doubly exponential (`2 ^ n` in the exponent) against Ev96's `2 ^ (60 n ^ 2 s)`;
+    - degree: `[E : ℚ]` in the exponent against Ev96's `log 4D log log 4D`.
+    The last two gaps are Layer 6.1's grid covering (`(2 m + 1) ^ ([E : ℚ] binom(n, p))` grids),
+    not the Roth lemma. Reaching Ev96's shape means replacing that covering.
+  - ✅ Two variables, Bugeaud–Evertse's case (`SubspaceCountTwo.lean`, 2026-10-02). For `#ι = 2`
+    the domains at large levels have rank `0` or `1 = #ι - 1`, so Layer 5.6 applies to them
+    directly and 6.1's wedges and grids are not needed:
+    - `exists_forall_mem_interval_approxDomain_two`: the parametric theorem as an interval
+      result, `2 ^ (2 s) + 1` subspaces and `m` intervals of ratio `4 σ⁻¹`, any Roth lemma; its
+      threshold `twoThreshold` is linear in the heights (`twoThreshold_le`);
+    - Q0.3's assembly now takes any interval result
+      (`exists_finset_submodule_of_forall_interval`,
+      `exists_finset_submodule_of_isNormalizedSystem_of_large` in `SystemSubspaceCount.lean`;
+      the 6.1 theorems are instances), so the system theorem for `n = 2` is
+      `exists_finset_submodule_of_isNormalizedSystem_two` (`_evertse` with Evertse's lemma),
+      threshold `systemThresholdTwo_le`;
+    - closed form `systemLargeCountTwo_evertse_le`:
+      `G (4 ^ s + 1 + 2 ℓ Y² (1 + 5 log (32 ℓ Y³) / δ))`, `ℓ = 1 + log (4 s)`, `Y = 833 t² / δ`,
+      `s = d + e u`. The main term is `O(t⁴ δ⁻³ log s · log (t δ⁻¹ log s))`, Bugeaud–Evertse's
+      `225 δ⁻³ log (2 r) log (δ⁻¹ log (2 r))` with places `s` for forms `r`. Extra: `t⁴` from the
+      absolute weight `A` of Q0.3's clamped exponents (BE normalize `∑ max c ≤ 1`, (A.7)); the
+      `4 ^ s + 1` exceptional subspaces of 5.4 (BE's Lemma A.5 = Ev96 Lemma 12.4 has one); the
+      grid factor `G` of a *system* (BE's Prop. A.1 is parametric, like
+      `exists_forall_mem_interval_approxDomain_two`, which has no `G`).
+  - The chain length needs no change. Ours is `⌈4 log (2 (n + 1) s) / ((n + 1) (n + 2) η²)⌉`
+    with `η ≍ ε / ((n + 1)² (A + 1))` (5.2's Siegel lemma), BE's (A.26) is
+    `1 + ⌊25600 δ⁻² log (2 r)⌋`: the same `δ⁻² log` shape, up to `s` for `r` and the factor `A`.
+- **Q1.7** Ev96's singly exponential count for general `n`: replace Layer 6.1's grid covering.
+  The `2 ^ n [E : ℚ]` in the exponent of `systemLargeCount_evertse_le` comes from
+  `wedgeExponent`, which shifts the exponents of `⋀^p` by the minima *per place and per
+  `p`-subset* (Bombieri–Gubler 7.5.32), so 6.1 rounds them to `(2 m + 1) ^ ([E : ℚ] binom(n, p))`
+  grids. Ev96 keeps the exponents of the compound fixed: `λ₁ ≤ Q^{-δ}` and `λ₁ ⋯ λₙ ≍ 1` give
+  `λₙ ≥ Q^{δ / (n - 1)}`, so `y₁ ∧ ⋯ ∧ yₙ₋₁` has twisted height `≤ Q^{-δ / (n - 1)}` in
+  `⋀^{n - 1}` with exponents that do not move. The cost is that this domain need not have rank
+  `M - 1`, so 5.6 does not apply as is; Ev96 Lemma 12.4 (BE Lemma A.5) and the first-minimum
+  form of the Roth argument take its place. ⚠ A sketch from Ev96's statements and BE's appendix;
+  read Ev96 §§ 12–17 before turning it into milestones.
 
 **Is there a more elementary route to Ev95's Thm 3 strength?** (searched 2026-09-30)
 
@@ -725,8 +835,8 @@ Two consequences for the plan:
     formula, circle averages and `Module.length`. It has no sphere Mahler measure, no Samuel
     multiplicity and no multigraded Hilbert polynomial.
 - **Q1.4–Q1.5.** Thm 3 on `(ℙ¹)^m` and Ev96 Lemma 26 have to be re-derived from Rémond's Thm 1.1.
-  That is bookkeeping of the kind Ev95 §5 does. (?) It remains to check that the constants still
-  give Ev96's shape.
+  That is bookkeeping of the kind Ev95 §5 does. Thm 3 is done (Q1.4), with a better ratio
+  condition than Ev95's. (?) It remains to check that the constants still give Ev96's shape.
 
 **Q1.3, route (ii): plan (2026-10-01).**
 
@@ -739,8 +849,8 @@ Two consequences for the plan:
   - The point bound (L): if the `h`-th projection of `Z` is a point `P_h`, then
     `h(Z, L^e L_h) ≥ log H(P_h) (Z · L^e)` (p. 247). In Rémond's terms the resultant form
     of `Z` of index `(ε_h, rest)` is `λ (u · P_h)^{d_e(Z)}`.
-- (?) The errors should go into the `d_1 + ⋯ + d_m` term of Thm 3, at the price of a worse
-  constant. Confirm this in the Q1.4 bookkeeping.
+- ✅ The errors go into the `d_1 + ⋯ + d_m` term of Thm 3, at the price of a worse constant
+  (confirmed by `exists_mul_logHeight_le`, Q1.4).
 
 *Definition (LNM 1752 Ch. 7 §2.3).*
 - `h_a(V)` is the height of `α_d f`, where `f` is a resultant (Chow) form of `V` of index
@@ -843,8 +953,10 @@ Two consequences for the plan:
   - ✅ Nonnegativity: `|f_m| ≤ M(f)` for a monomial `m` depending only on the support (Jensen and
     rotation invariance), then the product formula (`gaussHeight_nonneg`). Rémond's Arakelov
     argument is not needed.
-  - ✅ `h(ℙ) ≤ [K : ℚ] log M(det_{n_j+1})` (`ForMathlib/NumberTheory/Height/SpaceHeight.lean`).
-  - Open: the point bound (L).
+  - ✅ `h(ℙ) ≤ [K : ℚ] log M(det_{n_j+1})` (`ForMathlib/NumberTheory/Height/SpaceHeight.lean`),
+    with `log M(det_N) ≤ N (log (2N) / 2 + 2)` (`detLogMahler_le`).
+  - ✅ The point bound (L) (`logHeight_mul_le_gaussHeight_resForm`,
+    `ForMathlib/NumberTheory/Height/PointHeight.lean`).
 - ✅ **H5. The intersection inequality** (`ForMathlib/NumberTheory/Height/SectionHeight.lean`;
   for cycles via Thm 3.3 for heights, `LinearHeight.lean`, and the degree in the first form,
   `ResultantLinear.lean`). The error is exactly Rémond's `d_β(V) h_m(P)`.
@@ -855,7 +967,8 @@ Two consequences for the plan:
     Prop. 2.16.
 - ✅ **H6. Interface.** Only `height_bot_*` had to be weakened (to `height_bot_single_le` with a
   field `botBound`); `cycleHeight_sup_le` holds as stated. The height theorems of Q1.1–Q1.2 were
-  re-run, and `resultantHeight` instantiates the interface. (L) is still to be added.
+  re-run, and `resultantHeight` instantiates the interface. (L) was added as the field
+  `logHeight_mul_le_cycleHeight`.
 
 Q1.1 does not depend on the Q1.3 decision. Q1.1a–d have landed, the excess Bézout inequality of
 Q1.1d(iv) modulo the unmixedness of `B_𝔭` (Cohen–Macaulay, expected from Mathlib). Q1.1e has the
@@ -867,8 +980,8 @@ unmixedness: Rémond's Thm 1.1 and Cor. 1.1, geometric parts (`productTheorem_in
 `exists_productTheorem_indexIdeal`). Q1.3 (heights): the height parts of Thm 1.1 and Cor. 1.1
 hold for every `MultiprojectiveHeight` (`productTheorem_indexIdeal_height`,
 `exists_productTheorem_indexIdeal_height`), with Rémond's error term via his Lemma 5.2, and
-actual heights of resultant forms satisfy the interface (`resultantHeight`). Left for Q1.4: the
-point bound (L) and a numerical bound for `log M(det_{n+1})`.
+actual heights of resultant forms satisfy the interface (`resultantHeight`), with
+`h(ℙ^n) ≤ [K : ℚ](n + 1)(log (2(n + 1)) / 2 + 2)`, and the point bound (L) of Ev95 §5 holds.
 
 ### Layer Q2: the absolute theory (Roy–Thunder 1996, Evertse–Schlickewei 1999/2002)
 

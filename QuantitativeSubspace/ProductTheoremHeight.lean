@@ -148,51 +148,36 @@ theorem prod_pow_mul_pow_mul_height_le [CharZero K] [Height.AdmissibleAbsValues 
   refine ⟨P, hPa, fun β hβ ↦ (mul_le_mul_of_nonneg_right hmult ?_).trans (hh β hβ)⟩
   exact H.height_nonneg 𝔭 inferInstance h𝔭 hne β
 
-/-- **Rémond's product theorem with heights** (Rémond 2001, Thm 1.1). Under the hypotheses of
-`MvPolynomial.productTheorem`, with `R` finite, let `H` be a multiprojective height theory and `B`
-a monotone bound for the polynomial heights of the nonzero natural combinations of `R`:
-`h_m(∑_r a_r r) ≤ B(∑_r a_r)`. Then `V(𝔭)` is a component of the product of its projections, with
-type `β` as in `MvPolynomial.productTheorem`, and for every `k` with `β_k < n_k`
-`ε^t δ_k h_{β + ε_k}(𝔭) ≤ ∑_l h(ℙ^{n_l}) δ_l #F_l + (∑_{j < t} max(B(|δ|^j), 0)) #G_k`,
-`F_l = {f : Fin t → Fin m | β + ε_k + ∑_j ε_{f j} = n + ε_l}`,
-`G_k = {g : Fin (t - 1) → Fin m | β + ε_k + ∑_j ε_{g j} = n}`. -/
-theorem productTheorem_height [CharZero K] [Height.AdmissibleAbsValues K] {m : ℕ}
-    {b : σ → Fin m} (hb : Function.Surjective b) (H : MultiprojectiveHeight b)
-    (hU : IsUnmixedRing (Localization.AtPrime 𝔭)) {δ : Fin m → ℕ}
-    {R : Finset (MvPolynomial σ K)} (hR : ∀ r ∈ R, IsWeightedHomogeneous (multiWeight b) r δ)
-    (h𝔭R : 𝔭 ∈ (Ideal.span (R : Set (MvPolynomial σ K))).minimalPrimes)
-    (h𝔭 : 𝔭.IsWeightedHomogeneous (multiWeight b)) (hne : hilbertPoly b 𝔭 ≠ 0) {t : ℕ}
-    (ht : 𝔭.height = t) (hδ : ∀ i, 0 < δ i) {ε : ℝ} (hε : 0 < ε)
-    {R' : Set (MvPolynomial σ K)} (hRR' : Ideal.span (R : Set (MvPolynomial σ K)) ≤ Ideal.span R')
-    (hI : ∀ P ∈ R', ∀ κ : σ →₀ ℕ, Finsupp.weight (fun s ↦ ((δ (b s) : ℝ))⁻¹) κ ≤ ε →
-      hasseDeriv κ P ∈ 𝔭)
-    (hanti : Antitone δ)
-    (hratio : ∀ i j : Fin m, (i : ℕ) + 1 = j → (m : ℝ) ^ t < ε ^ t * (δ i / δ j))
-    {B : ℕ → ℝ} (hBmono : Monotone B)
-    (hRB : ∀ a : MvPolynomial σ K → ℕ, ∑ r ∈ R, a r • r ≠ 0 →
-      bombieriLogHeight b (∑ r ∈ R, a r • r) ≤ B (∑ r ∈ R, a r)) :
-    𝔭 ∈ (Ideal.span {f | f ∈ 𝔭 ∧ ∃ i, f ∈ supported K {s | b s = i}}).minimalPrimes ∧
-      ∃ β : Fin m →₀ ℕ, (∀ i, (β i : ℕ∞) + 1 = (varMatroid 𝔭).eRk {s | b s = i}) ∧
-        1 ≤ multidegree b 𝔭 β ∧
-        ε ^ t * multidegree b 𝔭 β ≤
-          #(univ.filter fun f : Fin t → Fin m ↦
-            β + ∑ j, Finsupp.single (f j) 1 = bottomType b) ∧
-        #(univ.filter fun f : Fin t → Fin m ↦
-          β + ∑ j, Finsupp.single (f j) 1 = bottomType b) ≤ m ^ t ∧
-        ∀ k, β k < bottomType b k →
-          ε ^ t * δ k * H.height 𝔭 (β + Finsupp.single k 1) ≤
-            ∑ l, Height.totalWeight K * H.botBound (bottomType b l) * δ l *
-                #(univ.filter fun f : Fin t → Fin m ↦ β + Finsupp.single k 1 +
-                  ∑ j, Finsupp.single (f j) 1 = bottomType b + Finsupp.single l 1) +
-              (∑ j ∈ range t, max (B ((∑ i, δ i) ^ j)) 0) *
-                #(univ.filter fun g : Fin (t - 1) → Fin m ↦ β + Finsupp.single k 1 +
-                  ∑ j, Finsupp.single (g j) 1 = bottomType b) := by
+omit [Fintype σ] in
+/-- `|β| = |n| - t` for the type `β` of a set `T` of variables meeting every block, with
+`t + |T| = |σ|`. -/
+theorem degree_coneType_eq_sub [Finite σ] {m : ℕ} {b : σ → Fin m} (hb : Function.Surjective b)
+    {T : Finset σ} (hTb : ∀ i, ∃ s ∈ T, b s = i) {t : ℕ} (hcard : t + #T = Nat.card σ) :
+    (coneType b T).degree = (bottomType b).degree - t ∧ t ≤ (bottomType b).degree := by
+  have hd1 : (coneType b T).degree + Fintype.card (Fin m) = #T := degree_coneType_add_card b hTb
+  have hd2 := degree_bottomType_add_card hb (σ := σ)
+  omega
+
+/-- **The Bézout sums of `ℙ` in the type of a basis** (Rémond 2001, proof of Thm 1.1). Let `T` be
+a set of variables meeting every block, `β` its type, with `t + |T| = |σ|`, and `c_i` the number
+of variables of block `i` outside `T`. Then for `γ = β + ε_k` and every `S`,
+`δ_k (∑_f ∏ δ_{f j} h_{γ + ∑ ε_{f j}}(ℙ) + S ∑_g ∏ δ_{g j} d_{γ + ∑ ε_{g j}}(ℙ))
+  ≤ ∏_i δ_i^{c_i} (∑_l h(ℙ^{n_l}) δ_l #F_l + S #G_k)`,
+with `F_l` and `G_k` as in `MvPolynomial.productTheorem_height`. -/
+theorem mul_bezoutSum_add_le [Height.AdmissibleAbsValues K] {m : ℕ} {b : σ → Fin m}
+    (hb : Function.Surjective b) (H : MultiprojectiveHeight (K := K) b) {δ : Fin m → ℕ}
+    (hδ : ∀ i, 0 < δ i) {T : Finset σ} (hTb : ∀ i, ∃ s ∈ T, b s = i) {t : ℕ}
+    (hcard : t + #T = Nat.card σ) (k : Fin m) (S : ℝ) :
+    (δ k : ℝ) * (bezoutSum δ t (H.height ⊥) (coneType b T + Finsupp.single k 1) +
+      S * bezoutSum δ (t - 1) (fun γ' ↦ (multidegree b (⊥ : Ideal (MvPolynomial σ K)) γ' : ℝ))
+        (coneType b T + Finsupp.single k 1)) ≤
+      (∏ i, (δ i : ℝ) ^ {s | s ∉ T ∧ b s = i}.ncard) *
+        (∑ l, Height.totalWeight K * H.botBound (bottomType b l) * δ l *
+            #(univ.filter fun f : Fin t → Fin m ↦ coneType b T + Finsupp.single k 1 +
+              ∑ j, Finsupp.single (f j) 1 = bottomType b + Finsupp.single l 1) +
+          S * #(univ.filter fun g : Fin (t - 1) → Fin m ↦ coneType b T + Finsupp.single k 1 +
+              ∑ j, Finsupp.single (g j) 1 = bottomType b)) := by
   classical
-  obtain ⟨T, hB, hadapt, hTb, hcard, hineq, P, hPa, hh⟩ :=
-    prod_pow_mul_pow_mul_height_le hb H hU hR h𝔭R h𝔭 hne ht hδ hε hRR' hI
-  obtain ⟨hmin, hrk, hpos, hle, hcount⟩ :=
-    productTheorem_of_basis hb h𝔭 hne hδ hε hanti hratio hB hadapt hTb hcard hineq
-  refine ⟨hmin, coneType b T, hrk, hpos, hle, hcount, fun k hk ↦ ?_⟩
   set β := coneType b T
   -- The codimensions `c = bottomType b - β`.
   have hcβ : ∀ i, {s | s ∉ T ∧ b s = i}.ncard + β i = bottomType b i := by
@@ -216,10 +201,7 @@ theorem productTheorem_height [CharZero K] [Height.AdmissibleAbsValues K] {m : �
     simp only [c, Finsupp.coe_add, Finsupp.coe_tsub, Pi.add_apply, Pi.sub_apply]
     have := hcβ i
     omega
-  have hd1 : β.degree + Fintype.card (Fin m) = #T := degree_coneType_add_card b hTb
-  have hd2 := degree_bottomType_add_card hb (σ := σ)
-  have hβdeg : β.degree = (bottomType b).degree - t := by omega
-  have htn : t ≤ (bottomType b).degree := by omega
+  obtain ⟨hβdeg, htn⟩ : β.degree = _ ∧ _ := degree_coneType_eq_sub hb hTb hcard
   set Pc := ∏ i, (δ i : ℝ) ^ c i
   have hPc : 0 < Pc := Finset.prod_pos fun i _ ↦ pow_pos (Nat.cast_pos.mpr (hδ i)) _
   have hPc' : ∏ i, (δ i : ℝ) ^ {s | s ∉ T ∧ b s = i}.ncard = Pc :=
@@ -296,7 +278,62 @@ theorem productTheorem_height [CharZero K] [Height.AdmissibleAbsValues K] {m : �
       rw [← mul_assoc, this]
       simp
     · simp
-  -- Combine and divide by `Pc`.
+  rw [hPc']
+  calc (δ k : ℝ) * (bezoutSum δ t (H.height ⊥) γ + S * bezoutSum δ (t - 1)
+        (fun γ' ↦ (multidegree b (⊥ : Ideal (MvPolynomial σ K)) γ' : ℝ)) γ)
+      = (δ k : ℝ) * bezoutSum δ t (H.height ⊥) γ + S * ((δ k : ℝ) * bezoutSum δ (t - 1)
+        (fun γ' ↦ (multidegree b (⊥ : Ideal (MvPolynomial σ K)) γ' : ℝ)) γ) := by ring
+    _ ≤ _ := add_le_add h1 (by rw [h2])
+    _ = _ := by ring
+
+/-- **Rémond's product theorem with heights** (Rémond 2001, Thm 1.1). Under the hypotheses of
+`MvPolynomial.productTheorem`, with `R` finite, let `H` be a multiprojective height theory and `B`
+a monotone bound for the polynomial heights of the nonzero natural combinations of `R`:
+`h_m(∑_r a_r r) ≤ B(∑_r a_r)`. Then `V(𝔭)` is a component of the product of its projections, with
+type `β` as in `MvPolynomial.productTheorem`, and for every `k` with `β_k < n_k`
+`ε^t δ_k h_{β + ε_k}(𝔭) ≤ ∑_l h(ℙ^{n_l}) δ_l #F_l + (∑_{j < t} max(B(|δ|^j), 0)) #G_k`,
+`F_l = {f : Fin t → Fin m | β + ε_k + ∑_j ε_{f j} = n + ε_l}`,
+`G_k = {g : Fin (t - 1) → Fin m | β + ε_k + ∑_j ε_{g j} = n}`. -/
+theorem productTheorem_height [CharZero K] [Height.AdmissibleAbsValues K] {m : ℕ}
+    {b : σ → Fin m} (hb : Function.Surjective b) (H : MultiprojectiveHeight b)
+    (hU : IsUnmixedRing (Localization.AtPrime 𝔭)) {δ : Fin m → ℕ}
+    {R : Finset (MvPolynomial σ K)} (hR : ∀ r ∈ R, IsWeightedHomogeneous (multiWeight b) r δ)
+    (h𝔭R : 𝔭 ∈ (Ideal.span (R : Set (MvPolynomial σ K))).minimalPrimes)
+    (h𝔭 : 𝔭.IsWeightedHomogeneous (multiWeight b)) (hne : hilbertPoly b 𝔭 ≠ 0) {t : ℕ}
+    (ht : 𝔭.height = t) (hδ : ∀ i, 0 < δ i) {ε : ℝ} (hε : 0 < ε)
+    {R' : Set (MvPolynomial σ K)} (hRR' : Ideal.span (R : Set (MvPolynomial σ K)) ≤ Ideal.span R')
+    (hI : ∀ P ∈ R', ∀ κ : σ →₀ ℕ, Finsupp.weight (fun s ↦ ((δ (b s) : ℝ))⁻¹) κ ≤ ε →
+      hasseDeriv κ P ∈ 𝔭)
+    (hanti : Antitone δ)
+    (hratio : ∀ i j : Fin m, (i : ℕ) + 1 = j → (m : ℝ) ^ t < ε ^ t * (δ i / δ j))
+    {B : ℕ → ℝ} (hBmono : Monotone B)
+    (hRB : ∀ a : MvPolynomial σ K → ℕ, ∑ r ∈ R, a r • r ≠ 0 →
+      bombieriLogHeight b (∑ r ∈ R, a r • r) ≤ B (∑ r ∈ R, a r)) :
+    𝔭 ∈ (Ideal.span {f | f ∈ 𝔭 ∧ ∃ i, f ∈ supported K {s | b s = i}}).minimalPrimes ∧
+      ∃ β : Fin m →₀ ℕ, (∀ i, (β i : ℕ∞) + 1 = (varMatroid 𝔭).eRk {s | b s = i}) ∧
+        1 ≤ multidegree b 𝔭 β ∧
+        ε ^ t * multidegree b 𝔭 β ≤
+          #(univ.filter fun f : Fin t → Fin m ↦
+            β + ∑ j, Finsupp.single (f j) 1 = bottomType b) ∧
+        #(univ.filter fun f : Fin t → Fin m ↦
+          β + ∑ j, Finsupp.single (f j) 1 = bottomType b) ≤ m ^ t ∧
+        ∀ k, β k < bottomType b k →
+          ε ^ t * δ k * H.height 𝔭 (β + Finsupp.single k 1) ≤
+            ∑ l, Height.totalWeight K * H.botBound (bottomType b l) * δ l *
+                #(univ.filter fun f : Fin t → Fin m ↦ β + Finsupp.single k 1 +
+                  ∑ j, Finsupp.single (f j) 1 = bottomType b + Finsupp.single l 1) +
+              (∑ j ∈ range t, max (B ((∑ i, δ i) ^ j)) 0) *
+                #(univ.filter fun g : Fin (t - 1) → Fin m ↦ β + Finsupp.single k 1 +
+                  ∑ j, Finsupp.single (g j) 1 = bottomType b) := by
+  classical
+  obtain ⟨T, hB, hadapt, hTb, hcard, hineq, P, hPa, hh⟩ :=
+    prod_pow_mul_pow_mul_height_le hb H hU hR h𝔭R h𝔭 hne ht hδ hε hRR' hI
+  obtain ⟨hmin, hrk, hpos, hle, hcount⟩ :=
+    productTheorem_of_basis hb h𝔭 hne hδ hε hanti hratio hB hadapt hTb hcard hineq
+  refine ⟨hmin, coneType b T, hrk, hpos, hle, hcount, fun k _ ↦ ?_⟩
+  have hβdeg := (degree_coneType_eq_sub hb hTb hcard).1
+  have hPc : 0 < ∏ i, (δ i : ℝ) ^ {s | s ∉ T ∧ b s = i}.ncard :=
+    Finset.prod_pos fun i _ ↦ pow_pos (Nat.cast_pos.mpr (hδ i)) _
   have hS : ∑ j, max (bombieriLogHeight b (P j)) 0 ≤
       ∑ j ∈ range t, max (B ((∑ i, δ i) ^ j)) 0 := by
     rw [← Fin.sum_univ_eq_sum_range]
@@ -307,30 +344,13 @@ theorem productTheorem_height [CharZero K] [Height.AdmissibleAbsValues K] {m : �
     · rw [h0, bombieriLogHeight_zero, max_self]
       exact le_max_right _ _
     exact max_le_max ((hRB a h0).trans (hBmono ha)) le_rfl
-  have hmain := hh γ hγdeg
-  rw [hPc'] at hmain
-  have hk0 : (0 : ℝ) < δ k := Nat.cast_pos.mpr (hδ k)
-  have hS0 : 0 ≤ ∑ j, max (bombieriLogHeight b (P j)) 0 :=
-    Finset.sum_nonneg fun _ _ ↦ le_max_right _ _
-  have hmul := mul_le_mul_of_nonneg_left hmain hk0.le
-  set X := ∑ l, Height.totalWeight K * H.botBound (bottomType b l) * δ l *
-    #(univ.filter fun f : Fin t → Fin m ↦
-      γ + ∑ j, Finsupp.single (f j) 1 = bottomType b + Finsupp.single l 1)
-  set G := #(univ.filter fun g : Fin (t - 1) → Fin m ↦
-    γ + ∑ j, Finsupp.single (g j) 1 = bottomType b)
-  set S := ∑ j, max (bombieriLogHeight b (P j)) 0
-  have hR : (δ k : ℝ) * (bezoutSum δ t (H.height ⊥) γ + S * bezoutSum δ (t - 1)
-      (fun γ' ↦ (multidegree b (⊥ : Ideal (MvPolynomial σ K)) γ' : ℝ)) γ) ≤
-        Pc * X + S * (Pc * G) := by
-    rw [← h2, mul_add, mul_left_comm _ S]
-    exact add_le_add h1 le_rfl
-  replace hmul := hmul.trans hR
+  have hmain := hh (coneType b T + Finsupp.single k 1) (by
+    simp only [map_add, Finsupp.degree_single, hβdeg])
+  have hmul := (mul_le_mul_of_nonneg_left hmain (Nat.cast_nonneg (δ k))).trans
+    (mul_bezoutSum_add_le hb H hδ hTb hcard k _)
   refine le_of_mul_le_mul_left ?_ hPc
-  calc Pc * (ε ^ t * δ k * H.height 𝔭 γ) = δ k * (Pc * ε ^ t * H.height 𝔭 γ) := by ring
-    _ ≤ Pc * X + S * (Pc * G) := hmul
-    _ ≤ Pc * X + (∑ j ∈ range t, max (B ((∑ i, δ i) ^ j)) 0) * (Pc * G) :=
-      add_le_add le_rfl (mul_le_mul_of_nonneg_right hS (by positivity))
-    _ = _ := by ring
+  refine le_trans (le_of_eq (by ring)) (hmul.trans (mul_le_mul_of_nonneg_left
+    (add_le_add le_rfl (mul_le_mul_of_nonneg_right hS (Nat.cast_nonneg _))) hPc.le))
 
 /-- **Rémond's product theorem with heights**, with the height of the family of coefficients
 (Rémond 2001, Thm 1.1). As `MvPolynomial.productTheorem_height`, with the bound
