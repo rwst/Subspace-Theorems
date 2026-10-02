@@ -37,9 +37,12 @@ then at least a positive power of `Q`.
 * `NumberField.exists_plucker_mem_approxDomain_wedgeForms`: the wedges of Evertse's vectors that
   meet the first `k` indices lie in the wedge domain (Bombieri–Gubler 7.5.30, (7.44)–(7.45)), with
   a constant depending only on `K` and `#ι`.
+* `NumberField.apply_wedgeForms_plucker_le`: the wedge estimate (7.44)–(7.45) at one place, from
+  Evertse's bound there; it serves the wedge domain at one place (`WedgeDomainAt.lean`) as well.
 * `NumberField.rpow_approxWeight_wedgeExponent`: the weight of the wedge domain, exactly, and
   `NumberField.rpow_approxWeight_wedgeExponent_le`: bounded by `(μ (k - 1) / μ k) ^ d` times a
-  constant.
+  constant, for every system of exponents with that exact weight
+  (`NumberField.rpow_approxWeight_le_of_eq`).
 * `NumberField.exists_successiveMinimum_wedge`: Bombieri–Gubler, Lemma 7.5.31.
 * `NumberField.exists_div_pow_le_inv`: the choice of `k`, (7.41).
 * `NumberField.exists_successiveMinimum_wedge_pow`: the two together — the last minimum of the
@@ -211,6 +214,87 @@ private theorem prod_min_le {N k p : ℕ} {μ : ℕ → ℝ} (hμm : MonotoneOn 
   · rw [one_mul]
     exact Finset.prod_le_prod₀ (fun b _ ↦ hm0 b) fun b _ ↦ min_le_left _ _
 
+omit [NumberField K] in
+open scoped Classical in
+/-- **The wedge estimate at one place** (Bombieri–Gubler (7.44) and (7.45)): if Evertse's bound
+`v (l (σ i) (y j)) ≤ C_E ν (σ i) min (μ i) (μ j)` holds at `v`, the wedge form of `T` on the
+wedge of the vectors of `J`, `J` meeting the first `k` indices, is at most `N! max 1 C_E ^ N`
+times the product of the `ν` over `T`, the minima read through `σ`, and the jump
+`μ (k - 1) / μ k` if `T` comes from the top block. -/
+theorem apply_wedgeForms_plucker_le (v : AbsoluteValue K ℝ) (l : ι → Dual K (ι → K))
+    (σ : Fin (Fintype.card ι) ≃ ι) {μ : ℕ → ℝ} (hμm : MonotoneOn μ (Set.Iio (Fintype.card ι)))
+    (hμp : ∀ j < Fintype.card ι, 0 < μ j) {ν : ι → ℝ} (hν : ∀ i, 0 ≤ ν i) {CE : ℝ} (hCE : 0 < CE)
+    {y : Fin (Fintype.card ι) → ι → K}
+    (hy : ∀ i j, v (l (σ i) (y j)) ≤ CE * ν (σ i) * min (μ i) (μ j)) {k p : ℕ}
+    (J : Set.powersetCard (Fin (Fintype.card ι)) p) (hJ : ∃ j ∈ J, (j : ℕ) < k)
+    (T : Set.powersetCard ι p) :
+    v (wedgeForms l p T (plucker p (y ∘ Set.powersetCard.ofFinEmbEquiv.symm J))) ≤
+      (Fintype.card ι).factorial * max 1 CE ^ Fintype.card ι * ((∏ t ∈ (T : Finset ι), ν t) *
+        ((if ∀ t ∈ (T : Finset ι), k ≤ (σ.symm t : ℕ) then μ (k - 1) / μ k else 1) *
+          ∏ t ∈ (T : Finset ι), μ (σ.symm t))) := by
+  set eJ := Set.powersetCard.ofFinEmbEquiv.symm J with heJ
+  set eT := Set.powersetCard.ofFinEmbEquiv.symm T with heT
+  obtain ⟨j₀, hj₀J, hj₀k⟩ := hJ
+  obtain ⟨b₀, hb₀⟩ := (Set.powersetCard.mem_range_ofFinEmbEquiv_symm_iff_mem J j₀).2 hj₀J
+  have hbJ : ∃ b, ((eJ b : Fin (Fintype.card ι)) : ℕ) < k := ⟨b₀, by rw [heJ, hb₀]; exact hj₀k⟩
+  have hpN : p ≤ Fintype.card ι := by
+    have := Finset.card_le_univ (J : Finset (Fin (Fintype.card ι)))
+    rwa [Set.powersetCard.card_eq, Fintype.card_fin] at this
+  -- the products over `σ` of a subset in order, as products over the subset
+  have hperm : ∀ (τ : Equiv.Perm (Fin p)) (g : ι → ℝ),
+      ∏ b, g (eT (τ b)) = ∏ t ∈ (T : Finset ι), g t :=
+    fun τ g ↦ (Equiv.prod_comp τ fun a ↦ g (eT a)).trans
+      (Set.powersetCard.prod_comp_ofFinEmbEquiv_symm T g)
+  set P : Prop := ∀ t ∈ (T : Finset ι), k ≤ (σ.symm t : ℕ) with hPdef
+  have hρ : 0 ≤ if P then μ (k - 1) / μ k else 1 := by
+    split_ifs with hP
+    · obtain ⟨a, -⟩ : ∃ a : Fin p, True := ⟨⟨0, by have := b₀.2; omega⟩, trivial⟩
+      have hk := hP (eT a) ((Set.powersetCard.mem_range_ofFinEmbEquiv_symm_iff_mem T _).1
+        ⟨a, rfl⟩)
+      have hkN := (σ.symm (eT a)).2
+      exact (div_pos (hμp _ (by omega)) (hμp _ (by omega))).le
+    · exact zero_le_one
+  have hμT : 0 ≤ ∏ t ∈ (T : Finset ι), μ (σ.symm t) :=
+    Finset.prod_nonneg fun t _ ↦ (hμp _ (σ.symm t).2).le
+  have hνT : 0 ≤ ∏ t ∈ (T : Finset ι), ν t := Finset.prod_nonneg fun t _ ↦ hν t
+  rw [wedgeForms_plucker]
+  have hterm : ∀ τ : Equiv.Perm (Fin p),
+      ∏ b, v ((Matrix.of fun a b ↦ l (eT a) ((y ∘ eJ) b)) (τ b) b) ≤
+        max 1 CE ^ p * ((∏ t ∈ (T : Finset ι), ν t) *
+          ((if P then μ (k - 1) / μ k else 1) * ∏ t ∈ (T : Finset ι), μ (σ.symm t))) := by
+    intro τ
+    have hb : ∀ b, v ((Matrix.of fun a b ↦ l (eT a) ((y ∘ eJ) b)) (τ b) b) ≤
+        CE * ν (eT (τ b)) * min (μ (σ.symm (eT (τ b)))) (μ (eJ b)) := by
+      intro b
+      have h := hy (σ.symm (eT (τ b))) (eJ b)
+      rw [Equiv.apply_symm_apply] at h
+      exact h
+    refine (Finset.prod_le_prod₀ (fun b _ ↦ v.nonneg _) fun b _ ↦ hb b).trans ?_
+    rw [Finset.prod_mul_distrib, Finset.prod_mul_distrib, Finset.prod_const, Finset.card_univ,
+      Fintype.card_fin, hperm τ ν, ← hperm τ fun t ↦ μ (σ.symm t)]
+    have hmin := prod_min_le (N := Fintype.card ι) hμm hμp
+      (i := fun b ↦ ((σ.symm (eT (τ b)) : Fin (Fintype.card ι)) : ℕ))
+      (j := fun b ↦ ((eJ b : Fin (Fintype.card ι)) : ℕ)) (fun b ↦ Fin.is_lt _)
+      (fun b ↦ Fin.is_lt _) hbJ P fun hP b ↦
+        hP _ ((Set.powersetCard.mem_range_ofFinEmbEquiv_symm_iff_mem T _).1 ⟨τ b, rfl⟩)
+    calc CE ^ p * (∏ t ∈ (T : Finset ι), ν t) * ∏ b, min (μ (σ.symm (eT (τ b)))) (μ (eJ b))
+        ≤ CE ^ p * (∏ t ∈ (T : Finset ι), ν t) * ((if P then μ (k - 1) / μ k else 1) *
+            ∏ b, μ (σ.symm (eT (τ b)))) :=
+          mul_le_mul_of_nonneg_left hmin (mul_nonneg (by positivity) hνT)
+      _ ≤ max 1 CE ^ p * ((∏ t ∈ (T : Finset ι), ν t) *
+            ((if P then μ (k - 1) / μ k else 1) * ∏ b, μ (σ.symm (eT (τ b))))) := by
+          rw [mul_assoc]
+          refine mul_le_mul_of_nonneg_right (pow_le_pow_left₀ hCE.le (le_max_right _ _) _) ?_
+          rw [hperm τ fun t ↦ μ (σ.symm t)]
+          positivity
+  refine (v.apply_det_le _ hterm).trans ?_
+  have hfac : ((p.factorial : ℕ) : ℝ) * max 1 CE ^ p ≤
+      (Fintype.card ι).factorial * max 1 CE ^ Fintype.card ι := by
+    gcongr
+    · exact le_max_left _ _
+  rw [← mul_assoc]
+  exact mul_le_mul_of_nonneg_right hfac (by positivity)
+
 
 variable (K) in
 /-- **The constant of the wedge domain**, `N! · max 1 C_E ^ N` for Evertse's constant `C_E` in
@@ -271,11 +355,7 @@ theorem exists_plucker_mem_approxDomain_wedgeForms : ∃ C : ℝ, 0 < C ∧
   set y := fun j ↦ x j + ∑ l ∈ Finset.Iio j, ξ j l • x l with hy
   set eJ := Set.powersetCard.ofFinEmbEquiv.symm J with heJ
   obtain ⟨j₀, hj₀J, hj₀k⟩ := hJ
-  obtain ⟨b₀, hb₀⟩ := (Set.powersetCard.mem_range_ofFinEmbEquiv_symm_iff_mem J j₀).2 hj₀J
-  have hbJ : ∃ b, ((eJ b : Fin (Fintype.card ι)) : ℕ) < k := ⟨b₀, by rw [heJ, hb₀]; exact hj₀k⟩
-  have hpN : p ≤ Fintype.card ι := by
-    have := Finset.card_le_univ (J : Finset (Fin (Fintype.card ι)))
-    rwa [Set.powersetCard.card_eq, Fintype.card_fin] at this
+  obtain ⟨b₀, -⟩ := (Set.powersetCard.mem_range_ofFinEmbEquiv_symm_iff_mem J j₀).2 hj₀J
   -- the products over `σ` of a subset in order, as products over the subset
   have hperm : ∀ (T : Set.powersetCard ι p) (σ : Equiv.Perm (Fin p)) (g : ι → ℝ),
       ∏ b, g (Set.powersetCard.ofFinEmbEquiv.symm T (σ b)) = ∏ t ∈ (T : Finset ι), g t :=
@@ -283,77 +363,29 @@ theorem exists_plucker_mem_approxDomain_wedgeForms : ∃ C : ℝ, 0 < C ∧
       (Set.powersetCard.prod_comp_ofFinEmbEquiv_symm T g)
   refine ⟨fun w T ↦ ?_, fun v hv T ↦ ?_, fun v hv s ↦ ?_⟩
   · -- an infinite place: Evertse's bound, a sum of `p!` terms, and the top block
-    set eT := Set.powersetCard.ofFinEmbEquiv.symm T with heT
-    have hTne : ∀ t ∈ (T : Finset ι), ∃ a, eT a = t := fun t ht ↦
-      (Set.powersetCard.mem_range_ofFinEmbEquiv_symm_iff_mem T t).2 ht
-    set P : Prop := ∀ t ∈ (T : Finset ι), k ≤ ((π w.1).symm t : ℕ) with hPdef
     have hμT : 0 < ∏ t ∈ (T : Finset ι), μ ((π w.1).symm t) :=
       Finset.prod_pos fun t _ ↦ hμp _ ((π w.1).symm t).2
-    have hρ : 0 < if P then μ (k - 1) / μ k else 1 := by
+    have hρ : 0 < if ∀ t ∈ (T : Finset ι), k ≤ ((π w.1).symm t : ℕ) then μ (k - 1) / μ k
+        else 1 := by
       split_ifs with hP
-      · obtain ⟨a, -⟩ : ∃ a : Fin p, True := ⟨⟨0, by
-          have := b₀.2; omega⟩, trivial⟩
-        have hk := hP (eT a) ((Set.powersetCard.mem_range_ofFinEmbEquiv_symm_iff_mem T _).1
-          ⟨a, rfl⟩)
-        have hkN := ((π w.1).symm (eT a)).2
+      · obtain ⟨a, -⟩ : ∃ a : Fin p, True := ⟨⟨0, by have := b₀.2; omega⟩, trivial⟩
+        have hk := hP (Set.powersetCard.ofFinEmbEquiv.symm T a)
+          ((Set.powersetCard.mem_range_ofFinEmbEquiv_symm_iff_mem T _).1 ⟨a, rfl⟩)
+        have hkN := ((π w.1).symm (Set.powersetCard.ofFinEmbEquiv.symm T a)).2
         exact div_pos (hμp _ (by omega)) (hμp _ (by omega))
       · exact one_pos
-    have hC0 : 0 < (Fintype.card ι).factorial * max 1 CE ^ Fintype.card ι := by positivity
-    rw [wedgeForms_plucker, rpow_wedgeExponent_of_not_isNonarchimedean hQ0 hQ.ne'
+    rw [rpow_wedgeExponent_of_not_isNonarchimedean hQ0 hQ.ne'
       (InfinitePlace.not_isNonarchimedean w) T (by positivity)]
-    have hterm : ∀ σ : Equiv.Perm (Fin p),
-        ∏ b, w.1 ((Matrix.of fun a b ↦ L w.1 (eT a) ((y ∘ eJ) b)) (σ b) b) ≤
-          max 1 CE ^ p * ((∏ t ∈ (T : Finset ι), Q ^ c w.1 t) *
-            ((if P then μ (k - 1) / μ k else 1) * ∏ t ∈ (T : Finset ι), μ ((π w.1).symm t))) := by
-      intro σ
-      have hb : ∀ b, w.1 ((Matrix.of fun a b ↦ L w.1 (eT a) ((y ∘ eJ) b)) (σ b) b) ≤
-          CE * Q ^ c w.1 (eT (σ b)) * min (μ ((π w.1).symm (eT (σ b)))) (μ (eJ b)) := by
-        intro b
-        have h := hπinf w ((π w.1).symm (eT (σ b))) (eJ b)
-        simp only [Equiv.apply_symm_apply, hμ', hν, InfinitePlace.not_isNonarchimedean w,
-          ↓reduceIte] at h
-        exact h
-      refine (Finset.prod_le_prod₀ (fun b _ ↦ w.1.nonneg _) fun b _ ↦ hb b).trans ?_
-      rw [Finset.prod_mul_distrib, Finset.prod_mul_distrib, Finset.prod_const, Finset.card_univ,
-        Fintype.card_fin, hperm T σ fun t ↦ Q ^ c w.1 t,
-        ← hperm T σ fun t ↦ μ ((π w.1).symm t)]
-      have hmin := prod_min_le (N := Fintype.card ι) hμm hμp
-        (i := fun b ↦ (((π w.1).symm (eT (σ b)) : Fin (Fintype.card ι)) : ℕ))
-        (j := fun b ↦ ((eJ b : Fin (Fintype.card ι)) : ℕ)) (fun b ↦ Fin.is_lt _)
-        (fun b ↦ Fin.is_lt _) hbJ P fun hP b ↦
-          hP _ ((Set.powersetCard.mem_range_ofFinEmbEquiv_symm_iff_mem T _).1 ⟨σ b, rfl⟩)
-      have hQT : 0 ≤ ∏ t ∈ (T : Finset ι), Q ^ c w.1 t :=
-        Finset.prod_nonneg fun t _ ↦ (Real.rpow_pos_of_pos hQ0 _).le
-      calc CE ^ p * (∏ t ∈ (T : Finset ι), Q ^ c w.1 t) *
-            ∏ b, min (μ ((π w.1).symm (eT (σ b)))) (μ (eJ b))
-          ≤ CE ^ p * (∏ t ∈ (T : Finset ι), Q ^ c w.1 t) * ((if P then μ (k - 1) / μ k else 1) *
-              ∏ b, μ ((π w.1).symm (eT (σ b)))) :=
-            mul_le_mul_of_nonneg_left hmin (mul_nonneg (by positivity) hQT)
-        _ ≤ max 1 CE ^ p * ((∏ t ∈ (T : Finset ι), Q ^ c w.1 t) *
-              ((if P then μ (k - 1) / μ k else 1) * ∏ b, μ ((π w.1).symm (eT (σ b))))) := by
-            rw [mul_assoc]
-            refine mul_le_mul_of_nonneg_right
-              (pow_le_pow_left₀ hCE.le (le_max_right _ _) _) ?_
-            rw [hperm T σ fun t ↦ μ ((π w.1).symm t)]
-            positivity
-    refine (w.1.apply_det_le _ hterm).trans ?_
-    have hfac : ((p.factorial : ℕ) : ℝ) * max 1 CE ^ p ≤
-        (Fintype.card ι).factorial * max 1 CE ^ Fintype.card ι := by
-      gcongr
-      · exact le_max_left _ _
-    calc (p.factorial : ℝ) * (max 1 CE ^ p * ((∏ t ∈ (T : Finset ι), Q ^ c w.1 t) *
-          ((if P then μ (k - 1) / μ k else 1) * ∏ t ∈ (T : Finset ι), μ ((π w.1).symm t))))
-        = (p.factorial * max 1 CE ^ p) * ((∏ t ∈ (T : Finset ι), Q ^ c w.1 t) *
-          ((if P then μ (k - 1) / μ k else 1) * ∏ t ∈ (T : Finset ι), μ ((π w.1).symm t))) := by
-          ring
-      _ ≤ ((Fintype.card ι).factorial * max 1 CE ^ Fintype.card ι) *
-          ((∏ t ∈ (T : Finset ι), Q ^ c w.1 t) *
-            ((if P then μ (k - 1) / μ k else 1) * ∏ t ∈ (T : Finset ι), μ ((π w.1).symm t))) := by
-          refine mul_le_mul_of_nonneg_right hfac ?_
-          have hQT : 0 ≤ ∏ t ∈ (T : Finset ι), Q ^ c w.1 t :=
-            Finset.prod_nonneg fun t _ ↦ (Real.rpow_pos_of_pos hQ0 _).le
-          positivity
-      _ = _ := by ring
+    have hy : ∀ i j, w.1 (L w.1 (π w.1 i) (y j)) ≤
+        CE * Q ^ c w.1 (π w.1 i) * min (μ i) (μ j) := by
+      intro i j
+      have h := hπinf w i j
+      simp only [hμ', hν, InfinitePlace.not_isNonarchimedean w, ↓reduceIte] at h
+      exact h
+    refine (apply_wedgeForms_plucker_le w.1 (L w.1) (π w.1) hμm hμp
+      (fun i ↦ (Real.rpow_pos_of_pos hQ0 _).le) hCE hy J ⟨j₀, hj₀J, hj₀k⟩ T).trans
+      (le_of_eq ?_)
+    ring
   · -- a place of `Sfin`: the ultrametric bound, exactly
     rw [wedgeForms_plucker, rpow_wedgeExponent_of_isNonarchimedean hQ0 (hna v) T]
     refine AbsoluteValue.apply_det_le_of_isNonarchimedean (hna v) _
@@ -378,7 +410,7 @@ theorem exists_plucker_mem_approxDomain_wedgeForms : ∃ C : ℝ, 0 < C ∧
 
 open scoped Classical in
 /-- Exactly one `p`-subset of forms comes from the top block of vectors. -/
-private theorem prod_ite_topBlock (σ : Fin (Fintype.card ι) ≃ ι) {k p : ℕ}
+theorem prod_ite_topBlock (σ : Fin (Fintype.card ι) ≃ ι) {k p : ℕ}
     (h : k + p = Fintype.card ι) (r : ℝ) :
     ∏ T : Set.powersetCard ι p,
       (if ∀ t ∈ (T : Finset ι), k ≤ (σ.symm t : ℕ) then r else 1) = r := by
@@ -398,7 +430,7 @@ private theorem prod_ite_topBlock (σ : Fin (Fintype.card ι) ≃ ι) {k p : ℕ
 omit [LinearOrder ι] in
 /-- A product over the forms of values at the corresponding vectors is the product over the
 vectors. -/
-private theorem prod_symm_eq_prod_range (σ : Fin (Fintype.card ι) ≃ ι) (μ : ℕ → ℝ) :
+theorem prod_symm_eq_prod_range (σ : Fin (Fintype.card ι) ≃ ι) (μ : ℕ → ℝ) :
     ∏ t, μ (σ.symm t) = ∏ j ∈ Finset.range (Fintype.card ι), μ j := by
   rw [Equiv.prod_comp σ.symm (fun j ↦ μ j), Fin.prod_univ_eq_prod_range]
 
@@ -455,20 +487,29 @@ theorem rpow_approxWeight_wedgeExponent (Sfin : Finset (FinitePlace K))
   rw [hw, Real.rpow_add hQ0, Real.rpow_mul_natCast hQ0.le, Real.rpow_logb hQ0 hQ.ne' hX0]
 
 
+omit [LinearOrder ι] in
 open scoped Classical in
-/-- **The weight of the wedge domain is at most a constant times the jump of the minima**
-(Bombieri–Gubler 7.5.31, the chain after (7.46)): with `μ` the minima of the domain, Minkowski's
-second theorem over `K` from above cancels everything in the exact weight but
-`(μ (k - 1) / μ k) ^ d`. The constant depends on `K`, `Sfin`, the forms, `C` and `p`, and not on
-`c`, `Q` or the bijections. -/
-theorem rpow_approxWeight_wedgeExponent_le {Sfin : Finset (FinitePlace K)}
+/-- **A wedge weight is at most a constant times the jump of the minima** (Bombieri–Gubler
+7.5.31, the chain after (7.46)): for exponents `c'` in `⋀^p` whose weight is given by the exact
+formula of `NumberField.rpow_approxWeight_wedgeExponent` at the minima `μ` of the domain,
+Minkowski's second theorem over `K` from above cancels everything but `(μ (k - 1) / μ k) ^ d`. The
+constant depends on `K`, `Sfin`, the forms, `C` and `p`, and not on `c`, `Q` or `c'`. -/
+theorem rpow_approxWeight_le_of_eq {Sfin : Finset (FinitePlace K)}
     {L : AbsoluteValue K ℝ → ι → Dual K (ι → K)}
     (hLInf : ∀ w : InfinitePlace K, LinearIndependent K (L w.1))
     (hLFin : ∀ v ∈ Sfin, LinearIndependent K (L v.1)) (c : AbsoluteValue K ℝ → ι → ℝ)
-    (π : AbsoluteValue K ℝ → Fin (Fintype.card ι) ≃ ι) {C Q : ℝ} {k p : ℕ} (hQ : 1 < Q)
-    (hC : 0 < C) (h : k + p = Fintype.card ι) (hp : 0 < p) :
-    Q ^ approxWeight Sfin (wedgeExponent c π
-        (successiveMinimum (approxModule Sfin L c Q) (approxBody L c Q)) C Q k p) ≤
+    {C Q : ℝ} {k p : ℕ} (hQ : 1 < Q) (hC : 0 < C) (h : k + p = Fintype.card ι) (hp : 0 < p)
+    {c' : AbsoluteValue K ℝ → Set.powersetCard ι p → ℝ}
+    (hwt : Q ^ approxWeight Sfin c' =
+      Q ^ ((Fintype.card ι - 1).choose (p - 1) * approxWeight Sfin c) *
+        (C ^ Fintype.card (Set.powersetCard ι p) *
+          (∏ j ∈ Finset.range (Fintype.card ι),
+            successiveMinimum (approxModule Sfin L c Q) (approxBody L c Q) j) ^
+              (Fintype.card ι - 1).choose (p - 1) *
+            (successiveMinimum (approxModule Sfin L c Q) (approxBody L c Q) (k - 1) /
+              successiveMinimum (approxModule Sfin L c Q) (approxBody L c Q) k)) ^
+          finrank ℚ K) :
+    Q ^ approxWeight Sfin c' ≤
       C ^ (Fintype.card (Set.powersetCard ι p) * finrank ℚ K) *
         (2 ^ (finrank ℚ K * Fintype.card ι) *
           (∏ v ∈ Sfin, (Ideal.absNorm v.maximalIdeal.asIdeal : ℝ) ^ Fintype.card ι) /
@@ -494,7 +535,6 @@ theorem rpow_approxWeight_wedgeExponent_le {Sfin : Finset (FinitePlace K)}
     successiveMinimum_pos _ (convex_approxBody L c Q) (fun x hx ↦ neg_mem_approxBody hx) hB₂
       (isBounded_approxBody hLInf c Q) hj
   have hup := prod_successiveMinimum_approx_le hLInf hLFin c hQ0
-  have hwt := rpow_approxWeight_wedgeExponent Sfin c π (μ := lam) hQ hC hlampos h hp
   set Pr := ∏ j ∈ Finset.range (Fintype.card ι), lam j with hPr
   set r := lam (k - 1) / lam k with hr
   have hr0 : 0 < r := div_pos (hlampos _ (by omega)) (hlampos _ (by omega))
@@ -514,6 +554,37 @@ theorem rpow_approxWeight_wedgeExponent_le {Sfin : Finset (FinitePlace K)}
     _ = (C ^ M) ^ d * a₂ ^ e * r ^ d *
           (Q ^ ((e : ℝ) * approxWeight Sfin c) * (Q ^ (-approxWeight Sfin c)) ^ e) := by ring
     _ = (C ^ M) ^ d * a₂ ^ e * r ^ d := by rw [hQw, mul_one]
+
+open scoped Classical in
+/-- **The weight of the wedge domain is at most a constant times the jump of the minima**
+(Bombieri–Gubler 7.5.31, the chain after (7.46)): `NumberField.rpow_approxWeight_le_of_eq` for the
+wedge domain itself. The constant does not depend on `c`, `Q` or the bijections. -/
+theorem rpow_approxWeight_wedgeExponent_le {Sfin : Finset (FinitePlace K)}
+    {L : AbsoluteValue K ℝ → ι → Dual K (ι → K)}
+    (hLInf : ∀ w : InfinitePlace K, LinearIndependent K (L w.1))
+    (hLFin : ∀ v ∈ Sfin, LinearIndependent K (L v.1)) (c : AbsoluteValue K ℝ → ι → ℝ)
+    (π : AbsoluteValue K ℝ → Fin (Fintype.card ι) ≃ ι) {C Q : ℝ} {k p : ℕ} (hQ : 1 < Q)
+    (hC : 0 < C) (h : k + p = Fintype.card ι) (hp : 0 < p) :
+    Q ^ approxWeight Sfin (wedgeExponent c π
+        (successiveMinimum (approxModule Sfin L c Q) (approxBody L c Q)) C Q k p) ≤
+      C ^ (Fintype.card (Set.powersetCard ι p) * finrank ℚ K) *
+        (2 ^ (finrank ℚ K * Fintype.card ι) *
+          (∏ v ∈ Sfin, (Ideal.absNorm v.maximalIdeal.asIdeal : ℝ) ^ Fintype.card ι) /
+            approxConst Sfin L) ^ (Fintype.card ι - 1).choose (p - 1) *
+        (successiveMinimum (approxModule Sfin L c Q) (approxBody L c Q) (k - 1) /
+          successiveMinimum (approxModule Sfin L c Q) (approxBody L c Q) k) ^ finrank ℚ K := by
+  have hQ0 : 0 < Q := by linarith
+  have hD : DiscreteTopology (approxLattice Sfin L c Q) :=
+    discreteTopology_approxLattice hLFin c hQ0.ne'
+  have : DiscreteTopology (approxModule Sfin L c Q).mixedImage := hD
+  have hZ : IsZLattice ℝ (approxLattice Sfin L c Q) := isZLattice_approxLattice hLFin c hQ0.ne'
+  have : IsZLattice ℝ (approxModule Sfin L c Q).mixedImage := hZ
+  have hB₂ : (interior (approxBody L c Q)).Nonempty :=
+    ⟨0, mem_interior_iff_mem_nhds.2 (approxBody_mem_nhds_zero L c hQ0)⟩
+  exact rpow_approxWeight_le_of_eq hLInf hLFin c hQ hC h hp
+    (rpow_approxWeight_wedgeExponent Sfin c π hQ hC (fun j hj ↦ successiveMinimum_pos _
+      (convex_approxBody L c Q) (fun x hx ↦ neg_mem_approxBody hx) hB₂
+      (isBounded_approxBody hLInf c Q) hj) h hp)
 
 variable (K ι) in
 open scoped Classical in

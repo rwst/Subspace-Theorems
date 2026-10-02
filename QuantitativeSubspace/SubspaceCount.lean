@@ -44,9 +44,9 @@ as one, and so re-runs Q0 with it.
 ## Implementation notes
 
 ⚠ **The hypotheses are those of the Roth lemma, for every number of blocks.** The chain length
-`m` is a function of `n`, `|S|`, `ε` and `A`, so the results take a multiprojective height
-`H m` on `(ℙ¹)^m` and the Cohen–Macaulay hypothesis `hCM m` for every `m`, as Q1.4 and Q1.5 do
-for one. `h(ℙ¹)` enters as `(H (m + 1)).botBound 1`.
+`m` is a function of `n`, the form count `s`, `ε` and `A`, so the results take a
+multiprojective height `H m` on `(ℙ¹)^m` and the Cohen–Macaulay hypothesis `hCM m` for every `m`,
+as Q1.4 and Q1.5 do for one. `h(ℙ¹)` enters as `(H (m + 1)).botBound 1`.
 
 ⚠ **The chain length is unchanged.** It comes from the auxiliary polynomial of Layer 5.2, not
 from the Roth lemma. What Evertse's lemma changes is the ratio of the chain and the height cost,
@@ -297,11 +297,11 @@ system in `⋀^p`. -/
 theorem parametricStepRatio_evertse_le (b : ℕ → ℝ) {N : ℕ} (d s p : ℕ) (hN : 0 < N) {ε A : ℝ}
     (hε : 0 < ε) (hA : 0 ≤ A) :
     parametricStepRatio (RothParams.evertse b) N d s p ε A
-      ≤ 16 * evertseChainBound (N.choose p - 1) s (parametricDelta N ε)
+      ≤ 16 * evertseChainBound (N.choose p - 1) (s ^ p) (parametricDelta N ε)
           (parametricWedgeAbsWeight N d p ε A)
         * evertseEtaInvBound (N.choose p - 1) (parametricDelta N ε)
           (parametricWedgeAbsWeight N d p ε A) :=
-  four_mul_inv_evertseRatio_le _ s (parametricDelta_pos hN hε)
+  four_mul_inv_evertseRatio_le _ (s ^ p) (parametricDelta_pos hN hε)
     (parametricWedgeAbsWeight_nonneg N d p hε.le hA)
 
 /-- The ratio `ρ` whose logarithm enters the counts of Layer 6.1 and Q0.3
@@ -309,7 +309,8 @@ theorem parametricStepRatio_evertse_le (b : ℕ → ℝ) {N : ℕ} (d s p : ℕ)
 theorem parametricRatio_evertse_le (b : ℕ → ℝ) {N : ℕ} (d s : ℕ) (hN : 0 < N) {ε A : ℝ}
     (hε : 0 < ε) (hA : 0 ≤ A) :
     parametricRatio (RothParams.evertse b) N d s ε A
-      ≤ ∑ p ∈ Finset.range N, 16 * evertseChainBound (N.choose p - 1) s (parametricDelta N ε)
+      ≤ ∑ p ∈ Finset.range N, 16 * evertseChainBound (N.choose p - 1) (s ^ p)
+          (parametricDelta N ε)
           (parametricWedgeAbsWeight N d p ε A)
         * evertseEtaInvBound (N.choose p - 1) (parametricDelta N ε)
           (parametricWedgeAbsWeight N d p ε A) :=
@@ -389,12 +390,12 @@ theorem penultimateThreshold_evertse_le {b : ℕ → ℝ} {β : ℝ} (hb : ∀ k
     {Sfin : Finset (FinitePlace K)} {L : AbsoluteValue K ℝ → ι → Dual K (ι → K)}
     (hLInf : ∀ w : InfinitePlace K, LinearIndependent K (L w.1))
     (hLFin : ∀ v ∈ Sfin, LinearIndependent K (L v.1)) {n : ℕ} (hn : n ≤ Fintype.card ι)
-    {ε : ℝ} (hε : 0 < ε) {A : ℝ} (hA : 0 ≤ A) :
-    penultimateThreshold Sfin L (RothParams.evertse b) n ε A
+    (s : ℕ) {ε : ℝ} (hε : 0 < ε) {A : ℝ} (hA : 0 ≤ A) :
+    penultimateThreshold Sfin L (RothParams.evertse b) n s ε A
       ≤ penultimateCoeff (RothParams.evertseBound β) (finrank ℚ K) (Fintype.card ι)
-        (Fintype.card (InfinitePlace K)) #Sfin n ε A * thresholdScale Sfin L :=
-  (penultimateThreshold_le _ hLInf hLFin hn hε hA).trans <| mul_le_mul_of_nonneg_right
-    (penultimateCoeff_mono _ _ _ _ _ hε hA (evertse_factor_le b β _ _ hε hA)
+        (Fintype.card (InfinitePlace K)) #Sfin s n ε A * thresholdScale Sfin L :=
+  (penultimateThreshold_le _ hLInf hLFin hn s hε hA).trans <| mul_le_mul_of_nonneg_right
+    (penultimateCoeff_mono _ _ _ _ _ _ hε hA (evertse_factor_le b β _ _ hε hA)
       (evertse_shift_le hb _ _ hε hA)) (thresholdScale_nonneg Sfin L)
 
 omit [LinearOrder ι] in
@@ -404,15 +405,15 @@ omit [LinearOrder ι] in
 theorem parametricThreshold_evertse_le {b : ℕ → ℝ} {β : ℝ} (hb : ∀ k, b k ≤ β)
     {Sfin : Finset (FinitePlace K)} {L : AbsoluteValue K ℝ → ι → Dual K (ι → K)}
     (hLInf : ∀ w : InfinitePlace K, LinearIndependent K (L w.1))
-    (hLFin : ∀ v ∈ Sfin, LinearIndependent K (L v.1)) {ε : ℝ} (hε : 0 < ε) {A : ℝ}
+    (hLFin : ∀ v ∈ Sfin, LinearIndependent K (L v.1)) (s : ℕ) {ε : ℝ} (hε : 0 < ε) {A : ℝ}
     (hA : 0 ≤ A) :
-    parametricThreshold Sfin L (RothParams.evertse b) ε A
+    parametricThreshold Sfin L (RothParams.evertse b) s ε A
       ≤ parametricCoeff (RothParams.evertseBound β) (finrank ℚ K) (Fintype.card ι)
-        (Fintype.card (InfinitePlace K)) #Sfin ε A * thresholdScale Sfin L := by
-  have h := parametricThreshold_le (RothParams.evertse b) hLInf hLFin hε hA
+        (Fintype.card (InfinitePlace K)) #Sfin s ε A * thresholdScale Sfin L := by
+  have h := parametricThreshold_le (RothParams.evertse b) hLInf hLFin s hε hA
   rw [thresholdScale_congr _ ‹DecidableEq ι›] at h
   exact h.trans <| mul_le_mul_of_nonneg_right
-    (parametricCoeff_mono _ _ _ _ Fintype.card_pos hε hA
+    (parametricCoeff_mono _ _ _ _ _ Fintype.card_pos hε hA
       (fun n s _ _ hε hA ↦ evertse_factor_le b β n s hε hA)
       (fun n s _ _ hε hA ↦ evertse_shift_le hb n s hε hA)) (thresholdScale_nonneg Sfin L)
 
@@ -428,20 +429,19 @@ theorem exists_forall_mem_interval_approxSpan_evertse
     (hLinf : ∀ w : InfinitePlace K, LinearIndependent K (L w.1))
     (hLfin : ∀ w ∈ Sfin, LinearIndependent K (L w.1))
     {ε : ℝ} (hε : 0 < ε) (hweight : approxWeight Sfin cf ≤ -ε / 2) {A : ℝ}
-    (hA : approxAbsWeight Sfin cf ≤ A) :
+    (hA : approxAbsWeight Sfin cf ≤ A) {s : ℕ} (hs : formCount Sfin L ≤ (n + 1) * s) :
     ∃ (𝒲 : Set (Submodule K (ι → K))) (Q₀ : ℝ), 𝒲.Finite ∧
-      𝒲.ncard ≤ 2 ^ ((n + 1) * (Fintype.card (InfinitePlace K) + Sfin.card)) ∧ 0 < Q₀ ∧
-      Q₀ = penultimateThreshold Sfin L (RothParams.evertse fun m ↦ (H m).botBound 1) n ε A ∧
+      𝒲.ncard ≤ 1 ∧ 0 < Q₀ ∧
+      Q₀ = penultimateThreshold Sfin L (RothParams.evertse fun m ↦ (H m).botBound 1) n s ε A ∧
       ∀ Q₀' : ℝ, Q₀ ≤ Q₀' →
-        ∃ k ≤ subspaceChainLength n (Fintype.card (InfinitePlace K) + Sfin.card) ε A,
+        ∃ k ≤ subspaceChainLength n s ε A,
         ∃ t : Fin k → ℝ, (∀ i, Q₀' ≤ t i) ∧
         ∀ Q : ℝ, 1 < Q → Q₀' ≤ Real.log Q →
           Module.finrank K (approxSpan Sfin L cf Q) = n → approxSpan Sfin L cf Q ∉ 𝒲 →
           ∃ i, t i ≤ Real.log Q ∧ Real.log Q
-            < 16 * ((subspaceChainLength n (Fintype.card (InfinitePlace K) + Sfin.card) ε A
-                : ℝ) + 1) / subspaceEta n ε A * t i := by
+            < 16 * ((subspaceChainLength n s ε A : ℝ) + 1) / subspaceEta n ε A * t i := by
   obtain ⟨𝒲, Q₀, h1, h2, h3, h4, h5⟩ := exists_forall_mem_interval_approxSpan
-    (SubspaceRoth.evertse.{u} H hCM) hn hcard hLinf hLfin hε hweight hA
+    (SubspaceRoth.evertse.{u} H hCM) hn hcard hLinf hLfin hε hweight hA hs
   refine ⟨𝒲, Q₀, h1, h2, h3, h4, fun Q₀' hQ₀' ↦ ?_⟩
   obtain ⟨k, hk, t, ht, h⟩ := h5 Q₀' hQ₀'
   refine ⟨k, hk, t, ht, fun Q hQ1 hQ hrank hnot ↦ ?_⟩
@@ -469,10 +469,10 @@ theorem exists_finset_submodule_of_isNormalizedSystem_evertse {E : Type*} [Field
       (#T : ℝ) ≤ δ⁻¹ * ((10 ^ 3 * Fintype.card ι) ^ (Fintype.card ι * finrank ℚ K) +
           4 * Fintype.card ι * Real.log (Real.log (4 * Hc))) +
         (1 + Real.log (systemMiddleRatio (finrank ℚ K) (Fintype.card ι) Hc δ
-            (systemThreshold E S w L (RothParams.evertse fun m ↦ (H m).botBound 1) Hc δ)) /
+            (systemThreshold E S w L (RothParams.evertse fun m ↦ (H m).botBound 1) R Hc δ)) /
               Real.log (1 + δ / (2 * Fintype.card ι))) +
         systemLargeCount (RothParams.evertse fun m ↦ (H m).botBound 1) (Fintype.card ι)
-          (finrank ℚ E) (finrank K E) (Fintype.card (InfinitePlace K) + #S) #S δ ∧
+          (finrank ℚ E) (finrank K E) R δ ∧
       (∀ U ∈ T, U ≠ ⊤) ∧ ∀ x ∈ systemSet S w L C c, ∃ U ∈ T, x ∈ U :=
   exists_finset_submodule_of_isNormalizedSystem (SubspaceRoth.evertse.{u} H hCM) S w hwInf hwFin
     hN

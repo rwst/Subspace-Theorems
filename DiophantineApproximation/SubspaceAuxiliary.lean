@@ -72,11 +72,19 @@ needed by induction on the order and never names that combination. It needs char
 because `hasseDeriv_comp` produces a positive integer factor that has to be inverted.
 
 ⚠ **The conditions imposed are at order `0` only, and they are indexed by the monomial.** For each
-`v ∈ S`, each coordinate `i`, and each monomial `N` of multidegree `d` with
-`∑ h, N (h, i) / d h ≤ m/(n+1) − m η`, the condition is `(blockSubst (A v)⁻¹ P).coeff N = 0`. That
+form, that is each row `i` of some `A v` up to equality, and each monomial `N` of multidegree `d`
+with `∑ h, N (h, i) / d h ≤ m/(n+1) − m η`, the condition is `(blockSubst (A v)⁻¹ P).coeff N = 0`.
+That
 this implies the vanishing at every order `I` with `∑ h, (∑ i, I (h, i)) / d h ≤ m η` and every
 `J` with `∑ h, J (h, i) / d h ≤ m/(n+1) − 2 m η` is exactly where the factor `2` in the book's
 `2 m η` is spent: `N = J + I'` moves the threshold by at most `m η`.
+
+⚠ **The conditions are counted by forms, not by places** (Evertse–Schlickewei's construction from
+the distinct forms). Whether all monomials of `P` read in the coordinates `A v` have large
+exponent along the row `i` depends on that row alone: another system with the same form in row
+`i'` differs by a substitution whose row `i'` is a unit vector
+(`MvPolynomial.blockSubst_coeff_mem_of_row`). So one family of conditions per distinct form `F`
+suffices, and the count is `2 #F` where Bombieri–Gubler have `2 (n + 1) |S|`.
 
 ⚠ **The upper half of the book's interval is free.** A Hasse derivative of a multihomogeneous
 polynomial is multihomogeneous (`MvPolynomial.IsMultiHomogeneous.hasseDeriv`), so a nonzero
@@ -85,11 +93,11 @@ exceeds `m/(n+1) + 2 n m η`, the remaining `n` of them average below `m/(n+1) �
 lower half applies to one of those. This is why `n ≥ 1` is needed a second time.
 
 ⚠ **The hypothesis on `m` is strict here.** Bombieri–Gubler ask
-`m ≥ 4 log (2 (n+1) |S|) / ((n+1)(n+2) η²)`, which leaves no room for the error term
-`(η (n+1)(n+2)/2)² / (2(n+1)) · ∑ h, 1/d h` of the Chernoff bound; that term is positive for every
-`d` and tends to `0` only as `d → ∞`. The strict inequality creates a positive slack, and `D₀` is
-chosen to make the error term smaller than it. Replacing `2 (n+1) |S|` by `4 (n+1) |S|` and keeping
-`≥` would do the same.
+`m ≥ 4 log (2 (n+1) |S|) / ((n+1)(n+2) η²)` (here `4 log (2 #F) / ((n+1)(n+2) η²)`), which
+leaves no room for the error term `(η (n+1)(n+2)/2)² / (2(n+1)) · ∑ h, 1/d h` of the Chernoff
+bound; that term is positive for every `d` and tends to `0` only as `d → ∞`. The strict
+inequality creates a positive slack, and `D₀` is chosen to make the error term smaller than it.
+Replacing `2 #F` by `4 #F` and keeping `≥` would do the same.
 
 ⚠ **`C₂` and `C₃` are allowed to depend on `m`, `S` and `η`.** The book claims they depend only on
 `K` and the forms. That is true — the `m`-dependence sits in `log #multiMons d`, which is
@@ -990,12 +998,14 @@ polynomial `P` of multidegree `d` of logarithmic height at most `C₂ ∑ h, d h
 Hasse derivative of `P` read in any of the coordinate systems `A v` again has logarithmic height
 at most `C₃ ∑ h, d h`, and such that the coefficient of the monomial `J` in that derivative
 vanishes whenever the order `I` is small and one of the exponents of `J` is far from its mean
-`∑ h, d h / (n + 1)`. -/
+`∑ h, d h / (n + 1)`. The number of blocks is measured against the number of distinct forms: `F`
+indexes rows `rep f` of the matrices, every row of every `A v` being one of them. -/
 theorem exists_ne_zero_isMultiHomogeneous_forall_coeff_blockSubst_hasseDeriv_eq_zero
     [Nonempty ι] [Nonempty κ] {n : ℕ} (hn : 1 ≤ n) (hcard : Fintype.card ι = n + 1)
-    {S : Type*} [Fintype S] [Nonempty S] (A : S → Matrix ι ι K) (hA : ∀ v, IsUnit (A v).det)
+    {S : Type*} [Finite S] [Nonempty S] (A : S → Matrix ι ι K) (hA : ∀ v, IsUnit (A v).det)
+    {F : Type*} [Fintype F] (rep : F → S × ι) (hrep : ∀ v i, ∃ f, A (rep f).1 (rep f).2 = A v i)
     {η : ℝ} (hη : 0 < η)
-    (hm : 4 * Real.log (2 * ((n : ℝ) + 1) * Fintype.card S)
+    (hm : 4 * Real.log (2 * Fintype.card F)
       < ((n : ℝ) + 1) * ((n : ℝ) + 2) * η ^ 2 * Fintype.card κ) :
     ∃ C₂ C₃ : ℝ, C₂ = 2⁻¹ * Real.log |(NumberField.discr K : ℝ)|
         + ((Module.finrank ℚ K : ℝ) / 2 * Fintype.card ι
@@ -1015,6 +1025,7 @@ theorem exists_ne_zero_isMultiHomogeneous_forall_coeff_blockSubst_hasseDeriv_eq_
                 ≤ ∑ h, (J (h, i) : ℝ) / (d h : ℝ)) →
           (blockSubst (A v)⁻¹ (hasseDeriv I P)).coeff J = 0 := by
   classical
+  have := Fintype.ofFinite S
   -- a reference tuple collecting the entries of all the matrices `(A v)⁻¹` and `1`
   set y : (S × ι × ι) ⊕ Unit → K :=
     Sum.elim (fun p : S × ι × ι ↦ ((A p.1)⁻¹) p.2.1 p.2.2) (fun _ : Unit ↦ 1) with hydef
@@ -1050,7 +1061,7 @@ theorem exists_ne_zero_isMultiHomogeneous_forall_coeff_blockSubst_hasseDeriv_eq_
   obtain ⟨D₀, hD₀1, hD₀⟩ := exists_forall_sum_inv_le (κ := κ)
     (c := (η * ((n : ℝ) + 1) * ((n : ℝ) + 2) / 2) ^ 2 / (2 * ((n : ℝ) + 1)))
     (θ := ((n : ℝ) + 1) * ((n : ℝ) + 2) * η ^ 2 * Fintype.card κ / 4
-      - Real.log (2 * ((n : ℝ) + 1) * Fintype.card S))
+      - Real.log (2 * Fintype.card F))
     (by positivity) (by linarith)
   refine ⟨2⁻¹ * Real.log |(NumberField.discr K : ℝ)|
       + ((Module.finrank ℚ K : ℝ) / 2 * Fintype.card ι
@@ -1075,10 +1086,14 @@ theorem exists_ne_zero_isMultiHomogeneous_forall_coeff_blockSubst_hasseDeriv_eq_
         ≤ Fintype.card κ / ((n : ℝ) + 1) - Fintype.card κ * η) :=
     ⟨fun i₀ ↦ {N ∈ multiMons d | ∑ h, (N (h, i₀) : ℝ) / (d h : ℝ)
       ≤ Fintype.card κ / ((n : ℝ) + 1) - Fintype.card κ * η}, fun i₀ N ↦ Finset.mem_filter⟩
-  have hcS0 : (0 : ℝ) < (Fintype.card S : ℝ) := by exact_mod_cast Fintype.card_pos
+  have : Nonempty F := by
+    obtain ⟨v⟩ := ‹Nonempty S›
+    obtain ⟨i⟩ := ‹Nonempty ι›
+    exact ⟨(hrep v i).choose⟩
+  have hcS0 : (0 : ℝ) < (Fintype.card F : ℝ) := by exact_mod_cast Fintype.card_pos
   have hcιn : (Fintype.card ι : ℝ) = (n : ℝ) + 1 := by rw [hcard]; push_cast; ring
   have hbad : ∀ i₀ : ι, (#(Bad i₀) : ℝ)
-      ≤ #(multiMons (ι := ι) d) * (2 * ((n : ℝ) + 1) * Fintype.card S)⁻¹ := by
+      ≤ #(multiMons (ι := ι) d) * (2 * (Fintype.card F : ℝ))⁻¹ := by
     intro i₀
     refine (card_le_of_subset_multiMons hn hcard i₀ hd1 hη.le _
       (fun N hN ↦ ((hBad i₀ N).mp hN).1) (fun N hN ↦ ((hBad i₀ N).mp hN).2)).trans ?_
@@ -1086,45 +1101,39 @@ theorem exists_ne_zero_isMultiHomogeneous_forall_coeff_blockSubst_hasseDeriv_eq_
     have hexp : -(((n : ℝ) + 1) * ((n : ℝ) + 2) * η ^ 2 * Fintype.card κ / 4)
         + (η * ((n : ℝ) + 1) * ((n : ℝ) + 2) / 2) ^ 2 / (2 * ((n : ℝ) + 1))
           * ∑ h, ((d h : ℝ))⁻¹
-        ≤ -Real.log (2 * ((n : ℝ) + 1) * Fintype.card S) := by
+        ≤ -Real.log (2 * (Fintype.card F : ℝ)) := by
       linarith [hD₀ d hd]
     calc Real.exp (-(((n : ℝ) + 1) * ((n : ℝ) + 2) * η ^ 2 * Fintype.card κ / 4)
             + (η * ((n : ℝ) + 1) * ((n : ℝ) + 2) / 2) ^ 2 / (2 * ((n : ℝ) + 1))
               * ∑ h, ((d h : ℝ))⁻¹)
-        ≤ Real.exp (-Real.log (2 * ((n : ℝ) + 1) * Fintype.card S)) := Real.exp_le_exp.mpr hexp
-      _ = (2 * ((n : ℝ) + 1) * Fintype.card S)⁻¹ := by
+        ≤ Real.exp (-Real.log (2 * (Fintype.card F : ℝ))) := Real.exp_le_exp.mpr hexp
+      _ = (2 * (Fintype.card F : ℝ))⁻¹ := by
           rw [Real.exp_neg, Real.exp_log (by positivity)]
-  -- there are at most half as many conditions as monomials
-  have hcount : 2 * (Fintype.card (Σ p : S × ι, ↥(Bad p.2)) : ℝ)
+  -- there are at most half as many conditions as monomials, one family for each form
+  have hcount : 2 * (Fintype.card (Σ f : F, ↥(Bad (rep f).2)) : ℝ)
       ≤ #(multiMons (ι := ι) d) := by
-    have hcardsig : (Fintype.card (Σ p : S × ι, ↥(Bad p.2)) : ℝ)
-        = ∑ p : S × ι, (#(Bad p.2) : ℝ) := by
+    have hcardsig : (Fintype.card (Σ f : F, ↥(Bad (rep f).2)) : ℝ)
+        = ∑ f : F, (#(Bad (rep f).2) : ℝ) := by
       rw [Fintype.card_sigma]
       push_cast
-      exact Finset.sum_congr rfl fun p _ ↦ by rw [Fintype.card_coe]
-    have hle : ∑ p : S × ι, (#(Bad p.2) : ℝ)
-        ≤ (Fintype.card S : ℝ) * ((n : ℝ) + 1)
-          * (#(multiMons (ι := ι) d) * (2 * ((n : ℝ) + 1) * Fintype.card S)⁻¹) := by
-      calc ∑ p : S × ι, (#(Bad p.2) : ℝ)
-          ≤ ∑ _p : S × ι,
-              (#(multiMons (ι := ι) d) : ℝ) * (2 * ((n : ℝ) + 1) * Fintype.card S)⁻¹ :=
-            Finset.sum_le_sum fun p _ ↦ hbad p.2
-        _ = (Fintype.card S : ℝ) * ((n : ℝ) + 1)
-              * (#(multiMons (ι := ι) d) * (2 * ((n : ℝ) + 1) * Fintype.card S)⁻¹) := by
-            rw [Finset.sum_const, Finset.card_univ, nsmul_eq_mul, Fintype.card_prod, ← hcιn]
-            push_cast
-            ring
+      exact Finset.sum_congr rfl fun f _ ↦ by rw [Fintype.card_coe]
+    have hle : ∑ f : F, (#(Bad (rep f).2) : ℝ)
+        ≤ (Fintype.card F : ℝ) * (#(multiMons (ι := ι) d) * (2 * (Fintype.card F : ℝ))⁻¹) := by
+      calc ∑ f : F, (#(Bad (rep f).2) : ℝ)
+          ≤ ∑ _f : F, (#(multiMons (ι := ι) d) : ℝ) * (2 * (Fintype.card F : ℝ))⁻¹ :=
+            Finset.sum_le_sum fun f _ ↦ hbad (rep f).2
+        _ = (Fintype.card F : ℝ) * (#(multiMons (ι := ι) d) * (2 * (Fintype.card F : ℝ))⁻¹) := by
+            rw [Finset.sum_const, Finset.card_univ, nsmul_eq_mul]
     rw [hcardsig]
-    have hn1 : (0 : ℝ) < (n : ℝ) + 1 := by positivity
-    have heq : 2 * ((Fintype.card S : ℝ) * ((n : ℝ) + 1)
-        * (#(multiMons (ι := ι) d) * (2 * ((n : ℝ) + 1) * Fintype.card S)⁻¹))
-        = (#(multiMons (ι := ι) d) : ℝ) := by field_simp
+    have heq : 2 * ((Fintype.card F : ℝ) * (#(multiMons (ι := ι) d)
+        * (2 * (Fintype.card F : ℝ))⁻¹)) = (#(multiMons (ι := ι) d) : ℝ) := by field_simp
     linarith [mul_le_mul_of_nonneg_left hle (by norm_num : (0 : ℝ) ≤ 2)]
   -- Siegel's lemma
   obtain ⟨P, hP0, hPmulti, hPcond, hPht⟩ :=
     exists_ne_zero_isMultiHomogeneous_coeff_blockSubst_eq_zero (d := d)
-      (Row := Σ p : S × ι, ↥(Bad p.2))
-      (fun r ↦ (A r.1.1)⁻¹) (fun r ↦ (r.2 : κ × ι →₀ ℕ)) hy0 (fun r w ↦ hMy r.1.1 w) hcount
+      (Row := Σ f : F, ↥(Bad (rep f).2))
+      (fun r ↦ (A (rep r.1).1)⁻¹) (fun r ↦ (r.2 : κ × ι →₀ ℕ)) hy0 (fun r w ↦ hMy (rep r.1).1 w)
+      hcount
   have hPsub : P.support ⊆ multiMons d := fun ν hν ↦
     mem_multiMons.mpr fun h ↦ hPmulti (MvPolynomial.mem_support_iff.mp hν) h
   have hPsupp : ∀ ν ∈ P.support, ∑ t, ν t ≤ ∑ h, d h := fun ν hν ↦
@@ -1143,6 +1152,38 @@ theorem exists_ne_zero_isMultiHomogeneous_forall_coeff_blockSubst_hasseDeriv_eq_
           + Height.totalWeight K * Real.log (Fintype.card ι)
           + Real.log (Height.mulHeight y))) * ∑ h, (d h : ℝ) := by
     nlinarith [hPht, hdisc0, hD1]
+  -- the conditions at a form hold in every system it belongs to
+  have hvan : ∀ (v : S) (i₀ : ι) (N : κ × ι →₀ ℕ), N ∈ multiMons d →
+      ∑ h, (N (h, i₀) : ℝ) / (d h : ℝ) ≤ Fintype.card κ / ((n : ℝ) + 1) - Fintype.card κ * η →
+      (blockSubst (A v)⁻¹ P).coeff N = 0 := by
+    intro v i₀ N _ hNle
+    obtain ⟨f, hf⟩ := hrep v i₀
+    set θ : ℝ := Fintype.card κ / ((n : ℝ) + 1) - Fintype.card κ * η with hθ
+    set U : Set (κ → ℕ) := {e | θ < ∑ h, (e h : ℝ) / (d h : ℝ)} with hUdef
+    have hU : IsUpperSet U := by
+      intro a b hab ha
+      simp only [hUdef, Set.mem_ofPred_eq] at ha ⊢
+      refine lt_of_lt_of_le ha (Finset.sum_le_sum fun h _ ↦ ?_)
+      exact div_le_div_of_nonneg_right (by exact_mod_cast hab h) (Nat.cast_nonneg _)
+    have hQ : ∀ J, (blockSubst (A (rep f).1)⁻¹ P).coeff J ≠ 0 →
+        (fun h ↦ J (h, (rep f).2)) ∈ U := by
+      intro J hJ
+      by_contra hle
+      simp only [hUdef, Set.mem_ofPred_eq, not_lt] at hle
+      have hJm : J ∈ multiMons d :=
+        mem_multiMons.mpr fun h ↦ (hPmulti.blockSubst ((A (rep f).1)⁻¹)) hJ h
+      exact hJ (hPcond ⟨f, ⟨J, (hBad (rep f).2 J).mpr ⟨hJm, hle⟩⟩⟩)
+    have hC : ∀ j, (A (rep f).1 * (A v)⁻¹) (rep f).2 j = (1 : Matrix ι ι K) i₀ j := by
+      intro j
+      rw [← Matrix.mul_nonsing_inv _ (hA v), Matrix.mul_apply, Matrix.mul_apply, hf]
+    have hcomp : blockSubst (A (rep f).1 * (A v)⁻¹) (blockSubst (A (rep f).1)⁻¹ P)
+        = blockSubst (A v)⁻¹ P := by
+      rw [blockSubst_comp, ← Matrix.mul_assoc, Matrix.nonsing_inv_mul _ (hA (rep f).1),
+        Matrix.one_mul]
+    by_contra hne
+    have h := blockSubst_coeff_mem_of_row hC hU hQ N (by rwa [hcomp])
+    simp only [hUdef, Set.mem_ofPred_eq] at h
+    linarith
   -- the vanishing in the low case
   have hlow : ∀ (v : S) (I J : κ × ι →₀ ℕ) (i₀ : ι),
       ∑ h, (∑ i, (I (h, i) : ℝ)) / (d h : ℝ) ≤ Fintype.card κ * η →
@@ -1156,7 +1197,7 @@ theorem exists_ne_zero_isMultiHomogeneous_forall_coeff_blockSubst_hasseDeriv_eq_
         (blockSubst ((A v)⁻¹) P).coeff (J + I') = 0 := by
       intro I' hI'
       by_cases hmem : J + I' ∈ multiMons d
-      · refine hPcond ⟨(v, i₀), ⟨J + I', (hBad i₀ (J + I')).mpr ⟨hmem, ?_⟩⟩⟩
+      · refine hvan v i₀ (J + I') hmem ?_
         have hsplit : ∀ h : κ, ((J + I') (h, i₀) : ℝ) / (d h : ℝ)
             = (J (h, i₀) : ℝ) / (d h : ℝ) + (I' (h, i₀) : ℝ) / (d h : ℝ) := by
           intro h

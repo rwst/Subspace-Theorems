@@ -25,8 +25,8 @@ The dichotomy is on the **pattern** of `V(Q)`: at each place of `S`, the set `I 
 for which the wedge of the forms `L v i'`, `i' ≠ i`, does not vanish at the Plücker point. Let
 `k v` be the index of `I v` with the largest exponent. If the weight along `k` is at least
 `-ε/4`, the two bounds of `DiophantineApproximation/SubspaceHeightBounds.lean` apply and give the
-lower bound. If it is below `-ε/4`, then `V(Q)` is the kernel of a vector fixed in advance by the
-pattern, and there are only finitely many patterns.
+lower bound. If it is below `-ε/4`, then `V(Q)` is the kernel of a single vector fixed in
+advance, the same for every such `Q`.
 
 ## Main definitions
 
@@ -37,7 +37,7 @@ pattern, and there are only finitely many patterns.
 ## Main results
 
 * `NumberField.exists_finite_forall_logHeight_approxSpan`: **the milestone**, Lemma 7.5.21, with
-  at most `2 ^ (#ι |S|)` exceptional subspaces.
+  at most one exceptional subspace.
 * `NumberField.exists_finite_forall_mem_of_weightAt_lt`: the exceptional alternative.
 * `NumberField.mem_span_vec_of_normal`: the normal vector of `V(Q)` is carried by its pattern.
 * `NumberField.one_le_mul_rpow_weightAt`: the product formula against the bounds at `S`.
@@ -47,13 +47,23 @@ pattern, and there are only finitely many patterns.
 
 ## Implementation notes
 
-⚠ **The book's exceptional space is one space per pattern, not one space.** Bombieri–Gubler write
-"there is a linear space `W`, independent of `Π(Q)` and `ε`"; their proof fixes one solution `w`
-of the system `L̂_{v i}(w) = 0`, `i ∉ I_v`, and that system depends on the pattern `(I_v)`, which
-moves with `Q`. What is true is that there are finitely many patterns and hence finitely many
-exceptional subspaces, which is all Step IV consumes: a pattern is a subset of `ι` at each place
-of `S`, so there are at most `2 ^ (#ι |S|)` of them. A formal statement with a single `W` is not
-what the proof gives.
+⚠ **The book's single exceptional space is true, but its proof does not give it.**
+Bombieri–Gubler write "there is a linear space `W`, independent of `Π(Q)` and `ε`"; their proof
+fixes one solution `w` of the system `L̂_{v i}(w) = 0`, `i ∉ I_v`, and that system depends on the
+pattern `(I_v)`, which moves with `Q`. The single space comes from Evertse–Schlickewei 2002,
+Lemma 12.3: the vector is chosen once and for all, and then shown to kill the domain at *every*
+large level.
+
+⚠ **The exceptional vector is chosen by a condition independent of `Q`.** Only two facts about
+the pattern `I v` are used: it carries the normal vector of `V(Q)`, and every index in it has
+exponent at most `c v (k v)`. The threshold set `{i | c v i ≤ c v (k v)}` contains `I v`, has both
+properties and depends on `k v` alone (Evertse 1996, Lemma 27). Call `k` *bad* if
+`weightAt c k < -ε/4` and its threshold pattern carries a nonzero vector; that is a condition on
+`k`, not on `Q`. If some `k` is bad, fix one, `k₀`, and its vector `ζ₀`: the product formula
+gives `ζ₀ · x = 0` for every `x` of every domain of large level, so every `V(Q)` of rank `n` is
+`ker ζ₀`. If none is bad, the exceptional alternative never occurs. Either way there is at most
+one exceptional subspace (Evertse–Schlickewei 2002, Lemma 12.4), against `2 ^ (#ι |S|)` patterns.
+In `⋀^p` this removes the number of places from the count of the parametric theorem.
 
 ⚠ **The system is an intersection of spans of coefficient vectors, and no star operator appears.**
 Read in the original coordinates, `L̂_{v i}(w) = 0` for `i ∉ I_v` says exactly that `w` lies in the
@@ -425,7 +435,7 @@ theorem exists_finite_forall_mem_of_weightAt_lt {n : ℕ} (hlk : 1 + n = Fintype
     (hLfin : ∀ w ∈ S₀, LinearIndependent K (L w.1))
     {ε : ℝ} (hε : 0 < ε) :
     ∃ (𝒲 : Set (Submodule K (ι → K))) (C₄ : ℝ), 𝒲.Finite ∧
-      𝒲.ncard ≤ 2 ^ (Fintype.card ι * (Fintype.card (InfinitePlace K) + #S₀)) ∧
+      𝒲.ncard ≤ 1 ∧
       C₄ = 4 * ((Height.totalWeight K + #S₀ : ℕ) * Real.log (patternConst S₀ L)
         + Real.log (2 * patternHeightBound S₀ L)) + 1 ∧
       ∀ Q : ℝ, 1 ≤ Q → C₄ / ε ≤ Real.log Q →
@@ -478,70 +488,97 @@ theorem exists_finite_forall_mem_of_weightAt_lt {n : ℕ} (hlk : 1 + n = Fintype
       (f := fun w : {w : FinitePlace K // w ∈ S₀} ↦ invFormBound w.1.1 (L w.1.1))
       (fun w _ ↦ hIFB _ (hLfin w.1 w.2)) (Finset.mem_univ w)
     exact mul_le_mul_of_nonneg_left (by linarith) (Nat.cast_nonneg _)
-  refine ⟨Set.range fun p ↦ LinearMap.ker (Module.piEquiv ι K K (ζ p)),
-    4 * ((m : ℝ) * Real.log A + Real.log (2 * HB)) + 1, Set.finite_range _, ?_, rfl, ?_⟩
-  · rw [← Set.image_univ, ← Finset.coe_univ, ← Finset.coe_image, Set.ncard_coe_finset]
-    refine Finset.card_image_le.trans (le_of_eq ?_)
-    rw [Finset.card_univ, Fintype.card_prod, Fintype.card_fun, Fintype.card_fun,
-      Fintype.card_finset, Fintype.card_coe, ← pow_add, ← pow_mul, mul_add]
+  -- the pattern of a choice `k` of one index per place: the indices of exponent at most `c v k`
+  set pat : (InfinitePlace K → ι) × ({w : FinitePlace K // w ∈ S₀} → ι) →
+      (InfinitePlace K → Finset ι) × ({w : FinitePlace K // w ∈ S₀} → Finset ι) :=
+    fun k ↦ (fun w ↦ univ.filter fun i ↦ c w.1 i ≤ c w.1 (k.1 w),
+      fun w ↦ univ.filter fun i ↦ c w.1.1 i ≤ c w.1.1 (k.2 w)) with hpat
+  set pat' : (AbsoluteValue K ℝ → ι) →
+      (InfinitePlace K → Finset ι) × ({w : FinitePlace K // w ∈ S₀} → Finset ι) :=
+    fun k ↦ pat (fun w ↦ k w.1, fun w ↦ k w.1.1) with hpat'
+  -- the bad choices: weight below `-ε/4` along `k`, and a nonzero vector in the pattern of `k`;
+  -- a condition independent of `Q`, so one of them can be fixed in advance
+  set B : Set (AbsoluteValue K ℝ → ι) :=
+    {k | weightAt S₀ c k < -ε / 4 ∧ ∃ ξ ∈ patternSpace S₀ L (pat' k), ξ ≠ 0} with hBdef
+  refine ⟨if hB : B.Nonempty then {LinearMap.ker (Module.piEquiv ι K K (ζ (pat' hB.some)))}
+      else ∅, 4 * ((m : ℝ) * Real.log A + Real.log (2 * HB)) + 1, ?_, ?_, rfl, ?_⟩
+  · split_ifs
+    · exact Set.finite_singleton _
+    · exact Set.finite_empty
+  · split_ifs
+    · rw [Set.ncard_singleton]
+    · rw [Set.ncard_empty]; exact zero_le_one
   intro Q hQ hQlarge y hyli hy k hkI hkF hbad
   have hQ0 : (0 : ℝ) < Q := by linarith
   set T : AbsoluteValue K ℝ → Finset ι := fun v ↦
     univ.filter fun i ↦ plucker n (fun j i' ↦ L v i' (y j))
       (Set.powersetCard.omitOne hlk i) ≠ 0 with hT
-  set p₀ : (InfinitePlace K → Finset ι) × ({w : FinitePlace K // w ∈ S₀} → Finset ι) :=
-    (fun w ↦ T w.1, fun w ↦ T w.1.1) with hp₀
+  set p₀ := pat' k with hp₀
   obtain ⟨ζQ, hζQ0, hζQker, -⟩ := Submodule.exists_normal hyli rfl hlk
   have hmemT : ∀ (v : AbsoluteValue K ℝ) (i : ι), i ∈ T v ↔
       plucker n (fun j i' ↦ L v i' (y j)) (Set.powersetCard.omitOne hlk i) ≠ 0 := by
     intro v i
     rw [hT]
     simp
+  -- the support of the normal vector lies in the pattern of `k`
+  have hspan : ∀ (v : AbsoluteValue K ℝ), (∀ i, i ∈ T v → c v i ≤ c v (k v)) →
+      LinearIndependent K (L v) →
+      ζQ ∈ Submodule.span K (Set.range
+        fun i : {i : ι // i ∈ univ.filter fun i ↦ c v i ≤ c v (k v)} ↦ (L v i.1).vec) := by
+    intro v hkv hv
+    refine Submodule.span_mono ?_ (mem_span_vec_of_normal hyli rfl hlk hζQker hv (T v) (hmemT v))
+    rintro _ ⟨i, rfl⟩
+    exact ⟨⟨i.1, Finset.mem_filter.2 ⟨Finset.mem_univ _, hkv i.1 i.2⟩⟩, rfl⟩
   have hζQU : ζQ ∈ patternSpace S₀ L p₀ := by
     refine ⟨Submodule.mem_iInf _ |>.mpr fun w ↦ ?_, Submodule.mem_iInf _ |>.mpr fun w ↦ ?_⟩
-    · exact mem_span_vec_of_normal hyli rfl hlk hζQker (hLinf w) (T w.1) (hmemT w.1)
-    · exact mem_span_vec_of_normal hyli rfl hlk hζQker (hLfin w.1 w.2) (T w.1.1) (hmemT w.1.1)
-  obtain ⟨hζU, hζ0, hζH⟩ := hdata p₀ ⟨ζQ, hζQU, hζQ0⟩
-  have hvanish : ∀ j, ζ p₀ ⬝ᵥ y j = 0 := by
+    · exact hspan w.1 (fun i hi ↦ hkI w i ((hmemT w.1 i).mp hi)) (hLinf w)
+    · exact hspan w.1.1 (fun i hi ↦ hkF w.1 w.2 i ((hmemT w.1.1 i).mp hi)) (hLfin w.1 w.2)
+  -- `k` is bad, so some bad choice `k₀` was fixed in advance, and its vector kills `y`
+  have hB : B.Nonempty := ⟨k, hbad, ζQ, hζQU, hζQ0⟩
+  set k₀ := hB.some with hk₀def
+  have hk₀ : k₀ ∈ B := hB.some_mem
+  set p₁ := pat' k₀ with hp₁
+  obtain ⟨hζU, hζ0, hζH⟩ := hdata p₁ hk₀.2
+  have hvanish : ∀ j, ζ p₁ ⬝ᵥ y j = 0 := by
     intro j
     by_contra hne
-    have hnn : ∀ v : AbsoluteValue K ℝ, (0 : ℝ) ≤ ⨆ i, v (ζ p₀ i) :=
+    have hnn : ∀ v : AbsoluteValue K ℝ, (0 : ℝ) ≤ ⨆ i, v (ζ p₁ i) :=
       fun v ↦ Real.iSup_nonneg fun i ↦ v.nonneg _
     have hI : ∀ w : InfinitePlace K,
-        w (ζ p₀ ⬝ᵥ y j) ≤ A * (⨆ i, w (ζ p₀ i)) * Q ^ c w.1 (k w.1) := by
+        w (ζ p₁ ⬝ᵥ y j) ≤ A * (⨆ i, w (ζ p₁ i)) * Q ^ c w.1 (k₀ w.1) := by
       intro w
-      refine (apply_dotProduct_le_of_mem_span_vec w.1 (hLinf w) (T w.1)
-        (Submodule.mem_iInf _ |>.mp hζU.1 w) (y j) (b := Q ^ c w.1 (k w.1))
+      refine (apply_dotProduct_le_of_mem_span_vec w.1 (hLinf w) _
+        (Submodule.mem_iInf _ |>.mp hζU.1 w) (y j) (b := Q ^ c w.1 (k₀ w.1))
         (Real.rpow_nonneg hQ0.le _)
         fun i hi ↦ ?_).trans ?_
       · exact le_trans ((hy j).1 w i)
-          (Real.rpow_le_rpow_of_exponent_le hQ (hkI w i ((hmemT w.1 i).mp hi)))
+          (Real.rpow_le_rpow_of_exponent_le hQ (Finset.mem_filter.1 hi).2)
       · exact mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right (hAI w) (hnn w.1))
           (Real.rpow_nonneg hQ0.le _)
-    have hF : ∀ w ∈ S₀, w (ζ p₀ ⬝ᵥ y j) ≤ A * (⨆ i, w (ζ p₀ i)) * Q ^ c w.1 (k w.1) := by
+    have hF : ∀ w ∈ S₀, w (ζ p₁ ⬝ᵥ y j) ≤ A * (⨆ i, w (ζ p₁ i)) * Q ^ c w.1 (k₀ w.1) := by
       intro w hw
-      refine (apply_dotProduct_le_of_mem_span_vec w.1 (hLfin w hw) (T w.1)
-        (Submodule.mem_iInf _ |>.mp hζU.2 ⟨w, hw⟩) (y j) (b := Q ^ c w.1 (k w.1))
+      refine (apply_dotProduct_le_of_mem_span_vec w.1 (hLfin w hw) _
+        (Submodule.mem_iInf _ |>.mp hζU.2 ⟨w, hw⟩) (y j) (b := Q ^ c w.1 (k₀ w.1))
         (Real.rpow_nonneg hQ0.le _)
         fun i hi ↦ ?_).trans ?_
       · exact le_trans ((hy j).2.1 w hw i)
-          (Real.rpow_le_rpow_of_exponent_le hQ (hkF w hw i ((hmemT w.1 i).mp hi)))
+          (Real.rpow_le_rpow_of_exponent_le hQ (Finset.mem_filter.1 hi).2)
       · exact mul_le_mul_of_nonneg_right
           (mul_le_mul_of_nonneg_right (hAF ⟨w, hw⟩) (hnn w.1)) (Real.rpow_nonneg hQ0.le _)
-    have hO : ∀ w : FinitePlace K, w ∉ S₀ → w (ζ p₀ ⬝ᵥ y j) ≤ ⨆ i, w (ζ p₀ i) := by
+    have hO : ∀ w : FinitePlace K, w ∉ S₀ → w (ζ p₁ ⬝ᵥ y j) ≤ ⨆ i, w (ζ p₁ i) := by
       intro w hw
       rw [dotProduct]
       refine AbsoluteValue.apply_sum_le_of_le_of_isNonarchimedean (fun a b ↦ w.add_le a b)
         univ _ (hnn w.1) fun i _ ↦ ?_
       rw [map_mul]
-      have h1 : w (ζ p₀ i) ≤ ⨆ i, w (ζ p₀ i) := Finite.le_ciSup_of_le i le_rfl
+      have h1 : w (ζ p₁ i) ≤ ⨆ i, w (ζ p₁ i) := Finite.le_ciSup_of_le i le_rfl
       have hmul := mul_le_mul h1 ((hy j).2.2 w hw i) (w.1.nonneg _) (hnn w.1)
       rwa [mul_one] at hmul
     have hone := one_le_mul_mulHeight_rpow_weightAt (c := c) hQ hne hA1 hζ0 hI hF hO
-    have hstep : Q ^ weightAt S₀ c k ≤ Q ^ (-ε / 4) :=
-      Real.rpow_le_rpow_of_exponent_le hQ hbad.le
+    have hstep : Q ^ weightAt S₀ c k₀ ≤ Q ^ (-ε / 4) :=
+      Real.rpow_le_rpow_of_exponent_le hQ hk₀.1.le
     have hApos : (0 : ℝ) < A ^ m := pow_pos (by linarith) _
-    have hH1 : (1 : ℝ) ≤ Height.mulHeight (ζ p₀) := Height.one_le_mulHeight _
+    have hH1 : (1 : ℝ) ≤ Height.mulHeight (ζ p₁) := Height.one_le_mulHeight _
     have hHB : (0 : ℝ) < 2 * HB := by linarith
     have h2 : (1 : ℝ) ≤ A ^ m * (2 * HB) * Q ^ (-ε / 4) :=
       le_trans hone (mul_le_mul (mul_le_mul_of_nonneg_left hζH hApos.le) hstep
@@ -559,20 +596,22 @@ theorem exists_finite_forall_mem_of_weightAt_lt {n : ℕ} (hlk : 1 + n = Fintype
     nlinarith
   have hVrank : Module.finrank K (Submodule.span K (Set.range y)) = n :=
     (finrank_span_eq_card hyli).trans (Fintype.card_fin n)
-  have hle : Submodule.span K (Set.range y) ≤ LinearMap.ker (Module.piEquiv ι K K (ζ p₀)) := by
+  have hle : Submodule.span K (Set.range y) ≤ LinearMap.ker (Module.piEquiv ι K K (ζ p₁)) := by
     rw [Submodule.span_le]
     rintro _ ⟨j, rfl⟩
     simp only [SetLike.mem_coe, LinearMap.mem_ker, Module.piEquiv_apply_apply, smul_eq_mul]
     have := hvanish j
     rw [dotProduct_comm] at this
     simpa [dotProduct] using this
-  have hlt : Module.finrank K (LinearMap.ker (Module.piEquiv ι K K (ζ p₀))) < Fintype.card ι := by
-    have hne : Module.piEquiv ι K K (ζ p₀) ≠ 0 := by
+  have hlt : Module.finrank K (LinearMap.ker (Module.piEquiv ι K K (ζ p₁))) < Fintype.card ι := by
+    have hne : Module.piEquiv ι K K (ζ p₁) ≠ 0 := by
       simpa using (Module.piEquiv ι K K).map_eq_zero_iff.not.mpr hζ0
     have := Submodule.finrank_lt (K := K) (V := ι → K)
-      (s := LinearMap.ker (Module.piEquiv ι K K (ζ p₀))) (by rwa [Ne, LinearMap.ker_eq_top])
+      (s := LinearMap.ker (Module.piEquiv ι K K (ζ p₁))) (by rwa [Ne, LinearMap.ker_eq_top])
     rwa [finrank_fintype_fun_eq_card] at this
-  exact ⟨p₀, (Submodule.eq_of_le_of_finrank_le hle (by rw [hVrank]; omega)).symm⟩
+  have heq := Submodule.eq_of_le_of_finrank_le hle (by rw [hVrank]; omega)
+  simp only [hB, ↓reduceDIte, Set.mem_singleton_iff]
+  exact heq
 
 omit [NumberField K] [Nonempty ι] in
 /-- Every `n`-subset of an `(n+1)`-element index type omits exactly one index. -/
@@ -591,7 +630,7 @@ theorem exists_finite_forall_logHeight_approxSpan {n : ℕ} (hlk : 1 + n = Finty
     (hLfin : ∀ w ∈ S₀, LinearIndependent K (L w.1))
     {ε : ℝ} (hε : 0 < ε) (hweight : approxWeight S₀ c ≤ -ε / 2) :
     ∃ (𝒲 : Set (Submodule K (ι → K))) (C₄ C₅ C₆ : ℝ), 𝒲.Finite ∧
-      𝒲.ncard ≤ 2 ^ (Fintype.card ι * (Fintype.card (InfinitePlace K) + #S₀)) ∧
+      𝒲.ncard ≤ 1 ∧
       C₄ = 4 * ((Height.totalWeight K + #S₀ : ℕ) * Real.log (patternConst S₀ L)
         + Real.log (2 * patternHeightBound S₀ L)) + 1 ∧
       C₅ = |((Fintype.card (InfinitePlace K) + #S₀ : ℕ) : ℝ) * Real.log (normalKappa n S₀ L)⁻¹

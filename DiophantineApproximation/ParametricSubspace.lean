@@ -7,7 +7,7 @@ module
 
 public import DiophantineApproximation.WedgeExponentBound
 public import DiophantineApproximation.WedgeRecovery
-public import DiophantineApproximation.ExponentGrid
+public import DiophantineApproximation.MinimaGrid
 public import DiophantineApproximation.PenultimateMinimum
 
 /-!
@@ -24,12 +24,14 @@ The route, for a level `Q` at which the domain has rank `R`:
 
 * `R = 0`. The domain spans `⊥`, which is proper.
 * `1 ≤ R < #ι`. Layer 4.3 makes the rank less than `#ι` at every large level. The choice (7.41) of
-  Layer 4.5 gives a `k` in `[R, #ι)` at which the jump of the minima is large; Evertse's lemma
-  (Layer 4.4), applied to vectors realizing the minima, produces vectors `y` whose wedges of the
-  `p`-subsets meeting `y 0, …, y (k - 1)`, `k + p = #ι`, lie in a domain in `⋀^p Kⁱ` whose
-  exponents `wedgeExponent` move with `Q` (Layer 4.5). Those exponents stay in a box
-  (`WedgeExponentBound.lean`), so rounding them up to a grid of mesh `γ`
-  (`ExponentGrid.lean`) leaves finitely many systems of exponents, each still of negative weight;
+  Layer 4.5 gives a `k` in `[R, #ι)` at which the jump of the minima is large. The vectors
+  realizing the minima, scaled so that the minima sit at one infinite place `w₀`, and Evertse's
+  lemma (Layer 4.4) there produce vectors `y` whose wedges of the `p`-subsets meeting
+  `y 0, …, y (k - 1)`, `k + p = #ι`, lie in a domain in `⋀^p Kⁱ` whose exponents
+  `wedgeExponentAt` move with `Q` (`WedgeDomainAt.lean`). They move only through the minima, one
+  bijection of Evertse's lemma and a constant, all in a box, so rounding those up to a grid of
+  mesh `γ` (`MinimaGrid.lean`) leaves finitely many systems of exponents, each still of negative
+  weight (`WedgeExponentBound.lean`);
   the wedge domain is contained in the domain of the rounded system, whose rank is at most
   `M - 1 = #(⋀^p) - 1` at every large level by Layer 4.3 and is therefore **exactly** `M - 1`,
   since the wedges already span a hyperplane. Layer 5.6 in `⋀^p Kⁱ` makes those spans finite in
@@ -48,7 +50,10 @@ The route, for a level `Q` at which the domain has rank `R`:
   of intervals.
 * `NumberField.exists_forall_mem_interval_approxDomain`: **Layer 6.1 as an interval result**,
   with the counts `parametricSubspaceCount`, `parametricIntervalCount` and the ratio
-  `parametricRatio` closed forms in `#ι`, `[K : ℚ]`, the number of places, `ε` and `A`.
+  `parametricRatio` closed forms in `#ι`, `[K : ℚ]`, a bound `s` on the number of distinct
+  forms, `ε` and `A`.
+* `NumberField.formCount_wedgeForms_le`: at most `s ^ p` distinct wedge forms in `⋀^p`, so the
+  chain length of Layer 5.6 there is taken at `s ^ p`.
 * `NumberField.exists_finset_submodule_forall_approxDomain_subset`: **the milestone**, read off
   the interval result.
 
@@ -93,6 +98,21 @@ as an interval result in `⋀^p`, whose exceptional subspaces are pulled back th
 `recoverSpan`. The number of classes is bounded because the box is explicit: the minima exponent
 is `B = N (A + 1) / d`. The ratios differ between the `p`, and their sum bounds each of them.
 
+⚠ **The grid rounds the minima, not the exponents** (Evertse 1996, Lemma 18). Rounding every
+wedge exponent separately would give `(2 m + 1) ^ (r binom(N, p))` grids, doubly exponential in
+`N`. The wedge exponents are functions of the `N` minima, the jump, a constant and the
+bijections, so rounding those `N + 2` numbers gives `N! ^ #bijections (2 m + 1) ^ (N + 2)` grids
+(`NumberField.minimaGrid`), at the cost of a mesh `N + 2` times finer.
+
+⚠ **The minima sit at one place** (Evertse–Schlickewei 2002, § 9 and Lemma 18.1). The book's
+wedge domain reads the minima at every infinite place, through one bijection per place, which
+would cost `N! ^ r` grids, `r` the number of infinite places. Scaling each realizing vector by a
+scalar from Minkowski's theorem (`NumberField.exists_balance`) moves its minimum to one infinite
+place `w₀` with `mult w₀ ∣ [K : ℚ]`, at the cost of a constant; Evertse's lemma then needs one
+bijection, and there are `N! (2 m + 1) ^ (N + 2)` grids. Together with the single exceptional
+subspace of Layer 5.4 in `⋀^p`, the counts are singly exponential in `N` and depend neither on the
+number of places nor on that of the infinite places.
+
 ⚠ **The order on `ι` is internal.** The milestone is stated without `[LinearOrder ι]`: the wedge
 construction needs an order to index the Plücker coordinates, but the statement does not mention
 one, so the proof chooses one by transport from `Fin (#ι)`.
@@ -122,42 +142,35 @@ variable {K : Type*} [Field K] [NumberField K] {ι : Type u} [Fintype ι]
 
 omit [Fintype ι] in
 /-- **The grid systems have uniformly bounded absolute weight**: rounding at the infinite places by
-at most `m` steps of mesh `γ` raises the weight of the absolute values of the exponents by at most
-`γ m #ρ [K : ℚ]`. So every class of the parametric Subspace Theorem shares one bound `A` in
+integers `g w i` raises the weight of the absolute values of the exponents by at most `γ` times
+`∑_w mult w ∑_i |g w i|`. So every class of the parametric Subspace Theorem shares one bound `A` in
 `NumberField.exists_forall_not_chain`, and with it one chain length and one ratio. -/
 theorem approxAbsWeight_gridExponent_le {ρ : Type*} [Fintype ρ] (Sfin : Finset (FinitePlace K))
-    (cT : AbsoluteValue K ℝ → ρ → ℝ) {γ : ℝ} (hγ : 0 ≤ γ) {g : InfinitePlace K → ρ → ℤ} {m : ℤ}
-    (hg : ∀ w T, |g w T| ≤ m) :
-    approxAbsWeight Sfin (gridExponent cT γ g)
-      ≤ approxAbsWeight Sfin cT + γ * m * (Fintype.card ρ * finrank ℚ K) := by
+    (cT : AbsoluteValue K ℝ → ρ → ℝ) {γ : ℝ} (hγ : 0 ≤ γ) {g : InfinitePlace K → ρ → ℤ} {X : ℝ}
+    (hg : ∑ w : InfinitePlace K, (w.mult : ℝ) * ∑ i, |(g w i : ℝ)| ≤ X) :
+    approxAbsWeight Sfin (gridExponent cT γ g) ≤ approxAbsWeight Sfin cT + γ * X := by
   classical
   have hfin : ∀ v ∈ Sfin, ∀ i, gridExponent cT γ g v.1 i = cT v.1 i := fun v _ i ↦
     gridExponent_of_forall_ne cT g (fun w hcc ↦ InfinitePlace.not_isNonarchimedean w
       (by rw [hcc]; exact fun a b ↦ v.add_le a b)) i
   have hinf : ∀ (w : InfinitePlace K) (i : ρ),
-      |gridExponent cT γ g w.1 i| ≤ |cT w.1 i| + γ * m := fun w i ↦ by
+      |gridExponent cT γ g w.1 i| ≤ |cT w.1 i| + γ * |(g w i : ℝ)| := fun w i ↦ by
     rw [gridExponent_infinitePlace]
     refine (abs_add_le _ _).trans (add_le_add le_rfl ?_)
     rw [abs_mul, abs_of_nonneg hγ]
-    exact mul_le_mul_of_nonneg_left (by exact_mod_cast hg w i) hγ
   have hle : ∑ v : InfinitePlace K, (v.mult : ℝ) * ∑ i, |gridExponent cT γ g v.1 i|
-      ≤ ∑ v : InfinitePlace K, (v.mult : ℝ) * ∑ i, (|cT v.1 i| + γ * m) :=
-    Finset.sum_le_sum fun v _ ↦ mul_le_mul_of_nonneg_left
-      (Finset.sum_le_sum fun i _ ↦ hinf v i) (Nat.cast_nonneg _)
-  have heq : ∑ v : InfinitePlace K, (v.mult : ℝ) * ∑ i, (|cT v.1 i| + γ * m)
-      = ∑ v : InfinitePlace K, (v.mult : ℝ) * ∑ i, |cT v.1 i|
-        + γ * m * (Fintype.card ρ * finrank ℚ K) := by
-    have hsum : ∑ v : InfinitePlace K, (v.mult : ℝ) = finrank ℚ K := by
-      exact_mod_cast InfinitePlace.sum_mult_eq
-    simp only [Finset.sum_add_distrib, Finset.sum_const, Finset.card_univ, nsmul_eq_mul,
-      mul_add]
-    rw [← hsum, Finset.mul_sum, Finset.mul_sum]
-    congr 1
-    exact Finset.sum_congr rfl fun v _ ↦ by ring
+      ≤ ∑ v : InfinitePlace K, (v.mult : ℝ) * ∑ i, |cT v.1 i| +
+        γ * ∑ w : InfinitePlace K, (w.mult : ℝ) * ∑ i, |(g w i : ℝ)| := by
+    rw [Finset.mul_sum, ← Finset.sum_add_distrib]
+    refine Finset.sum_le_sum fun v _ ↦ ?_
+    calc (v.mult : ℝ) * ∑ i, |gridExponent cT γ g v.1 i|
+        ≤ (v.mult : ℝ) * ∑ i, (|cT v.1 i| + γ * |(g v i : ℝ)|) :=
+          mul_le_mul_of_nonneg_left (Finset.sum_le_sum fun i _ ↦ hinf v i) (Nat.cast_nonneg _)
+      _ = _ := by rw [Finset.sum_add_distrib, ← Finset.mul_sum]; ring
   have hfin' : ∑ v ∈ Sfin, ∑ i, |gridExponent cT γ g v.1 i| = ∑ v ∈ Sfin, ∑ i, |cT v.1 i| :=
     Finset.sum_congr rfl fun v hv ↦ Finset.sum_congr rfl fun i _ ↦ by rw [hfin v hv i]
   rw [approxAbsWeight, approxAbsWeight, hfin']
-  linarith
+  nlinarith [mul_le_mul_of_nonneg_left hg hγ]
 
 /-- **The sums over `p`-subsets have absolute weight at most `#(⋀^p)` times that of the
 exponents**: each `|∑_{t ∈ T} c v t|` is at most `∑_i |c v i|`. -/
@@ -182,8 +195,8 @@ theorem approxAbsWeight_sum_le (Sfin : Finset (FinitePlace K)) (c : AbsoluteValu
 
 /-! ### The parameters
 
-Everything below is a function of `N = #ι`, `d = [K : ℚ]`, the number `r` of infinite places,
-`s = r + |Sfin|`, the margin `ε` of the weight and a bound `A` on the absolute weight. The index
+Everything below is a function of `N = #ι`, `d = [K : ℚ]`, a bound `s` on the number of distinct
+forms, the margin `ε` of the weight and a bound `A` on the absolute weight. The index
 `p` is the size of the subsets, so that the wedge domains live in `⋀^p Kⁱ` of dimension
 `binom(N, p)`. -/
 
@@ -197,43 +210,52 @@ noncomputable def parametricMinimaExp (N d : ℕ) (A : ℝ) : ℝ :=
 noncomputable def parametricDelta (N : ℕ) (ε : ℝ) : ℝ :=
   ε / (2 * (N : ℝ) ^ 2)
 
-/-- **The mesh of the grid** in `⋀^p`, `γ = δ / (2 d binom(N, p))`. -/
+/-- **The mesh of the grid** in `⋀^p`, `γ = δ / (2 d binom(N, p) (N + 2))`: an entry of a grid of
+the minima costs up to `p + 2 ≤ N + 2` roundings in the weight
+(`NumberField.approxWeight_gridExponent_minimaGrid_le`). -/
 noncomputable def parametricMesh (N d p : ℕ) (ε : ℝ) : ℝ :=
-  parametricDelta N ε / (2 * ((d : ℝ) * (N.choose p : ℝ)))
+  parametricDelta N ε / (2 * ((d : ℝ) * (N.choose p : ℝ) * ((N : ℝ) + 2)))
 
 /-- **The size of the box of grids**, `m = ⌈(1 + B N + 2 B) / γ⌉`. -/
 noncomputable def parametricBox (N d p : ℕ) (ε A : ℝ) : ℤ :=
   ⌈(1 + parametricMinimaExp N d A * N + 2 * parametricMinimaExp N d A)
     / parametricMesh N d p ε⌉
 
-/-- **The number of grids**, `(2 m + 1) ^ (r binom(N, p))`. -/
-noncomputable def parametricGridCount (N d r p : ℕ) (ε A : ℝ) : ℕ :=
-  (2 * parametricBox N d p ε A + 1).toNat ^ (r * N.choose p)
+/-- **The number of grids**, `N! (2 m + 1) ^ (N + 2)`: the grids of the minima at one place
+(`NumberField.minimaGrid`), one bijection and `N + 2` integers. -/
+noncomputable def parametricGridCount (N d p : ℕ) (ε A : ℝ) : ℕ :=
+  N.factorial * (2 * parametricBox N d p ε A + 1).toNat ^ (N + 2)
 
 /-- **A bound for the absolute weight of every grid system**,
-`binom(N, p) A + γ m binom(N, p) d`. -/
+`binom(N, p) A + γ (m + N + 2) binom(N, p) d`: the entries of the grids in play are at most
+`m + N + 2`, one box and `N + 2` roundings. -/
 noncomputable def parametricWedgeAbsWeight (N d p : ℕ) (ε A : ℝ) : ℝ :=
-  N.choose p * A + parametricMesh N d p ε * parametricBox N d p ε A * (N.choose p * d)
+  N.choose p * A
+    + parametricMesh N d p ε * (parametricBox N d p ε A + N + 2) * (N.choose p * d)
 
-/-- **The number of intervals of one grid system**: Layer 5.6's chain length in `⋀^p`. -/
+/-- **The number of intervals of one grid system**: Layer 5.6's chain length in `⋀^p`, for at
+most `s` distinct forms, so at most `s ^ p` distinct wedge forms
+(`NumberField.formCount_wedgeForms_le`). -/
 noncomputable def parametricChainLength (N d s p : ℕ) (ε A : ℝ) : ℕ :=
-  subspaceChainLength (N.choose p - 1) s (parametricDelta N ε) (parametricWedgeAbsWeight N d p ε A)
+  subspaceChainLength (N.choose p - 1) (s ^ p) (parametricDelta N ε)
+    (parametricWedgeAbsWeight N d p ε A)
 
 /-- **The ratio of the intervals of one grid system**, `4 σ⁻¹` for the ratio `σ` of the Roth
 lemma `R` that Layer 5.6 runs with in `⋀^p`. -/
 noncomputable def parametricStepRatio (R : RothParams) (N d s p : ℕ) (ε A : ℝ) : ℝ :=
-  4 * (R.ratio (N.choose p - 1) s (parametricDelta N ε)
+  4 * (R.ratio (N.choose p - 1) (s ^ p) (parametricDelta N ε)
     (parametricWedgeAbsWeight N d p ε A))⁻¹
 
 /-- **The number of intervals of the parametric Subspace Theorem**: the sum over `p < N` of the
 number of grids times the number of intervals of each. -/
-noncomputable def parametricIntervalCount (N d r s : ℕ) (ε A : ℝ) : ℕ :=
-  ∑ p ∈ Finset.range N, parametricGridCount N d r p ε A * parametricChainLength N d s p ε A
+noncomputable def parametricIntervalCount (N d s : ℕ) (ε A : ℝ) : ℕ :=
+  ∑ p ∈ Finset.range N, parametricGridCount N d p ε A * parametricChainLength N d s p ε A
 
 /-- **The number of subspaces of the parametric Subspace Theorem**: `⊥`, and for every `p < N`
-and every grid at most `2 ^ (binom(N, p) s)` subspaces. -/
-noncomputable def parametricSubspaceCount (N d r s : ℕ) (ε A : ℝ) : ℕ :=
-  1 + ∑ p ∈ Finset.range N, parametricGridCount N d r p ε A * 2 ^ (N.choose p * s)
+and every grid at most one subspace, the exceptional subspace of Layer 5.4 in `⋀^p` pulled back.
+It does not depend on the number `s` of forms, which is kept as an argument for the callers. -/
+noncomputable def parametricSubspaceCount (N d _s : ℕ) (ε A : ℝ) : ℕ :=
+  1 + ∑ p ∈ Finset.range N, parametricGridCount N d p ε A
 
 /-- **The ratio of the intervals of the parametric Subspace Theorem**: the sum over `p < N` of
 the ratios of the grid systems, which bounds each of them. -/
@@ -269,6 +291,25 @@ section Wedge
 
 variable [LinearOrder ι] [Nonempty ι]
 
+omit [Nonempty ι] in
+/-- **At most `s ^ p` distinct wedge forms** for `s` distinct forms: a wedge form is the wedge of
+a `p`-tuple of the forms. -/
+theorem formCount_wedgeForms_le (p : ℕ) :
+    formCount Sfin (fun v ↦ wedgeForms (L v) p) ≤ formCount Sfin L ^ p := by
+  classical
+  set F := Set.range fun q : (InfinitePlace K ⊕ ↥Sfin) × ι ↦ L (sPlace Sfin q.1) q.2 with hF
+  have hsub : (Set.range fun q : (InfinitePlace K ⊕ ↥Sfin) × Set.powersetCard ι p ↦
+      wedgeForms (L (sPlace Sfin q.1)) p q.2)
+      ⊆ Set.range fun l : Fin p → ↥F ↦ wedgeForm p (fun a ↦ (l a : Dual K (ι → K))) := by
+    rintro _ ⟨⟨w, T⟩, rfl⟩
+    exact ⟨fun a ↦ ⟨L (sPlace Sfin w) (Set.powersetCard.ofFinEmbEquiv.symm T a), (w, _), rfl⟩,
+      rfl⟩
+  rw [formCount, formCount]
+  refine (Set.ncard_le_ncard hsub (Set.finite_range _)).trans ?_
+  rw [← Set.image_univ]
+  refine (Set.ncard_image_le Set.finite_univ).trans_eq ?_
+  rw [Set.ncard_univ, Nat.card_fun, Nat.card_fin, Nat.card_coe_set_eq]
+
 open scoped Classical in
 /-- **The threshold of Layer 6.1 along one size `p` of subsets**, on the scale of `log Q`: the
 largest of `1`, the logarithms of the level `minimaThreshold` of the minima bounds, of `2`, of the
@@ -276,23 +317,24 @@ Plücker constant and of the rank threshold of the wedge forms at weight `-δ / 
 `2 log (wedgeWeightConst) / ε`, and of the threshold `penultimateThreshold` of Layer 5.6 for the
 wedge forms. -/
 noncomputable def parametricStepThreshold (Sfin : Finset (FinitePlace K))
-    (L : AbsoluteValue K ℝ → ι → Dual K (ι → K)) (R : RothParams) (ε A : ℝ) (p : ℕ) : ℝ :=
+    (L : AbsoluteValue K ℝ → ι → Dual K (ι → K)) (R : RothParams) (s : ℕ) (ε A : ℝ) (p : ℕ) :
+    ℝ :=
   letI : LinearOrder (Set.powersetCard ι p) :=
     LinearOrder.lift' (Fintype.equivFin _) (Equiv.injective _)
   max 1 (max (Real.log (minimaThreshold Sfin L))
     (max (max (Real.log 2)
-        (2 * Real.log (wedgeWeightConst Sfin L (pluckerConst K (Fintype.card ι)) p) / ε))
-      (max (Real.log (pluckerConst K (Fintype.card ι)))
+        (2 * Real.log (wedgeWeightConst Sfin L (pluckerConstAt K (Fintype.card ι)) p) / ε))
+      (max (Real.log (pluckerConstAt K (Fintype.card ι)))
         (max (Real.log (rankThreshold Sfin (fun v ↦ wedgeForms (L v) p)
             (parametricDelta (Fintype.card ι) ε / 2)))
           (penultimateThreshold Sfin (fun v ↦ wedgeForms (L v) p) R
-            ((Fintype.card ι).choose p - 1) (parametricDelta (Fintype.card ι) ε)
+            ((Fintype.card ι).choose p - 1) (s ^ p) (parametricDelta (Fintype.card ι) ε)
             (parametricWedgeAbsWeight (Fintype.card ι) (finrank ℚ K) p ε A))))))
 
 open scoped Classical in
 /-- **The spans of the domains of a fixed rank, along one choice of `k`, as an interval result**
 (Bombieri–Gubler, 7.5.32, Steps VIII and IX, with Layer 5.6 as an interval result). There are at
-most `#grids · 2 ^ (binom(N, p) s)` proper subspaces `𝒮` and a level `Q₀ > 0` such that for every
+most `#grids` proper subspaces `𝒮` and a level `Q₀ > 0` such that for every
 `Q₀' ≥ Q₀`, at the levels `Q` with `log Q ≥ Q₀'` whose rank `R` and jump at `k` are as in (7.41),
 either `V(Q)` lies in a member of `𝒮`, or `log Q` lies in one of at most
 `#grids · parametricChainLength` intervals `[t, ρ t)` with `t ≥ Q₀'`,
@@ -301,18 +343,15 @@ theorem exists_forall_mem_interval_approxSpan_le (R : SubspaceRoth.{u} K)
     (hLInf : ∀ w : InfinitePlace K, LinearIndependent K (L w.1))
     (hLFin : ∀ v ∈ Sfin, LinearIndependent K (L v.1)) {c : AbsoluteValue K ℝ → ι → ℝ}
     {ε : ℝ} (hε : 0 < ε) (hc : approxWeight Sfin c ≤ -ε) {A : ℝ}
-    (hA : approxAbsWeight Sfin c ≤ A) {k p : ℕ} (hkp : k + p = Fintype.card ι) (hk : 0 < k)
-    (hp : 0 < p) :
+    (hA : approxAbsWeight Sfin c ≤ A) {s : ℕ} (hs : formCount Sfin L ≤ s) {k p : ℕ}
+    (hkp : k + p = Fintype.card ι) (hk : 0 < k) (hp : 0 < p) :
     ∃ 𝒮 : Finset (Submodule K (ι → K)),
-      #𝒮 ≤ parametricGridCount (Fintype.card ι) (finrank ℚ K) (Fintype.card (InfinitePlace K))
-          p ε A * 2 ^ ((Fintype.card ι).choose p * (Fintype.card (InfinitePlace K) + #Sfin)) ∧
+      #𝒮 ≤ parametricGridCount (Fintype.card ι) (finrank ℚ K) p ε A ∧
       (∀ Z ∈ 𝒮, Z ≠ ⊤) ∧ ∃ Q₀ : ℝ, 0 < Q₀ ∧
-      Q₀ = parametricStepThreshold Sfin L R.toRothParams ε A p ∧
+      Q₀ = parametricStepThreshold Sfin L R.toRothParams s ε A p ∧
       ∀ Q₀' : ℝ, Q₀ ≤ Q₀' →
-      ∃ 𝒯 : Finset ℝ, #𝒯 ≤ parametricGridCount (Fintype.card ι) (finrank ℚ K)
-            (Fintype.card (InfinitePlace K)) p ε A
-          * parametricChainLength (Fintype.card ι) (finrank ℚ K)
-            (Fintype.card (InfinitePlace K) + #Sfin) p ε A ∧
+      ∃ 𝒯 : Finset ℝ, #𝒯 ≤ parametricGridCount (Fintype.card ι) (finrank ℚ K) p ε A
+          * parametricChainLength (Fintype.card ι) (finrank ℚ K) s p ε A ∧
         (∀ t ∈ 𝒯, Q₀' ≤ t) ∧
         ∀ Q : ℝ, 1 < Q → Q₀' ≤ Real.log Q →
         ∀ r : ℕ, finrank K (approxSpan Sfin L c Q) = r → 1 ≤ r → r ≤ k →
@@ -323,12 +362,9 @@ theorem exists_forall_mem_interval_approxSpan_le (R : SubspaceRoth.{u} K)
                 (Fintype.card ι - 1))⁻¹ →
           (∃ Z ∈ 𝒮, approxSpan Sfin L c Q ≤ Z) ∨
             ∃ t ∈ 𝒯, t ≤ Real.log Q ∧ Real.log Q < parametricStepRatio R.toRothParams
-              (Fintype.card ι)
-              (finrank ℚ K) (Fintype.card (InfinitePlace K) + #Sfin) p ε A * t := by
+              (Fintype.card ι) (finrank ℚ K) s p ε A * t := by
   set N := Fintype.card ι with hN
   set d := finrank ℚ K with hd
-  set r := Fintype.card (InfinitePlace K) with hr
-  set s := r + #Sfin with hs
   set M := Fintype.card (Set.powersetCard ι p) with hM
   have hMch : M = N.choose p := by
     rw [hM, Fintype.card_eq_nat_card, Set.powersetCard.card, Nat.card_eq_fintype_card]
@@ -346,7 +382,10 @@ theorem exists_forall_mem_interval_approxSpan_le (R : SubspaceRoth.{u} K)
   set cT : AbsoluteValue K ℝ → Set.powersetCard ι p → ℝ :=
     fun v T ↦ ∑ t ∈ (T : Finset ι), c v t with hcT
   -- the constants
-  obtain ⟨C, hC, hCeq, hplucker⟩ := exists_plucker_mem_approxDomain_wedgeForms K ι
+  obtain ⟨C, hC, hCeq, hplucker⟩ := exists_plucker_mem_approxDomain_wedgeForms_at K ι
+  -- the place that carries the minima
+  obtain ⟨w₀, a, ha'⟩ := exists_mult_dvd_finrank (K := K)
+  have ha : a * w₀.mult = d := by rw [hd, ha', mul_comm]
   set B : ℝ := parametricMinimaExp N d A with hBdef
   obtain ⟨B₀, hB₀, hB₀le, Q₁, hQ₁, hQ₁eq, hminima₀⟩ :=
     exists_pos_forall_rpow_le_successiveMinimum_le hLInf hLFin c
@@ -379,40 +418,43 @@ theorem exists_forall_mem_interval_approxSpan_le (R : SubspaceRoth.{u} K)
   have hd0' : (0 : ℝ) < d := by exact_mod_cast hd0
   have hM0' : (0 : ℝ) < M := by exact_mod_cast hMpos
   set γ : ℝ := parametricMesh N d p ε with hγ
-  have hγeq : γ = δ / (2 * ((d : ℝ) * (M : ℝ))) := by rw [hγ, parametricMesh, hMch]
+  have hγeq : γ = δ / (2 * ((d : ℝ) * (M : ℝ) * ((N : ℝ) + 2))) := by
+    rw [hγ, parametricMesh, hMch]
   have hγ0 : 0 < γ := by rw [hγeq]; positivity
   set G : ℝ := 1 + B * N + 2 * B with hG
   set m : ℤ := parametricBox N d p ε A with hm
-  -- the finite pool of grids
-  set pool : Set (InfinitePlace K → Set.powersetCard ι p → ℤ) :=
-    {g | (∀ w T, |g w T| ≤ m) ∧ approxWeight Sfin (gridExponent cT γ g) ≤ -δ / 2} with hpool
-  have hpoolfin : pool.Finite :=
-    Set.Finite.subset (finite_setOf_abs_le (Set.powersetCard ι p) m) fun g hg ↦ hg.1
-  set P := hpoolfin.toFinset with hP
-  have hpoolcard : #P ≤ parametricGridCount N d r p ε A := by
-    rw [hP, ← Set.ncard_eq_toFinset_card pool hpoolfin]
-    refine (Set.ncard_le_ncard (fun g hg ↦ hg.1) (finite_setOf_abs_le _ m)).trans ?_
-    refine (ncard_setOf_abs_le_le (K := K) (Set.powersetCard ι p) m).trans (le_of_eq ?_)
-    rw [parametricGridCount, ← hMch]
-  -- every grid system has absolute weight at most `A'`
+  have hmG : m = ⌈G / γ⌉ := by rw [hm, parametricBox]
+  have hm0 : 0 ≤ m := by
+    rw [hmG]
+    exact Int.ceil_nonneg (div_nonneg (by positivity) hγ0.le)
+  -- the finite pool of grids of the minima
   set A' : ℝ := parametricWedgeAbsWeight N d p ε A with hA'
-  have hAW' : ∀ g ∈ pool, approxAbsWeight Sfin (gridExponent cT γ g) ≤ A' := by
-    intro g hg
-    refine (approxAbsWeight_gridExponent_le Sfin cT hγ0.le hg.1).trans ?_
-    have h1 := approxAbsWeight_sum_le Sfin c p
-    have h2 : (M : ℝ) * approxAbsWeight Sfin c ≤ M * A := mul_le_mul_of_nonneg_left hA hM0'.le
-    rw [hA', parametricWedgeAbsWeight, ← hMch]
-    linarith
+  set pool : Set (InfinitePlace K → Set.powersetCard ι p → ℤ) :=
+    {g | g ∈ minimaGridSet K ι w₀ a k p m ∧ approxAbsWeight Sfin (gridExponent cT γ g) ≤ A' ∧
+      approxWeight Sfin (gridExponent cT γ g) ≤ -δ / 2} with hpool
+  have hpoolfin : pool.Finite :=
+    Set.Finite.subset (finite_minimaGridSet w₀ a k p m) fun g hg ↦ hg.1
+  set P := hpoolfin.toFinset with hP
+  have hpoolcard : #P ≤ parametricGridCount N d p ε A := by
+    rw [hP, ← Set.ncard_eq_toFinset_card pool hpoolfin]
+    refine (Set.ncard_le_ncard (fun g hg ↦ hg.1) (finite_minimaGridSet w₀ a k p m)).trans ?_
+    exact ncard_minimaGridSet_le w₀ a k p m
+  -- every grid system has absolute weight at most `A'`
+  have hAW' : ∀ g ∈ pool, approxAbsWeight Sfin (gridExponent cT γ g) ≤ A' :=
+    fun g hg ↦ hg.2.1
   -- for every grid, Layer 5.6 as an interval result in `⋀^p`
   have hne : Nonempty (Set.powersetCard ι p) := Fintype.card_pos_iff.1 hMpos
   let _ : LinearOrder (Set.powersetCard ι p) :=
     LinearOrder.lift' (Fintype.equivFin _) (Equiv.injective _)
   have hM1 : 1 ≤ M - 1 := by omega
   have hcardM : Fintype.card (Set.powersetCard ι p) = M - 1 + 1 := by omega
-  set Q56 : ℝ := penultimateThreshold Sfin L' R.toRothParams (M - 1) δ A' with hQ56
+  set Q56 : ℝ := penultimateThreshold Sfin L' R.toRothParams (M - 1) (s ^ p) δ A' with hQ56
+  have hs' : formCount Sfin L' ≤ (M - 1 + 1) * s ^ p :=
+    (formCount_wedgeForms_le p).trans ((Nat.pow_le_pow_left hs p).trans
+      (Nat.le_mul_of_pos_left _ (by omega)))
   have h56 : ∀ g : InfinitePlace K → Set.powersetCard ι p → ℤ,
       ∃ 𝒲 : Set (Submodule K (Set.powersetCard ι p → K)), 𝒲.Finite ∧
-        𝒲.ncard ≤ 2 ^ (M * s) ∧ ∀ Q₀' : ℝ, Q56 ≤ Q₀' →
+        𝒲.ncard ≤ 1 ∧ ∀ Q₀' : ℝ, Q56 ≤ Q₀' →
           ∃ 𝒯 : Finset ℝ, #𝒯 ≤ parametricChainLength N d s p ε A ∧ (∀ t ∈ 𝒯, Q₀' ≤ t) ∧
           (g ∈ pool → ∀ Q : ℝ, 1 < Q → Q₀' ≤ Real.log Q →
             finrank K (approxSpan Sfin L' (gridExponent cT γ g) Q) = M - 1 →
@@ -422,9 +464,8 @@ theorem exists_forall_mem_interval_approxSpan_le (R : SubspaceRoth.{u} K)
     intro g
     by_cases hg : g ∈ pool
     · obtain ⟨𝒲, Q₀, hfin, hcard, -, hQ₀eq, hint⟩ :=
-        exists_forall_mem_interval_approxSpan R hM1 hcardM hL'Inf hL'Fin hδ0 hg.2 (hAW' g hg)
-      refine ⟨𝒲, hfin, ?_, fun Q₀' hQ₀' ↦ ?_⟩
-      · rwa [Nat.sub_add_cancel (by omega : 1 ≤ M)] at hcard
+        exists_forall_mem_interval_approxSpan R hM1 hcardM hL'Inf hL'Fin hδ0 hg.2.2 (hAW' g hg) hs'
+      refine ⟨𝒲, hfin, hcard, fun Q₀' hQ₀' ↦ ?_⟩
       obtain ⟨j, hj, t, ht, hint'⟩ := hint Q₀' (hQ₀eq ▸ hQ₀')
       refine ⟨Finset.univ.image t, ?_, ?_, fun _ Q hQ1 hQ hrank hnot ↦ ?_⟩
       · refine Finset.card_image_le.trans ?_
@@ -440,20 +481,20 @@ theorem exists_forall_mem_interval_approxSpan_le (R : SubspaceRoth.{u} K)
   -- the candidate subspaces
   set 𝒮 : Finset (Submodule K (ι → K)) :=
     (P.biUnion fun g ↦ (h𝒲fin g).toFinset.image (recoverSpan p)).filter (· ≠ ⊤) with h𝒮
-  have h𝒮card : #𝒮 ≤ parametricGridCount N d r p ε A * 2 ^ (N.choose p * s) := by
+  have h𝒮card : #𝒮 ≤ parametricGridCount N d p ε A := by
     refine (Finset.card_filter_le _ _).trans (Finset.card_biUnion_le.trans ?_)
-    refine (Finset.sum_le_card_nsmul P _ (2 ^ (M * s)) fun g _ ↦ ?_).trans ?_
+    refine (Finset.sum_le_card_nsmul P _ 1 fun g _ ↦ ?_).trans ?_
     · refine Finset.card_image_le.trans ?_
       rw [← Set.ncard_eq_toFinset_card _ (h𝒲fin g)]
       exact h𝒲card g
-    · rw [smul_eq_mul, ← hMch]
-      exact Nat.mul_le_mul_right _ hpoolcard
+    · rw [smul_eq_mul, mul_one]
+      exact hpoolcard
   -- the thresholds, on the scale of `log Q`
   have hC1 : 1 ≤ C := by
-    rw [hCeq, pluckerConst]
-    exact one_le_mul_of_one_le_of_one_le
+    rw [hCeq, pluckerConstAt, pluckerConst]
+    exact one_le_mul_of_one_le_of_one_le (one_le_mul_of_one_le_of_one_le
       (by exact_mod_cast Nat.one_le_iff_ne_zero.mpr (Nat.factorial_ne_zero _))
-      (one_le_pow₀ (le_max_left _ _))
+      (one_le_pow₀ (le_max_left _ _))) (one_le_pow₀ one_le_unitConst)
   set wWC : ℝ := wedgeWeightConst Sfin L C p with hwWC
   have hwWC1 : 1 ≤ wWC := le_max_right _ _
   set aT : ℝ := rankThreshold Sfin L' (δ / 2) with haT
@@ -504,7 +545,7 @@ theorem exists_forall_mem_interval_approxSpan_le (R : SubspaceRoth.{u} K)
     intro g hg
     rw [hP, Set.Finite.mem_toFinset] at hg
     exact finrank_approxSpan_lt_of_rankThreshold_le hL'Inf hL'Fin (half_pos hδ0)
-      (by have := hg.2; rw [neg_div] at this; exact this) hQaT
+      (by have := hg.2.2; rw [neg_div] at this; exact this) hQaT
   have hna : ∀ v : FinitePlace K, IsNonarchimedean v.1 := fun v a b ↦ v.add_le a b
   have hDt : DiscreteTopology (approxLattice Sfin L c Q) :=
     discreteTopology_approxLattice hLFin c hQ0.ne'
@@ -523,20 +564,40 @@ theorem exists_forall_mem_interval_approxSpan_le (R : SubspaceRoth.{u} K)
   obtain ⟨x, hxind, hx⟩ := exists_linearIndependent_mem_smul_successiveMinimum
     (approxModule Sfin L c Q) (convex_approxBody L c Q) (fun z hz ↦ neg_mem_approxBody hz) hB₂
     (isBounded_approxBody hLInf c Q) (isClosed_approxBody L c Q)
-  obtain ⟨ξ, hξ, π, hmem⟩ := hplucker Sfin L hLInf hLFin c Q hQ1 x hxind μ hmono hμpos hx
-  set y : Fin N → ι → K := fun j ↦ x j + ∑ l ∈ Finset.Iio j, ξ j l • x l with hy
-  have hyind : LinearIndependent K y := linearIndependent_add_sum_smul hxind ξ
-  set cw := wedgeExponent c π μ C Q k p with hcw
-  set g := roundExponent cT cw γ with hg
+  obtain ⟨β, hβ0, ξ, hξ, π, hmem⟩ :=
+    hplucker Sfin L hLInf hLFin c Q hQ1 w₀ a ha x hxind μ hmono hμpos hx
+  set x' : Fin N → ι → K := fun j ↦ β j • x j with hx'
+  have hx'ind : LinearIndependent K x' := linearIndependent_smul_of_ne_zero hxind hβ0
+  set y : Fin N → ι → K := fun j ↦ x' j + ∑ l ∈ Finset.Iio j, ξ j l • x' l with hy
+  have hyind : LinearIndependent K y := linearIndependent_add_sum_smul hx'ind ξ
+  set cw := wedgeExponentAt c w₀ a π μ C Q k p with hcw
+  set g := minimaGrid w₀ a k p π ⌈Real.logb Q C / γ⌉
+    ⌈Real.logb Q (μ (k - 1) / μ k) / γ⌉ (fun i ↦ ⌈Real.logb Q (μ i) / γ⌉) with hg
   set c' := gridExponent cT γ g with hc'
-  -- the exponents of the wedge domain stay in the box, and are exact at the finite places
-  have hCQ1 : (1 : ℝ) ≤ C * Q := one_le_mul_of_one_le_of_one_le hC1 hQ1.le
-  have hbox : ∀ (w : InfinitePlace K) (T : Set.powersetCard ι p), |cw w.1 T - cT w.1 T| ≤ G :=
-    fun w T ↦ abs_wedgeExponent_sub_sum_le hQ1 hQC hCQ1 hB.le hkN hpN
-      (fun j hj ↦ (hminima Q hQQ₁ j hj).1) (fun j hj ↦ (hminima Q hQQ₁ j hj).2) w.1 T
+  have hC0 : 0 < C := by linarith
+  have hk1 : k - 1 < N := by omega
+  -- the rounded numbers stay in the box
+  have hBN : 0 ≤ B * N := by positivity
+  have hB1 : 1 ≤ G := by rw [hG]; linarith
+  have hBG : B ≤ G := by rw [hG]; linarith
+  have hlogμ : ∀ i, i < N → |Real.logb Q (μ i)| ≤ B := fun i hi ↦
+    Real.abs_logb_le hQ1 (hμpos i hi) (hminima Q hQQ₁ i hi).1 (hminima Q hQQ₁ i hi).2
+  have hlogC1 : |Real.logb Q C| ≤ 1 := by
+    refine Real.abs_logb_le hQ1 hC0 ?_ ?_
+    · rw [Real.rpow_neg_one]
+      exact (inv_le_one_of_one_le₀ hQ1.le).trans hC1
+    · rwa [Real.rpow_one]
+  have hlogC : |Real.logb Q C| ≤ G := hlogC1.trans hB1
+  have hlogJ2 : |Real.logb Q (μ (k - 1) / μ k)| ≤ 2 * B := by
+    rw [Real.logb_div (hμpos _ hk1).ne' (hμpos _ hkN).ne']
+    have h1 := hlogμ _ hk1
+    have h2 := hlogμ _ hkN
+    refine (abs_sub _ _).trans ?_
+    linarith
+  have hlogJ : |Real.logb Q (μ (k - 1) / μ k)| ≤ G := hlogJ2.trans (by rw [hG]; linarith)
   have hfinex : ∀ v ∈ Sfin, ∀ T : Set.powersetCard ι p, cw v.1 T = cT v.1 T := by
     intro v _ T
-    rw [hcw, wedgeExponent]
+    rw [hcw, wedgeExponentAt]
     simp only [hna v, ↓reduceIte, add_zero]
     rfl
   have hgridfin : ∀ v ∈ Sfin, ∀ T : Set.powersetCard ι p, c' v.1 T = cT v.1 T := by
@@ -545,22 +606,58 @@ theorem exists_forall_mem_interval_approxSpan_le (R : SubspaceRoth.{u} K)
       (fun w hcc ↦ InfinitePlace.not_isNonarchimedean w (by rw [hcc]; exact hna v)) T
   -- the rounded exponents are one of the finitely many grids
   have hgpool : g ∈ pool := by
-    refine ⟨fun w T ↦ le_of_le_of_eq (abs_roundExponent_le hγ0 hbox w T) rfl, ?_⟩
-    have h1 : approxWeight Sfin c' ≤ approxWeight Sfin cw + γ * ((d : ℝ) * (M : ℝ)) :=
-      approxWeight_le_of_le (fun w T ↦ gridExponent_roundExponent_le hγ0 w T)
-        (fun v hv T ↦ le_of_eq ((hgridfin v hv T).trans (hfinex v hv T).symm))
-    have h2 : approxWeight Sfin cw ≤ -δ := by
-      refine (hwt Q hQQ₂ r hR1 hRk hjump π).trans ?_
-      rw [hδ, parametricDelta, ← neg_div]
-      exact div_le_div_of_nonneg_right hc (by positivity)
-    have h3 : γ * ((d : ℝ) * (M : ℝ)) = δ / 2 := by
-      rw [hγeq]
-      field_simp
-    linarith
+    refine ⟨⟨π, _, _, _, hmG ▸ abs_ceil_div_le hγ0 hlogC,
+      hmG ▸ abs_ceil_div_le hγ0 hlogJ,
+      fun i ↦ hmG ▸ abs_ceil_div_le hγ0 ((hlogμ i i.2).trans hBG), rfl⟩, ?_, ?_⟩
+    · -- the absolute weight: one box and `N + 2` roundings
+      have hbox : ∀ T : Set.powersetCard ι p,
+          |((⌈Real.logb Q C / γ⌉ : ℤ) : ℝ)| + |(((∑ t ∈ (T : Finset ι),
+            ⌈Real.logb Q (μ (π.symm t)) / γ⌉ + if ∀ t ∈ (T : Finset ι), k ≤ (π.symm t : ℕ)
+              then ⌈Real.logb Q (μ (k - 1) / μ k) / γ⌉ else 0 : ℤ)) : ℝ)| ≤ m + N + 2 := by
+        intro T
+        refine (abs_ceil_add_abs_sum_ceil_le (x := fun i : Fin N ↦ Real.logb Q (μ i)) hγ0
+          hB.le hlogC1 (fun i ↦ hlogμ i i.2) hlogJ2 hpN π.symm (T : Finset ι)
+          (Set.powersetCard.card_eq T) _).trans ?_
+        have hGm : G / γ ≤ m := by rw [hmG]; exact Int.le_ceil _
+        rw [← hG]
+        linarith
+      have hsum := sum_mult_abs_minimaGrid_le (π := π) (z := ⌈Real.logb Q C / γ⌉)
+        (j := ⌈Real.logb Q (μ (k - 1) / μ k) / γ⌉) (b := fun i ↦ ⌈Real.logb Q (μ i) / γ⌉)
+        (m' := (m : ℝ) + N + 2) ha hbox
+      have hab := approxAbsWeight_gridExponent_le Sfin cT hγ0.le (g := g) hsum
+      have h1 := approxAbsWeight_sum_le Sfin c p
+      have h2 : (M : ℝ) * approxAbsWeight Sfin c ≤ M * A := mul_le_mul_of_nonneg_left hA hM0'.le
+      have h3 : approxAbsWeight Sfin (gridExponent cT γ g) ≤ M * A +
+          γ * (d * M * ((m : ℝ) + N + 2)) := by
+        rw [← hM] at h1
+        linarith
+      refine h3.trans (le_of_eq ?_)
+      rw [hA', parametricWedgeAbsWeight, ← hMch]
+      ring
+    · have h1 := approxWeight_gridExponent_minimaGrid_le (Sfin := Sfin) (c := c) (C := C)
+        (Q := Q) (p := p) ha (π := π) hγ0 hμpos hk hkN
+      have h2 : approxWeight Sfin cw ≤ -δ := by
+        refine (hwt Q hQQ₂ r hR1 hRk hjump cw
+          (rpow_approxWeight_wedgeExponentAt Sfin c w₀ ha π hQ1 hC0 hμpos hkp hp)).trans ?_
+        rw [hδ, parametricDelta, ← neg_div]
+        exact div_le_div_of_nonneg_right hc (by positivity)
+      have h3 : γ * ((d : ℝ) * (M : ℝ) * ((p : ℝ) + 2)) ≤ δ / 2 := by
+        have hN2 : (0 : ℝ) < (N : ℝ) + 2 := by positivity
+        have hpN' : (p : ℝ) ≤ N := by exact_mod_cast hpN
+        have : γ * ((d : ℝ) * (M : ℝ) * ((N : ℝ) + 2)) = δ / 2 := by
+          rw [hγeq]
+          field_simp
+        have h4 : γ * ((d : ℝ) * (M : ℝ) * ((p : ℝ) + 2)) ≤
+            γ * ((d : ℝ) * (M : ℝ) * ((N : ℝ) + 2)) := by gcongr
+        linarith
+      have h1' : approxWeight Sfin c' ≤
+          approxWeight Sfin cw + γ * ((d : ℝ) * (M : ℝ) * ((p : ℝ) + 2)) := h1
+      change approxWeight Sfin c' ≤ -δ / 2
+      linarith
   have hgP : g ∈ P := hpoolfin.mem_toFinset.2 hgpool
   -- the wedges of Evertse's vectors lie in the grid domain
   have hsub : approxDomain Sfin L' cw Q ⊆ approxDomain Sfin L' c' Q :=
-    approxDomain_subset_of_le hQ1.le (fun w T ↦ le_gridExponent_roundExponent hγ0 w T)
+    approxDomain_subset_of_le hQ1.le (fun w T ↦ le_gridExponent_minimaGrid hγ0 hμpos hk hkN w T)
       (fun v hv T ↦ le_of_eq ((hfinex v hv T).trans (hgridfin v hv T).symm))
   have hwedgele : wedgeSpan k p y ≤ approxSpan Sfin L' c' Q := by
     rw [wedgeSpan]
@@ -574,7 +671,8 @@ theorem exists_forall_mem_interval_approxSpan_le (R : SubspaceRoth.{u} K)
   have hrankM : finrank K (approxSpan Sfin L' c' Q) = M - 1 := by rw [← heq]; omega
   have hZ : recoverSpan p (approxSpan Sfin L' c' Q)
       = Submodule.span K (x '' {j | (j : ℕ) < k}) := by
-    rw [← heq, recoverSpan_wedgeSpan hyind hkp, hy, Submodule.span_image_add_sum_smul_eq]
+    rw [← heq, recoverSpan_wedgeSpan hyind hkp, hy, Submodule.span_image_add_sum_smul_eq, hx',
+      span_image_smul_of_ne_zero x hβ0]
   by_cases hin : approxSpan Sfin L' c' Q ∈ 𝒲 g
   · refine Or.inl ⟨recoverSpan p (approxSpan Sfin L' c' Q), ?_, ?_⟩
     · refine Finset.mem_filter.2 ⟨Finset.mem_biUnion.2 ⟨g, hgP, Finset.mem_image_of_mem _
@@ -598,11 +696,11 @@ the rank threshold at weight `-ε`, and the sum over `0 < p < #ι` of the thresh
 `parametricStepThreshold` along `p`. An order on `ι` is chosen by transport from `Fin #ι`, as the
 proof does. -/
 noncomputable def parametricThreshold (Sfin : Finset (FinitePlace K))
-    (L : AbsoluteValue K ℝ → ι → Dual K (ι → K)) (R : RothParams) (ε A : ℝ) : ℝ :=
+    (L : AbsoluteValue K ℝ → ι → Dual K (ι → K)) (R : RothParams) (s : ℕ) (ε A : ℝ) : ℝ :=
   letI : LinearOrder ι := LinearOrder.lift' (Fintype.equivFin ι) (Equiv.injective _)
   max 1 (max (Real.log (rankThreshold Sfin L ε))
     (∑ p ∈ Finset.range (Fintype.card ι),
-      if 0 < p then parametricStepThreshold Sfin L R ε A p else 1))
+      if 0 < p then parametricStepThreshold Sfin L R s ε A p else 1))
 
 open scoped Classical in
 /-- **Layer 6.1 as an interval result** (Bombieri–Gubler 7.5.30–7.5.32 with Layer 5.6 as an
@@ -612,39 +710,35 @@ linearly independent at every infinite place and at every place of `Sfin`, and e
 `parametricSubspaceCount` proper subspaces of `Kⁱ` and a level `Q₀ > 0` such that for every
 `Q₀' ≥ Q₀` the levels `Q` with `log Q ≥ Q₀'` at which the domain lies in no member of `T` have
 `log Q` in at most `parametricIntervalCount` intervals `[t, ρ t)` with `t ≥ Q₀'` and
-`ρ = parametricRatio`. The two counts and the ratio depend on `#ι`, `[K : ℚ]`, the number of
-places, `ε` and `A` alone. -/
+`ρ = parametricRatio`. The two counts and the ratio depend on `#ι`, `[K : ℚ]`, a bound `s` on
+the number of distinct forms, `ε` and `A` alone. -/
 theorem exists_forall_mem_interval_approxDomain [Nontrivial ι] (R : SubspaceRoth.{u} K)
     (hLInf : ∀ w : InfinitePlace K, LinearIndependent K (L w.1))
     (hLFin : ∀ v ∈ Sfin, LinearIndependent K (L v.1)) {c : AbsoluteValue K ℝ → ι → ℝ}
     {ε : ℝ} (hε : 0 < ε) (hc : approxWeight Sfin c ≤ -ε) {A : ℝ}
-    (hA : approxAbsWeight Sfin c ≤ A) :
+    (hA : approxAbsWeight Sfin c ≤ A) {s : ℕ} (hs : formCount Sfin L ≤ s) :
     ∃ T : Finset (Submodule K (ι → K)),
-      #T ≤ parametricSubspaceCount (Fintype.card ι) (finrank ℚ K)
-        (Fintype.card (InfinitePlace K)) (Fintype.card (InfinitePlace K) + #Sfin) ε A ∧
-      (∀ W ∈ T, W ≠ ⊤) ∧ ∃ Q₀ : ℝ, 0 < Q₀ ∧ Q₀ = parametricThreshold Sfin L R.toRothParams ε A ∧
+      #T ≤ parametricSubspaceCount (Fintype.card ι) (finrank ℚ K) s ε A ∧
+      (∀ W ∈ T, W ≠ ⊤) ∧ ∃ Q₀ : ℝ, 0 < Q₀ ∧ Q₀ = parametricThreshold Sfin L R.toRothParams s ε A ∧
       ∀ Q₀' : ℝ, Q₀ ≤ Q₀' →
-      ∃ 𝒯 : Finset ℝ, #𝒯 ≤ parametricIntervalCount (Fintype.card ι) (finrank ℚ K)
-          (Fintype.card (InfinitePlace K)) (Fintype.card (InfinitePlace K) + #Sfin) ε A ∧
+      ∃ 𝒯 : Finset ℝ, #𝒯 ≤ parametricIntervalCount (Fintype.card ι) (finrank ℚ K) s ε A ∧
         (∀ t ∈ 𝒯, Q₀' ≤ t) ∧ ∀ Q : ℝ, 1 < Q → Q₀' ≤ Real.log Q →
           (∃ W ∈ T, approxDomain Sfin L c Q ⊆ W) ∨
             ∃ t ∈ 𝒯, t ≤ Real.log Q ∧ Real.log Q < parametricRatio R.toRothParams (Fintype.card ι)
-              (finrank ℚ K) (Fintype.card (InfinitePlace K) + #Sfin) ε A * t := by
+              (finrank ℚ K) s ε A * t := by
   have hne : Nonempty ι := ⟨Classical.arbitrary ι⟩
   let _ : LinearOrder ι := LinearOrder.lift' (Fintype.equivFin ι) (Equiv.injective _)
   set N := Fintype.card ι with hN
   set d := finrank ℚ K with hd
-  set r := Fintype.card (InfinitePlace K) with hr
-  set s := r + #Sfin with hs
   have hN2 : 2 ≤ N := Fintype.one_lt_card
   have hA0 : 0 ≤ A := (approxAbsWeight_nonneg Sfin c).trans hA
   -- for every `p` in `(0, #ι)` the interval result along `k = #ι - p`
   have hfam : ∀ p : ℕ, ∃ 𝒮 : Finset (Submodule K (ι → K)),
-      #𝒮 ≤ parametricGridCount N d r p ε A * 2 ^ (N.choose p * s) ∧ (∀ Z ∈ 𝒮, Z ≠ ⊤) ∧
+      #𝒮 ≤ parametricGridCount N d p ε A ∧ (∀ Z ∈ 𝒮, Z ≠ ⊤) ∧
       ∃ Q₀ : ℝ, 0 < Q₀ ∧
-      Q₀ = (if 0 < p ∧ p < N then parametricStepThreshold Sfin L R.toRothParams ε A p else 1) ∧
+      Q₀ = (if 0 < p ∧ p < N then parametricStepThreshold Sfin L R.toRothParams s ε A p else 1) ∧
       ∀ Q₀' : ℝ, Q₀ ≤ Q₀' →
-      ∃ 𝒯 : Finset ℝ, #𝒯 ≤ parametricGridCount N d r p ε A * parametricChainLength N d s p ε A ∧
+      ∃ 𝒯 : Finset ℝ, #𝒯 ≤ parametricGridCount N d p ε A * parametricChainLength N d s p ε A ∧
         (∀ t ∈ 𝒯, Q₀' ≤ t) ∧ (0 < p → p < N →
         ∀ Q : ℝ, 1 < Q → Q₀' ≤ Real.log Q →
         ∀ r : ℕ, finrank K (approxSpan Sfin L c Q) = r → 1 ≤ r → r ≤ N - p →
@@ -657,7 +751,7 @@ theorem exists_forall_mem_interval_approxDomain [Nontrivial ι] (R : SubspaceRot
     intro p
     by_cases hp : 0 < p ∧ p < N
     · obtain ⟨𝒮, h1, h2, Q₀, h3, h3', h4⟩ := exists_forall_mem_interval_approxSpan_le R hLInf
-        hLFin hε hc hA (k := N - p) (p := p) (by omega) (by omega) hp.1
+        hLFin hε hc hA hs (k := N - p) (p := p) (by omega) (by omega) hp.1
       refine ⟨𝒮, h1, h2, Q₀, h3, by simp only [hp, and_self, ↓reduceIte, h3'],
         fun Q₀' hQ₀' ↦ ?_⟩
       obtain ⟨𝒯, h5, h6, h7⟩ := h4 Q₀' hQ₀'
@@ -748,10 +842,10 @@ theorem exists_finset_submodule_forall_approxDomain_subset [Nontrivial ι]
     ∃ T : Finset (Submodule K (ι → K)), (∀ W ∈ T, W ≠ ⊤) ∧
       ∃ Q₀ : ℝ, ∀ Q ≥ Q₀, ∃ W ∈ T, approxDomain Sfin L c Q ⊆ W := by
   obtain ⟨T, -, hT, Q₀, hQ₀, -, hint⟩ := exists_forall_mem_interval_approxDomain
-    (SubspaceRoth.bombieriGubler K) hLInf hLFin (neg_pos.2 hc) (neg_neg _).ge le_rfl
+    (SubspaceRoth.bombieriGubler K) hLInf hLFin (neg_pos.2 hc) (neg_neg _).ge le_rfl le_rfl
   obtain ⟨𝒯, -, h𝒯, hQint⟩ := hint Q₀ le_rfl
   set ρ := parametricRatio (SubspaceRoth.bombieriGubler.{u} K).toRothParams (Fintype.card ι)
-    (finrank ℚ K) (Fintype.card (InfinitePlace K) + #Sfin) (-approxWeight Sfin c)
+    (finrank ℚ K) (formCount Sfin L) (-approxWeight Sfin c)
     (approxAbsWeight Sfin c)
   set X : ℝ := Q₀ + ∑ t ∈ 𝒯, |ρ * t| with hX
   have hsum0 : 0 ≤ ∑ t ∈ 𝒯, |ρ * t| := Finset.sum_nonneg fun t _ ↦ abs_nonneg _

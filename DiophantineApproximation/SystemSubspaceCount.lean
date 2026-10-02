@@ -20,7 +20,8 @@ fed to Layer 9.4. For a system of Layer 9.1 under Evertse's normalization (2.4)
 places and coefficients of absolute height at most `H`:
 
 * the solutions with `log H(x) ≥ X₀ = systemThreshold` lie in at most `systemLargeCount` proper
-  subspaces, a number depending on `n`, `δ`, `[E : ℚ]`, `[E : K]`, `t` and `|S|` alone;
+  subspaces, a number depending on `n`, `δ`, `[E : ℚ]`, `[E : K]` and the number `R` of distinct
+  forms alone, not on `t` or `|S|`;
 * all solutions lie in at most that number, plus Layer 9.3's count for the solutions that are not
   large, plus `1 + log ω / log (1 + δ / (2 n))` for the large ones below `X₀`, where
   `ω = max (1, X₀ / ([K : ℚ] log Q))` and `Q` is the height from which a solution is large;
@@ -34,32 +35,34 @@ Everything is stated for a generalized Roth lemma `R` (`NumberField.SubspaceRoth
 
 The route, for a solution `x` above `X₀`:
 
-1. **Exponents from the solution** (`IsNormalizedSystem.exists_gridExponent`). The exponents
-   `log |L p i x|_p / log H(x)` are at most `2` by the trivial bound `|L p i x|_p ≤ (n H^d)² H(x)`.
-   Clamped below at `-M = -2 n t`, their weight is at most `-δ / 2`: either one is clamped, or
-   their sum is `log ∏ |L p i x|_p / log H(x)`, and (2.4) gives
-   `∏ |L p i x|_p ≤ systemDet · H(x) ^ (-δ)` with `systemDet ≤ (n! H^{n d}) ^ (2 t)`
-   (`IsNormalizedSystem.systemDet_le`). Rounded up to the grid `ℤ / m`, `m = ⌈4 n t / δ⌉`, they
-   become one of `systemGridCount` systems of weight at most `-δ / 4`, with constants `1`. Only
-   the product bound on the constants is used, as in Evertse.
-2. **Bridge** (Q0.2c): `x`, read in `Eⁿ`, lies in the approximation domain over `E` of the
-   conjugated forms and the grid exponents at level `H(x)`.
-3. **Layer 6.1 as an interval result** (Q0.2d) over `E`, once per grid system. Its threshold does
-   not depend on the exponents, so all grid systems share it. Either the domain lies in one of the
-   exceptional subspaces, whose `K`-points form a proper subspace of `Kⁿ`
-   (`comap_algebraMapPi_ne_top`), or `log H(x)` lies in one of the intervals `[t, ρ t)`.
+1. **Raised exponents** (`IsNormalizedSystem.exists_raise`). The positive exponents sum to at
+   most `n`, since `max_i c p i = s(p)`; scaling the negative ones down leaves weight `-δ` and
+   absolute weight at most `2 n + δ`, for any number `t` of places (ES02 uses only
+   `∑_v max_i c_{iv} ≤ 1` in the same way).
+2. **One scalar for the constants** (`exists_ne_zero_systemAbs_le`, Minkowski's first theorem on
+   `K¹`). There is a nonzero `S`-integer `β` with `|β|_p ^ mult p ≤ κ / C p` at every place, where
+   `κ ^ t = scalarConst K S · (n! H^{n d}) ^ (2 t / n)` bounds `scalarConst K S · ∏ C p` by (2.4)
+   and `systemDet ≤ (n! H^{n d}) ^ (2 t)` (`IsNormalizedSystem.systemDet_le`). Above the
+   threshold `κ ≤ H(x) ^ (δ / (2 n t))`, so `β x` meets the raised exponents shifted by
+   `δ / (2 n t)`: weight `-δ / 2`, absolute weight at most `2 n + 2`.
+3. **Bridge** (Q0.2c): `β x`, read in `Eⁿ`, lies in the approximation domain over `E` of the
+   conjugated forms and these exponents at level `H(x)`. **Layer 6.1 as an interval result**
+   (Q0.2d) over `E`, once: either the domain lies in one of the exceptional subspaces, whose
+   `K`-points form a proper subspace of `Kⁿ` (`comap_algebraMapPi_ne_top`) and contain `x` with
+   `β x`, or `log H(x)` lies in one of the intervals `[t, ρ t)`.
 4. **Layer 9.4** turns each interval `[exp (t / [K : ℚ]), exp (t / [K : ℚ]) ^ ρ)` of the absolute
    affine height into `1 + log ρ / log (1 + δ / (2 n))` windows of the gap principle.
 
-The counts of Layer 6.1 over `E` are bounded by those at `[E : ℚ]` infinite places and
-`[E : ℚ] + [E : K] |S|` places, by monotonicity (`parametricSubspaceCount_mono`,
-`parametricIntervalCount_mono`, `parametricRatio_mono`, `card_systemPlacesOver_le`). The heights
+The counts of Layer 6.1 over `E` do not depend on the number of infinite places of `E`
+(Q1.8c: the minima sit at one place), and are taken at `R [E : K]` distinct forms: the forms
+at a place of `E` are `Gal(E / K)`-conjugates of the forms at the place of `K` below it
+(`formCount_conjSystem_le`). The heights
 of the conjugated forms are those of the coefficients (`logHeight₁_algEquiv`,
 `IsNormalizedSystem.formLogHeight_conjSystem_le`).
 
 ## Main results
 
-* `NumberField.exists_finset_submodule_of_forall_interval`: steps 1, 2 and 4 for **any** interval
+* `NumberField.exists_finset_submodule_of_forall_interval`: steps 1–4 for **any** interval
   result above `X₀` for the conjugated forms, with counts `NS`, `NI` and ratio `ρ`. Layer 6.1 is
   one; for `n = 2` Layer 5.6 is one (`QuantitativeSubspace/SubspaceCountTwo.lean`).
 * `NumberField.exists_finset_submodule_of_systemThreshold_le`: the large solutions above `X₀`,
@@ -69,9 +72,11 @@ of the conjugated forms are those of the coefficients (`logHeight₁_algEquiv`,
 * `NumberField.exists_finset_submodule_of_isNormalizedSystem`: all solutions.
 * `NumberField.systemThreshold_le`: `X₀` in terms of `log H`, `|D_E|` and the norms of the
   primes of `E` above `S`.
-* `NumberField.IsNormalizedSystem.exists_gridExponent`: the exponents of a solution on a grid.
+* `NumberField.IsNormalizedSystem.exists_raise`: the raised exponents.
+* `NumberField.exists_ne_zero_systemAbs_le`: Minkowski's first theorem for one scalar.
 * `NumberField.IsNormalizedSystem.linearIndependent`: the forms of a normalized system are
   independent at every place of the system.
+* `NumberField.formCount_conjSystem_le`: at most `R [E : K]` distinct conjugated forms over `E`.
 
 ## Implementation notes
 
@@ -79,10 +84,12 @@ of the conjugated forms are those of the coefficients (`logHeight₁_algEquiv`,
 places of `E` as conjugates. A system over an intermediate field is the same system over its
 Galois closure (`NumberField.systemSet_compRingHom`), so this costs nothing but the degree.
 
-⚠ **The grid replaces the constants.** Absorbing each `C p` into its own exponent would put
-`max (0, log C p)` into the threshold, and (2.4) bounds only the product of the `C p`. Taking the
-exponents from the solution and gridding them uses only the product, at the price of the factor
-`systemGridCount` in the count.
+⚠ **One scalar replaces the constants.** Absorbing each `C p` into its own exponent would put
+`max (0, log C p)` into the threshold, and (2.4) bounds only the product of the `C p`. Scaling the
+solutions by one `β` uses only the product, and costs `log scalarConst K S` (`[K : ℚ] log 2`,
+`∑ log N(q)` and `½ log |D_K|`) in the threshold, nothing in the count. Q0.3 took the exponents
+from each solution instead, which multiplied the count by `(2 n t ⌈4 n t / δ⌉ + …) ^ (t n)` grid
+systems and put `A ≍ t² n²` into Layer 6.1 (Q1.8a removed both).
 
 ⚠ **Below `X₀` one interval of Layer 9.4 covers the large solutions**, which costs `log X₀`, so
 `O(log log H)`: the doubly logarithmic dependence on the heights of Schlickewei's count.
@@ -142,14 +149,14 @@ theorem IsNormalizedSystem.linearIndependent [Nonempty ι] {S : Finset (HeightOn
     rw [systemAbs, h0, map_zero, zero_pow (systemMult_ne_zero S p)]
   exact hpos.ne' (Finset.prod_eq_zero (Finset.mem_univ p) h)
 
-/-- The ratio of every grid system is at least `4`. -/
+/-- The ratio of every step of Layer 6.1 is at least `4`. -/
 theorem four_le_parametricStepRatio (R : RothParams) {N : ℕ} (d s p : ℕ) {ε A : ℝ} (hN : 0 < N)
     (hε : 0 < ε) (hA : 0 ≤ A) : 4 ≤ parametricStepRatio R N d s p ε A := by
   have hδ := parametricDelta_pos hN hε
   have hW := parametricWedgeAbsWeight_nonneg N d p hε.le hA
-  have h0 := R.ratio_pos (n := N.choose p - 1) (s := s) hδ hW
-  have h1 := R.ratio_le_one (n := N.choose p - 1) (s := s) hδ hW
-  have h2 : 1 ≤ (R.ratio (N.choose p - 1) s (parametricDelta N ε)
+  have h0 := R.ratio_pos (n := N.choose p - 1) (s := s ^ p) hδ hW
+  have h1 := R.ratio_le_one (n := N.choose p - 1) (s := s ^ p) hδ hW
+  have h2 : 1 ≤ (R.ratio (N.choose p - 1) (s ^ p) (parametricDelta N ε)
       (parametricWedgeAbsWeight N d p ε A))⁻¹ := (one_le_inv₀ h0).2 h1
   rw [parametricStepRatio]
   linarith
@@ -408,11 +415,60 @@ theorem card_systemPlacesOver_le (S : Finset (HeightOneSpectrum (𝓞 K))) :
           (fun V _ ↦ V.localDegree_pos)
     _ = finrank K E * #S := by rw [Finset.sum_const, Finset.card_attach, smul_eq_mul, mul_comm]
 
+open scoped Classical in
+/-- **At most `R [E : K]` distinct forms over `E`**, for `R` distinct forms of the system: the
+forms at a place of `E` are conjugates of those at the place of `K` below it. -/
+theorem formCount_conjSystem_le [IsGalois K E] {S : Finset (HeightOneSpectrum (𝓞 K))}
+    {w : AbsoluteValue K ℝ → AbsoluteValue E ℝ}
+    (hwInf : ∀ v : InfinitePlace K, (w v.1).LiesOver v.1)
+    (hwFin : ∀ v ∈ S, (w (FinitePlace.mk v).1).LiesOver (FinitePlace.mk v).1)
+    {L : AbsoluteValue K ℝ → ι → Dual E (ι → E)} {R : ℕ}
+    (hR : (Set.range fun q : (InfinitePlace K ⊕ S) × ι ↦ L (systemPlace S q.1) q.2).ncard ≤ R) :
+    formCount (systemPlacesOver E S) (conjSystem univ (S.image FinitePlace.mk) w L)
+      ≤ R * finrank K E := by
+  set F := Set.range fun q : (InfinitePlace K ⊕ S) × ι ↦ L (systemPlace S q.1) q.2 with hF
+  have hwF : ∀ v ∈ S.image FinitePlace.mk, (w v.1).LiesOver v.1 := fun v hv ↦ by
+    obtain ⟨q, hq, rfl⟩ := Finset.mem_image.mp hv
+    exact hwFin q hq
+  have hsub : (Set.range fun q : (InfinitePlace E ⊕ ↥(systemPlacesOver E S)) × ι ↦
+      conjSystem univ (S.image FinitePlace.mk) w L (sPlace (systemPlacesOver E S) q.1) q.2)
+      ⊆ Set.range fun p : ↥F × (E ≃ₐ[K] E) ↦
+        (p.1 : Dual E (ι → E)).compRingHom (p.2 : E →+* E) := by
+    rintro _ ⟨⟨a | a, i⟩, rfl⟩
+    · obtain ⟨σ, -, hσ⟩ := exists_conjSystem_inf (L := L) (Sfin := S.image FinitePlace.mk)
+        (fun v _ ↦ hwInf v) (mem_univ _) (InfinitePlace.liesOver_comap (K := K) a)
+      exact ⟨(⟨_, (.inl (a.comap (algebraMap K E)), i), rfl⟩, σ), by
+        simp only [sPlace, Sum.elim_inl, hσ, systemPlace]⟩
+    · obtain ⟨p, hp, hVp⟩ := mem_systemPlacesOver.mp a.2
+      obtain ⟨σ, -, hσ⟩ := exists_conjSystem_fin (L := L) (Sinf := univ) hwF
+        (Finset.mem_image_of_mem _ hp) hVp
+      exact ⟨(⟨_, (.inr ⟨p, hp⟩, i), rfl⟩, σ), by
+        simp only [sPlace, Sum.elim_inr, hσ, systemPlace]⟩
+  rw [formCount]
+  refine (Set.ncard_le_ncard hsub (Set.finite_range _)).trans ?_
+  rw [← Set.image_univ]
+  refine (Set.ncard_image_le Set.finite_univ).trans ?_
+  rw [Set.ncard_univ, Nat.card_prod, Nat.card_coe_set_eq, IsGalois.card_aut_eq_finrank]
+  exact Nat.mul_le_mul_right _ hR
+
+/-- A normalized system has at least one form, so its bound `R` on the number of distinct forms is
+at least `1`. -/
+theorem IsNormalizedSystem.one_le_formBound {S : Finset (HeightOneSpectrum (𝓞 K))}
+    {w : AbsoluteValue K ℝ → AbsoluteValue E ℝ} {L : AbsoluteValue K ℝ → ι → Dual E (ι → E)}
+    {C : InfinitePlace K ⊕ S → ℝ} {c : InfinitePlace K ⊕ S → ι → ℝ} {H : ℝ} {D R : ℕ} {δ : ℝ}
+    (hN : IsNormalizedSystem S w L C c H D R δ) : 1 ≤ R := by
+  have : Nonempty ι := Fintype.card_pos_iff.1 (by have := hN.two_le_card; omega)
+  obtain ⟨v⟩ : Nonempty (InfinitePlace K) := inferInstance
+  refine le_trans ?_ hN.ncard_le
+  rw [Nat.one_le_iff_ne_zero, ne_eq, Set.ncard_eq_zero (Set.finite_range _)]
+  exact (Set.range_nonempty _).ne_empty
+
 theorem parametricChainLength_mono {N d s s' p : ℕ} {ε A : ℝ} (hN : 0 < N) (hε : 0 < ε)
     (hA : 0 ≤ A) (hs : 1 ≤ s) (hss : s ≤ s') :
     parametricChainLength N d s p ε A ≤ parametricChainLength N d s' p ε A :=
   subspaceChainLength_mono (parametricDelta_pos hN hε)
-    (parametricWedgeAbsWeight_nonneg N d p hε.le hA) hs hss
+    (parametricWedgeAbsWeight_nonneg N d p hε.le hA) (Nat.one_le_pow _ _ hs)
+    (Nat.pow_le_pow_left hss p)
 
 theorem parametricStepRatio_mono (R : RothParams) {N d s s' p : ℕ} {ε A : ℝ} (hN : 0 < N)
     (hε : 0 < ε) (hA : 0 ≤ A) (hs : 1 ≤ s) (hss : s ≤ s') :
@@ -421,7 +477,8 @@ theorem parametricStepRatio_mono (R : RothParams) {N d s s' p : ℕ} {ε A : ℝ
   have hW := parametricWedgeAbsWeight_nonneg N d p hε.le hA
   rw [parametricStepRatio, parametricStepRatio]
   exact mul_le_mul_of_nonneg_left ((inv_le_inv₀ (R.ratio_pos hδ hW)
-    (R.ratio_pos hδ hW)).2 (R.ratio_anti hδ hW hs hss)) four_pos.le
+    (R.ratio_pos hδ hW)).2 (R.ratio_anti hδ hW (Nat.one_le_pow _ _ hs)
+      (Nat.pow_le_pow_left hss p))) four_pos.le
 
 theorem parametricRatio_mono (R : RothParams) {N d s s' : ℕ} {ε A : ℝ} (hN : 0 < N) (hε : 0 < ε)
     (hA : 0 ≤ A) (hs : 1 ≤ s) (hss : s ≤ s') :
@@ -436,84 +493,62 @@ theorem one_le_parametricGridBase (N d p : ℕ) {ε A : ℝ} (hε : 0 ≤ ε) (h
     positivity
   omega
 
-theorem parametricGridCount_mono {N d r r' p : ℕ} {ε A : ℝ} (hε : 0 ≤ ε) (hA : 0 ≤ A)
-    (hrr : r ≤ r') : parametricGridCount N d r p ε A ≤ parametricGridCount N d r' p ε A :=
-  Nat.pow_le_pow_right (one_le_parametricGridBase N d p hε hA)
-    (Nat.mul_le_mul_right _ hrr)
-
-theorem parametricSubspaceCount_mono {N d r r' s s' : ℕ} {ε A : ℝ} (hε : 0 ≤ ε) (hA : 0 ≤ A)
-    (hrr : r ≤ r') (hss : s ≤ s') :
-    parametricSubspaceCount N d r s ε A ≤ parametricSubspaceCount N d r' s' ε A := by
-  refine Nat.add_le_add_left (Finset.sum_le_sum fun p _ ↦ ?_) 1
-  exact Nat.mul_le_mul (parametricGridCount_mono hε hA hrr)
-    (Nat.pow_le_pow_right two_pos (Nat.mul_le_mul_left _ hss))
-
-theorem parametricIntervalCount_mono {N d r r' s s' : ℕ} {ε A : ℝ} (hN : 0 < N) (hε : 0 < ε)
-    (hA : 0 ≤ A) (hs : 1 ≤ s) (hrr : r ≤ r') (hss : s ≤ s') :
-    parametricIntervalCount N d r s ε A ≤ parametricIntervalCount N d r' s' ε A :=
-  Finset.sum_le_sum fun _ _ ↦ Nat.mul_le_mul (parametricGridCount_mono hε.le hA hrr)
-    (parametricChainLength_mono hN hε hA hs hss)
+theorem parametricIntervalCount_mono {N d s s' : ℕ} {ε A : ℝ} (hN : 0 < N) (hε : 0 < ε)
+    (hA : 0 ≤ A) (hs : 1 ≤ s) (hss : s ≤ s') :
+    parametricIntervalCount N d s ε A ≤ parametricIntervalCount N d s' ε A :=
+  Finset.sum_le_sum fun _ _ ↦ Nat.mul_le_mul_left _ (parametricChainLength_mono hN hε hA hs hss)
 
 /-! ### The parameters -/
-
-/-- **The depth of the lower clamp**, `M = 2 n t`, for `n` forms and `t` places: one exponent at
-`-M` makes the weight negative, the others being at most `2`. -/
-def systemClamp (n t : ℕ) : ℕ :=
-  2 * n * t
-
-/-- **The denominator of the grid**, `m = ⌈4 n t / δ⌉`: rounding up to `ℤ / m` raises the weight
-by at most `δ / 4`. -/
-noncomputable def systemGridDen (n t : ℕ) (δ : ℝ) : ℕ :=
-  ⌈4 * n * t / δ⌉₊
-
-/-- **The number of grid systems**, `(M m + 2 m + 1) ^ (t n)`: the exponents are `k / m` with
-`-M m ≤ k ≤ 2 m`. -/
-noncomputable def systemGridCount (n t : ℕ) (δ : ℝ) : ℕ :=
-  (systemClamp n t * systemGridDen n t δ + 2 * systemGridDen n t δ + 1) ^ (t * n)
 
 /-- **The weight margin over `E`**, `ε = [E : K] δ / 4`. -/
 noncomputable def systemEps (e : ℕ) (δ : ℝ) : ℝ :=
   e * δ / 4
 
-/-- **The bound on the absolute weight over `E`**, `A = [E : K] t n (M + 2)`. -/
-noncomputable def systemAbsBound (e n t : ℕ) : ℝ :=
-  e * (t * n * (systemClamp n t + 2))
+/-- **The bound on the absolute weight over `E`**, `A = [E : K] (2 n + 2)`: the raised exponents
+have absolute weight at most `2 n + δ`, and the shift that absorbs the scalar adds `δ / 2`. -/
+noncomputable def systemAbsBound (e n : ℕ) : ℝ :=
+  e * (2 * n + 2)
+
+variable (K) in
+/-- **Minkowski's constant for one scalar**, `2 ^ [K : ℚ] ∏_{q ∈ S} N(q) √|D_K|`: if the product
+of the bounds `B p` at the places of a system is at least this, some nonzero `S`-integer `β` has
+`|β|_p ≤ B p` at all of them (`NumberField.exists_ne_zero_systemAbs_le`). -/
+noncomputable def scalarConst (S : Finset (HeightOneSpectrum (𝓞 K))) : ℝ :=
+  2 ^ finrank ℚ K * (∏ q ∈ S, (Ideal.absNorm q.asIdeal : ℝ)) * √|(discr K : ℝ)|
 
 /-- **The part of the threshold that comes from the system itself**, in the coefficient height
-`H`: `2 log (n H ^ d)`, above which every local value is at most `H(x) ^ 2`, and
-`4 t log (n! H ^ (n d)) / δ`, above which the determinant product costs at most `δ / 2` of the
-weight. Here `d = [E : ℚ]`. -/
-noncomputable def systemHeightThreshold (n d t : ℕ) (δ H : ℝ) : ℝ :=
-  max (2 * (Real.log n + d * Real.log H))
-    (4 * t * (Real.log n.factorial + n * (d * Real.log H)) / δ)
+`H` and `μ = log scalarConst`: `(2 n μ + 4 t log (n! H ^ (n d))) / δ`, above which the scalar
+that absorbs the constants costs at most `H(x) ^ (δ / (2 n t))` at every place. Here
+`d = [E : ℚ]` and `t` is the number of places. -/
+noncomputable def systemHeightThreshold (n d t : ℕ) (δ H μ : ℝ) : ℝ :=
+  (2 * n * μ + 4 * t * (Real.log n.factorial + n * (d * Real.log H))) / δ
 
 variable (E) in
 open scoped Classical in
 /-- **The threshold of the quantitative Subspace Theorem for a system**, on the scale of
-`log H(x)`: the largest of the threshold of Layer 6.1 for the conjugated forms over `E` (shared
-by all grid systems), of `[K : ℚ] (2 n / δ) log n` (so that the gap principle applies), and of
-`systemHeightThreshold`. It does not depend on the constants `C`. -/
+`log H(x)`: the largest of the threshold of Layer 6.1 for the conjugated forms over `E`, of
+`[K : ℚ] (2 n / δ) log n` (so that the gap principle applies), and of `systemHeightThreshold`.
+It does not depend on the constants `C`. -/
 noncomputable def systemThreshold (S : Finset (HeightOneSpectrum (𝓞 K)))
     (w : AbsoluteValue K ℝ → AbsoluteValue E ℝ) (L : AbsoluteValue K ℝ → ι → Dual E (ι → E))
-    (R : RothParams) (H δ : ℝ) : ℝ :=
+    (R : RothParams) (r : ℕ) (H δ : ℝ) : ℝ :=
   max (parametricThreshold (systemPlacesOver E S) (conjSystem univ (S.image FinitePlace.mk) w L) R
-      (systemEps (finrank K E) δ)
-      (systemAbsBound (finrank K E) (Fintype.card ι) (Fintype.card (InfinitePlace K) + #S)))
+      (r * finrank K E) (systemEps (finrank K E) δ)
+      (systemAbsBound (finrank K E) (Fintype.card ι)))
     (max (finrank ℚ K * (2 * Fintype.card ι / δ) * Real.log (Fintype.card ι))
       (systemHeightThreshold (Fintype.card ι) (finrank ℚ E) (Fintype.card (InfinitePlace K) + #S)
-        δ H))
+        δ H (Real.log (scalarConst K S))))
 
-/-- **The number of subspaces of the large solutions**: for each grid system, Layer 6.1's
-exceptional subspaces over `E` and, for each of its intervals, the windows of the gap principle.
-The parameters are `n` forms, `d = [E : ℚ]`, `e = [E : K]`, `t` places of the system and
-`|S| = u`; Layer 6.1's counts are taken at `d` infinite places and `d + e u` places, which bound
-those of `E`. -/
-noncomputable def systemLargeCount (R : RothParams) (n d e t u : ℕ) (δ : ℝ) : ℝ :=
-  systemGridCount n t δ *
-    (parametricSubspaceCount n d d (d + e * u) (systemEps e δ) (systemAbsBound e n t) +
-      parametricIntervalCount n d d (d + e * u) (systemEps e δ) (systemAbsBound e n t) *
-        (1 + Real.log (parametricRatio R n d (d + e * u) (systemEps e δ) (systemAbsBound e n t)) /
-          Real.log (1 + δ / (2 * n))))
+/-- **The number of subspaces of the large solutions**: Layer 6.1's exceptional subspaces over
+`E` and, for each of its intervals, the windows of the gap principle. The parameters are `n`
+variables, `d = [E : ℚ]`, `e = [E : K]` and `r` distinct forms; Layer 6.1's counts are taken at
+`r e` distinct forms, which bound the conjugated forms over `E`
+(`NumberField.formCount_conjSystem_le`). -/
+noncomputable def systemLargeCount (R : RothParams) (n d e r : ℕ) (δ : ℝ) : ℝ :=
+  parametricSubspaceCount n d (r * e) (systemEps e δ) (systemAbsBound e n) +
+    parametricIntervalCount n d (r * e) (systemEps e δ) (systemAbsBound e n) *
+      (1 + Real.log (parametricRatio R n d (r * e) (systemEps e δ) (systemAbsBound e n)) /
+        Real.log (1 + δ / (2 * n)))
 
 /-- **The ratio of the middle interval**: the large solutions below the threshold `X` have
 absolute affine height in `[Q, Q ^ ω)` with `Q = max (2 H) (n ^ (2 n / δ))` and
@@ -521,204 +556,201 @@ absolute affine height in `[Q, Q ^ ω)` with `Q = max (2 H) (n ^ (2 n / δ))` an
 noncomputable def systemMiddleRatio (d n : ℕ) (H δ X : ℝ) : ℝ :=
   max 1 (X / (d * Real.log (max (2 * H) ((n : ℝ) ^ (2 * n / δ)))))
 
-/-! ### The exponents of a solution, on a grid -/
+/-! ### One scalar for the constants -/
 
-omit [NumberField E] in
-private theorem sum_single_eq_one {S : Finset (HeightOneSpectrum (𝓞 K))} [DecidableEq ι]
-    [DecidableEq (InfinitePlace K ⊕ S)] (p₀ : InfinitePlace K ⊕ S) (i₀ : ι) :
-    ∑ p, ∑ i, (Pi.single p₀ (Pi.single i₀ (1 : ℝ)) : InfinitePlace K ⊕ S → ι → ℝ) p i = 1 := by
-  rw [Finset.sum_eq_single p₀ (fun p _ hp ↦ by simp [hp]) (by simp)]
-  simp
+private theorem systemPlace_inj (S : Finset (HeightOneSpectrum (𝓞 K))) :
+    Function.Injective (systemPlace S) := by
+  rintro (v | v) (v' | v') h <;> simp only [systemPlace] at h
+  · exact congrArg Sum.inl (Subtype.ext h)
+  · exact absurd h (InfinitePlace.val_ne_finitePlace_val v (FinitePlace.mk v'.1))
+  · exact absurd h.symm (InfinitePlace.val_ne_finitePlace_val v' (FinitePlace.mk v.1))
+  · exact congrArg Sum.inr (Subtype.ext (FinitePlace.mk_injective (Subtype.ext h)))
 
-/-- **The exponents of a large solution lie on a grid.** Under the normalization, a solution `x`
-with `log H(x) ≥ systemHeightThreshold` meets `|L p i x|_p ≤ H(x) ^ (k p i / m)` for integers
-`-M m ≤ k p i ≤ 2 m` whose system has weight at most `-δ / 4`. The exponents are
-`log |L p i x|_p / log H(x)`, clamped below at `-M` and rounded up; they are at most `2` by the
-trivial bound, and their weight is at most `-δ / 2` before rounding, by the product bound
-`∏ |L p i x|_p ≤ systemDet · H(x) ^ (-δ)` of (2.4), or because one of them is clamped. -/
-theorem IsNormalizedSystem.exists_gridExponent {S : Finset (HeightOneSpectrum (𝓞 K))}
-    {w : AbsoluteValue K ℝ → AbsoluteValue E ℝ}
+theorem scalarConst_pos (S : Finset (HeightOneSpectrum (𝓞 K))) : 0 < scalarConst K S := by
+  have hN : ∀ q ∈ S, (0 : ℝ) < Ideal.absNorm q.asIdeal := fun q _ ↦ by
+    have := (FinitePlace.mk q).one_lt_absNorm
+    rw [FinitePlace.maximalIdeal_mk] at this
+    linarith
+  have hD : 0 < √|(discr K : ℝ)| :=
+    Real.sqrt_pos.2 (abs_pos.2 (by exact_mod_cast discr_ne_zero K))
+  rw [scalarConst]
+  exact mul_pos (mul_pos (by positivity) (Finset.prod_pos hN)) hD
+
+/-- **Minkowski's first theorem for one scalar.** If the product of positive bounds `B p` over
+the places of a system is at least `scalarConst K S`, some nonzero `S`-integer `β` has
+`|β|_p ^ mult p ≤ B p` at every place of the system. This is the domain of Layer 4.1 for the
+coordinate form on `K¹`: its first minimum is at most `1`. -/
+theorem exists_ne_zero_systemAbs_le (S : Finset (HeightOneSpectrum (𝓞 K)))
+    {B : InfinitePlace K ⊕ S → ℝ} (hB : ∀ p, 0 < B p) (h : scalarConst K S ≤ ∏ p, B p) :
+    ∃ β : K, β ≠ 0 ∧ β ∈ (S : Set (HeightOneSpectrum (𝓞 K))).integer K ∧
+      ∀ p, systemPlace S p β ^ systemMult S p ≤ B p := by
+  classical
+  set Sfin := S.image FinitePlace.mk with hSfin
+  set L₀ : AbsoluteValue K ℝ → Unit → Dual K (Unit → K) := fun _ _ ↦ LinearMap.proj ()
+    with hL₀
+  set c : AbsoluteValue K ℝ → Unit → ℝ := fun a _ ↦
+    Function.extend (systemPlace S) (fun p ↦ Real.log (B p) / systemMult S p) 0 a with hc
+  have hc' : ∀ p i, c (systemPlace S p) i = Real.log (B p) / systemMult S p := fun p i ↦
+    (systemPlace_inj S).extend_apply _ _ _
+  set Q := Real.exp 1 with hQ
+  have hQ0 : 0 < Q := Real.exp_pos 1
+  have hLI : ∀ a, LinearIndependent K (L₀ a) := fun a ↦ linearIndependent_unique_iff.2 fun h0 ↦ by
+    have := LinearMap.congr_fun h0 fun _ ↦ 1
+    simp [hL₀] at this
+  have hw : approxWeight Sfin c = ∑ p, Real.log (B p) := by
+    rw [approxWeight, Fintype.sum_sum_type, hSfin,
+      Finset.sum_image fun _ _ _ _ h ↦ FinitePlace.mk_injective h]
+    congr 1
+    · refine Finset.sum_congr rfl fun v _ ↦ ?_
+      have := hc' (.inl v) ()
+      simp only [systemPlace, systemMult] at this
+      simp only [Finset.univ_unique, Finset.sum_singleton, PUnit.default_eq_unit, this]
+      field_simp [v.mult_pos.ne']
+    · rw [← Finset.sum_coe_sort S]
+      refine Finset.sum_congr rfl fun q _ ↦ ?_
+      have := hc' (.inr q) ()
+      simp only [systemPlace, systemMult, Nat.cast_one, div_one] at this
+      simp [this]
+  have hpow : ∀ p (a : ℝ), 0 ≤ a → a ≤ Q ^ c (systemPlace S p) () →
+      a ^ systemMult S p ≤ B p := fun p a ha hle ↦ by
+    have hm : (0 : ℝ) < systemMult S p := by
+      exact_mod_cast Nat.pos_of_ne_zero (systemMult_ne_zero S p)
+    rw [hc' p (), hQ, Real.exp_one_rpow] at hle
+    calc a ^ systemMult S p ≤ Real.exp (Real.log (B p) / systemMult S p) ^ systemMult S p :=
+          pow_le_pow_left₀ ha hle _
+      _ = B p := by
+          rw [← Real.exp_nat_mul, mul_div_cancel₀ _ hm.ne', Real.exp_log (hB p)]
+  have hprod := prod_successiveMinimum_approx_le (Sfin := Sfin) (L := L₀) (fun w ↦ hLI w.1)
+    (fun v _ ↦ hLI v.1) c hQ0
+  simp only [Fintype.card_unit, Finset.range_one, Finset.prod_singleton, mul_one, pow_one]
+    at hprod
+  rw [approxConst_proj, hw] at hprod
+  have hN : ∏ v ∈ Sfin, (Ideal.absNorm v.maximalIdeal.asIdeal : ℝ) =
+      ∏ q ∈ S, (Ideal.absNorm q.asIdeal : ℝ) := by
+    rw [hSfin, Finset.prod_image fun _ _ _ _ h ↦ FinitePlace.mk_injective h]
+    simp only [FinitePlace.maximalIdeal_mk]
+  have hQB : Q ^ (-∑ p, Real.log (B p)) = (∏ p, B p)⁻¹ := by
+    rw [hQ, Real.exp_one_rpow, Real.exp_neg, Real.exp_sum]
+    simp only [Real.exp_log (hB _)]
+  rw [hN, hQB] at hprod
+  have hBpos : 0 < ∏ p, B p := Finset.prod_pos fun p _ ↦ hB p
+  have hcov := covolume_le_sqrt (K := K)
+  have hcov0 := ZLattice.covolume_pos (mixedEmbedding.integerLattice K)
+  have hpi : (1 : ℝ) ≤
+      2 ^ InfinitePlace.nrRealPlaces K * Real.pi ^ InfinitePlace.nrComplexPlaces K :=
+    one_le_mul_of_one_le_of_one_le (one_le_pow₀ one_le_two)
+      (one_le_pow₀ (by linarith [Real.pi_gt_three]))
+  have hP0 : 0 ≤ ∏ q ∈ S, (Ideal.absNorm q.asIdeal : ℝ) :=
+    Finset.prod_nonneg fun _ _ ↦ by positivity
+  have hRHS : 2 ^ finrank ℚ K * (∏ q ∈ S, (Ideal.absNorm q.asIdeal : ℝ)) /
+      (2 ^ InfinitePlace.nrRealPlaces K * Real.pi ^ InfinitePlace.nrComplexPlaces K /
+        ZLattice.covolume (mixedEmbedding.integerLattice K)) * (∏ p, B p)⁻¹ ≤ 1 := by
+    rw [← div_eq_mul_inv, div_le_one hBpos, div_div_eq_mul_div]
+    refine (div_le_of_le_mul₀ (by positivity) (scalarConst_pos S).le ?_).trans h
+    rw [scalarConst]
+    calc 2 ^ finrank ℚ K * (∏ q ∈ S, (Ideal.absNorm q.asIdeal : ℝ)) *
+          ZLattice.covolume (mixedEmbedding.integerLattice K)
+        ≤ 2 ^ finrank ℚ K * (∏ q ∈ S, (Ideal.absNorm q.asIdeal : ℝ)) * √|(discr K : ℝ)| :=
+          mul_le_mul_of_nonneg_left hcov (by positivity)
+      _ ≤ _ := le_mul_of_one_le_right (by positivity) hpi
+  have hμ0 := successiveMinimum_nonneg (approxModule Sfin L₀ c Q) (approxBody L₀ c Q) 0
+  have hμ : successiveMinimum (approxModule Sfin L₀ c Q) (approxBody L₀ c Q) 0 ≤ 1 :=
+    (pow_le_one_iff_of_nonneg hμ0 (finrank_pos (R := ℚ) (M := K)).ne').1 (hprod.trans hRHS)
+  rw [successiveMinimum_approx_le_one_iff (fun w ↦ hLI w.1) (fun v _ ↦ hLI v.1) c hQ0
+    (by simp)] at hμ
+  obtain ⟨y, hy, hy0⟩ : ∃ y ∈ approxDomain Sfin L₀ c Q, y ≠ 0 := by
+    by_contra hcon
+    push Not at hcon
+    have h0 : approxSpan Sfin L₀ c Q = ⊥ := Submodule.span_eq_bot.2 hcon
+    rw [h0, finrank_bot] at hμ
+    exact lt_irrefl _ hμ
+  refine ⟨y (), fun h0 ↦ hy0 (funext fun _ ↦ h0), ?_, fun p ↦ ?_⟩
+  · refine (Set.mem_integer_iff_finitePlace _ _).2 fun q hq ↦ hy.2.2 (FinitePlace.mk q)
+      (fun hm ↦ hq ?_) ()
+    obtain ⟨q', hq', heq⟩ := Finset.mem_image.1 hm
+    exact FinitePlace.mk_injective heq ▸ hq'
+  · rcases p with v | q
+    · exact hpow (.inl v) _ (apply_nonneg _ _) (hy.1 v ())
+    · exact hpow (.inr q) _ (apply_nonneg _ _)
+        (hy.2.1 (FinitePlace.mk q.1) (Finset.mem_image_of_mem _ q.2) ())
+
+omit [Fintype ι] in
+/-- **Scaling a point scales its local values** by `|β|_p ^ mult p`. -/
+theorem systemValue_mul (S : Finset (HeightOneSpectrum (𝓞 K)))
+    (w : AbsoluteValue K ℝ → AbsoluteValue E ℝ)
     (hwInf : ∀ v : InfinitePlace K, (w v.1).LiesOver v.1)
     (hwFin : ∀ v ∈ S, (w (FinitePlace.mk v).1).LiesOver (FinitePlace.mk v).1)
-    {L : AbsoluteValue K ℝ → ι → Dual E (ι → E)}
+    (L : AbsoluteValue K ℝ → ι → Dual E (ι → E)) (p : InfinitePlace K ⊕ S) (i : ι) (β : K)
+    (x : ι → K) :
+    systemValue S w L p i (fun j ↦ β * x j) =
+      systemPlace S p β ^ systemMult S p * systemValue S w L p i x := by
+  have hlies : (w (systemPlace S p)).LiesOver (systemPlace S p) := by
+    rcases p with v | v
+    · exact hwInf v
+    · exact hwFin v.1 v.2
+  have hv : (fun j ↦ algebraMap K E (β * x j)) =
+      algebraMap K E β • fun j ↦ algebraMap K E (x j) := by
+    funext j; simp [map_mul]
+  simp only [systemValue, systemAbs]
+  rw [hv, map_smul, smul_eq_mul, map_mul,
+    AbsoluteValue.apply_algebraMap_of_liesOver (v := systemPlace S p), mul_pow]
+
+/-! ### The raised exponents -/
+
+/-- **The exponents can be raised to absolute weight at most `2 n + δ`.** The positive exponents
+sum to at most `n`, since each is at most the normalized local degree; scaling the negative ones
+by `λ = (P + δ) / N ≤ 1`, `P` and `N` the sums of the positive and negative parts, leaves the
+weight at exactly `-δ`. Raising the exponents only enlarges the set of solutions. -/
+theorem IsNormalizedSystem.exists_raise {S : Finset (HeightOneSpectrum (𝓞 K))}
+    {w : AbsoluteValue K ℝ → AbsoluteValue E ℝ} {L : AbsoluteValue K ℝ → ι → Dual E (ι → E)}
     {C : InfinitePlace K ⊕ S → ℝ} {c : InfinitePlace K ⊕ S → ι → ℝ} {H : ℝ} {D R : ℕ} {δ : ℝ}
-    (hN : IsNormalizedSystem S w L C c H D R δ) {x : ι → K} (hx : x ∈ systemSet S w L C c)
-    (hlog : systemHeightThreshold (Fintype.card ι) (finrank ℚ E)
-      (Fintype.card (InfinitePlace K) + #S) δ H ≤ Real.log (mulHeightAff x)) :
-    ∃ k : InfinitePlace K ⊕ S → ι → ℤ,
-      (∀ p i, -((systemClamp (Fintype.card ι) (Fintype.card (InfinitePlace K) + #S) *
-          systemGridDen (Fintype.card ι) (Fintype.card (InfinitePlace K) + #S) δ : ℕ) : ℤ) ≤
-          k p i ∧
-        k p i ≤ 2 * (systemGridDen (Fintype.card ι) (Fintype.card (InfinitePlace K) + #S) δ : ℤ))
-      ∧ systemWeight (fun p i ↦ (k p i : ℝ) /
-          systemGridDen (Fintype.card ι) (Fintype.card (InfinitePlace K) + #S) δ) ≤ -(δ / 4)
-      ∧ ∀ p i, systemValue S w L p i x ≤ mulHeightAff x ^ ((k p i : ℝ) /
-          systemGridDen (Fintype.card ι) (Fintype.card (InfinitePlace K) + #S) δ) := by
-  classical
-  set n := Fintype.card ι with hn
-  set t := Fintype.card (InfinitePlace K) + #S with ht
-  set M := systemClamp n t with hM
-  set m := systemGridDen n t δ with hm
-  have hn2 : 2 ≤ n := hN.two_le_card
-  have : Nonempty ι := Fintype.card_pos_iff.1 (by omega)
+    (hN : IsNormalizedSystem S w L C c H D R δ) :
+    ∃ c' : InfinitePlace K ⊕ S → ι → ℝ, (∀ p i, c p i ≤ c' p i) ∧ systemWeight c' ≤ -δ ∧
+      ∑ p, ∑ i, |c' p i| ≤ 2 * Fintype.card ι + δ := by
   have hδ := hN.delta_pos
-  have hδ1 := hN.delta_le_one
-  have hH1 := hN.one_le_height
-  have hcardS : Fintype.card (InfinitePlace K ⊕ S) = t := by
-    rw [Fintype.card_sum, Fintype.card_coe]
-  have ht1 : 1 ≤ t := by
-    have := Fintype.card_pos (α := InfinitePlace K)
-    omega
-  have hn0 : (0 : ℝ) < n := by exact_mod_cast (by omega : 0 < n)
-  have ht0 : (0 : ℝ) < t := by exact_mod_cast (by omega : 0 < t)
-  have hMdef : (M : ℝ) = 2 * n * t := by rw [hM, systemClamp]; push_cast; ring
-  have hm4 : 4 * n * t / δ ≤ (m : ℝ) := Nat.le_ceil _
-  have hm0 : (0 : ℝ) < m := lt_of_lt_of_le (by positivity) hm4
-  have hmδ : (t : ℝ) * n / m ≤ δ / 4 := by
-    rw [div_le_iff₀ hm0]
-    rw [div_le_iff₀ hδ] at hm4
+  set P := ∑ p, ∑ i, max (c p i) 0 with hP
+  set M := ∑ p, ∑ i, max (-c p i) 0 with hM
+  have hP0 : 0 ≤ P := Finset.sum_nonneg fun p _ ↦ Finset.sum_nonneg fun i _ ↦ le_max_right _ _
+  have hPn : P ≤ Fintype.card ι := by
+    have hs : ∀ p, 0 ≤ systemExponent S p := fun p ↦ by
+      rcases p with v | v <;> simp only [systemExponent] <;> positivity
+    calc P ≤ ∑ p, ∑ _i : ι, systemExponent S p :=
+          Finset.sum_le_sum fun p _ ↦ Finset.sum_le_sum fun i _ ↦
+            max_le (hN.exponent_le p i) (hs p)
+      _ = Fintype.card ι := by
+          simp only [Finset.sum_const, Finset.card_univ, nsmul_eq_mul, ← Finset.mul_sum,
+            sum_systemExponent, mul_one]
+  have hsplit : systemWeight c = P - M := by
+    rw [systemWeight, hP, hM, ← Finset.sum_sub_distrib]
+    refine Finset.sum_congr rfl fun p _ ↦ ?_
+    rw [← Finset.sum_sub_distrib]
+    refine Finset.sum_congr rfl fun i _ ↦ ?_
+    rcases le_total 0 (c p i) with h | h
+    · rw [max_eq_left h, max_eq_right (by linarith)]; ring
+    · rw [max_eq_right h, max_eq_left (by linarith)]; ring
+  have hPM : P + δ ≤ M := by linarith [hN.weight_le]
+  have hM0 : 0 < M := by linarith
+  set l := (P + δ) / M with hl
+  have hl0 : 0 ≤ l := by positivity
+  have hl1 : l ≤ 1 := (div_le_one hM0).2 hPM
+  have hlM : l * M = P + δ := div_mul_cancel₀ _ hM0.ne'
+  refine ⟨fun p i ↦ max (c p i) 0 - l * max (-c p i) 0, fun p i ↦ ?_, ?_, ?_⟩
+  · change c p i ≤ max (c p i) 0 - l * max (-c p i) 0
+    rcases le_total 0 (c p i) with h | h
+    · rw [max_eq_left h, max_eq_right (by linarith)]; simp
+    · rw [max_eq_right h, max_eq_left (by linarith)]; nlinarith
+  · have : systemWeight (fun p i ↦ max (c p i) 0 - l * max (-c p i) 0) = P - l * M := by
+      simp only [systemWeight, Finset.sum_sub_distrib, ← Finset.mul_sum, hP, hM]
+    rw [this, hlM]
     linarith
-  set Hx := mulHeightAff x with hHx
-  have hHx0 : 0 < Hx := mulHeightAff_pos x
-  set G : ℝ := H ^ finrank ℚ E with hG
-  have hG1 : 1 ≤ G := one_le_pow₀ hH1
-  have hnG : 1 ≤ (n : ℝ) * G := one_le_mul_of_one_le_of_one_le (by exact_mod_cast (by omega :
-    1 ≤ n)) hG1
-  have hlogH : 0 ≤ Real.log H := Real.log_nonneg hH1
-  have hlognG : Real.log ((n : ℝ) * G) = Real.log n + finrank ℚ E * Real.log H := by
-    rw [Real.log_mul hn0.ne' (by positivity), hG, Real.log_pow]
-  have h2 : 2 * Real.log ((n : ℝ) * G) ≤ Real.log Hx := by
-    rw [hlognG]; exact (le_max_left _ _).trans hlog
-  have hlH : 0 < Real.log Hx := by
-    have : 0 < Real.log (n : ℝ) := Real.log_pos (by exact_mod_cast (by omega : 1 < n))
-    rw [hlognG] at h2
-    nlinarith [Nat.cast_nonneg (α := ℝ) (finrank ℚ E)]
-  have hHx1 : 1 ≤ Hx := le_of_lt ((Real.log_pos_iff hHx0.le).1 hlH)
-  set lH := Real.log Hx with hlHdef
-  -- the exponents
-  set v : InfinitePlace K ⊕ S → ι → ℝ := fun p i ↦ systemValue S w L p i x with hv
-  have hv0 : ∀ p i, 0 ≤ v p i := fun p i ↦ systemValue_nonneg S w L p i x
-  set f : InfinitePlace K ⊕ S → ι → ℝ := fun p i ↦
-    if v p i = 0 then -(M : ℝ) else Real.log (v p i) / lH with hf
-  set e : InfinitePlace K ⊕ S → ι → ℝ := fun p i ↦ max (-(M : ℝ)) (f p i) with he
-  set k : InfinitePlace K ⊕ S → ι → ℤ := fun p i ↦ ⌈e p i * m⌉ with hk
-  have hM0 : (0 : ℝ) ≤ M := Nat.cast_nonneg _
-  have hf2 : ∀ p i, f p i ≤ 2 := fun p i ↦ by
-    simp only [hf]
-    split_ifs with h0
-    · linarith
-    · have hvpos : 0 < v p i := lt_of_le_of_ne (hv0 p i) (Ne.symm h0)
-      have hle : v p i ≤ ((n : ℝ) * G) ^ 2 * Hx := by
-        refine (systemValue_le_mul_mulHeightAff S w hwInf hwFin L p i x
-          (fun j ↦ hN.apply_coeff_le hwInf hwFin p i j)).trans ?_
-        exact mul_le_mul_of_nonneg_right (pow_le_pow_right₀ hnG (systemMult_le_two S p))
-          hHx0.le
-      rw [div_le_iff₀ hlH]
-      have := Real.log_le_log hvpos hle
-      rw [Real.log_mul (by positivity) hHx0.ne', Real.log_pow] at this
-      push_cast at this
-      linarith
-  have he2 : ∀ p i, e p i ≤ 2 := fun p i ↦ max_le (by linarith) (hf2 p i)
-  have hkm : ∀ p i, e p i ≤ (k p i : ℝ) / m := fun p i ↦ by
-    rw [le_div_iff₀ hm0]; exact Int.le_ceil _
-  have hkm' : ∀ p i, (k p i : ℝ) / m ≤ e p i + 1 / m := fun p i ↦ by
-    rw [div_le_iff₀ hm0, add_mul, one_div_mul_cancel hm0.ne']
-    exact (Int.ceil_lt_add_one _).le
-  refine ⟨k, fun p i ↦ ⟨?_, ?_⟩, ?_, fun p i ↦ ?_⟩
-  · have h1 : (((-((M * m : ℕ) : ℤ)) : ℤ) : ℝ) ≤ e p i * m := by
-      push_cast
-      nlinarith [le_max_left (-(M : ℝ)) (f p i)]
-    exact Int.cast_le.1 (h1.trans (Int.le_ceil _))
-  · refine Int.ceil_le.2 ?_
-    push_cast
-    nlinarith [he2 p i]
-  · -- the weight
-    have hsum_e : systemWeight e ≤ -(δ / 2) := by
-      by_cases hcl : ∃ p i, e p i = -(M : ℝ)
-      · obtain ⟨p₀, i₀, h₀⟩ := hcl
-        set g : InfinitePlace K ⊕ S → ι → ℝ := Pi.single p₀ (Pi.single i₀ 1) with hg
-        have hle : ∀ p i, e p i ≤ 2 - ((M : ℝ) + 2) * g p i := by
-          intro p i
-          by_cases hp : p = p₀
-          · subst hp
-            by_cases hi : i = i₀
-            · subst hi
-              simp only [hg, Pi.single_eq_same, mul_one, h₀]
-              linarith
-            · simp only [hg, Pi.single_eq_same, Pi.single_eq_of_ne hi, mul_zero, sub_zero]
-              exact he2 p i
-          · simp only [hg, Pi.single_eq_of_ne hp, Pi.zero_apply, mul_zero, sub_zero]
-            exact he2 p i
-        calc systemWeight e ≤ ∑ p, ∑ i, (2 - ((M : ℝ) + 2) * g p i) :=
-              Finset.sum_le_sum fun p _ ↦ Finset.sum_le_sum fun i _ ↦ hle p i
-          _ = 2 * (t * n) - ((M : ℝ) + 2) := by
-              simp only [Finset.sum_sub_distrib, ← Finset.mul_sum, hg, sum_single_eq_one,
-                Finset.sum_const, Finset.card_univ, hcardS, nsmul_eq_mul]
-              ring
-          _ ≤ -(δ / 2) := by rw [hMdef]; nlinarith
-      · push Not at hcl
-        have hpos : ∀ p i, v p i ≠ 0 := fun p i h0 ↦ hcl p i (by
-          simp only [he, hf, h0, ↓reduceIte, max_self])
-        have hef : ∀ p i, e p i = Real.log (v p i) / lH := fun p i ↦ by
-          have hne := hcl p i
-          simp only [he, hf, hpos p i, ↓reduceIte] at hne ⊢
-          rcases le_total (-(M : ℝ)) (Real.log (v p i) / lH) with h | h
-          · exact max_eq_right h
-          · exact absurd (max_eq_left h) hne
-        have hprod : ∏ p, ∏ i, v p i ≤ systemDet S w L * Hx ^ (-δ) := by
-          have := affineProd_le_systemDet_mul_rpow hN hx
-          rwa [affineProd_eq_prod_systemValue] at this
-        have hdet0 := systemDet_pos hN
-        set Z : ℝ := (n.factorial : ℝ) * G ^ n with hZ
-        have hZ1 : 1 ≤ Z := one_le_mul_of_one_le_of_one_le
-          (Nat.one_le_cast.2 (Nat.factorial_pos _)) (one_le_pow₀ hG1)
-        have hdetZ : Real.log (systemDet S w L) ≤ 2 * t * Real.log Z := by
-          have h : systemDet S w L ≤ Z ^ (2 * t) := hN.systemDet_le hwInf hwFin
-          have h' := Real.log_le_log hdet0 h
-          rw [Real.log_pow] at h'
-          push_cast at h'
-          linarith
-        have hlogZ : Real.log Z = Real.log n.factorial + n * (finrank ℚ E * Real.log H) := by
-          rw [hZ, Real.log_mul (by positivity) (by positivity), Real.log_pow, hG, Real.log_pow]
-        have hZlH : 4 * t * Real.log Z / δ ≤ lH := by
-          rw [hlogZ]; exact (le_max_right _ _).trans hlog
-        have hZlH' : 2 * t * Real.log Z ≤ δ / 2 * lH := by
-          rw [div_le_iff₀ hδ] at hZlH
-          linarith
-        have hlog_prod : Real.log (∏ p, ∏ i, v p i) = ∑ p, ∑ i, Real.log (v p i) := by
-          rw [Real.log_prod fun p _ ↦ Finset.prod_ne_zero_iff.2 fun i _ ↦ hpos p i]
-          exact Finset.sum_congr rfl fun p _ ↦ Real.log_prod fun i _ ↦ hpos p i
-        have hle : ∑ p, ∑ i, Real.log (v p i) ≤ Real.log (systemDet S w L) - δ * lH := by
-          rw [← hlog_prod]
-          have hprod0 : 0 < ∏ p, ∏ i, v p i := Finset.prod_pos fun p _ ↦
-            Finset.prod_pos fun i _ ↦ lt_of_le_of_ne (hv0 p i) (Ne.symm (hpos p i))
-          refine (Real.log_le_log hprod0 hprod).trans_eq ?_
-          rw [Real.log_mul hdet0.ne' (Real.rpow_pos_of_pos hHx0 _).ne', Real.log_rpow hHx0]
-          ring
-        calc systemWeight e = (∑ p, ∑ i, Real.log (v p i)) / lH := by
-              rw [systemWeight, Finset.sum_div]
-              exact Finset.sum_congr rfl fun p _ ↦ by
-                rw [Finset.sum_div]; exact Finset.sum_congr rfl fun i _ ↦ hef p i
-          _ ≤ -(δ / 2) := by
-              rw [div_le_iff₀ hlH]
-              linarith
-    calc systemWeight (fun p i ↦ (k p i : ℝ) / m) ≤ ∑ p, ∑ i, (e p i + 1 / m) :=
-          Finset.sum_le_sum fun p _ ↦ Finset.sum_le_sum fun i _ ↦ hkm' p i
-      _ = systemWeight e + t * n / m := by
-          simp only [Finset.sum_add_distrib, Finset.sum_const, Finset.card_univ, hcardS,
-            nsmul_eq_mul, systemWeight]
-          ring
-      _ ≤ -(δ / 4) := by linarith
-  · -- the local values
-    change v p i ≤ Hx ^ ((k p i : ℝ) / m)
-    by_cases h0 : v p i = 0
-    · rw [h0]; exact Real.rpow_nonneg hHx0.le _
-    · have hvpos : 0 < v p i := lt_of_le_of_ne (hv0 p i) (Ne.symm h0)
-      have hfe : f p i = Real.log (v p i) / lH := by simp only [hf, h0, ↓reduceIte]
-      have hvf : v p i = Hx ^ f p i := by
-        rw [hfe, Real.rpow_def_of_pos hHx0, mul_div_cancel₀ _ hlH.ne', Real.exp_log hvpos]
-      rw [hvf]
-      exact Real.rpow_le_rpow_of_exponent_le hHx1 ((le_max_right _ _).trans (hkm p i))
+  · calc ∑ p, ∑ i, |max (c p i) 0 - l * max (-c p i) 0|
+        ≤ ∑ p, ∑ i, (max (c p i) 0 + l * max (-c p i) 0) :=
+          Finset.sum_le_sum fun p _ ↦ Finset.sum_le_sum fun i _ ↦ by
+            refine (abs_sub _ _).trans_eq ?_
+            rw [abs_of_nonneg (le_max_right _ _),
+              abs_of_nonneg (mul_nonneg hl0 (le_max_right _ _))]
+      _ = P + l * M := by simp only [Finset.sum_add_distrib, ← Finset.mul_sum, hP, hM]
+      _ ≤ 2 * Fintype.card ι + δ := by rw [hlM]; linarith
 
 /-! ### The large solutions -/
 
@@ -726,14 +758,19 @@ open scoped Classical in
 /-- **The large solutions of a system, from any interval result** (the assembly of Q0.3). Under
 the normalization (2.4), with forms over a Galois extension `E / K`, suppose that every system of
 exponents over `E` of weight at most `-systemEps [E : K] δ` and absolute weight at most
-`systemAbsBound [E : K] n t` has an interval result above `X₀` for the conjugated forms: its
+`systemAbsBound [E : K] n` has an interval result above `X₀` for the conjugated forms: its
 domains at levels `log Q ≥ X₀` lie in one of at most `NS` proper subspaces of `Eⁿ`, or `log Q`
 lies in one of at most `NI` intervals `[s, ρ s)` with `s ≥ X₀`. If `X₀` is at least
 `systemHeightThreshold` and `[K : ℚ] (2 n / δ) log n`, the solutions with `log H(x) ≥ X₀` lie in
-at most `systemGridCount n t δ (NS + NI (1 + log ρ / log (1 + δ / (2 n))))` proper subspaces of
-`Kⁿ`. Layer 6.1 supplies such an interval result for every `n`
-(`NumberField.exists_finset_submodule_of_systemThreshold_le`); for `n = 2` Layer 5.6 does, without
-the grids of 6.1. -/
+at most `NS + NI (1 + log ρ / log (1 + δ / (2 n)))` proper subspaces of `Kⁿ`.
+
+The interval result is used **once**: the exponents are raised to absolute weight at most
+`2 n + δ` (`IsNormalizedSystem.exists_raise`), and the constants are absorbed by one nonzero
+`S`-integer `β` with `|β|_p ^ mult p ≤ κ / C p` (`exists_ne_zero_systemAbs_le`), `κ` depending on
+`H`, `K` and `S` only; `β x` lies in the domain at level `H(x)` of the raised exponents shifted by
+`δ / (2 n t)`, and `x` lies in every subspace that `β x` lies in. Layer 6.1 supplies such an
+interval result for every `n` (`NumberField.exists_finset_submodule_of_systemThreshold_le`); for
+`n = 2` Layer 5.6 does. -/
 theorem exists_finset_submodule_of_forall_interval [IsGalois K E]
     (S : Finset (HeightOneSpectrum (𝓞 K))) (w : AbsoluteValue K ℝ → AbsoluteValue E ℝ)
     (hwInf : ∀ v : InfinitePlace K, (w v.1).LiesOver v.1)
@@ -742,13 +779,12 @@ theorem exists_finset_submodule_of_forall_interval [IsGalois K E]
     {c : InfinitePlace K ⊕ S → ι → ℝ} {H : ℝ} {D R : ℕ} {δ : ℝ}
     (hN : IsNormalizedSystem S w L C c H D R δ) {X₀ ρ : ℝ} {NS NI : ℕ}
     (hX₀H : systemHeightThreshold (Fintype.card ι) (finrank ℚ E)
-      (Fintype.card (InfinitePlace K) + #S) δ H ≤ X₀)
+      (Fintype.card (InfinitePlace K) + #S) δ H (Real.log (scalarConst K S)) ≤ X₀)
     (hX₀n : finrank ℚ K * (2 * Fintype.card ι / δ) * Real.log (Fintype.card ι) ≤ X₀)
     (hρ1 : 1 ≤ ρ)
     (hint : ∀ c' : AbsoluteValue E ℝ → ι → ℝ,
       approxWeight (systemPlacesOver E S) c' ≤ -systemEps (finrank K E) δ →
-      approxAbsWeight (systemPlacesOver E S) c' ≤
-        systemAbsBound (finrank K E) (Fintype.card ι) (Fintype.card (InfinitePlace K) + #S) →
+      approxAbsWeight (systemPlacesOver E S) c' ≤ systemAbsBound (finrank K E) (Fintype.card ι) →
       ∃ T : Finset (Submodule E (ι → E)), #T ≤ NS ∧ (∀ W ∈ T, W ≠ ⊤) ∧
         ∃ 𝒯 : Finset ℝ, #𝒯 ≤ NI ∧ (∀ s ∈ 𝒯, X₀ ≤ s) ∧
           ∀ Q : ℝ, 1 < Q → X₀ ≤ Real.log Q →
@@ -756,8 +792,7 @@ theorem exists_finset_submodule_of_forall_interval [IsGalois K E]
               (conjSystem univ (S.image FinitePlace.mk) w L) c' Q ⊆ W) ∨
               ∃ s ∈ 𝒯, s ≤ Real.log Q ∧ Real.log Q < ρ * s) :
     ∃ T : Finset (Submodule K (ι → K)),
-      (#T : ℝ) ≤ systemGridCount (Fintype.card ι) (Fintype.card (InfinitePlace K) + #S) δ *
-        (NS + NI * (1 + Real.log ρ / Real.log (1 + δ / (2 * Fintype.card ι)))) ∧
+      (#T : ℝ) ≤ NS + NI * (1 + Real.log ρ / Real.log (1 + δ / (2 * Fintype.card ι))) ∧
       (∀ U ∈ T, U ≠ ⊤) ∧
       ∀ x ∈ systemSet S w L C c, X₀ ≤ Real.log (mulHeightAff x) → ∃ U ∈ T, x ∈ U := by
   set n := Fintype.card ι with hn
@@ -765,72 +800,113 @@ theorem exists_finset_submodule_of_forall_interval [IsGalois K E]
   have : Nonempty ι := Fintype.card_pos_iff.1 (by omega)
   have hn0 : (0 : ℝ) < n := by exact_mod_cast (by omega : 0 < n)
   have hδ := hN.delta_pos
+  have hδ1 := hN.delta_le_one
+  have hH1 := hN.one_le_height
   set e := finrank K E with he
   set t := Fintype.card (InfinitePlace K) + #S with ht
-  set M := systemClamp n t with hM
-  set m := systemGridDen n t δ with hm
+  have hcardS : Fintype.card (InfinitePlace K ⊕ S) = t := by
+    rw [Fintype.card_sum, Fintype.card_coe]
+  have ht0 : (0 : ℝ) < t := by
+    have := Fintype.card_pos (α := InfinitePlace K)
+    exact_mod_cast (by omega : 0 < t)
   have he0 : (0 : ℝ) < e := by exact_mod_cast (finrank_pos : 0 < finrank K E)
-  have hm0 : (0 : ℝ) < m := by
-    have ht1 : 1 ≤ t := by
-      have := Fintype.card_pos (α := InfinitePlace K)
-      omega
-    have ht0 : (0 : ℝ) < t := by exact_mod_cast (by omega : 0 < t)
-    exact lt_of_lt_of_le (by positivity) (Nat.le_ceil (4 * n * t / δ))
-  -- the grid systems
-  set Gr : Finset (InfinitePlace K ⊕ S → ι → ℤ) := Fintype.piFinset fun _ ↦
-    Fintype.piFinset fun _ ↦ Finset.Icc (-((M * m : ℕ) : ℤ)) (2 * (m : ℤ)) with hGr
-  have hGrcard : #Gr = systemGridCount n t δ := by
-    rw [hGr, Fintype.card_piFinset, Finset.prod_const, Finset.card_univ, Fintype.card_sum,
-      Fintype.card_coe]
-    simp only [Fintype.card_piFinset, Finset.prod_const, Finset.card_univ, Int.card_Icc]
-    rw [systemGridCount, ← pow_mul, mul_comm n t, ← hM, ← hm]
-    congr 1
-    have h : 2 * (m : ℤ) + 1 - -((M * m : ℕ) : ℤ) = ((M * m + 2 * m + 1 : ℕ) : ℤ) := by
-      push_cast; ring
-    rw [h, Int.toNat_natCast]
-  set g : (InfinitePlace K ⊕ S → ι → ℤ) → InfinitePlace K ⊕ S → ι → ℝ :=
-    fun k p i ↦ (k p i : ℝ) / m with hg
   set Sfin' := systemPlacesOver E S with hSfin'
   set L' := conjSystem univ (S.image FinitePlace.mk) w L with hL'
-  have hX₀0 : 0 ≤ X₀ := by
-    have hl : 0 ≤ Real.log n := Real.log_nonneg (by exact_mod_cast (by omega : 1 ≤ n))
-    exact (by positivity : (0 : ℝ) ≤ finrank ℚ K * (2 * n / δ) * Real.log n).trans hX₀n
-  -- the interval result for every grid system of weight at most `-δ / 4`
-  have hfam : ∀ k : InfinitePlace K ⊕ S → ι → ℤ, ∃ T : Finset (Submodule E (ι → E)),
-      #T ≤ NS ∧ (∀ W ∈ T, W ≠ ⊤) ∧
-      ∃ 𝒯 : Finset ℝ, #𝒯 ≤ NI ∧ (∀ s ∈ 𝒯, X₀ ≤ s) ∧
-        (k ∈ Gr → systemWeight (g k) ≤ -(δ / 4) → ∀ Q : ℝ, 1 < Q → X₀ ≤ Real.log Q →
-          (∃ W ∈ T, approxDomain Sfin' L' (conjExponent S (g k)) Q ⊆ W) ∨
-            ∃ s ∈ 𝒯, s ≤ Real.log Q ∧ Real.log Q < ρ * s) := by
-    intro k
-    by_cases hk : k ∈ Gr ∧ systemWeight (g k) ≤ -(δ / 4)
-    · obtain ⟨hkG, hkw⟩ := hk
-      have hcw : approxWeight Sfin' (conjExponent S (g k)) ≤ -systemEps e δ := by
-        rw [approxWeight_conjExponent, systemEps]
-        nlinarith
-      have hcA : approxAbsWeight Sfin' (conjExponent S (g k)) ≤ systemAbsBound e n t := by
-        rw [approxAbsWeight_conjExponent, systemAbsBound]
-        refine mul_le_mul_of_nonneg_left ?_ he0.le
-        have hbd : ∀ p i, |g k p i| ≤ (M : ℝ) + 2 := fun p i ↦ by
-          have hki := Finset.mem_Icc.1 (Fintype.mem_piFinset.1 (Fintype.mem_piFinset.1 hkG p) i)
-          have h1 : -((M : ℝ) * m) ≤ k p i := by exact_mod_cast hki.1
-          have h2 : (k p i : ℝ) ≤ 2 * m := by exact_mod_cast hki.2
-          simp only [hg]
-          rw [abs_div, abs_of_pos hm0, div_le_iff₀ hm0, abs_le]
-          constructor <;> nlinarith
-        calc ∑ p, ∑ i, |g k p i| ≤ ∑ _p : InfinitePlace K ⊕ S, ∑ _i : ι, ((M : ℝ) + 2) :=
-              Finset.sum_le_sum fun p _ ↦ Finset.sum_le_sum fun i _ ↦ hbd p i
-          _ = t * n * (M + 2) := by
-              simp only [Finset.sum_const, Finset.card_univ, Fintype.card_sum, Fintype.card_coe,
-                nsmul_eq_mul, ht]
-              push_cast; ring
-      obtain ⟨T, hTcard, hTtop, 𝒯, h𝒯card, h𝒯ge, hQint⟩ := hint _ hcw hcA
-      exact ⟨T, hTcard, hTtop, 𝒯, h𝒯card, h𝒯ge, fun _ _ ↦ hQint⟩
-    · exact ⟨∅, by simp, by simp, ∅, by simp, by simp, fun hkG hkw ↦ absurd ⟨hkG, hkw⟩ hk⟩
-  choose Tk hTkcard hTktop 𝒯k h𝒯kcard h𝒯kge hTkint using hfam
-  set T₀ := Gr.biUnion Tk with hT₀
-  set 𝒯 := Gr.biUnion 𝒯k with h𝒯
-  set T₁ := T₀.image fun W ↦ (W.restrictScalars K).comap (algebraMapPi K E ι) with hT₁
+  have hX₀pos : 0 < X₀ := by
+    have hl : 0 < Real.log n := Real.log_pos (by exact_mod_cast (by omega : 1 < n))
+    have hK : (0 : ℝ) < finrank ℚ K := by exact_mod_cast finrank_pos
+    exact (by positivity : (0 : ℝ) < finrank ℚ K * (2 * n / δ) * Real.log n).trans_le hX₀n
+  -- the raised exponents
+  obtain ⟨c', hcc', hc'w, hc'A⟩ := hN.exists_raise
+  -- the scalar
+  set Z : ℝ := (n.factorial : ℝ) * (H ^ finrank ℚ E) ^ n with hZ
+  have hZ1 : 1 ≤ Z := one_le_mul_of_one_le_of_one_le
+    (Nat.one_le_cast.2 (Nat.factorial_pos _)) (one_le_pow₀ (one_le_pow₀ hH1))
+  have hZ0 : 0 < Z := zero_lt_one.trans_le hZ1
+  have hlogZ : Real.log Z = Real.log n.factorial + n * (finrank ℚ E * Real.log H) := by
+    rw [hZ, Real.log_mul (by positivity) (by positivity), Real.log_pow, Real.log_pow]
+  set μ := Real.log (scalarConst K S) with hμ
+  set a : ℝ := (μ + 2 * t / n * Real.log Z) / t with ha
+  set κ := Real.exp a with hκ
+  have hC0 := hN.const_pos
+  have hprodC : ∏ p, C p ≤ Z ^ (2 * (t : ℝ) / n) := by
+    have h1 := hN.const_le
+    rw [systemConst] at h1
+    refine h1.trans ?_
+    calc systemDet S w L ^ ((n : ℝ)⁻¹) ≤ (Z ^ (2 * t)) ^ ((n : ℝ)⁻¹) :=
+          Real.rpow_le_rpow (systemDet_pos hN).le (hN.systemDet_le hwInf hwFin) (by positivity)
+      _ = Z ^ (2 * (t : ℝ) / n) := by
+          rw [← Real.rpow_natCast, ← Real.rpow_mul hZ0.le]
+          push_cast
+          ring_nf
+  have hκt : κ ^ t = scalarConst K S * Z ^ (2 * (t : ℝ) / n) := by
+    rw [hκ, ← Real.exp_nat_mul, ha, mul_div_cancel₀ _ ht0.ne', Real.exp_add, hμ,
+      Real.exp_log (scalarConst_pos S), Real.rpow_def_of_pos hZ0]
+    ring_nf
+  have hB : ∀ p, 0 < κ / C p := fun p ↦ div_pos (Real.exp_pos _) (hC0 p)
+  have hBprod : scalarConst K S ≤ ∏ p, κ / C p := by
+    rw [Finset.prod_div_distrib, Finset.prod_const, Finset.card_univ, hcardS, hκt,
+      le_div_iff₀ (Finset.prod_pos fun p _ ↦ hC0 p)]
+    exact mul_le_mul_of_nonneg_left hprodC (scalarConst_pos S).le
+  obtain ⟨β, hβ0, hβint, hβ⟩ := exists_ne_zero_systemAbs_le S hB hBprod
+  -- the exponents of the domain
+  set γ : ℝ := δ / (2 * n * t) with hγ
+  have hγ0 : 0 ≤ γ := by positivity
+  have htnγ : (t : ℝ) * n * γ = δ / 2 := by rw [hγ]; field_simp
+  set e' : InfinitePlace K ⊕ S → ι → ℝ := fun p i ↦ c' p i + γ with he'
+  have hw' : approxWeight Sfin' (conjExponent S e') ≤ -systemEps e δ := by
+    rw [approxWeight_conjExponent, systemEps]
+    have : systemWeight e' = systemWeight c' + t * n * γ := by
+      simp only [he', systemWeight, Finset.sum_add_distrib, Finset.sum_const, Finset.card_univ,
+        hcardS, nsmul_eq_mul]
+      ring
+    rw [this, htnγ]
+    nlinarith
+  have hA' : approxAbsWeight Sfin' (conjExponent S e') ≤ systemAbsBound e n := by
+    rw [approxAbsWeight_conjExponent, systemAbsBound]
+    refine mul_le_mul_of_nonneg_left ?_ he0.le
+    calc ∑ p, ∑ i, |e' p i| ≤ ∑ p, ∑ i, (|c' p i| + γ) :=
+          Finset.sum_le_sum fun p _ ↦ Finset.sum_le_sum fun i _ ↦ by
+            refine (abs_add_le _ _).trans_eq ?_
+            rw [abs_of_nonneg hγ0]
+      _ = ∑ p, ∑ i, |c' p i| + t * n * γ := by
+          simp only [Finset.sum_add_distrib, Finset.sum_const, Finset.card_univ, hcardS,
+            nsmul_eq_mul]
+          ring
+      _ ≤ 2 * n + 2 := by rw [htnγ]; linarith
+  obtain ⟨T, hTcard, hTtop, 𝒯, h𝒯card, h𝒯ge, hQint⟩ := hint _ hw' hA'
+  set T₁ := T.image fun W ↦ (W.restrictScalars K).comap (algebraMapPi K E ι) with hT₁
+  -- `β x` lies in the domain
+  have hdom : ∀ x ∈ systemSet S w L C c, X₀ ≤ Real.log (mulHeightAff x) →
+      (fun j ↦ algebraMap K E (β * x j)) ∈ approxDomain Sfin' L' (conjExponent S e')
+        (mulHeightAff x) := fun x hx hlogH ↦ by
+    have hHx0 := mulHeightAff_pos x
+    have hlH : 0 < Real.log (mulHeightAff x) := hX₀pos.trans_le hlogH
+    have hHx1 : 1 ≤ mulHeightAff x := ((Real.log_pos_iff hHx0.le).1 hlH).le
+    have hκx : κ ≤ mulHeightAff x ^ γ := by
+      rw [hκ, Real.rpow_def_of_pos hHx0, Real.exp_le_exp]
+      have h1 := hX₀H.trans hlogH
+      rw [systemHeightThreshold, ← hlogZ, div_le_iff₀ hδ] at h1
+      rw [ha, hγ, div_le_iff₀ ht0]
+      have : Real.log (mulHeightAff x) * (δ / (2 * n * t)) * t =
+          Real.log (mulHeightAff x) * δ / (2 * n) := by field_simp
+      rw [this, le_div_iff₀ (by positivity)]
+      have : (μ + 2 * t / n * Real.log Z) * (2 * n) = 2 * n * μ + 4 * t * Real.log Z := by
+        field_simp
+        ring
+      rw [this]
+      linarith
+    refine mem_approxDomain_conjSystem hwInf hwFin L hHx0.le
+      (fun j ↦ mul_mem hβint (hx.1 j)) fun p i ↦ ?_
+    rw [systemValue_mul S w hwInf hwFin]
+    calc systemPlace S p β ^ systemMult S p * systemValue S w L p i x
+        ≤ κ / C p * (C p * mulHeightAff x ^ c p i) :=
+          mul_le_mul (hβ p) (hx.2 p i) (systemValue_nonneg ..) (hB p).le
+      _ = κ * mulHeightAff x ^ c p i := by field_simp [(hC0 p).ne']
+      _ ≤ mulHeightAff x ^ γ * mulHeightAff x ^ c' p i :=
+          mul_le_mul hκx (Real.rpow_le_rpow_of_exponent_le hHx1 (hcc' p i))
+            (Real.rpow_nonneg hHx0.le _) (Real.rpow_nonneg hHx0.le _)
+      _ = mulHeightAff x ^ e' p i := by rw [he', Real.rpow_add hHx0, mul_comm]
   -- the intervals, as intervals of the absolute affine height
   set d := finrank ℚ K with hd
   have hd0 : (0 : ℝ) < d := by exact_mod_cast (finrank_pos : 0 < finrank ℚ K)
@@ -838,29 +914,27 @@ theorem exists_finset_submodule_of_forall_interval [IsGalois K E]
   have hQn : ∀ i, (n : ℝ) ^ (2 * n / δ) ≤ Q i := fun i ↦ by
     rw [Real.rpow_def_of_pos hn0]
     refine Real.exp_le_exp.2 ((le_div_iff₀ hd0).2 ?_)
-    obtain ⟨k, -, hk⟩ := Finset.mem_biUnion.1 (𝒯.equivFin.symm i).2
-    have := h𝒯kge k _ hk
+    have := h𝒯ge _ (𝒯.equivFin.symm i).2
     nlinarith
   obtain ⟨T₂, hT₂card, hT₂top, hT₂⟩ := exists_finset_submodule_of_forall_mem_interval_of_mem S w
     hwInf hwFin hN {x | X₀ ≤ Real.log (mulHeightAff x) ∧ ∀ U ∈ T₁, x ∉ U} Q hQn hρ1
     (fun x hx hxX ↦ by
       have hH := mulHeightAff_pos x
       obtain ⟨hlogH, hxT⟩ := hxX
-      obtain ⟨k, hkG, hkw, hkv⟩ := hN.exists_gridExponent hwInf hwFin hx (hX₀H.trans hlogH)
-      have hkGr : k ∈ Gr := Fintype.mem_piFinset.2 fun p ↦ Fintype.mem_piFinset.2 fun i ↦
-        Finset.mem_Icc.2 (hkG p i)
-      have hy := mem_approxDomain_conjSystem hwInf hwFin L hH.le hx.1 (e := g k) hkv
+      have hy := hdom x hx hlogH
       have hH1 : 1 < mulHeightAff x := by
         rw [← Real.log_pos_iff hH.le]
-        have hX₀pos : 0 < X₀ := by
-          have hl : 0 < Real.log n := Real.log_pos (by exact_mod_cast (by omega : 1 < n))
-          exact (by positivity : (0 : ℝ) < finrank ℚ K * (2 * n / δ) * Real.log n).trans_le hX₀n
         linarith
-      rcases hTkint k hkGr hkw (mulHeightAff x) hH1 hlogH with ⟨W, hW, hsub⟩ | ⟨s, hs, h1, h2⟩
-      · exact absurd (hsub hy) fun hyW ↦ hxT _ (Finset.mem_image_of_mem _
-          (Finset.mem_biUnion.2 ⟨k, hkGr, hW⟩)) hyW
-      · have hs𝒯 : s ∈ 𝒯 := Finset.mem_biUnion.2 ⟨k, hkGr, hs⟩
-        refine ⟨𝒯.equivFin ⟨s, hs𝒯⟩, ?_, ?_⟩
+      rcases hQint (mulHeightAff x) hH1 hlogH with ⟨W, hW, hsub⟩ | ⟨s, hs, h1, h2⟩
+      · refine absurd (hsub hy) fun hyW ↦ hxT _ (Finset.mem_image_of_mem _ hW) ?_
+        have hβE : algebraMap K E β ≠ 0 := (map_ne_zero _).2 hβ0
+        have hxW : (fun j ↦ algebraMap K E (x j)) ∈ W := by
+          have h := W.smul_mem (algebraMap K E β)⁻¹ hyW
+          convert h using 1
+          funext j
+          simp [map_mul, inv_mul_cancel_left₀ hβE]
+        exact hxW
+      · refine ⟨𝒯.equivFin ⟨s, hs⟩, ?_, ?_⟩
         · simp only [hQ, Equiv.symm_apply_apply]
           rw [Real.rpow_def_of_pos hH]
           refine Real.exp_le_exp.2 ?_
@@ -877,26 +951,15 @@ theorem exists_finset_submodule_of_forall_interval [IsGalois K E]
       linarith)
     have hfac : 0 ≤ 1 + Real.log ρ / Real.log (1 + δ / (2 * n)) :=
       add_nonneg zero_le_one (div_nonneg (Real.log_nonneg hρ1) hl.le)
-    have hT₀ : #T₀ ≤ systemGridCount n t δ * NS :=
-      Finset.card_biUnion_le.trans ((Finset.sum_le_sum fun k _ ↦ hTkcard k).trans
-        (by rw [Finset.sum_const, smul_eq_mul, hGrcard]))
-    have h𝒯c : #𝒯 ≤ systemGridCount n t δ * NI :=
-      Finset.card_biUnion_le.trans ((Finset.sum_le_sum fun k _ ↦ h𝒯kcard k).trans
-        (by rw [Finset.sum_const, smul_eq_mul, hGrcard]))
-    calc (#(T₁ ∪ T₂) : ℝ) ≤ #T₀ + #T₂ := by
+    calc (#(T₁ ∪ T₂) : ℝ) ≤ #T + #T₂ := by
           exact_mod_cast (Finset.card_union_le _ _).trans
             (Nat.add_le_add_right Finset.card_image_le _)
-      _ ≤ systemGridCount n t δ * NS + (systemGridCount n t δ * NI : ℕ) *
-            (1 + Real.log ρ / Real.log (1 + δ / (2 * n))) := by
-          refine add_le_add (by exact_mod_cast hT₀) (hT₂card.trans ?_)
-          exact mul_le_mul_of_nonneg_right (by exact_mod_cast h𝒯c) hfac
-      _ = _ := by
-          push_cast
-          ring
+      _ ≤ NS + (NI : ℕ) * (1 + Real.log ρ / Real.log (1 + δ / (2 * n))) := by
+          refine add_le_add (by exact_mod_cast hTcard) (hT₂card.trans ?_)
+          exact mul_le_mul_of_nonneg_right (by exact_mod_cast h𝒯card) hfac
   · rcases Finset.mem_union.1 hU with hU | hU
     · obtain ⟨W, hW, rfl⟩ := Finset.mem_image.1 hU
-      obtain ⟨k, -, hk⟩ := Finset.mem_biUnion.1 hW
-      exact comap_algebraMapPi_ne_top (hTktop k W hk)
+      exact comap_algebraMapPi_ne_top (hTtop W hW)
     · exact hT₂top U hU
   · by_cases hxT : ∃ U ∈ T₁, x ∈ U
     · obtain ⟨U, hU, hxU⟩ := hxT
@@ -909,10 +972,9 @@ open scoped Classical in
 /-- **The quantitative Subspace Theorem for the large solutions of a system** (Q0.3). Under the
 normalization (2.4), with forms over a Galois extension `E / K`, the solutions `x` with
 `log H(x) ≥ systemThreshold` lie in at most `systemLargeCount` proper subspaces of `Kⁿ`, a
-number that depends on `n`, `δ`, `[E : ℚ]`, `[E : K]`, the number of infinite places of `K` and
-`|S|` only. It is `NumberField.exists_finset_submodule_of_forall_interval` with Layer 6.1's
-interval result, whose counts over `E` are bounded by those at `[E : ℚ]` infinite places and
-`[E : ℚ] + [E : K] |S|` places. -/
+number that depends on `n`, `δ`, `[E : ℚ]`, `[E : K]` and the number `R` of distinct forms only.
+It is `NumberField.exists_finset_submodule_of_forall_interval` with Layer 6.1's interval result,
+whose counts over `E` are bounded by those at `[E : ℚ]` infinite places and `R [E : K]` forms. -/
 theorem exists_finset_submodule_of_systemThreshold_le [IsGalois K E] (RL : SubspaceRoth.{u} E)
     (S : Finset (HeightOneSpectrum (𝓞 K))) (w : AbsoluteValue K ℝ → AbsoluteValue E ℝ)
     (hwInf : ∀ v : InfinitePlace K, (w v.1).LiesOver v.1)
@@ -922,10 +984,10 @@ theorem exists_finset_submodule_of_systemThreshold_le [IsGalois K E] (RL : Subsp
     (hN : IsNormalizedSystem S w L C c H D R δ) :
     ∃ T : Finset (Submodule K (ι → K)),
       (#T : ℝ) ≤ systemLargeCount RL.toRothParams (Fintype.card ι) (finrank ℚ E) (finrank K E)
-        (Fintype.card (InfinitePlace K) + #S) #S δ ∧
+        R δ ∧
       (∀ U ∈ T, U ≠ ⊤) ∧
       ∀ x ∈ systemSet S w L C c,
-        systemThreshold E S w L RL.toRothParams H δ ≤ Real.log (mulHeightAff x) →
+        systemThreshold E S w L RL.toRothParams R H δ ≤ Real.log (mulHeightAff x) →
         ∃ U ∈ T, x ∈ U := by
   set n := Fintype.card ι with hn
   have hn2 : 2 ≤ n := hN.two_le_card
@@ -933,48 +995,33 @@ theorem exists_finset_submodule_of_systemThreshold_le [IsGalois K E] (RL : Subsp
   have hδ := hN.delta_pos
   set e := finrank K E with he
   set dE := finrank ℚ E with hdE
-  set t := Fintype.card (InfinitePlace K) + #S with ht
   have he0 : (0 : ℝ) < e := by exact_mod_cast (finrank_pos : 0 < finrank K E)
   set Sfin' := systemPlacesOver E S with hSfin'
   set L' := conjSystem univ (S.image FinitePlace.mk) w L with hL'
   set ε := systemEps e δ with hε
-  set A := systemAbsBound e n t with hA
+  set A := systemAbsBound e n with hA
   have hε0 : 0 < ε := by rw [hε, systemEps]; positivity
   have hA0 : 0 ≤ A := by rw [hA, systemAbsBound]; positivity
-  set rE := Fintype.card (InfinitePlace E) with hrE
-  set sE := rE + #Sfin' with hsE
-  have hrE : rE ≤ dE := card_infinitePlace_le_finrank
-  have hsE : sE ≤ dE + e * #S := Nat.add_le_add hrE (card_systemPlacesOver_le S)
-  have hsE1 : 1 ≤ sE := by
-    have := Fintype.card_pos (α := InfinitePlace E)
-    omega
+  have hsE : formCount Sfin' L' ≤ R * e := formCount_conjSystem_le hwInf hwFin hN.ncard_le
   have hLI : ∀ v : InfinitePlace K, LinearIndependent E (L v.1) := fun v ↦
     hN.linearIndependent (.inl v)
   have hLF : ∀ p ∈ S, LinearIndependent E (L (FinitePlace.mk p).1) := fun p hp ↦
     hN.linearIndependent (.inr ⟨p, hp⟩)
-  set X₀ := systemThreshold E S w L RL.toRothParams H δ with hX₀
-  have hX₀P : parametricThreshold Sfin' L' RL.toRothParams ε A ≤ X₀ := le_max_left _ _
-  set ρ := parametricRatio RL.toRothParams n dE (dE + e * #S) ε A with hρ
-  have hρρ : parametricRatio RL.toRothParams n dE sE ε A ≤ ρ :=
-    parametricRatio_mono RL.toRothParams (by omega) hε0 hA0 hsE1 hsE
+  set X₀ := systemThreshold E S w L RL.toRothParams R H δ with hX₀
+  have hX₀P : parametricThreshold Sfin' L' RL.toRothParams (R * e) ε A ≤ X₀ := le_max_left _ _
+  set ρ := parametricRatio RL.toRothParams n dE (R * e) ε A with hρ
   obtain ⟨T, hTcard, hTtop, hT⟩ := exists_finset_submodule_of_forall_interval S w hwInf hwFin hN
     (X₀ := X₀) (ρ := ρ)
-    (NS := parametricSubspaceCount n dE dE (dE + e * #S) ε A)
-    (NI := parametricIntervalCount n dE dE (dE + e * #S) ε A)
+    (NS := parametricSubspaceCount n dE (R * e) ε A)
+    (NI := parametricIntervalCount n dE (R * e) ε A)
     ((le_max_right _ _).trans (le_max_right _ _)) ((le_max_left _ _).trans (le_max_right _ _))
     (one_le_parametricRatio RL.toRothParams _ _ (by omega) hε0 hA0) fun c' hcw hcA ↦ by
       obtain ⟨T, hTcard, hTtop, Q₀, -, hQ₀eq, hint⟩ :=
         exists_forall_mem_interval_approxDomain (K := E) (Sfin := Sfin') (L := L') RL
           (linearIndependent_conjSystem_infinitePlace hwInf hLI)
-          (fun V hV ↦ linearIndependent_conjSystem_systemPlacesOver hwFin hLF hV) hε0 hcw hcA
+          (fun V hV ↦ linearIndependent_conjSystem_systemPlacesOver hwFin hLF hV) hε0 hcw hcA hsE
       obtain ⟨𝒯, h𝒯card, h𝒯ge, hQint⟩ := hint X₀ (hQ₀eq ▸ hX₀P)
-      refine ⟨T, hTcard.trans (parametricSubspaceCount_mono hε0.le hA0 hrE hsE), hTtop, 𝒯,
-        h𝒯card.trans (parametricIntervalCount_mono (by omega) hε0 hA0 hsE1 hrE hsE), h𝒯ge,
-        fun Q hQ1 hQ ↦ (hQint Q hQ1 hQ).imp id fun ⟨s, hs, h1, h2⟩ ↦ ⟨s, hs, h1, ?_⟩⟩
-      have hl : 0 ≤ Real.log n := Real.log_nonneg (by exact_mod_cast (by omega : 1 ≤ n))
-      have hs0 : 0 ≤ s := ((by positivity : (0 : ℝ) ≤ finrank ℚ K * (2 * n / δ) *
-        Real.log n).trans ((le_max_left _ _).trans (le_max_right _ _))).trans (h𝒯ge s hs)
-      exact h2.trans_le (mul_le_mul_of_nonneg_right hρρ hs0)
+      exact ⟨T, hTcard, hTtop, 𝒯, h𝒯card, h𝒯ge, hQint⟩
   exact ⟨T, hTcard.trans_eq (by rw [systemLargeCount]), hTtop, hT⟩
 
 /-! ### All solutions -/
@@ -1074,10 +1121,9 @@ theorem exists_finset_submodule_of_isNormalizedSystem [IsGalois K E] (RL : Subsp
       (#T : ℝ) ≤ δ⁻¹ * ((10 ^ 3 * Fintype.card ι) ^ (Fintype.card ι * finrank ℚ K) +
           4 * Fintype.card ι * Real.log (Real.log (4 * H))) +
         (1 + Real.log (systemMiddleRatio (finrank ℚ K) (Fintype.card ι) H δ
-            (systemThreshold E S w L RL.toRothParams H δ)) /
+            (systemThreshold E S w L RL.toRothParams R H δ)) /
               Real.log (1 + δ / (2 * Fintype.card ι))) +
-        systemLargeCount RL.toRothParams (Fintype.card ι) (finrank ℚ E) (finrank K E)
-          (Fintype.card (InfinitePlace K) + #S) #S δ ∧
+        systemLargeCount RL.toRothParams (Fintype.card ι) (finrank ℚ E) (finrank K E) R δ ∧
       (∀ U ∈ T, U ≠ ⊤) ∧ ∀ x ∈ systemSet S w L C c, ∃ U ∈ T, x ∈ U :=
   exists_finset_submodule_of_isNormalizedSystem_of_large S w hwInf hwFin hN
     (exists_finset_submodule_of_systemThreshold_le RL S w hwInf hwFin hN)
@@ -1097,29 +1143,29 @@ theorem systemThreshold_le [IsGalois K E] (RL : RothParams) {S : Finset (HeightO
     {L : AbsoluteValue K ℝ → ι → Dual E (ι → E)} {C : InfinitePlace K ⊕ S → ℝ}
     {c : InfinitePlace K ⊕ S → ι → ℝ} {H : ℝ} {D R : ℕ} {δ : ℝ}
     (hN : IsNormalizedSystem S w L C c H D R δ) :
-    systemThreshold E S w L RL H δ ≤
+    systemThreshold E S w L RL R H δ ≤
       max (parametricCoeff RL (finrank ℚ E) (Fintype.card ι) (Fintype.card (InfinitePlace E))
-          #(systemPlacesOver E S) (systemEps (finrank K E) δ)
-          (systemAbsBound (finrank K E) (Fintype.card ι) (Fintype.card (InfinitePlace K) + #S)) *
+          #(systemPlacesOver E S) (R * finrank K E) (systemEps (finrank K E) δ)
+          (systemAbsBound (finrank K E) (Fintype.card ι)) *
           ((Fintype.card (InfinitePlace E) + #(systemPlacesOver E S)) * Fintype.card ι ^ 2 *
               (finrank ℚ E * Real.log H) + Real.log |(discr E : ℝ)| +
             ∑ V ∈ systemPlacesOver E S, Real.log (Ideal.absNorm V.maximalIdeal.asIdeal : ℝ) + 1))
         (max (finrank ℚ K * (2 * Fintype.card ι / δ) * Real.log (Fintype.card ι))
           (systemHeightThreshold (Fintype.card ι) (finrank ℚ E)
-            (Fintype.card (InfinitePlace K) + #S) δ H)) := by
+            (Fintype.card (InfinitePlace K) + #S) δ H (Real.log (scalarConst K S)))) := by
   have hn2 := hN.two_le_card
   have : Nonempty ι := Fintype.card_pos_iff.1 (by omega)
   have hδ := hN.delta_pos
   have he0 : (0 : ℝ) < finrank K E := by exact_mod_cast (finrank_pos : 0 < finrank K E)
   have hε : 0 < systemEps (finrank K E) δ := by rw [systemEps]; positivity
-  have hA : 0 ≤ systemAbsBound (finrank K E) (Fintype.card ι)
-      (Fintype.card (InfinitePlace K) + #S) := by rw [systemAbsBound]; positivity
+  have hA : 0 ≤ systemAbsBound (finrank K E) (Fintype.card ι) := by
+    rw [systemAbsBound]; positivity
   refine max_le_max ?_ le_rfl
   refine (parametricThreshold_le RL (linearIndependent_conjSystem_infinitePlace hwInf
     fun v ↦ hN.linearIndependent (.inl v))
     (fun V hV ↦ linearIndependent_conjSystem_systemPlacesOver hwFin
-      (fun p hp ↦ hN.linearIndependent (.inr ⟨p, hp⟩)) hV) hε hA).trans ?_
-  refine mul_le_mul_of_nonneg_left ?_ (parametricCoeff_nonneg RL _ _ _ _ (by omega) hε hA)
+      (fun p hp ↦ hN.linearIndependent (.inr ⟨p, hp⟩)) hV) (R * finrank K E) hε hA).trans ?_
+  refine mul_le_mul_of_nonneg_left ?_ (parametricCoeff_nonneg RL _ _ _ _ _ (by omega) hε hA)
   rw [thresholdScale]
   gcongr
   exact hN.formLogHeight_conjSystem_le hwInf hwFin

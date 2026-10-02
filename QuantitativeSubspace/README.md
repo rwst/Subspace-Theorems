@@ -42,10 +42,10 @@ with its own record holder. The summit of this roadmap is the conjunction of the
 
 | Axis | Best known | Status in this repo |
 |---|---|---|
-| Number of subspaces containing the **large** solutions, linear forms, number field `K` | Evertse–Ferretti 2013: `10^9 · 2^{2n} · n^{14} · δ^{-3} · log(3δ^{-1}RD) · log(δ^{-1} log 3RD)` (as stated in Evertse 2010, Thm 2.1) | Q0 landed at Schmidt's parameters (Q0.3). Q1 started: the multigraded Hilbert polynomial and its degrees (Q1.1a–d, the excess Bézout inequality modulo Cohen–Macaulay) and the multiplicity estimate against degree (Q1.1e, with the transversal equations and the positivity of the degree in characteristic `0`, i.e. Rémond 2001 Prop. 2.1 modulo unmixedness) are in `ForMathlib`. Q1.2, the geometric product theorem with its degree bound and corollary (Rémond 2001 Thm 1.1 and Cor. 1.1, i.e. Ev95 Thm 1 and Corollary with better constants), is in `QuantitativeSubspace/`, modulo the same unmixedness. DA 9.4 turns any *interval result* into this kind of count. DA 6.1 now has one with explicit counts and ratio (Q0.2d), and its threshold `Q₀` is at most `a · (formLogHeight + log |D_K| + ∑ log N(v) + 1)` with `a` explicit in `N`, `d`, `|S|`, `ε` and `A` (Q0.2e, `parametricThreshold_le`). Q0.3 feeds it to 9.4: the solutions of a normalized system above `X₀`, linear in `log H`, lie in a number of subspaces depending on `n`, `δ`, the degrees, the number of places and `|S|` alone; all solutions in that plus `O(log X₀)` plus 9.3's count (`exists_finset_submodule_of_isNormalizedSystem`). |
+| Number of subspaces containing the **large** solutions, linear forms, number field `K` | Evertse–Ferretti 2013: `10^9 · 2^{2n} · n^{14} · δ^{-3} · log(3δ^{-1}RD) · log(δ^{-1} log 3RD)` (as stated in Evertse 2010, Thm 2.1) | Q0 landed at Schmidt's parameters (Q0.3). Q1 started: the multigraded Hilbert polynomial and its degrees (Q1.1a–d, the excess Bézout inequality modulo Cohen–Macaulay) and the multiplicity estimate against degree (Q1.1e, with the transversal equations and the positivity of the degree in characteristic `0`, i.e. Rémond 2001 Prop. 2.1 modulo unmixedness) are in `ForMathlib`. Q1.2, the geometric product theorem with its degree bound and corollary (Rémond 2001 Thm 1.1 and Cor. 1.1, i.e. Ev95 Thm 1 and Corollary with better constants), is in `QuantitativeSubspace/`, modulo the same unmixedness. DA 9.4 turns any *interval result* into this kind of count. DA 6.1 now has one with explicit counts and ratio (Q0.2d), and its threshold `Q₀` is at most `a · (formLogHeight + log |D_K| + ∑ log N(v) + 1)` with `a` explicit in `N`, `d`, `|S|`, `ε` and `A` (Q0.2e, `parametricThreshold_le`). Q0.3 feeds it to 9.4: the solutions of a normalized system above `X₀`, linear in `log H`, lie in a number of subspaces depending on `n`, `δ`, the degrees, the number of places and `|S|` alone; all solutions in that plus `O(log X₀)` plus 9.3's count (`exists_finset_submodule_of_isNormalizedSystem`). With Evertse's Roth lemma (Q1.6), Ev96's grids and exceptional subspaces (Q1.7), one scalar for the constants (Q1.8a) the auxiliary polynomial built from the distinct forms (Q1.8b) and the minima at one place (Q1.8c) that count is `Z ^ (2 n + 14) ℓ (1 + log ℓ)`, `Z = 2 ^ (n + 11) n ^ 6 [E : ℚ] / δ`, `ℓ = 1 + log (2 ^ (n + 1) s ^ n)` with `s = R [E : K]` for `R` distinct forms: polynomial in `δ⁻¹` and in `[E : ℚ]`, singly exponential in `n`, independent of the number of places of the system and of `|S|`. ES02's shape, up to `[E : ℚ] ^ (2 n + 14)`, and to `Z ^ (2 n)` against ES02's `4 ^ (n²) δ ^ (-n)`. |
 | Number of subspaces containing the **small** solutions | Evertse 2010, Thm 2.2: `δ^{-1}((10^3 n)^{nd} + 4n log log 4H)`; over `ℚ`, `δ^{-1}(10^{3n} + 4n log log 4H)` | **Landed**, DA 9.3. |
 | **Absolute** form: points in `ℚ̄ⁿ`, count independent of the field | Evertse–Schlickewei 2002 (parametric, twisted heights), sharpened by Evertse–Ferretti 2013 | Not started. |
-| `n = 2`: **quantitative Roth / Ridout** | Bugeaud–Evertse 2008, Appendix (improving Davenport–Roth 1955, Bombieri–van der Poorten 1988, Evertse 1996/97) | Davenport–Roth-strength count landed, DA 3.7. Bugeaud–Evertse's `δ⁻³ log · log` shape landed for systems in two variables (Q1.6, `systemLargeCountTwo_evertse_le`), with extra factors `t⁴`, `4 ^ s` and the grid count. |
+| `n = 2`: **quantitative Roth / Ridout** | Bugeaud–Evertse 2008, Appendix (improving Davenport–Roth 1955, Bombieri–van der Poorten 1988, Evertse 1996/97) | Davenport–Roth-strength count landed, DA 3.7. Bugeaud–Evertse's `δ⁻³ log · log` shape landed for systems in two variables (Q1.6, `systemLargeCountTwo_evertse_le`), with extra factors `t⁴` and the grid count. |
 | **Higher degree**: hypersurfaces and projective varieties | Evertse–Ferretti 2008 (general position); Quang 2022 (subgeneral position, better Chow-weight bound) | Not started. |
 
 **No improvement of the Evertse–Ferretti 2013 count for linear forms was found in the literature
@@ -71,7 +71,7 @@ In chronological order. "Consumes" names the earlier results each paper actually
 | Ré01 | G. Rémond, *Sur le théorème du produit*, J. Théor. Nombres Bordeaux **13** (2001), 287–302. ✓ | The product theorem with sharper constants (`δ_i/δ_{i+1} ≥ (m/ε)^{codim Z}`), over a number field, **without Arakelov theory**: Samuel multiplicity and Kähler differentials. The planned Q1 source. | Ev95, Ferretti 1996, Philippon's zero estimates; Rémond's multiprojective elimination (LNM 1752, Chs. 5 and 7). |
 | Ev96 | J.-H. Evertse, *An improvement of the quantitative Subspace theorem*, Compositio Math. **101** (1996), 225–311. ✓ | Replaces Sch92's doubly exponential count by a singly exponential one (?) (copy the exact bound from the paper). Also contains the lemma that DA 4.4 builds. | Sch92, Ev95. |
 | RT96 | D. Roy, J. L. Thunder, *An absolute Siegel's lemma*, J. reine angew. Math. **476** (1996), 1–26. ✓ | Siegel's lemma over `ℚ̄` with constants independent of the field. | Geometry of numbers over number fields. |
-| Zh95 | S. Zhang, *Positive line bundles on arithmetic varieties*, J. Amer. Math. Soc. **8** (1995), 187–221. (?) | The theorem on successive minima that yields an **absolute Minkowski theorem**. | Arakelov theory. ⚠ This is a heavy dependency. Check whether RT96, or the adelic form of Minkowski's second theorem, is enough for ES02. |
+| Zh95 | S. Zhang, *Positive line bundles on arithmetic varieties*, J. Amer. Math. Soc. **8** (1995), 187–221. (?) | The theorem on successive minima that yields an **absolute Minkowski theorem**. | Arakelov theory. Not needed: ES02 uses Roy–Thunder's version (RT96 Thm 6.3, its Cor. 7.2), and over a fixed `K` our Minkowski's second theorem (`FieldMinkowski.lean`) does, with `\|D_K\|` in the thresholds (Q1.8). |
 | ES99 | J.-H. Evertse, H. P. Schlickewei, *The Absolute Subspace Theorem and linear equations with unknowns from a multiplicative group*, in *Number Theory in Progress* (Zakopane 1997), de Gruyter 1999, 121–142. ✓ | States the **absolute** Subspace Theorem, with points in `ℚ̄ⁿ`, and shows what it is for. | Sch72 and Sch77. |
 | ES02 | J.-H. Evertse, H. P. Schlickewei, *A quantitative version of the Absolute Subspace Theorem*, J. reine angew. Math. **548** (2002), 21–127. ✓ | **The quantitative absolute parametric Subspace Theorem**: twisted heights `H_{Q,L,c}`, an interval result, and the count `4^{(n+9)^2} δ^{-n-4} log(2RD) log log(2RD)` for the large solutions (Evertse 2010, Thm B). The source of every uniform count in ESS02 and BE08. | Ev95, Ev96, RT96, and an absolute Minkowski theorem. |
 | Ev10 | J.-H. Evertse, *On the Quantitative Subspace Theorem*, Zap. Nauchn. Sem. POMI **377** (2010), 217–240; J. Math. Sci. **171** (2010), 824–837; arXiv:1008.2268. ✓ | Survey of ES02 → EF13. Also proves the new gap principle and the **small-solutions bound**, which is the current record on that axis. | ES02, EF13 (announced). **The source of DA Layer 9.** |
@@ -271,8 +271,8 @@ replace the earlier sketch.
   normalized system (2.4) with `n` forms over a Galois `E / K`, `t` places and coefficients of
   absolute height at most `H`:
   - the solutions with `log H(x) ≥ X₀ = systemThreshold` lie in at most `systemLargeCount`
-    proper subspaces, which depends on `n`, `δ`, `[E : ℚ]`, `[E : K]`, `t` and `|S|` alone
-    (`exists_finset_submodule_of_systemThreshold_le`);
+    proper subspaces, which depends on `n`, `δ`, `[E : ℚ]`, `[E : K]` and the number `R` of
+    distinct forms alone (`exists_finset_submodule_of_systemThreshold_le`);
   - all solutions lie in at most 9.3's count, plus `1 + log ω / log (1 + δ / (2 n))` with
     `ω = max (1, X₀ / ([K : ℚ] log Q))` for the large ones below `X₀`, plus `systemLargeCount`
     (`exists_finset_submodule_of_isNormalizedSystem`);
@@ -281,25 +281,27 @@ replace the earlier sketch.
     `[K : ℚ] (2 n / δ) log n` and `systemHeightThreshold` (`systemThreshold_le`). It does not
     see the constants `C p`.
 
-  The route:
-  - **Exponents.** Each solution gets its own exponents `log |L p i x|_p / log H(x)`
-    (`IsNormalizedSystem.exists_gridExponent`). They are at most `2` by the trivial bound
-    `|L p i x|_p ≤ (n H^{[E:ℚ]})² H(x)`. Clamped at `-2 n t`, their weight is at most `-δ / 2`,
-    either because one of them is clamped or by `∏ |L p i x|_p ≤ systemDet · H(x)^{-δ}` from
-    (2.4) with `systemDet ≤ (n! H^{n [E:ℚ]})^{2 t}`.
-  - **Grid.** The exponents are rounded up to `ℤ / ⌈4 n t / δ⌉`, which leaves weight
-    `≤ -δ / 4`. So only the product of the constants is used, as in Evertse.
-  - **Layer 6.1.** Bridge each grid system to a domain over `E` (Q0.2c) and run 6.1's interval
-    result there (Q0.2d); its threshold is shared by all grid systems. Pull the exceptional
-    subspaces back to `Kⁿ`, and hand the union of the intervals to 9.4 in its `_of_mem` form.
+  The route (since Q1.8a; Q0.3 first took each solution's own exponents, clamped at `-2 n t`
+  and rounded to `ℤ / ⌈4 n t / δ⌉`, at the price of `(…) ^ (t n)` grid systems):
+  - **Raised exponents** (`IsNormalizedSystem.exists_raise`). The positive exponents sum to at
+    most `n`; scaling the negative ones down leaves weight `-δ` and `∑ |c| ≤ 2 n + δ`.
+  - **One scalar for the constants** (`exists_ne_zero_systemAbs_le`, Minkowski's first theorem
+    on `K¹` via Layer 4.1's minima): a nonzero `S`-integer `β` with `|β|_p ^ mult p ≤ κ / C p`,
+    `κ ^ t = scalarConst K S · (n! H^{n [E:ℚ]}) ^ (2 t / n)`, which (2.4) with
+    `systemDet ≤ (n! H^{n [E:ℚ]})^{2 t}` makes possible. So only the product of the constants
+    is used, as in Evertse.
+  - **Layer 6.1, once.** Above the threshold `κ ≤ H(x) ^ (δ / (2 n t))`, so `β x` lies in the
+    domain over `E` (Q0.2c) of the raised exponents shifted by `δ / (2 n t)`, of weight `-δ / 2`
+    and absolute weight at most `2 n + 2`. Run 6.1's interval result there (Q0.2d), pull the
+    exceptional subspaces back to `Kⁿ` (they contain `x` with `β x`), and hand the intervals
+    to 9.4 in its `_of_mem` form.
   - **The heights of the conjugated forms** are those of the coefficients (`logHeight₁_algEquiv`,
     `IsNormalizedSystem.formLogHeight_conjSystem_le`).
-  - **The counts over `E`** are bounded by monotonicity at `[E : ℚ]` infinite places and
-    `[E : ℚ] + [E : K] |S|` places (`parametricSubspaceCount_mono`, `parametricRatio_mono`,
-    `card_systemPlacesOver_le`).
+  - **The counts over `E`** do not depend on the infinite places of `E` (since Q1.8c; before, by
+    monotonicity at `[E : ℚ]` of them) and are taken at `R [E : K]` distinct forms: the conjugated forms over `E` are the `Gal(E / K)`-conjugates of the system's
+    (`formCount_conjSystem_le`, since Q1.8b; before, `[E : ℚ] + [E : K] |S|` places).
 
-  No kernels need a separate case, since a vanishing form is a clamped exponent. The forms'
-  independence comes from the normalization (`IsNormalizedSystem.linearIndependent`).
+  The forms' independence comes from the normalization (`IsNormalizedSystem.linearIndependent`).
 The original sketch is kept below for reference.
 
 - **Q0.1 (original)** Quantitative Roth, `n = 2`, at the strength the classical Roth lemma (DA 2.7) gives,
@@ -669,7 +671,8 @@ Two consequences for the plan:
     they take the index along the forms as input, so Q1.6 only swaps the 5.3 call.
 - **Q1.6** Re-run Q0 with Q1.5, and the quantitative Roth theorem of Bugeaud–Evertse 2008
   (Appendix), the best known for `n = 2`. **Done** (2026-10-02). Ev96's singly exponential count
-  for general `n` turned out to need more than the Roth lemma; it is Q1.7.
+  for general `n` turned out to need more than the Roth lemma; it is Q1.7, which also revised the
+  counts quoted below.
   - ✅ The Q0 chain takes the Roth lemma as a parameter (2026-10-02). Steps IV and VI use DA 5.3
     once, and everything after sees it only through the ratio `σ` and the height cost
     `F (h(P) + g (m + 1) d₀ [K : ℚ])`. `NumberField.RothParams` (`σ`, `F`, `g`) and
@@ -699,8 +702,9 @@ Two consequences for the plan:
       `parametricThreshold_evertse_le` bound the thresholds of 5.6 and 6.1 by their coefficients
       times `Λ`. The logarithm of the coefficient is now `O(T log (T X))`, polynomial in
       `(A + 1) / ε`, against `2 ^ m log (4 / η)` for Bombieri–Gubler.
-  - ✅ The count in closed form against Ev96 (`SubspaceCountBound.lean`, 2026-10-02):
-    `systemLargeCount_evertse_le` gives `Z ^ (t n + 2 ^ n (2 d + e u) + 13)` with
+  - ✅ The count in closed form against Ev96 (`SubspaceCountBound.lean`, 2026-10-02). As of Q1.6
+    (superseded by Q1.7, which removed the `2 ^ n`):
+    `systemLargeCount_evertse_le` gave `Z ^ (t n + 2 ^ n (2 d + e u) + 13)` with
     `Z = 2 ^ (n + 12) n ^ 6 t ^ 2 d ^ 2 / δ`, `d = [E : ℚ]`, `e = [E : K]`, `t = |S|`, `u = |S_fin|`;
     Q0.3 with it: `exists_finset_submodule_of_isNormalizedSystem_evertse_le`. Ev96 Thm (i):
     `(2 ^ (60 n ^ 2) δ ^ (-7 n)) ^ s log 4D log log 4D`. So:
@@ -714,7 +718,8 @@ Two consequences for the plan:
     the domains at large levels have rank `0` or `1 = #ι - 1`, so Layer 5.6 applies to them
     directly and 6.1's wedges and grids are not needed:
     - `exists_forall_mem_interval_approxDomain_two`: the parametric theorem as an interval
-      result, `2 ^ (2 s) + 1` subspaces and `m` intervals of ratio `4 σ⁻¹`, any Roth lemma; its
+      result, `2` subspaces (`2 ^ (2 s) + 1` before Q1.7) and `m` intervals of ratio
+      `4 σ⁻¹`, any Roth lemma; its
       threshold `twoThreshold` is linear in the heights (`twoThreshold_le`);
     - Q0.3's assembly now takes any interval result
       (`exists_finset_submodule_of_forall_interval`,
@@ -723,26 +728,180 @@ Two consequences for the plan:
       `exists_finset_submodule_of_isNormalizedSystem_two` (`_evertse` with Evertse's lemma),
       threshold `systemThresholdTwo_le`;
     - closed form `systemLargeCountTwo_evertse_le`:
-      `G (4 ^ s + 1 + 2 ℓ Y² (1 + 5 log (32 ℓ Y³) / δ))`, `ℓ = 1 + log (4 s)`, `Y = 833 t² / δ`,
-      `s = d + e u`. The main term is `O(t⁴ δ⁻³ log s · log (t δ⁻¹ log s))`, Bugeaud–Evertse's
-      `225 δ⁻³ log (2 r) log (δ⁻¹ log (2 r))` with places `s` for forms `r`. Extra: `t⁴` from the
-      absolute weight `A` of Q0.3's clamped exponents (BE normalize `∑ max c ≤ 1`, (A.7)); the
-      `4 ^ s + 1` exceptional subspaces of 5.4 (BE's Lemma A.5 = Ev96 Lemma 12.4 has one); the
-      grid factor `G` of a *system* (BE's Prop. A.1 is parametric, like
-      `exists_forall_mem_interval_approxDomain_two`, which has no `G`).
+      `G (2 + 2 ℓ Y² (1 + 5 log (32 ℓ Y³) / δ))`, `ℓ = 1 + log (4 s)`, `Y = 833 t² / δ`,
+      `s = d + e u`. The main term was `O(t⁴ δ⁻³ log s · log (t δ⁻¹ log s))`, Bugeaud–Evertse's
+      `225 δ⁻³ log (2 r) log (δ⁻¹ log (2 r))` with places `s` for forms `r`, with two extras: `t⁴`
+      from the absolute weight of Q0.3's clamped exponents and the grid factor `G`. Q1.8a removed
+      both: now `2 + 2 ℓ Y² (1 + 5 log (32 ℓ Y³) / δ)` with `Y = 449 / δ`, i.e.
+      `O(δ⁻³ log s · log (δ⁻¹ log s))`, Bugeaud–Evertse's shape with `s` for `r`.
   - The chain length needs no change. Ours is `⌈4 log (2 (n + 1) s) / ((n + 1) (n + 2) η²)⌉`
     with `η ≍ ε / ((n + 1)² (A + 1))` (5.2's Siegel lemma), BE's (A.26) is
     `1 + ⌊25600 δ⁻² log (2 r)⌋`: the same `δ⁻² log` shape, up to `s` for `r` and the factor `A`.
-- **Q1.7** Ev96's singly exponential count for general `n`: replace Layer 6.1's grid covering.
-  The `2 ^ n [E : ℚ]` in the exponent of `systemLargeCount_evertse_le` comes from
-  `wedgeExponent`, which shifts the exponents of `⋀^p` by the minima *per place and per
-  `p`-subset* (Bombieri–Gubler 7.5.32), so 6.1 rounds them to `(2 m + 1) ^ ([E : ℚ] binom(n, p))`
-  grids. Ev96 keeps the exponents of the compound fixed: `λ₁ ≤ Q^{-δ}` and `λ₁ ⋯ λₙ ≍ 1` give
-  `λₙ ≥ Q^{δ / (n - 1)}`, so `y₁ ∧ ⋯ ∧ yₙ₋₁` has twisted height `≤ Q^{-δ / (n - 1)}` in
-  `⋀^{n - 1}` with exponents that do not move. The cost is that this domain need not have rank
-  `M - 1`, so 5.6 does not apply as is; Ev96 Lemma 12.4 (BE Lemma A.5) and the first-minimum
-  form of the Roth argument take its place. ⚠ A sketch from Ev96's statements and BE's appendix;
-  read Ev96 §§ 12–17 before turning it into milestones.
+- **Q1.7** Ev96's singly exponential count for general `n`. **Done** (2026-10-02), read from
+  Ev96 §§ 4–6 and 9 (Theorems A–C, Lemmas 18, 27) and ES02 § 12 (Lemmas 12.1–12.4). The `2 ^ n`
+  in the exponent of Q1.6's count had two sources, each removed by a short argument; neither
+  needed the Roth lemma or a new route through `⋀^{n - 1}`. (The sketch that stood here, with its
+  worry that the compound domain need not have rank `M - 1`, was wrong: Ev96's Theorem B produces
+  `dim V = N - 1` exactly, as our 6.1 does, and his Theorem C is our 5.6. Its "Ev96 §§ 12–17" was
+  ES02, which BE's Lemma A.5 cites.)
+  - ✅ **The grids of 6.1** (`DiophantineApproximation/MinimaGrid.lean`; Ev96 Lemma 18, (6.53)).
+    The wedge exponent at an infinite place and a `p`-subset is the sum of the original exponents
+    plus `logb Q` of a constant, of `p` minima read through the bijection of Evertse's lemma, and
+    of the jump. 6.1 rounded each of the `r binom(n, p)` entries separately:
+    `(2 m + 1) ^ (r binom(n, p))` grids. It now rounds the `n` minima, the constant and the jump,
+    with one bijection per infinite place: `n! ^ r (2 m + 1) ^ (n + 2)` grids
+    (`minimaGrid`, `ncard_minimaGridSet_le`). An entry collects up to `p + 2` roundings, so the
+    mesh is `n + 2` times finer (`parametricMesh`); the pool keeps the grids with entries at most
+    `m + n + 2`, which the rounded grid satisfies, so the absolute-weight bound
+    (`parametricWedgeAbsWeight_le`) is unchanged.
+  - ✅ **One exceptional subspace in 5.4** (`ExceptionalSubspace.lean`; ES02 Lemmas 12.3–12.4,
+    with the threshold patterns of Ev96 Lemma 27). The exceptional vector was chosen per pattern,
+    `2 ^ (#ι s)` of them, `2 ^ (binom(n, p) s)` in `⋀^p`. The proof only uses that the pattern
+    carries the normal vector and that its indices have exponent at most `c v (k v)`; the
+    threshold set `{i | c v i ≤ c v (k v)}` has both properties and depends on `k v` alone. Call
+    `k` bad if `weightAt c k < -ε/4` and its threshold pattern carries a nonzero vector, a
+    condition independent of `Q`. If some `k` is bad, one fixed vector of one fixed bad `k₀`
+    kills the domain at every large level, so every exceptional `V(Q)` is its kernel. So at most
+    one exceptional subspace: in 5.6, per grid in 6.1 (`parametricSubspaceCount` no longer
+    depends on `s`), and `2` subspaces (with `⊥`) in the two-variable count. Bombieri–Gubler's
+    "a linear space `W`" is thus true, though their proof does not give it.
+  - ✅ **The closed form** (`SubspaceCountBound.lean`; superseded by Q1.8a):
+    `systemLargeCount_evertse_le` became `Z ^ ((t + 1) n + n d + 15)` with `Z = 2 ^ (n + 12) n ^ 7 t ^ 2 d ^ 2 / δ` (`n ^ 7` for the
+    finer mesh), against `Z ^ (t n + 2 ^ n (2 d + e u) + 13)` before. As `Z` carries `2 ^ n`,
+    the count is `2 ^ O(n ^ 2 (t + d)) δ ^ (-O(n (t + d)))`, Ev96's
+    `(2 ^ (60 n ^ 2) δ ^ (-7 n)) ^ s` shape in `n` and `δ`. The finite places of `E` no longer
+    appear.
+- ✅ **Q1.8** The places and the degree. **Done** (Q1.8a–c, 2026-10-02). ES02 read in full (2026-10-02), with Ev10 § 6. The count
+  `Z ^ ((t + 1) n + n d + 15)`, `Z = 2 ^ (n + 12) n ^ 7 t ^ 2 d ^ 2 / δ`, `d = [E : ℚ]`, has four
+  sources of `t` and `d`; ES02's parametric count `4 ^ ((n + 8) ^ 2) δ ^ (-n - 4) log 2r
+  log log 2r` (Prop. 6.1) has none. **What ES02 does that we do not**:
+  - **Only `∑_v max_i c_{iv} ≤ 1` is used**, never `∑ |c|`. In the index estimate (Lemma 15.1)
+    the exponents are shifted to `b_{iv} = c_{iv} - max_i c_{iv} ≤ 0`, with the total
+    `∑_v max_i c_{iv}` put at one place `v₀` (15.9); then `∑ |b| ≤ 2 n`. The minima are bounded
+    by `Q ^ (-1 - η) < λ₁`, `λ_n < Q ^ (n - 1 + η)` from the product formula alone (Lemma 17.1).
+  - **All the minima sit at one non-archimedean place `v₀`** (`λ ∗ Π`, (6.13)–(6.14)), outside
+    `S`, where the forms are the coordinates. Davenport's lemma (§ 9, Lemma 9.2) then gives *one*
+    permutation, and needs `v₀` finite ((9.31)). The compound domain keeps the exact `c_τ` at every
+    other place and rounds only the `n` minima exponents at `v₀` (Lemmas 17.2, 18.1):
+    `G ≤ (2 n B) ^ n` classes, `B = ⌊3 n² 2 ^ n / δ⌋`, permutations included. The dilation of the
+    compound domain moves to a second such place `v₁` (Lemma 18.2).
+  - **Forms from one family `{L_1, …, L_r}`.** The auxiliary polynomial is built from the `r`
+    forms (Index Theorem with `s = r`), so the chain length is `1600 n⁴ δ⁻² log 2r` (16.2), and
+    the height bound of the penultimate subspace has exponent `R n - 1`, `R ≤ binom(r, n)` the
+    number of distinct systems, not `s n` (Lemma 12.1). In `⋀^k`: `r ↦ binom(r, k)`, and
+    `log 2 binom(r, k) ≤ k log 2r` (18.40).
+  - **Moving mass between places** (Lemma 6.3): for `∏_w A_w > 1` there is `β ∈ ℚ̄` with
+    `|β|_w ≤ A_w`. ES02 needs `ℚ̄` (a `k`-th root of an `S`-unit) only to make the error
+    `(1 + ϑ)`; over `K`, Minkowski's first theorem gives `β ∈ K` with a constant `c_K` that
+    depends on `|D_K|` and the norms of the places involved, which only enters thresholds.
+  - Not needed by us: the absolute Minkowski theorem of Roy–Thunder (Cor. 7.6, used to avoid
+    `|D_K|` in the *threshold*; our thresholds may carry `log |D_K|`), and ES02's own reduction
+    of the product inequality (§ 21), which pays `(4 n² e / δ) ^ {n s}` classes, as our Q0.3 does.
+    Ev10 Thm B counts the solutions of one *system* (2.3), which is our setting.
+
+  Ev10 § 6 explains the remaining gap to EF13: every class subdivision (ours and ES02's) comes from
+  Schmidt's polynomial, which needs the solutions of a chain to share their exponents; the
+  Faltings–Wüstholz polynomial does not, and removes the `4 ^ (n²) δ ^ (-n)` (Q2, not Q1.8).
+
+  **The plan**, cheapest first:
+  - ✅ **Q1.8a The system's own exponents.** **Done** (2026-10-02). Raised exponents
+    (`IsNormalizedSystem.exists_raise`, `c⁺ - λ c⁻` with `λ = (P + δ) / N`, so no shift is
+    needed for (i)); one scalar from Minkowski's first theorem on `K¹`
+    (`exists_ne_zero_systemAbs_le`: Layer 4.1's minima bound for the coordinate form, with
+    `scalarConst K S = 2 ^ [K : ℚ] ∏_{q ∈ S} N(q) √|D_K|`); 6.1 runs once with
+    `A = [E : K] (2 n + 2)` (`systemAbsBound`). `systemGridCount`, `systemClamp`,
+    `systemGridDen` and `exists_gridExponent` are gone; `systemLargeCount` no longer takes `t`;
+    `systemHeightThreshold` is `(2 n log scalarConst + 4 t log (n! H ^ (n d))) / δ`. The closed
+    form (`systemLargeCount_evertse_le`) is now `Z ^ (n d + n + 14) ℓ (1 + log ℓ)` with
+    `Z = 2 ^ (n + 11) n ^ 6 d / δ` and `ℓ = 1 + log (2 ^ (n + 1) (d + e u))`, against
+    `Z ^ ((t + 1) n + n d + 15)` with `Z = 2 ^ (n + 12) n ^ 7 t ^ 2 d ^ 2 / δ` before: `t` is
+    gone, and the places enter as `log s log log s`, ES02's `log 2r log log 2r` with `s` for `r`.
+    The plan as written: Q0.3 gives each solution its own exponents, clamped at
+    `-2 n t` and rounded: `(M m + 2 m + 1) ^ (t n)` grid systems, and absolute weight
+    `A = [E : K] t n (2 n t + 2)`, whose square sits in `η` and so in `Z` (`t ^ 2`). This is
+    only to absorb the constants `C p`, of which only the product is controlled. Instead:
+    (i) raise the exponents to weight exactly `-δ` (Ev10's `max_i c_{pi} = s(p)` is kept), so
+    `∑ |c| ≤ 2 n + δ` independently of `t`; (ii) absorb the constants by one fixed `β ∈ K`
+    with `|β|_p ≤ |det L_p|_p ^ (1 / n) / C_p` on the places of the system and `|β| ≤ 1`
+    elsewhere (Minkowski's first theorem over `K`, `FieldMinkowski.lean`, the slack `c_K` at
+    one place); `βx` lies in the domain of the given exponents at level `H(x)`, up to constants
+    bounded by `H` and `|D_K|`, which a shift of `δ / (2 n t)` per place and a larger threshold
+    absorb; (iii) run 6.1 once, with `A ≤ 2 n + 2`. Removes the factor `t n` from the exponent
+    and `t ^ 2` from `Z`. Touches only Q0.3 (`SystemSubspaceCount.lean`) and the closed form.
+  - ✅ **Q1.8b Distinct forms.** **Done** (2026-10-02). The vanishing conditions of Layer 5.2
+    are imposed per distinct form, not per place and coordinate: whether all monomials of `P`
+    read in the coordinates `A v` have large exponent along row `i` depends only on that row,
+    since two systems sharing a form differ by a substitution whose row is a unit vector
+    (`MvPolynomial.blockSubst_coeff_mem_of_row`, `MultiHomogeneous.lean`). So 5.2 takes the
+    forms `F` with a representative row each and needs `4 log (2 #F) < (n + 1)(n + 2) η² m`
+    (`SubspaceAuxiliary.lean`). Then:
+    - **5.6** (`PenultimateMinimum.lean`) takes a form count `s` with
+      `formCount Sfin L ≤ (n + 1) s` (`s = |S|` always works, `formCount_le`); chain length,
+      ratio and the height cost of the Roth lemma are taken at `s`, so `chainThreshold`,
+      `penultimateThreshold` and `penultimateCoeff` gained the argument. 5.4's
+      `ε log Q / (4 |S|)` stays with the places, since it only enters the threshold.
+    - **6.1** (`ParametricSubspace.lean`) takes `formCount Sfin L ≤ s`; the wedge forms in
+      `⋀^p` are wedges of `p`-tuples of forms, at most `s ^ p` of them
+      (`formCount_wedgeForms_le`), so `parametricChainLength N d s p` is 5.6's chain length at
+      `s ^ p` (ES02 (18.40): `log 2 binom(r, k) ≤ k log 2r`). The thresholds
+      (`parametricStepThreshold`, `parametricThreshold`, their coefficients) take `s`.
+    - **Q0.3** (`SystemSubspaceCount.lean`) runs 6.1 over `E` at `s = R [E : K]`: the forms at a
+      place of `E` are `Gal(E / K)`-conjugates of the forms at the place below
+      (`formCount_conjSystem_le`). `systemLargeCount R n d e r δ` and `systemThreshold` take the
+      number `r` of forms in place of `|S|`; `IsNormalizedSystem.one_le_formBound` gives
+      `1 ≤ R`.
+    - **Closed form** (`SubspaceCountBound.lean`): `Z ^ (n d + n + 14) ℓ (1 + log ℓ)` with
+      `ℓ = 1 + log (2 ^ (n + 1) s ^ n)`, `s = R e`, in place of `ℓ = 1 + log (2 ^ (n + 1)
+      (d + e u))`. `|S|` no longer appears anywhere in the count. The price is the factor `n` in
+      `ℓ ≤ (n + 1) log (2 s) + 1`, which ES02 pays too (`k log 2r` in `⋀^k`); if `R e` is much
+      smaller than the number of places of `E`, this is a gain, otherwise a factor `n` in `ℓ`
+      only.
+    - **Two variables** (`SubspaceCountTwo.lean`): `systemLargeCountTwo R e s δ` with
+      `s = R [E : K]`, so `2 + 2 ℓ Y² (1 + 5 log (32 ℓ Y³) / δ)` with `ℓ = 1 + log (4 R e)`:
+      Bugeaud–Evertse's `δ⁻³ log 2r log (δ⁻¹ log 2r)` with `r = R [E : K]` forms (the
+      conjugates over `E`), now with forms in place of places.
+  - ✅ **Q1.8c The minima at one place.** **Done** (2026-10-02), at an **infinite** place `w₀`
+    rather than ES02's finite `v₀`. The plan above (a prime `p₀ ∉ S`, scaling by powers of `p₀`)
+    does not work as written: the places of `E` above `p₀` are several, and Davenport's pivot
+    (ES02 (9.24)–(9.33)) is chosen at one place, so each would need its own permutation; ES02
+    avoid this because their relations have coefficients in `K` and `v₀ ∈ M(K)`, over `ℚ̄`.
+    A single place of `E` with balanced scaling elements would need `S`-units with a controlled
+    regulator. Instead (`WedgeDomainAt.lean`):
+    - `w₀` is an infinite place with `mult w₀ ∣ [K : ℚ]` (a real one if any;
+      `exists_mult_dvd_finrank`), `a = [K : ℚ] / mult w₀`.
+    - Each vector `x j` realizing the `j`-th minimum `μ j` (at all infinite places) is scaled by a
+      nonzero integer `β j` with `|β j|_w μ j ≤ 1` at `w ≠ w₀` and
+      `|β j|_{w₀} ≤ c μ j ^ (a - 1)` (`exists_balance`, from Minkowski's first theorem for one
+      scalar, `exists_ne_zero_le_of_unitConst_le`, `c = unitConst K = 2 ^ [K : ℚ] √|D_K|`): the
+      product formula balances since the other places carry `(a - 1) mult w₀`. The scaled
+      vectors meet the domain's bounds at every place but `w₀`, and `c μ j ^ a` times them there.
+    - Evertse's lemma (Layer 4.4, already per place) with minima at `w₀` alone: the bijections at
+      the other places pair equal bounds and drop out, **one** bijection remains. An archimedean
+      `w₀` costs only Evertse's constant, which is there anyway; ES02 need `v₀` finite for their
+      absolute constants only.
+    - The wedge domain `wedgeExponentAt` has `logb Q C` at every infinite place and `a` times the
+      minima correction at `w₀`; its weight is that of Layer 4.5 exactly
+      (`rpow_approxWeight_wedgeExponentAt`), so 7.5.31 and the negative weight apply unchanged
+      (`rpow_approxWeight_le_of_eq`, `exists_forall_approxWeight_wedgeExponent_le` now take any
+      exponents with that weight). The per-place wedge estimate is factored out of Layer 4.5
+      (`apply_wedgeForms_plucker_le`).
+    - The grid (`MinimaGrid.lean`, rewritten) rounds the constant, the jump and the `N` minima at
+      the same mesh, with the minima part multiplied by `a` at `w₀`; since `w₀` weighs
+      `mult w₀ = [K : ℚ] / a`, the cost in the weight is `[K : ℚ] binom(N, p) (p + 2)` meshes as
+      before (`approxWeight_gridExponent_minimaGrid_le`), and the box and absolute weight are
+      unchanged (`abs_ceil_add_abs_sum_ceil_le`, `sum_mult_abs_minimaGrid_le`).
+      `N! (2 m + 1) ^ (N + 2)` grids: `parametricGridCount N d p`, and the counts of 6.1 no
+      longer take the number of infinite places.
+    - Thresholds: the constant is `pluckerConstAt K N = pluckerConst K N · unitConst K ^ N`
+      (`pluckerAtCoeff = pluckerCoeff + N (d + 1)` in `ThresholdBound.lean`).
+    - **Closed form**: `Z ^ (2 n + 14) ℓ (1 + log ℓ)` (grids `n! Z ^ (n + 2) ≤ Z ^ (2 n + 2)`),
+      against `Z ^ (n d + n + 14) ℓ (1 + log ℓ)`. `d` stays in `Z`, linearly (the mesh `γ ∝ 1 / d`
+      and `A = [E : K] (2 n + 2)`); removing it is not part of Q1.8.
+
+  End state of Q1.8: `Z ^ (2 n + 14) log s log log s`-shaped, `Z = 2 ^ (n + 11) n ^ 6 d / δ`,
+  against ES02's `4 ^ ((n + 8) ^ 2) δ ^ (-n - 4) log 2r log log 2r`: the same shape in `n`
+  (`Z ^ (2 n)` carries `2 ^ (2 n²)`) and `log s`, with `δ ^ (-2 n - 14)` against `δ ^ (-n - 4)`
+  and an extra `d ^ (2 n + 14)`. Thresholds gain `N log unitConst` and stay linear in `log H`.
 
 **Is there a more elementary route to Ev95's Thm 3 strength?** (searched 2026-09-30)
 

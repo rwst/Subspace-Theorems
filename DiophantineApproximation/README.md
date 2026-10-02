@@ -225,9 +225,11 @@ together and the milestone.
 height in it; `…/MinimaBounds.lean` is the one estimate on the minima that Layer 4 does not state,
 and it is the product formula rather than geometry of numbers; `…/ExponentGrid.lean` is the
 rounding device, stated for an arbitrary index type and an arbitrary system of exponents;
-`…/WedgeExponentBound.lean` is the box and the negative weight of the wedge exponents, the one
-file that knows what a wedge domain is; `…/ParametricSubspace.lean` is Steps VIII and IX and the
-milestone.
+`…/WedgeExponentBound.lean` is the negative weight of the wedge exponents;
+`…/WedgeDomainAt.lean` (added with Q1.8c) moves the minima to one infinite place, so that Evertse's
+lemma leaves one bijection; `…/MinimaGrid.lean` (added with Q1.7) rounds the minima rather than
+the wedge exponents, so that the grids are singly exponential in `#ι`;
+`…/ParametricSubspace.lean` is Steps VIII and IX and the milestone.
 ⚠ **6.2 broke the pattern and took one**: `…/SubspaceTheorem.lean`, and there is no seam in it
 because there is nothing to separate — the Subspace Theorem over `K` is Layer 5.1 and Layer 6.1
 put together, with the kernels and Northcott on projective space for what those two leave over,
@@ -2714,7 +2716,8 @@ over the blocks of the monomials of one degree (`MvPolynomial.card_multiMons`), 
 (`MvPolynomial.blockSubst`), under which the expansion coefficients `a(L v; J; I)` of 7.5.14 are
 the coefficients of `blockSubst (A v)⁻¹ (hasseDeriv I P)`; and the lemma
 (`MvPolynomial.exists_ne_zero_isMultiHomogeneous_forall_coeff_blockSubst_hasseDeriv_eq_zero`):
-for `0 < η` and `4 log (2 (n+1) |S|) < (n+1)(n+2) η² m` there are constants `C₂`, `C₃` and a
+for `0 < η` and `4 log (2 #F) < (n+1)(n+2) η² m`, `F` the distinct forms (rows of the `A v`; at
+most `(n+1) |S|`, since Q1.8b), there are constants `C₂`, `C₃` and a
 degree threshold `D₀` such that for every `d` with `D₀ ≤ d h` for all `h` there is a nonzero `P`
 of multidegree `d` with `h(P) ≤ C₂ ∑ d h`, `h(a(L v; ·; I)) ≤ C₃ ∑ d h`, and `a(L v; J; I) = 0`
 for every `v` whenever `∑ h, (∑ i, I h i) / d h ≤ m η` and some `i` has `∑ h, J h i / d h`
@@ -2722,7 +2725,9 @@ outside `(m/(n+1) − 2 m η, m/(n+1) + 2 n m η)`. Route: `ArithmeticHeights` 5
 height form — applied to the matrix whose rows are the conditions and whose columns are
 `multiMons d`, with the counting of the omitted monomials supplied by a Chernoff bound over the
 blocks. With coefficients in `K` the book's `r = [F : K]` is `1` and its relative Siegel lemma is
-the absolute one.
+the absolute one. The conditions are imposed once per distinct form (Evertse–Schlickewei): the
+vanishing of the coefficients of low degree along a row depends on that row alone
+(`MvPolynomial.blockSubst_coeff_mem_of_row`).
 
 ⚠ **The book's volume computation is avoidable, and so is most of its "sufficiently large `d`".**
 Bombieri–Gubler estimate the number of monomials whose exponent of one variable is small by the
@@ -2934,6 +2939,15 @@ patterns — a function from the places of `S` to the subsets of `ι` — so fin
 subspaces, which is all Step IV consumes. ⚠ Without the exceptional alternative the lower bound
 is false.
 
+⚠ **There is in fact at most one exceptional subspace** (Evertse–Schlickewei 2002, Lemmas
+12.3–12.4). The proof uses only that the pattern carries the normal vector of `V(Q)` and that its
+indices have exponent at most `c v (k v)`; the threshold set `{i | c v i ≤ c v (k v)}` contains the
+pattern, has both properties and depends on `k v` alone (Evertse 1996, Lemma 27). Whether some
+`k` has weight below `−ε/4` and a nonzero vector in its threshold pattern does not depend on `Q`;
+if so, one such vector, fixed in advance, kills the domain at every large level, so every
+exceptional `V(Q)` is its kernel. This removes `2 ^ (#ι |S|)` from 5.6 and, in `⋀^p`, the number
+of places from the subspace count of 6.1.
+
 ⚠ **The exceptional system is an intersection of spans of coefficient vectors, and no star
 operator appears.** Read in the original coordinates, `L̂_{vi}(w) = 0` for `i ∉ I_v` says exactly
 that `w` lies in the span of the coefficient vectors of the forms `L v i` with `i ∈ I_v`. That
@@ -3053,10 +3067,12 @@ most `m` intervals `[t, 4 σ⁻¹ t)`: `NumberField.exists_forall_mem_interval_a
 interval form of 5.6, with the `m` and `σ` of the contradiction below. The greedy covering is
 `Set.exists_forall_mem_Ico_of_not_exists_chain`, and "beyond a level" is read off the intervals,
 with no `choose`-built sequence.
-The parameters are explicit: `m = NumberField.subspaceChainLength n |S| ε A` and
-`σ = NumberField.subspaceRatio n |S| ε A`, where `A` bounds `NumberField.approxAbsWeight`, and
-`𝒲` has at most `2 ^ ((n + 1) |S|)` members, one per pattern. The grid systems of 6.1, at most
-`(2 m' + 1) ^ (#∞ · #ρ)` of them (`NumberField.ncard_setOf_abs_le_le`), share one `A`
+The parameters are explicit: `m = NumberField.subspaceChainLength n s ε A` and
+`σ = NumberField.subspaceRatio n s ε A`, where `(n + 1) s` bounds the number of distinct forms
+(`NumberField.formCount`; `s = |S|` always does), `A` bounds `NumberField.approxAbsWeight`, and
+`𝒲` has at most one member. The grid
+systems of 6.1, at most `(#ι)! (2 m' + 1) ^ (#ι + 2)` of them
+(`NumberField.ncard_minimaGridSet_le`), share one `A`
 (`NumberField.approxAbsWeight_gridExponent_le`), hence one `m` and one `σ`.
 
 The contradiction is `NumberField.exists_forall_not_chain`: there are `m`, `σ > 0` and `Qlow`
@@ -3145,7 +3161,8 @@ there for a consumer that wants the threshold named.
 
 **6.1 The parametric Subspace Theorem** (Bombieri–Gubler 7.5.30–7.5.32, Steps VIII and IX;
 Evertse–Schlickewei for the formulation) — **landed**, in
-`…/{WedgeRecovery,MinimaBounds,ExponentGrid,WedgeExponentBound,ParametricSubspace}.lean`. For
+`…/{WedgeRecovery,MinimaBounds,ExponentGrid,WedgeExponentBound,WedgeDomainAt,MinimaGrid,`
+`ParametricSubspace}.lean`. For
 forms with coefficients in `K`, linearly independent at every infinite place and at every place of
 `S₀`, and exponents `c` of negative weight, there are a finite set `T` of proper subspaces of
 `Kⁿ⁺¹` and a level `Q₀` such that for every `Q ≥ Q₀` the approximation domain
@@ -3154,9 +3171,10 @@ forms with coefficients in `K`, linearly independent at every infinite place and
 the domain has rank `R`, which is at most `n` for large `Q` by 4.3: for `R = 0` the domain spans
 `⊥`; for `1 ≤ R ≤ n`, (7.41) chooses `k` in `[R, n]` where the jump of the minima is large, 4.4
 and 4.5 move the wedges of the `p`-subsets meeting the first `k` minimal vectors, `k + p = n + 1`,
-into a domain in `⋀^p Kⁿ⁺¹` whose exponents `NumberField.wedgeExponent` move with `Q`; those
-exponents are rounded up to a grid of mesh `γ`, the rounded system has negative weight and is one
-of finitely many, its domain has rank exactly `M − 1` because the wedges already span a
+scaled so that the minima sit at one infinite place, into a domain in `⋀^p Kⁿ⁺¹` whose exponents
+`NumberField.wedgeExponentAt` move with `Q`; those
+exponents are rounded up to a grid of mesh `γ` through the minima, the rounded system has negative
+weight and is one of finitely many, its domain has rank exactly `M − 1` because the wedges already span a
 hyperplane and 4.3 caps the rank, 5.6 in `⋀^p` makes those spans finite in number, and Lemma
 7.5.33 — read as the function `exteriorPower.recoverSpan` — recovers from each span the span of
 the first `k` minimal vectors, which contains `V(Q)` and is proper because `k ≤ n`.
@@ -3167,7 +3185,7 @@ For `approxWeight ≤ −ε` and `approxAbsWeight ≤ A` there are at most
 `Q₀' ≥ Q₀`, a level `Q` with `log Q ≥ Q₀'` either has its domain in one of those subspaces or has
 `log Q` in one of at most `NumberField.parametricIntervalCount` intervals `[t, ρ t)` with
 `t ≥ Q₀'`, where `ρ = NumberField.parametricRatio`. The two counts and `ρ` are closed forms in
-`n`, `[K : ℚ]`, the number of places, `ε` and `A`: every class `(k, g)` contributes 5.6's interval
+`n`, `[K : ℚ]`, the number of distinct forms, `ε` and `A`: every class `(k, g)` contributes 5.6's interval
 form in `⋀^p`, pulled back through `recoverSpan`, and the counts are summed over the classes. The
 minima exponent is `B = (n + 1)(A + 1)/[K : ℚ]`, the mesh, box and grid count follow from it, and
 the classes share one absolute-weight bound in each `⋀^p`. The per-`k` step is
@@ -3181,7 +3199,8 @@ quantitative Subspace Theorem in print count the members of `T`.
 ⚠ **No pigeonhole, no subsequence and no bounded range.** The book argues along an unbounded
 family of levels and extracts a subfamily on which `k` and the rounded exponents are constant.
 None of that is needed: the rounding is a **function** of the level
-(`NumberField.roundExponent`), its range is finite because the exponents stay in a box, and the
+(`NumberField.minimaGrid` of the rounded minima), its range is finite because the minima stay in a
+box, and the
 finite set of subspaces is the union over that range — a union over a finite index set, not over a
 subsequence. Layer 3.1's cells are not used. And because the conclusion is stated for `Q ≥ Q₀`
 only, 4.3's finiteness over a bounded range of levels is not used either.
@@ -3204,6 +3223,25 @@ with the others replaced by that lower bound
 (`NumberField.exists_pos_forall_rpow_le_successiveMinimum_le`). Both exponents are bounded in
 terms of the absolute weight of `c` alone: `B ≤ #ι (AW + 1) / [K : ℚ]`. Every constant is absorbed into
 one extra unit of exponent above a threshold, which keeps the grid free of constants.
+
+⚠ **The grid rounds the minima, not the wedge exponents** (`…/MinimaGrid.lean`; Evertse 1996,
+Lemma 18). At an infinite place the wedge exponent at a `p`-subset is the sum of the original
+exponents plus `logb Q` of a constant, of `p` minima read through the bijection of Evertse's
+lemma, and of the jump. Rounding each of the `#∞ binom(#ι, p)` entries separately gives
+`(2 m + 1) ^ (#∞ binom(#ι, p))` grids, doubly exponential in `#ι`; rounding the `#ι` minima, the
+constant and the jump, with one bijection per infinite place, gives
+`(#ι)! ^ #∞ (2 m + 1) ^ (#ι + 2)`. An entry then collects up to `p + 2` roundings, so the mesh is
+`#ι + 2` times finer, and the pool keeps only the grids whose absolute weight is that of a box and
+`#ι + 2` roundings, which is what the rounded grid satisfies.
+⚠ **The minima sit at one infinite place** (`…/WedgeDomainAt.lean`, Q1.8c; after
+Evertse–Schlickewei 2002, § 9, whose place is finite). Each minimal vector is scaled by a nonzero
+integer from Minkowski's first theorem for one scalar (`NumberField.exists_balance`) so that its
+minimum moves to a place `w₀` with `mult w₀ ∣ [K : ℚ]`, `a = [K : ℚ] / mult w₀` times; Evertse's
+lemma then has minima at `w₀` alone, and one bijection matters. The wedge domain
+`NumberField.wedgeExponentAt` has exactly the weight of the book's, and the grid of the minima has
+`(#ι)! (2 m + 1) ^ (#ι + 2)` members, independent of the number of infinite places. The cost is
+`unitConst K ^ #ι` in the constant, `unitConst K = 2 ^ [K : ℚ] √|D_K|`, which only the thresholds
+see.
 
 ⚠ **The grid is indexed by the infinite places, not by absolute values.** A system of exponents is
 a function on `AbsoluteValue K ℝ`, of which there are infinitely many, and a domain reads it at

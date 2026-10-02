@@ -14,6 +14,9 @@ public import Mathlib.Algebra.Order.Antidiag.FinsuppEquiv
 public import Mathlib.Data.Matrix.Mul
 public import Mathlib.RingTheory.MvPolynomial.WeightedHomogeneous
 
+-- Used only inside proofs.
+import Mathlib.RingTheory.MvPolynomial.Ideal
+
 /-!
 # Multihomogeneous polynomials and the substitution by linear forms
 
@@ -46,6 +49,9 @@ coefficients of `blockSubst A⁻¹ (hasseDeriv I P)`, with `A` the matrix of the
   all the orders `J + I'` with `I'` of the same block degrees as `I`.
 * `MvPolynomial.pderiv_blockSubst`: the chain rule for the block substitution, which is what that
   statement is proved from.
+* `MvPolynomial.blockSubst_coeff_mem_of_row`: if a row of the substitution is a unit vector, an
+  upward closed condition on the exponents along one coordinate passes to another; so the
+  vanishing conditions of Layer 5.2 depend on a form, not on the system it sits in.
 * `MvPolynomial.IsMultiHomogeneous.blockSubst`: a linear change of coordinates inside the blocks
   preserves the multidegree.
 * `MvPolynomial.IsMultiHomogeneous.hasseDeriv`: a Hasse derivative of order `I` is
@@ -243,6 +249,69 @@ theorem blockSubst_one (P : MvPolynomial (κ × ι) R) :
 theorem blockSubst_blockSubst {A M : Matrix ι ι R} (hMA : M * A = 1)
     (P : MvPolynomial (κ × ι) R) : blockSubst A (blockSubst M P) = P := by
   rw [blockSubst_comp, hMA, blockSubst_one]
+
+/-- **A row that is a unit vector carries an order along it.** If row `i₀` of `C` is the `i`-th
+unit vector, `blockSubst C` sends `X (h, i₀)` to `X (h, i)`; so if the exponents in the
+coordinates `i₀` of every monomial of `Q` satisfy an upward closed condition, those in the
+coordinates `i` of every monomial of `blockSubst C Q` do too. -/
+theorem blockSubst_coeff_mem_of_row {C : Matrix ι ι R} {i₀ i : ι}
+    (hC : ∀ j, C i₀ j = (1 : Matrix ι ι R) i j) {U : Set (κ → ℕ)} (hU : IsUpperSet U)
+    {Q : MvPolynomial (κ × ι) R} (hQ : ∀ J, Q.coeff J ≠ 0 → (fun h ↦ J (h, i₀)) ∈ U)
+    (J : κ × ι →₀ ℕ) (hJ : (blockSubst C Q).coeff J ≠ 0) : (fun h ↦ J (h, i)) ∈ U := by
+  classical
+  set 𝔞 : ι → Ideal (MvPolynomial (κ × ι) R) := fun k ↦
+    Ideal.span ((fun s ↦ monomial s (1 : R)) '' {J : κ × ι →₀ ℕ | (fun h ↦ J (h, k)) ∈ U})
+    with h𝔞
+  have hmem : ∀ k (P : MvPolynomial (κ × ι) R),
+      P ∈ 𝔞 k ↔ ∀ J, P.coeff J ≠ 0 → (fun h ↦ J (h, k)) ∈ U := by
+    intro k P
+    rw [h𝔞, mem_ideal_span_monomial_image]
+    refine ⟨fun hP J hJ ↦ ?_, fun hP J hJ ↦ ⟨J, hP J (mem_support_iff.1 hJ), le_rfl⟩⟩
+    obtain ⟨s, hs, hsJ⟩ := hP J (mem_support_iff.2 hJ)
+    exact hU (fun h ↦ hsJ (h, k)) hs
+  -- the swap that sends the coordinate `i₀` to `i`
+  set g : κ × ι → κ × ι := fun p ↦ (p.1, Equiv.swap i₀ i p.2) with hg
+  have hginj : Function.Injective g := by
+    rintro ⟨a, b⟩ ⟨a', b'⟩ h
+    simp only [hg, Prod.mk.injEq, EmbeddingLike.apply_eq_iff_eq] at h
+    rw [h.1, h.2]
+  have hgen : ∀ J : κ × ι →₀ ℕ, (fun h ↦ J (h, i₀)) ∈ U →
+      blockSubst C (monomial J 1) ∈ 𝔞 i := by
+    intro J hJU
+    set J₁ := J.filter fun p ↦ p.2 = i₀ with hJ₁
+    set J₂ := J.filter fun p ↦ ¬p.2 = i₀ with hJ₂
+    have hsplit : monomial J (1 : R) = monomial J₁ 1 * monomial J₂ 1 := by
+      rw [monomial_mul_monomial, one_mul, hJ₁, hJ₂, Finsupp.filter_add_filter_not]
+    have h₁ : blockSubst C (monomial J₁ (1 : R)) = monomial (J₁.mapDomain g) 1 := by
+      rw [blockSubst, aeval_monomial, map_one, one_mul, monomial_eq, C_1, one_mul,
+        Finsupp.prod_mapDomain_index (fun _ ↦ pow_zero _) (fun _ _ _ ↦ pow_add _ _ _)]
+      refine Finsupp.prod_congr fun p hp ↦ ?_
+      have hp2 : p.2 = i₀ := by
+        by_contra hne
+        exact (Finsupp.mem_support_iff.1 hp) (Finsupp.filter_apply_neg _ _ hne)
+      congr 1
+      simp only [hC, hp2, Matrix.one_apply, hg, Equiv.swap_apply_left]
+      simp
+    rw [hsplit, map_mul]
+    refine Ideal.mul_mem_right _ _ ?_
+    rw [h₁, hmem]
+    intro N hN
+    rw [coeff_monomial] at hN
+    split_ifs at hN with hNe
+    · subst hNe
+      have : ∀ h : κ, (J₁.mapDomain g) (h, i) = J (h, i₀) := by
+        intro h
+        have e : ((h, i) : κ × ι) = g (h, i₀) := by simp [hg]
+        rw [e, Finsupp.mapDomain_apply_of_injective hginj, hJ₁,
+          Finsupp.filter_apply_pos (p := fun p : κ × ι ↦ p.2 = i₀) _ rfl]
+      simpa only [this] using hJU
+    · exact absurd rfl hN
+  have hQa : Q ∈ 𝔞 i₀ := (hmem i₀ Q).2 hQ
+  have hle : 𝔞 i₀ ≤ (𝔞 i).comap (blockSubst C : MvPolynomial (κ × ι) R →ₐ[R] _) := by
+    rw [h𝔞, Ideal.span_le]
+    rintro _ ⟨J, hJ, rfl⟩
+    exact hgen J hJ
+  exact (hmem i _).1 (hle hQa) J hJ
 
 omit [DecidableEq ι] in
 variable [Finite κ] [DecidableEq κ] in
