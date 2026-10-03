@@ -49,10 +49,9 @@ Layers 5.5 and 5.6 of `DiophantineApproximation`
 `MvPolynomial.exists_eval_hasseDeriv_ne_zero`), which take the index along the forms as input.
 Replacing `MvPolynomial.formIndex_le_of_degree_ratio` by the theorem below is the whole change.
 
-⚠ **The height theory and the unmixedness hypothesis are those of the Roth lemma**, on the ring
-of `(ℙ¹)^m`, `MvPolynomial (Fin m × Fin 2) K` with blocks `Prod.fst`: the abstract
-`MvPolynomial.MultiprojectiveHeight` `H`, whose `H.botBound 1` is `h(ℙ¹)`, and the
-Cohen–Macaulay hypothesis `hCM`.
+⚠ **The height theory is that of the Roth lemma**, on the ring of `(ℙ¹)^m`,
+`MvPolynomial (Fin m × Fin 2) K` with blocks `Prod.fst`: the abstract
+`MvPolynomial.MultiprojectiveHeight` `H`, whose `H.botBound 1` is `h(ℙ¹)`.
 
 This is Layer Q1.5 of the `QuantitativeSubspace` roadmap.
 -/
@@ -163,8 +162,6 @@ ratio `m² / θ` in place of Bombieri–Gubler's `σ⁻¹` and conclusion `θ` i
 `2 (m + 1) σ ^ ((1 / 2) ^ m)`. -/
 theorem formIndex_le_of_sq_lt_ratio [CharZero K] [AdmissibleAbsValues K] {m n : ℕ}
     (H : MultiprojectiveHeight (K := K) (Prod.fst : Fin m × Fin 2 → Fin m))
-    (hCM : ∀ (𝔭 : Ideal (MvPolynomial (Fin m × Fin 2) K)) [𝔭.IsPrime],
-      IsUnmixedRing (Localization.AtPrime 𝔭))
     (hn : 1 ≤ n) (hcard : Fintype.card ι = n + 1) {d : Fin m → ℕ} (hd : ∀ h, 0 < d h)
     (hanti : Antitone d) {θ : ℝ} (hθ : 0 < θ)
     (hratio : ∀ i j : Fin m, (i : ℕ) + 1 = j → (m : ℝ) ^ 2 < θ * (d i / d j))
@@ -320,7 +317,7 @@ theorem formIndex_le_of_sq_lt_ratio [CharZero K] [AdmissibleAbsValues K] {m n : 
       intro i
       rw [Finset.card_filter, Fintype.sum_prod_type]
       simp [apply_ite Finset.card]
-    obtain ⟨k, hk⟩ := exists_mul_logHeight_le (fun h ↦ ⟨(h, 0), rfl⟩) H hCM h2 hd hanti hF hF0
+    obtain ⟨k, hk⟩ := exists_mul_logHeight_le (fun h ↦ ⟨(h, 0), rfl⟩) H h2 hd hanti hF hF0
       hθ hratio (fun h ↦ ⟨(h, 1), rfl, by simp [hα₂]⟩) hFP
     rw [hαh k] at hk
     change _ ≤ _ * (_ + _ * (F.logHeight + _)) at hk

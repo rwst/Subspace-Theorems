@@ -12,9 +12,11 @@ public import QuantitativeSubspace.MultiprojectiveHeight
 import ForMathlib.LinearAlgebra.SmallCombination
 import ForMathlib.RingTheory.Ideal.LengthPow
 import ForMathlib.RingTheory.MvPolynomial.Projection
+import ForMathlib.RingTheory.RegularLocalRing.RegularSequence
 import Mathlib.RingTheory.Ideal.AssociatedPrime.Finiteness
 import Mathlib.RingTheory.Ideal.AssociatedPrime.Localization
 import Mathlib.RingTheory.Ideal.KrullsHeightTheorem
+import Mathlib.RingTheory.RegularLocalRing.Polynomial
 
 /-!
 # The arithmetic excess Bézout inequality
@@ -275,7 +277,7 @@ variable [Field K] [CharZero K] [Height.AdmissibleAbsValues K] [Fintype σ] [Fin
 the Bézout bound for degrees, and the Bézout bound for heights with the error term
 `(∑_j h_m(P_j)) · ∑_g ∏ e_{g j} d(ℙ)`. -/
 private theorem exists_chain (hb : Function.Surjective b) (H : MultiprojectiveHeight b)
-    (hU : IsUnmixedRing (Localization.AtPrime 𝔭)) (h𝔭 : 𝔭.IsWeightedHomogeneous (multiWeight b))
+    (h𝔭 : 𝔭.IsWeightedHomogeneous (multiWeight b))
     (hne : hilbertPoly b 𝔭 ≠ 0) {e : ι → ℕ} {R : Finset (MvPolynomial σ K)}
     (hR : ∀ r ∈ R, IsWeightedHomogeneous (multiWeight b) r e)
     (h𝔭R : 𝔭 ∈ (Ideal.span (R : Set (MvPolynomial σ K))).minimalPrimes) {t : ℕ}
@@ -285,6 +287,10 @@ private theorem exists_chain (hb : Function.Surjective b) (H : MultiprojectiveHe
         P j = ∑ r ∈ R, a r • r) ∧
       ((Ideal.span (Set.range P)).map
         (algebraMap (MvPolynomial σ K) (Localization.AtPrime 𝔭))).height = k ∧
+      (∃ rs : List (Localization.AtPrime 𝔭), rs.length + k = t ∧
+        (∀ r ∈ rs, r ∈ IsLocalRing.maximalIdeal (Localization.AtPrime 𝔭)) ∧
+        RingTheory.Sequence.IsRegular (Localization.AtPrime 𝔭 ⧸ (Ideal.span (Set.range P)).map
+          (algebraMap (MvPolynomial σ K) (Localization.AtPrime 𝔭))) rs) ∧
       (hilbertPoly b (((Ideal.span (Set.range P)).map
         (algebraMap (MvPolynomial σ K) (Localization.AtPrime 𝔭))).comap
           (algebraMap (MvPolynomial σ K) (Localization.AtPrime 𝔭)))).totalDegree =
@@ -325,6 +331,9 @@ private theorem exists_chain (hb : Function.Surjective b) (H : MultiprojectiveHe
   have hI𝔭 : Ideal.span (R : Set (MvPolynomial σ K)) ≤ 𝔭 := h𝔭R.1.2
   have hmax : 𝔭.map φ = IsLocalRing.maximalIdeal A := Localization.AtPrime.map_eq_maximalIdeal
   have hcomax : (IsLocalRing.maximalIdeal A).comap φ = 𝔭 := Localization.AtPrime.under_maximalIdeal
+  have hdimA : ringKrullDim A = t := by
+    rw [IsLocalization.AtPrime.ringKrullDim_eq_height 𝔭 A, ht]
+    rfl
   have hn := degree_bottomType_add_card hb (σ := σ)
   have htn : t ≤ (bottomType b).degree := by
     obtain ⟨hd, -⟩ := totalDegree_hilbertPoly_add_height hb 𝔭 h𝔭 hne ht
@@ -337,8 +346,17 @@ private theorem exists_chain (hb : Function.Surjective b) (H : MultiprojectiveHe
         ⊥ := by
       simp only [Set.range_eq_empty, Ideal.span_empty, Ideal.map_bot,
         Ideal.comap_bot_of_injective _ hinj]
-    refine ⟨Fin.elim0, fun j ↦ j.elim0, ?_, ?_, fun β _ ↦ ?_, fun β hβ ↦ ?_⟩
+    refine ⟨Fin.elim0, fun j ↦ j.elim0, ?_, ?_, ?_, fun β _ ↦ ?_, fun β hβ ↦ ?_⟩
     · simp [Ideal.height_bot]
+    · obtain ⟨rs, hlen, hmem, hrs⟩ := IsRegularLocalRing.exists_isRegular (R := A)
+      refine ⟨rs, ?_, hmem, ?_⟩
+      · have h1 := (isRegularLocalRing_iff A).mp inferInstance
+        rw [hdimA] at h1
+        rw [hlen, add_zero]
+        exact_mod_cast h1
+      · rw [show (Ideal.span (Set.range (Fin.elim0 : Fin 0 → MvPolynomial σ K))).map φ = ⊥ by
+          simp]
+        exact (Submodule.quotEquivOfEqBot ⊥ rfl).isRegular_congr rs |>.mpr hrs
     · rw [hJ0, totalDegree_hilbertPoly_bot hb, Nat.sub_zero]
     · rw [hJ0]
       simp
@@ -346,7 +364,7 @@ private theorem exists_chain (hb : Function.Surjective b) (H : MultiprojectiveHe
       simp
   | succ k IH =>
   intro hk
-  obtain ⟨P, hPa, hht, hdeg, hbound, hheight⟩ := IH (by omega)
+  obtain ⟨P, hPa, hht, ⟨rs, hrslen, hrsmem, hrs⟩, hdeg, hbound, hheight⟩ := IH (by omega)
   clear IH
   have hPV : ∀ j, P j ∈ Submodule.span K (R : Set (MvPolynomial σ K)) := by
     intro j
@@ -366,10 +384,8 @@ private theorem exists_chain (hb : Function.Surjective b) (H : MultiprojectiveHe
   have h𝔞span : 𝔞 = Ideal.span (Set.range (φ ∘ P)) := by
     rw [Set.range_comp, ← Ideal.map_span]
   set S := associatedPrimes A (A ⧸ 𝔞)
-  have hSht : ∀ Q ∈ S, Q.height = k := by
-    have := hU k (φ ∘ P) (by rw [← h𝔞span]; exact hht)
-    rw [← h𝔞span] at this
-    exact this
+  have hSht : ∀ Q ∈ S, Q.height = k := fun Q hQ ↦
+    IsLocalRing.height_eq_of_mem_associatedPrimes hdimA hht hrslen hrsmem hrs hQ
   have havoid : ∀ Q ∈ S,
       ¬ (R : Set (MvPolynomial σ K)) ⊆ (Q.comap φ : Set (MvPolynomial σ K)) := by
     intro Q hQ hRQ
@@ -503,13 +519,31 @@ private theorem exists_chain (hb : Function.Surjective b) (H : MultiprojectiveHe
       have := Ideal.height_add_one_le_of_lt_of_isPrime hlt
       rw [hSht Q hQS] at this
       exact_mod_cast this
+  -- The depth of `A / 𝔞'` is one less.
+  obtain ⟨rs', hlen', hmem', hrs'⟩ : ∃ rs' : List A, rs'.length + (k + 1) = t ∧
+      (∀ r ∈ rs', r ∈ IsLocalRing.maximalIdeal A) ∧ RingTheory.Sequence.IsRegular (A ⧸ 𝔞') rs' := by
+    have h𝔞' : 𝔞' = 𝔞 ⊔ Ideal.span {φ p} := by
+      change L'.map φ = _
+      rw [hLL', Ideal.map_sup, Ideal.map_span, Set.image_singleton, sup_comm]
+    have hpm : φ p ∈ IsLocalRing.maximalIdeal A :=
+      hmax ▸ Ideal.mem_map_of_mem φ (hI𝔭 (hVI p hpV))
+    have hpreg : IsSMulRegular (A ⧸ 𝔞) (φ p) := by
+      intro v w hvw
+      rw [← sub_eq_zero]
+      by_contra hne
+      have hmem : φ p ∈ ⋃ Q ∈ S, (Q : Set A) := by
+        rw [biUnion_associatedPrimes_eq_zero_divisors]
+        exact ⟨v - w, hne, by simp only [smul_sub, hvw, sub_self]⟩
+      obtain ⟨Q, hQ, hpQ⟩ := Set.mem_iUnion₂.mp hmem
+      exact hpS Q hQ hpQ
+    obtain ⟨rs', hlen', hmem', hrs'⟩ := IsLocalRing.exists_isRegular_quotient_sup 𝔞
+      (n := rs.length - 1) (by omega) hrsmem hrs hpm hpreg
+    exact ⟨rs', by omega, hmem', h𝔞' ▸ hrs'⟩
   -- The exact dimension of `J_{k+1}`, from a component of height `k + 1`.
   have hdeg' : (hilbertPoly b J').totalDegree = (bottomType b).degree - (k + 1) := by
     refine le_antisymm (h2.trans (h1.trans (by omega))) ?_
-    have hSht' : ∀ Q ∈ associatedPrimes A (A ⧸ 𝔞'), Q.height = (k + 1 : ℕ) := by
-      have := hU (k + 1) (φ ∘ P') (by rw [← h𝔞'span]; exact hht')
-      rw [← h𝔞'span] at this
-      exact this
+    have hSht' : ∀ Q ∈ associatedPrimes A (A ⧸ 𝔞'), Q.height = (k + 1 : ℕ) := fun Q hQ ↦
+      IsLocalRing.height_eq_of_mem_associatedPrimes hdimA hht' hlen' hmem' hrs' hQ
     have : Nontrivial (A ⧸ 𝔞') := Ideal.Quotient.nontrivial_iff.mpr h𝔞'top
     obtain ⟨Q, hQ⟩ := associatedPrimes.nonempty A (A ⧸ 𝔞')
     obtain ⟨hmin, hQht⟩ := mem_minimalPrimes_comap_of_mem_associatedPrimes hSht' hQ
@@ -521,7 +555,7 @@ private theorem exists_chain (hb : Function.Surjective b) (H : MultiprojectiveHe
     obtain ⟨hd, -⟩ := totalDegree_hilbertPoly_add_height hb (Q.comap φ) h𝔮h h𝔮ne hQht
     have := totalDegree_hilbertPoly_le_of_le (L := Q.comap φ) hb hJ' h𝔮h hmin.1.2
     omega
-  refine ⟨P', fun j ↦ ?_, hht', hdeg', fun β hβ ↦ ?_, fun β hβ ↦ ?_⟩
+  refine ⟨P', fun j ↦ ?_, hht', ⟨rs', hlen', hmem', hrs'⟩, hdeg', fun β hβ ↦ ?_, fun β hβ ↦ ?_⟩
   · refine Fin.lastCases ?_ (fun i ↦ ?_) j
     · refine ⟨a', ?_, by simpa [P'] using hpa'⟩
       rw [ha'sum, Fin.val_last]
@@ -594,14 +628,14 @@ private theorem exists_chain (hb : Function.Surjective b) (H : MultiprojectiveHe
 /-- **The arithmetic excess Bézout inequality** (Rémond 2001, Prop. 3.2, height part, before the
 heights `h_m(P_j)` are estimated). Let `R` be a finite family of multihomogeneous polynomials of
 multidegree `e`, `𝔭` a multihomogeneous prime of positive-dimensional type, minimal over `(R)`,
-of height `t`, with `K[X]_𝔭` unmixed, and `H` a multiprojective height theory. Then there are
+of height `t`, and `H` a multiprojective height theory. Then there are
 `P_1, …, P_t`, natural combinations `P_{j+1} = ∑_r a_r r` with `∑_r a_r ≤ |e|^j`, such that
 `dim 𝔭 = |n| - t` and, for `|β| = dim 𝔭 + 1`,
 `ℓ(K[X]_𝔭/(P)_𝔭) · h_β(𝔭) ≤ ∑_f ∏_j e_{f j} h_{β + ∑ ε_{f j}}(ℙ)
   + (∑_j max(h_m(P_j), 0)) ∑_g ∏_j e_{g j} d_{β + ∑ ε_{g j}}(ℙ)`,
 with `f : Fin t → ι` and `g : Fin (t - 1) → ι`. -/
 theorem exists_localLength_mul_height_le (hb : Function.Surjective b)
-    (H : MultiprojectiveHeight b) (hU : IsUnmixedRing (Localization.AtPrime 𝔭))
+    (H : MultiprojectiveHeight b)
     (h𝔭 : 𝔭.IsWeightedHomogeneous (multiWeight b)) (hne : hilbertPoly b 𝔭 ≠ 0) {e : ι → ℕ}
     {R : Finset (MvPolynomial σ K)} (hR : ∀ r ∈ R, IsWeightedHomogeneous (multiWeight b) r e)
     (h𝔭R : 𝔭 ∈ (Ideal.span (R : Set (MvPolynomial σ K))).minimalPrimes) {t : ℕ}
@@ -617,7 +651,7 @@ theorem exists_localLength_mul_height_le (hb : Function.Surjective b)
               bezoutSum e (t - 1) (fun γ ↦ (multidegree b (⊥ : Ideal (MvPolynomial σ K)) γ : ℝ))
                 β := by
   classical
-  obtain ⟨P, hPa, hht, -, -, hheight⟩ := exists_chain hb H hU h𝔭 hne hR h𝔭R ht t le_rfl
+  obtain ⟨P, hPa, hht, -, -, -, hheight⟩ := exists_chain hb H h𝔭 hne hR h𝔭R ht t le_rfl
   set A := Localization.AtPrime 𝔭
   set φ := algebraMap (MvPolynomial σ K) A
   set L := Ideal.span (Set.range P)

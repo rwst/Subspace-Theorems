@@ -43,10 +43,10 @@ as one, and so re-runs Q0 with it.
 
 ## Implementation notes
 
-⚠ **The hypotheses are those of the Roth lemma, for every number of blocks.** The chain length
+⚠ **The height theory is that of the Roth lemma, for every number of blocks.** The chain length
 `m` is a function of `n`, the form count `s`, `ε` and `A`, so the results take a
-multiprojective height `H m` on `(ℙ¹)^m` and the Cohen–Macaulay hypothesis `hCM m` for every `m`,
-as Q1.4 and Q1.5 do for one. `h(ℙ¹)` enters as `(H (m + 1)).botBound 1`.
+multiprojective height `H m` on `(ℙ¹)^m` for every `m`, as Q1.4 and Q1.5 do for one. `h(ℙ¹)`
+enters as `(H (m + 1)).botBound 1`.
 
 ⚠ **The chain length is unchanged.** It comes from the auxiliary polynomial of Layer 5.2, not
 from the Roth lemma. What Evertse's lemma changes is the ratio of the chain and the height cost,
@@ -130,11 +130,9 @@ variable {K : Type*} [Field K] [NumberField K]
 /-- **Evertse's generalized Roth lemma** (Evertse 1996, Lemma 24;
 `MvPolynomial.formIndex_le_of_sq_lt_ratio`) as an input of Steps IV and VI, with the parameters
 `NumberField.RothParams.evertse` at `b m = h(ℙ¹)` for `m` blocks. It takes a multiprojective
-height `H m` on `(ℙ¹)^m` and the Cohen–Macaulay hypothesis for every `m`. -/
+height `H m` on `(ℙ¹)^m` for every `m`. -/
 noncomputable def SubspaceRoth.evertse
-    (H : ∀ m : ℕ, MultiprojectiveHeight (K := K) (Prod.fst : Fin m × Fin 2 → Fin m))
-    (hCM : ∀ (m : ℕ) (𝔭 : Ideal (MvPolynomial (Fin m × Fin 2) K)) [𝔭.IsPrime],
-      IsUnmixedRing (Localization.AtPrime 𝔭)) :
+    (H : ∀ m : ℕ, MultiprojectiveHeight (K := K) (Prod.fst : Fin m × Fin 2 → Fin m)) :
     SubspaceRoth.{u} K where
   toRothParams := RothParams.evertse fun m ↦ (H m).botBound 1
   formIndex_le := by
@@ -213,7 +211,7 @@ noncomputable def SubspaceRoth.evertse
       · refine lt_of_le_of_lt (le_of_eq ?_) hmul
         ring
       · ring
-    have h := formIndex_le_of_sq_lt_ratio (H (m + 1)) (hCM (m + 1)) hn hcard hd hanti hθ hratio'
+    have h := formIndex_le_of_sq_lt_ratio (H (m + 1)) hn hcard hd hanti hθ hratio'
       hP0 hP (fun _ ↦ le_rfl) hM hheight'
     exact h
 
@@ -422,8 +420,6 @@ theorem parametricThreshold_evertse_le {b : ℕ → ℝ} {β : ℝ} (hb : ∀ k,
 ratio `16 (m + 1) / η` in place of `4 (4 / η) ^ (2 ^ m)`. -/
 theorem exists_forall_mem_interval_approxSpan_evertse
     (H : ∀ m : ℕ, MultiprojectiveHeight (K := K) (Prod.fst : Fin m × Fin 2 → Fin m))
-    (hCM : ∀ (m : ℕ) (𝔭 : Ideal (MvPolynomial (Fin m × Fin 2) K)) [𝔭.IsPrime],
-      IsUnmixedRing (Localization.AtPrime 𝔭))
     {n : ℕ} (hn : 1 ≤ n) (hcard : Fintype.card ι = n + 1) {Sfin : Finset (FinitePlace K)}
     {L : AbsoluteValue K ℝ → ι → Dual K (ι → K)} {cf : AbsoluteValue K ℝ → ι → ℝ}
     (hLinf : ∀ w : InfinitePlace K, LinearIndependent K (L w.1))
@@ -441,7 +437,7 @@ theorem exists_forall_mem_interval_approxSpan_evertse
           ∃ i, t i ≤ Real.log Q ∧ Real.log Q
             < 16 * ((subspaceChainLength n s ε A : ℝ) + 1) / subspaceEta n ε A * t i := by
   obtain ⟨𝒲, Q₀, h1, h2, h3, h4, h5⟩ := exists_forall_mem_interval_approxSpan
-    (SubspaceRoth.evertse.{u} H hCM) hn hcard hLinf hLfin hε hweight hA hs
+    (SubspaceRoth.evertse.{u} H) hn hcard hLinf hLfin hε hweight hA hs
   refine ⟨𝒲, Q₀, h1, h2, h3, h4, fun Q₀' hQ₀' ↦ ?_⟩
   obtain ⟨k, hk, t, ht, h⟩ := h5 Q₀' hQ₀'
   refine ⟨k, hk, t, ht, fun Q hQ1 hQ hrank hnot ↦ ?_⟩
@@ -457,8 +453,6 @@ count (`NumberField.exists_finset_submodule_of_isNormalizedSystem`) run with
 theorem exists_finset_submodule_of_isNormalizedSystem_evertse {E : Type*} [Field E]
     [NumberField E] [Algebra K E] [IsGalois K E]
     (H : ∀ m : ℕ, MultiprojectiveHeight (K := E) (Prod.fst : Fin m × Fin 2 → Fin m))
-    (hCM : ∀ (m : ℕ) (𝔭 : Ideal (MvPolynomial (Fin m × Fin 2) E)) [𝔭.IsPrime],
-      IsUnmixedRing (Localization.AtPrime 𝔭))
     (S : Finset (HeightOneSpectrum (𝓞 K))) (w : AbsoluteValue K ℝ → AbsoluteValue E ℝ)
     (hwInf : ∀ v : InfinitePlace K, (w v.1).LiesOver v.1)
     (hwFin : ∀ v ∈ S, (w (FinitePlace.mk v).1).LiesOver (FinitePlace.mk v).1)
@@ -474,7 +468,7 @@ theorem exists_finset_submodule_of_isNormalizedSystem_evertse {E : Type*} [Field
         systemLargeCount (RothParams.evertse fun m ↦ (H m).botBound 1) (Fintype.card ι)
           (finrank ℚ E) (finrank K E) R δ ∧
       (∀ U ∈ T, U ≠ ⊤) ∧ ∀ x ∈ systemSet S w L C c, ∃ U ∈ T, x ∈ U :=
-  exists_finset_submodule_of_isNormalizedSystem (SubspaceRoth.evertse.{u} H hCM) S w hwInf hwFin
+  exists_finset_submodule_of_isNormalizedSystem (SubspaceRoth.evertse.{u} H) S w hwInf hwFin
     hN
 
 end NumberField

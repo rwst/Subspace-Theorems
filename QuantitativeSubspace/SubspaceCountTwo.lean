@@ -451,8 +451,6 @@ lemma** (Q1.6, Bugeaud–Evertse's case):
 `NumberField.systemLargeCountTwo_evertse_le`. -/
 theorem exists_finset_submodule_of_isNormalizedSystem_two_evertse
     (Hm : ∀ m : ℕ, MultiprojectiveHeight (K := E) (Prod.fst : Fin m × Fin 2 → Fin m))
-    (hCM : ∀ (m : ℕ) (𝔭 : Ideal (MvPolynomial (Fin m × Fin 2) E)) [𝔭.IsPrime],
-      IsUnmixedRing (Localization.AtPrime 𝔭))
     (hcard : Fintype.card ι = 2)
     (S : Finset (HeightOneSpectrum (𝓞 K))) (w : AbsoluteValue K ℝ → AbsoluteValue E ℝ)
     (hwInf : ∀ v : InfinitePlace K, (w v.1).LiesOver v.1)
@@ -469,7 +467,7 @@ theorem exists_finset_submodule_of_isNormalizedSystem_two_evertse
         systemLargeCountTwo (RothParams.evertse fun m ↦ (Hm m).botBound 1) (finrank K E)
           (R * finrank K E) δ ∧
       (∀ U ∈ T, U ≠ ⊤) ∧ ∀ x ∈ systemSet S w L C c, ∃ U ∈ T, x ∈ U :=
-  exists_finset_submodule_of_isNormalizedSystem_two (SubspaceRoth.evertse.{u} Hm hCM) hcard S w
+  exists_finset_submodule_of_isNormalizedSystem_two (SubspaceRoth.evertse.{u} Hm) hcard S w
     hwInf hwFin hN
 
 end System

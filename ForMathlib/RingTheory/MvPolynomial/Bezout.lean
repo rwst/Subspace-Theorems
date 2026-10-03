@@ -29,8 +29,8 @@ otherwise (`MvPolynomial.multidegree_bot`). Combined with the associativity form
 
 The hypothesis of regularity is what makes the lengths exact. Evertse's Lemma 4 (Acta Arith. 73
 (1995)) is an inequality for arbitrary systems of equations, counting only the components of the
-expected codimension; it needs in addition the unmixedness of complete intersections in `K[X]`
-(Cohen–Macaulay), and is in `ForMathlib.RingTheory.MvPolynomial.ExcessBezout`.
+expected codimension; it needs in addition that the local rings of `K[X]` are Cohen–Macaulay, and
+is in `ForMathlib.RingTheory.MvPolynomial.ExcessBezout`.
 
 ## Main definitions
 

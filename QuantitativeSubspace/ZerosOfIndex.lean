@@ -37,9 +37,6 @@ is a minimal prime of `indexIdeal b δ P a`, and lies in `Z_{a+ε}(P)` when it c
   The proof is the usual descent along `Z_0 ⊇ Z_{ε/N} ⊇ ⋯ ⊇ Z_ε`: the heights of the components
   through `W` can only increase `N` times.
 
-The vanishing hypothesis `IsUnmixedRing (Localization.AtPrime 𝔭)` is the Cohen–Macaulay property
-of `K[X]`, which the Bézout side (`ForMathlib`, Q1.1d(iv)) still assumes.
-
 This completes the geometric part of Layer Q1.2 of the `QuantitativeSubspace` roadmap; the
 height bounds of Rémond's Thm. 1.1 and Cor. 1.1 are Layer Q1.3
 (`QuantitativeSubspace.ZerosOfIndexHeight`). The descent of Cor. 1.1 is shared by both:
@@ -172,7 +169,7 @@ degree bound of `MvPolynomial.productTheorem` holds: `ε^t d_β(𝔭) ≤ c!/∏
 `β_i = dim Z_i`. -/
 theorem productTheorem_indexIdeal [CharZero K] (hb : Function.Surjective b) (hδ : ∀ i, 0 < δ i)
     (hP : IsWeightedHomogeneous (multiWeight b) P δ) {a ε : ℝ} (hε : 0 < ε)
-    {𝔭 : Ideal (MvPolynomial σ K)} [𝔭.IsPrime] (hU : IsUnmixedRing (Localization.AtPrime 𝔭))
+    {𝔭 : Ideal (MvPolynomial σ K)} [𝔭.IsPrime]
     (h𝔭a : 𝔭 ∈ (indexIdeal b δ P a).minimalPrimes) (h𝔭ε : indexIdeal b δ P (a + ε) ≤ 𝔭)
     (hne : hilbertPoly b 𝔭 ≠ 0) {t : ℕ} (ht : 𝔭.height = t) (hanti : Antitone δ)
     (hratio : ∀ i j : Fin m, (i : ℕ) + 1 = j → (m : ℝ) ^ t < ε ^ t * (δ i / δ j)) :
@@ -217,7 +214,7 @@ theorem productTheorem_indexIdeal [CharZero K] (hb : Function.Surjective b) (hδ
     refine nsmul_mem (h𝔭ε (hasseDeriv_mem_indexIdeal ?_)) _
     rw [map_add]
     linarith
-  exact productTheorem hb hU hR h𝔭R h𝔭 hne ht hδ hε hRR' hI hanti hratio
+  exact productTheorem hb hR h𝔭R h𝔭 hne ht hδ hε hRR' hI hanti hratio
 
 /-- **The descent along `Z_0 ⊇ Z_{ε'} ⊇ ⋯`.** A multihomogeneous prime `𝔮` with `H_𝔮 ≠ 0`,
 containing `indexIdeal b δ P (k ε')` and of height `≤ k`, contains a multihomogeneous prime `𝔭`
@@ -332,7 +329,6 @@ Evertse 1995, Corollary). Let `P ≠ 0` be multihomogeneous of multidegree `δ`,
 with `(ε/N)^t d_β(𝔭) ≤ c!/∏ c_i! ≤ m^t` for `β_i = dim Z_i`. -/
 theorem exists_productTheorem_indexIdeal [CharZero K] (hb : Function.Surjective b)
     (hδ : ∀ i, 0 < δ i) (hP : IsWeightedHomogeneous (multiWeight b) P δ) (hP0 : P ≠ 0)
-    (hCM : ∀ (𝔭 : Ideal (MvPolynomial σ K)) [𝔭.IsPrime], IsUnmixedRing (Localization.AtPrime 𝔭))
     (hanti : Antitone δ) {N : ℕ} (hN : N + m = Nat.card σ) {ε : ℝ} (hε : 0 < ε)
     (hratio : ∀ i j : Fin m, (i : ℕ) + 1 = j → max 1 ((m * N / ε) ^ N) < δ i / δ j)
     {𝔮 : Ideal (MvPolynomial σ K)} [𝔮.IsPrime] (h𝔮 : 𝔮.IsWeightedHomogeneous (multiWeight b))
@@ -351,7 +347,7 @@ theorem exists_productTheorem_indexIdeal [CharZero K] (hb : Function.Surjective 
   obtain ⟨𝔭, h𝔭p, h𝔭𝔮, hne𝔭, hP𝔭, j, h𝔭min, h𝔭next, hε', t, ht, hratio'⟩ :=
     exists_component_indexIdeal hb hP hP0 hN hε hratio h𝔮 hne h𝔮ε
   obtain ⟨hmin, β, hβ, hpos, hdeg, hcardF⟩ :=
-    productTheorem_indexIdeal hb hδ hP hε' (hCM 𝔭) h𝔭min h𝔭next hne𝔭 ht hanti hratio'
+    productTheorem_indexIdeal hb hδ hP hε' h𝔭min h𝔭next hne𝔭 ht hanti hratio'
   exact ⟨𝔭, h𝔭p, h𝔭𝔮, span_traces_ne_bot hP0 hP𝔭 hmin, hmin, t, ht, β, hβ, hpos, hdeg, hcardF⟩
 
 end Product

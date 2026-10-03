@@ -182,7 +182,7 @@ multidegree `δ`. -/
 theorem productTheorem_indexIdeal_height [Fintype σ] [CharZero K] [Height.AdmissibleAbsValues K]
     (hb : Function.Surjective b) (H : MultiprojectiveHeight b) (hδ : ∀ i, 0 < δ i)
     (hP : IsWeightedHomogeneous (multiWeight b) P δ) {a ε : ℝ} (hε : 0 < ε)
-    {𝔭 : Ideal (MvPolynomial σ K)} [𝔭.IsPrime] (hU : IsUnmixedRing (Localization.AtPrime 𝔭))
+    {𝔭 : Ideal (MvPolynomial σ K)} [𝔭.IsPrime]
     (h𝔭a : 𝔭 ∈ (indexIdeal b δ P a).minimalPrimes) (h𝔭ε : indexIdeal b δ P (a + ε) ≤ 𝔭)
     (hne : hilbertPoly b 𝔭 ≠ 0) {t : ℕ} (ht : 𝔭.height = t) (hanti : Antitone δ)
     (hratio : ∀ i j : Fin m, (i : ℕ) + 1 = j → (m : ℝ) ^ t < ε ^ t * (δ i / δ j)) :
@@ -209,7 +209,7 @@ theorem productTheorem_indexIdeal_height [Fintype σ] [CharZero K] [Height.Admis
   obtain ⟨R, R', hR, h𝔭R, hRR', hI, hM, hh⟩ := exists_finset_indexIdeal hb hP h𝔭a h𝔭ε hne
   have h𝔭 : 𝔭.IsWeightedHomogeneous (multiWeight b) :=
     (isWeightedHomogeneous_indexIdeal hP a).of_mem_minimalPrimes h𝔭a
-  obtain ⟨hmin, β, hrk, hpos, hle, hcount, hheight⟩ := productTheorem_height_coeff hb H hU hR
+  obtain ⟨hmin, β, hrk, hpos, hle, hcount, hheight⟩ := productTheorem_height_coeff hb H hR
     h𝔭R h𝔭 hne ht hδ hε hRR' hI hanti hratio hM
   refine ⟨hmin, β, hrk, hpos, hle, hcount, fun k hk ↦ (hheight k hk).trans ?_⟩
   -- Rémond's Lemma 5.2: `log c(δ)^{1/2} ≤ |√n|`.
@@ -227,7 +227,6 @@ bound of `MvPolynomial.productTheorem_indexIdeal_height` at `ε / N`. -/
 theorem exists_productTheorem_indexIdeal_height [Fintype σ] [CharZero K]
     [Height.AdmissibleAbsValues K] (hb : Function.Surjective b) (H : MultiprojectiveHeight b)
     (hδ : ∀ i, 0 < δ i) (hP : IsWeightedHomogeneous (multiWeight b) P δ) (hP0 : P ≠ 0)
-    (hCM : ∀ (𝔭 : Ideal (MvPolynomial σ K)) [𝔭.IsPrime], IsUnmixedRing (Localization.AtPrime 𝔭))
     (hanti : Antitone δ) {N : ℕ} (hN : N + m = Nat.card σ) {ε : ℝ} (hε : 0 < ε)
     (hratio : ∀ i j : Fin m, (i : ℕ) + 1 = j → max 1 ((m * N / ε) ^ N) < δ i / δ j)
     {𝔮 : Ideal (MvPolynomial σ K)} [𝔮.IsPrime] (h𝔮 : 𝔮.IsWeightedHomogeneous (multiWeight b))
@@ -257,7 +256,7 @@ theorem exists_productTheorem_indexIdeal_height [Fintype σ] [CharZero K]
   obtain ⟨𝔭, h𝔭p, h𝔭𝔮, hne𝔭, hP𝔭, j, h𝔭min, h𝔭next, hε', t, ht, hratio'⟩ :=
     exists_component_indexIdeal hb hP hP0 hN hε hratio h𝔮 hne h𝔮ε
   obtain ⟨hmin, β, hβ, hpos, hdeg, hcardF, hheight⟩ := productTheorem_indexIdeal_height hb H hδ
-    hP hε' (hCM 𝔭) h𝔭min h𝔭next hne𝔭 ht hanti hratio'
+    hP hε' h𝔭min h𝔭next hne𝔭 ht hanti hratio'
   exact ⟨𝔭, h𝔭p, h𝔭𝔮, span_traces_ne_bot hP0 hP𝔭 hmin, hmin, t, ht, β, hβ, hpos, hdeg, hcardF,
     hheight⟩
 

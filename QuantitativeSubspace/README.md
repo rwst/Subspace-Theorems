@@ -42,7 +42,7 @@ with its own record holder. The summit of this roadmap is the conjunction of the
 
 | Axis | Best known | Status in this repo |
 |---|---|---|
-| Number of subspaces containing the **large** solutions, linear forms, number field `K` | Evertse–Ferretti 2013: `10^9 · 2^{2n} · n^{14} · δ^{-3} · log(3δ^{-1}RD) · log(δ^{-1} log 3RD)` (as stated in Evertse 2010, Thm 2.1) | Q0 landed at Schmidt's parameters (Q0.3). Q1 started: the multigraded Hilbert polynomial and its degrees (Q1.1a–d, the excess Bézout inequality modulo Cohen–Macaulay) and the multiplicity estimate against degree (Q1.1e, with the transversal equations and the positivity of the degree in characteristic `0`, i.e. Rémond 2001 Prop. 2.1 modulo unmixedness) are in `ForMathlib`. Q1.2, the geometric product theorem with its degree bound and corollary (Rémond 2001 Thm 1.1 and Cor. 1.1, i.e. Ev95 Thm 1 and Corollary with better constants), is in `QuantitativeSubspace/`, modulo the same unmixedness. DA 9.4 turns any *interval result* into this kind of count. DA 6.1 now has one with explicit counts and ratio (Q0.2d), and its threshold `Q₀` is at most `a · (formLogHeight + log |D_K| + ∑ log N(v) + 1)` with `a` explicit in `N`, `d`, `|S|`, `ε` and `A` (Q0.2e, `parametricThreshold_le`). Q0.3 feeds it to 9.4: the solutions of a normalized system above `X₀`, linear in `log H`, lie in a number of subspaces depending on `n`, `δ`, the degrees, the number of places and `|S|` alone; all solutions in that plus `O(log X₀)` plus 9.3's count (`exists_finset_submodule_of_isNormalizedSystem`). With Evertse's Roth lemma (Q1.6), Ev96's grids and exceptional subspaces (Q1.7), one scalar for the constants (Q1.8a) the auxiliary polynomial built from the distinct forms (Q1.8b) and the minima at one place (Q1.8c) that count is `Z ^ (2 n + 14) ℓ (1 + log ℓ)`, `Z = 2 ^ (n + 11) n ^ 6 [E : ℚ] / δ`, `ℓ = 1 + log (2 ^ (n + 1) s ^ n)` with `s = R [E : K]` for `R` distinct forms: polynomial in `δ⁻¹` and in `[E : ℚ]`, singly exponential in `n`, independent of the number of places of the system and of `|S|`. ES02's shape, up to `[E : ℚ] ^ (2 n + 14)`, and to `Z ^ (2 n)` against ES02's `4 ^ (n²) δ ^ (-n)`. |
+| Number of subspaces containing the **large** solutions, linear forms, number field `K` | Evertse–Ferretti 2013: `10^9 · 2^{2n} · n^{14} · δ^{-3} · log(3δ^{-1}RD) · log(δ^{-1} log 3RD)` (as stated in Evertse 2010, Thm 2.1) | Q0 landed at Schmidt's parameters (Q0.3). Q1 started: the multigraded Hilbert polynomial and its degrees (Q1.1a–d, the excess Bézout inequality modulo Cohen–Macaulay) and the multiplicity estimate against degree (Q1.1e, with the transversal equations and the positivity of the degree in characteristic `0`, i.e. Rémond 2001 Prop. 2.1) are in `ForMathlib`. Q1.2, the geometric product theorem with its degree bound and corollary (Rémond 2001 Thm 1.1 and Cor. 1.1, i.e. Ev95 Thm 1 and Corollary with better constants), is in `QuantitativeSubspace/`, unconditionally since the Cohen–Macaulay property of `K[X]_𝔭` was proved (2026-10-02). DA 9.4 turns any *interval result* into this kind of count. DA 6.1 now has one with explicit counts and ratio (Q0.2d), and its threshold `Q₀` is at most `a · (formLogHeight + log |D_K| + ∑ log N(v) + 1)` with `a` explicit in `N`, `d`, `|S|`, `ε` and `A` (Q0.2e, `parametricThreshold_le`). Q0.3 feeds it to 9.4: the solutions of a normalized system above `X₀`, linear in `log H`, lie in a number of subspaces depending on `n`, `δ`, the degrees, the number of places and `|S|` alone; all solutions in that plus `O(log X₀)` plus 9.3's count (`exists_finset_submodule_of_isNormalizedSystem`). With Evertse's Roth lemma (Q1.6), Ev96's grids and exceptional subspaces (Q1.7), one scalar for the constants (Q1.8a) the auxiliary polynomial built from the distinct forms (Q1.8b) and the minima at one place (Q1.8c) that count is `c ^ (n + 7) Z ^ (n + 3) ℓ (1 + log (ℓ Z))`, `c = 2 ^ (n + 11) n ^ 6`, `Z = c / δ` (free of the degree since Q1.9a), `ℓ = 1 + log (2 ^ (n + 1) s ^ n)` with `s = R [E : K]` for `R` distinct forms: polynomial in `δ⁻¹`, singly exponential in `n`, independent of the degrees, of the number of places of the system and of `|S|`. ES02's shape: `δ ^ (-n - 3) log δ⁻¹` against ES02's `δ ^ (-n - 4)` (Q1.9b), and `c ^ (2 n + 10)` against `4 ^ ((n + 8)²)`. |
 | Number of subspaces containing the **small** solutions | Evertse 2010, Thm 2.2: `δ^{-1}((10^3 n)^{nd} + 4n log log 4H)`; over `ℚ`, `δ^{-1}(10^{3n} + 4n log log 4H)` | **Landed**, DA 9.3. |
 | **Absolute** form: points in `ℚ̄ⁿ`, count independent of the field | Evertse–Schlickewei 2002 (parametric, twisted heights), sharpened by Evertse–Ferretti 2013 | Not started. |
 | `n = 2`: **quantitative Roth / Ridout** | Bugeaud–Evertse 2008, Appendix (improving Davenport–Roth 1955, Bombieri–van der Poorten 1988, Evertse 1996/97) | Davenport–Roth-strength count landed, DA 3.7. Bugeaud–Evertse's `δ⁻³ log · log` shape landed for systems in two variables (Q1.6, `systemLargeCountTwo_evertse_le`), with extra factors `t⁴` and the grid count. |
@@ -422,7 +422,7 @@ Two consequences for the plan:
       filtration only in the factors `𝔮_k = 𝔭`, and the length at `𝔭` counts them. The sum is over
       primes of maximal *dimension* (`deg H`); since the Krull dimension is not formalized, their
       minimality over `I` is not stated.
-    - (iv) Bézout and products. ✅ (2026-09-30), the excess form modulo unmixedness of `B_𝔭`.
+    - (iv) Bézout and products. ✅ (2026-09-30; the excess form unconditional since 2026-10-02).
       - ✅ **Sections by nonzerodivisors** (`MultiprojectiveDegree.lean`): Lemma 1(iv) holds for
         any multihomogeneous `J` and `g` with `(J : g) = J`
         (`multidegree_sup_span_singleton_of_colon_eq`, with the exact dimension drop); the prime
@@ -441,8 +441,8 @@ Two consequences for the plan:
         (`hilbertFunction_prodIdeal`), by linear algebra in each degree: complements of `(I_i)_{d_i}`
         for `≤`, and the map `K[X, Y] → K[X]/I₁ ⊗ K[Y]/I₂` for `≥`. Hence `H = H₁ H₂`,
         dimensions add, and `d_{(α₁, α₂)} = d_{α₁}(I₁) d_{α₂}(I₂)` (`multidegree_prodIdeal`).
-      - ✅ **The excess form, Ev95 Lemma 4 / Rémond 2001 Prop. 3.2 (degree part), modulo
-        unmixedness** (`ForMathlib/RingTheory/MvPolynomial/ExcessBezout.lean`). For `I` generated
+      - ✅ **The excess form, Ev95 Lemma 4 / Rémond 2001 Prop. 3.2 (degree part)**
+        (`ForMathlib/RingTheory/MvPolynomial/ExcessBezout.lean`). For `I` generated
         by a set `R` of multihomogeneous polynomials of multidegree `e`, and a multihomogeneous
         prime `𝔭` minimal over `I` with `H_𝔭 ≠ 0` and `ht 𝔭 = t`:
         `ℓ(B_𝔭/I_𝔭) · d_β(𝔭) ≤ ∑_{f : β + ∑ ε_{f j} = n} ∏ j, e (f j)` for `|β| ≥ |n| - t`, and
@@ -454,16 +454,20 @@ Two consequences for the plan:
         (`isWeightedHomogeneous_of_mem_associatedPrimes`), and degrees are monotone in the ideal
         (`multidegree_le_of_le` in `Associativity.lean`). `K` must be infinite, for prime
         avoidance in a vector space.
-        - ⚠ **Hypothesis: `IsUnmixedRing (Localization.AtPrime 𝔭)`**, Macaulay's unmixedness
-          (an ideal of height `k` generated by `k` elements has only associated primes of height
-          `k`). It holds because `B_𝔭` is regular, hence Cohen–Macaulay (Matsumura Thm. 17.6),
-          and it cannot be dropped: `J = (x², xy)`, `g = y` gives `ℓ = 2 > 1`. Mathlib has
-          regular local rings, `MvPolynomial` over a field as a regular ring, and Rees's theorem on
-          depth, but not "regular ⇒ Cohen–Macaulay ⇒ unmixed". That is formalized in N. Guan et
-          al., *Formalization of Auslander–Buchsbaum–Serre criterion in Lean4* (arXiv:2510.24818),
-          and is being upstreamed; the hypothesis is to be discharged from there. Proving it here
-          would need regular ⇒ domain, a regular sequence of length `dim`, and depth of a quotient
-          by a nonzerodivisor (via Rees).
+        - ✅ **The Cohen–Macaulay input, proved** (2026-10-02,
+          `ForMathlib/RingTheory/RegularLocalRing/RegularSequence.lean`). Until then the excess
+          form and everything after it assumed Macaulay's unmixedness of `B_𝔭`
+          (`IsUnmixedRing`, now deleted); it cannot be dropped for arbitrary rings:
+          `J = (x², xy)`, `g = y` gives `ℓ = 2 > 1`. Mathlib has `B_𝔭` regular local and the Rees
+          theorem; added: regular local rings are domains and a regular system of parameters is a
+          regular sequence (Matsumura 14.3), the depth of `M / x M` is one less
+          (`exists_isRegular_quotSMulTop`, from Rees), `dim R/Q ≥ depth M` for `Q ∈ Ass M`
+          (Matsumura 17.2) and `ht Q + dim R/Q ≤ dim R`. The chain `P_1, …, P_t` now carries a
+          regular sequence of length `t - k` on `B_𝔭/(P_1, …, P_k)`: so the maximal ideal is not
+          associated for `k < t` (all `ExcessBezout.lean` needs), and every associated prime has
+          height `k` (`height_eq_of_mem_associatedPrimes`, which Rémond's count of the associated
+          primes in `ArithmeticBezout.lean` needs). Full unmixedness, for every ideal of height `k`
+          generated by `k` elements, is not needed and not proved.
         - No dimension–height link is needed: dimension stays `deg H`, and height enters only
           through `B_𝔭`.
   - **Q1.1e** Multiplicities, projections and Ev95 Lemma 3 (Rémond LNM Ch. 5 Thm 2.10(3)). The
@@ -536,15 +540,15 @@ Two consequences for the plan:
       (`not_isAlgebraic_of_isWeightedHomogeneous`,
       `exists_transversal_fin_of_hilbertPoly_ne_zero`). Together:
       **`prod_pow_mul_pow_le`** (in `TaylorAtPrimeHasse.lean`), Rémond 2001 Prop. 2.1 (degree
-      part) in characteristic `0`, modulo the unmixedness of `B_𝔭`: under Rémond's
+      part) in characteristic `0`: under Rémond's
       Hasse-derivative hypothesis, `ε^t ∏_i δ_i^{c_i} ≤ ∑_{f : β + ∑ ε_{f j} = n} ∏ e(f j)` with
       `β` the type of `T` and `c_i = |block i \ T|`. Rémond writes the exponent as
       `ht 𝔭_i - ht 𝔭_{i+1}` (traces on the last factors); `c_i` is that number by adaptedness
       and `height_add_trdeg` on each `B_i`, which nothing downstream needs as long as the
       exponents are kept in the form `c_i`.
-    - Open: only the unmixedness hypothesis (Q1.1d(iv)).
+    - Open: nothing (the unmixedness hypothesis of Q1.1d(iv) was discharged 2026-10-02).
 - **Q1.2** Ev95 Thm 1 and its Corollary, the geometric product theorem with explicit constants.
-  - ✅ **Done, modulo the unmixedness of `B_𝔭`** (Q1.1d(iv)). This is the geometric part of
+  - ✅ **Done** (unconditional since 2026-10-02, Q1.1d(iv)). This is the geometric part of
     Rémond 2001 Thm 1.1 and Cor. 1.1, which is Ev95 Thm 1 and its Corollary with better constants.
     Everything is in `QuantitativeSubspace/`, the first files of this library.
     - `productTheorem` (`ProductTheorem.lean`). Let `𝔭` be minimal over generators of
@@ -582,8 +586,7 @@ Two consequences for the plan:
   - ✅ **Interface route, chosen 2026-10-01.** The height bounds use only the interface
     `MultiprojectiveHeight b`; a variant of Rémond's heights `h_β(V)` (LNM 1752 Ch. 7)
     instantiates it (below). `MultiprojectiveHeight b` (`MultiprojectiveHeight.lean`) is a structure
-    whose fields are the properties §5 of Rémond 2001 uses, like the unmixedness hypothesis of
-    Q1.1–Q1.2:
+    whose fields are the properties §5 of Rémond 2001 uses:
     - `height_nonneg` (Ch. 7 Prop. 2.5 with Bost–Gillet–Soulé Prop. 3.2.4). (?) Check this
       citation.
     - `height_bot_single_le`, `height_bot_of_ne`: the heights of `ℙ` are at most
@@ -644,7 +647,7 @@ Two consequences for the plan:
     nonnegativity gives the bound (`ForMathlib/NumberTheory/Height/PointHeight.lean`).
 - **Q1.4** Ev95 Thm 2 and Thm 3, the improved Roth lemma on `(ℙ¹)^m`.
   - ✅ Thm 3, Roth's lemma (`exists_mul_logHeight_le`, `RothLemma.lean`, 2026-10-01), for every
-    `MultiprojectiveHeight`, modulo unmixedness as in Q1.2. If `δ_i / δ_{i+1} > m²/ε` and `F`
+    `MultiprojectiveHeight`. If `δ_i / δ_{i+1} > m²/ε` and `F`
     vanishes to index `ε` at `P ∈ (ℙ¹(K))^m`, then some `k` has
     `δ_k h(P_k) ≤ max(1, m²/ε)^m ([K : ℚ] h(ℙ¹) |δ| + m (h(F) + [K : ℚ] (|δ| log 2 +
     m log |δ| + m)))`.
@@ -687,7 +690,8 @@ Two consequences for the plan:
     `F = n max(1, 2 (m + 1) / η) ^ (m + 1) (m + 1)`, `g = max(h(ℙ¹), 0) + m + 2`. Corollaries:
     5.6 as an interval result (`exists_forall_mem_interval_approxSpan_evertse`) and Q0.3's count
     (`exists_finset_submodule_of_isNormalizedSystem_evertse`). They take a `MultiprojectiveHeight`
-    on `(ℙ¹)^m` and the Cohen–Macaulay hypothesis for every `m`, as Q1.4 does for one.
+    on `(ℙ¹)^m` for every `m`, as Q1.4 does for one (until 2026-10-02 also a Cohen–Macaulay
+    hypothesis for every `m`).
   - ✅ Closed forms (2026-10-02). With `X = 1 + 8 (n + 1) ^ 2 (A + 1) / ε ≥ η⁻¹` and
     `T = 2 (1 + log (2 (n + 1) s)) X ^ 2 ≥ m + 1` (`inv_subspaceEta_le`,
     `subspaceChainLength_add_one_le`):
@@ -902,6 +906,63 @@ Two consequences for the plan:
   against ES02's `4 ^ ((n + 8) ^ 2) δ ^ (-n - 4) log 2r log log 2r`: the same shape in `n`
   (`Z ^ (2 n)` carries `2 ^ (2 n²)`) and `log s`, with `δ ^ (-2 n - 14)` against `δ ^ (-n - 4)`
   and an extra `d ^ (2 n + 14)`. Thresholds gain `N log unitConst` and stay linear in `log H`.
+- ✅ **Q1.9** The degree and `δ` (planned 2026-10-02, done 2026-10-03). Two gaps to ES02's parametric count that are
+  bookkeeping in the present framework (Schmidt's polynomial, Evertse's Roth lemma), of the kind
+  of Q1.7–Q1.8. The gap `Z ^ (2 n) ↔ 4 ^ (n²)` is not one of them: it is Ev10 § 6's, and Q2–Q4's.
+  - ✅ **Q1.9a `d` out of `Z`.** **Done** (2026-10-03): `Z = 2 ^ (n + 11) n ^ 6 / δ`, no degree.
+    Listing each `d` back to its lemma: every one sat in `(d + N (N + 2) (A + 1)) / ε` (the box
+    `parametricBox_arg_eq`, the absolute weight `parametricWedgeAbsWeight_le`, and through it
+    `η⁻¹`, the chain and the ratio), with `ε = systemEps e δ = [E : K] δ / 4` and
+    `A = systemAbsBound e n = [E : K] (2 n + 2)`. Two parts:
+    - `N (N + 2) (A + 1) / ε`: the minima, `B = N (A + 1) / d` rounded at the mesh `γ ∝ ε / d`, so
+      `d` cancels, and `A ∝ [E : K]` cancels against `ε` (`systemCoeff_div_le`).
+    - `d / ε`: the `1` in the box `(1 + B N + 2 B) / γ`, i.e. the range `|log_Q C| ≤ 1` of the
+      constant at each infinite place, rounded at the per-place mesh `γ ∝ ε / d`. A coarser mesh
+      for the constant does not help: its cost in the weight is per place either way. Instead
+      Layer 6.1's threshold keeps `|log_Q C| ≤ B` like the minima: `parametricStepThreshold` takes
+      `log C / B` in place of `log C` (`hQC : C ≤ Q ^ B` in
+      `exists_forall_mem_interval_approxSpan_le`), the box is
+      `⌈(B + B N + 2 B) / γ⌉ = ⌈4 N ^ 3 binom(N, p) (N + 2) (N + 3) (A + 1) / ε⌉`, and
+      `A_p ≤ binom(N, p) (A + N (N + 3) (A + 1)) + ε` (`abs_ceil_add_abs_sum_ceil_le` takes any
+      range `X` for the constant). The price is in the threshold: `parametricStepCoeff` has
+      `pluckerAtCoeff d N / B` for `pluckerAtCoeff d N`; for a system
+      `1 / B = [E : ℚ] / (n (A + 1)) ≤ [K : ℚ] / (2 n²)`, so the Plücker term of the threshold is
+      multiplied by at most `[K : ℚ]`. ES02 (Lemma 15.1) normalize the absolute values, so their
+      constants carry the `1 / [E : ℚ]` that this threshold supplies.
+    The count lemmas of `SubspaceCountBound.lean` take `1 ≤ d` in place of `e ≤ d`;
+    `evertseCountBase n δ` lost its degree argument. `[E : K]` is left only in `ℓ`, through
+    `s = R [E : K]`, as ES02's `r`.
+  - ✅ **Q1.9b `δ ^ (-2 n - 14)` toward `δ ^ (-n - 4)`.** **Done** (2026-10-03):
+    `systemLargeCount ≤ c ^ (n + 7) Z ^ (n + 3) ℓ (1 + log (ℓ Z))` with
+    `c = evertseCountConst n = 2 ^ (n + 11) n ^ 6` and `Z = c / δ`, i.e.
+    `2 ^ (O(n²)) δ ^ (-n - 3) ℓ log (ℓ / δ)`. Two steps:
+    - (i) Bookkeeping. Most of `2 n + 14` came from bounding factors free of `δ` by powers of
+      `Z` (`n! ≤ Z ^ n`, `binom(n, p) ^ 3 ≤ Z ^ 3` in `η⁻¹`, `log ρ ≤ 14 Z`). Bounding them by
+      `c` instead: `η⁻¹ ≤ c ^ 3 Z`, chain lengths `2 ℓ c ^ 6 Z ^ 2` (`δ ^ (-2)`, ES02's (16.2)),
+      ratio `ρ ≤ 32 ℓ c ^ 10 Z ^ 3`, so `1 + log ρ / log (1 + δ / (2 n)) ≤ Z (1 + log (ℓ Z))`
+      (`δ⁻¹ log δ⁻¹`).
+    - (ii) The grids. They rounded `N + 2` numbers, the `N` minima, the constant `log_Q C` and
+      the jump `log_Q (μ (k - 1) / μ k)`, each in the box: `N! (2 m + 1) ^ (N + 2)`, so
+      `δ ^ (-n - 2)`. Now neither of the last two takes an integer (`MinimaGrid.lean`):
+      `parametricStepThreshold` has `log C / γ` (was `log C / B`), so `0 ≤ log_Q C ≤ γ` and the
+      constant rounds to `1`; and the top block, the only `p`-subset with all `π⁻¹ t ≥ k`, has
+      exactly `p = N - k` indices, so it contains `k` (`mem_of_forall_le`) and its sum plus the
+      jump is the sum with `k - 1` in place of `k`, rounded by `minimaJump k b = b (k - 1) - b k`
+      (`sum_add_minimaJump_eq`). The grid count is `N! (2 m + 1) ^ N`, `m = ⌈B / γ⌉`
+      (`parametricBox`, `= 4 N³ binom(N, p) (N + 2) (A + 1) / ε` up to rounding), so `c ^ n Z ^ n`,
+      `δ ^ (-n)` like ES02's `(2 n B) ^ n` classes (Lemmas 17.2, 18.1); the entries are at most
+      `1 + N m` (`abs_sum_add_minimaJump_le`), so `A_p ≤ binom(N, p) (A + N² (A + 1)) + ε`, and the
+      rounding costs `p + 1` meshes per subset instead of `p + 2`. The price is in the threshold:
+      `parametricStepCoeff` has `pluckerAtCoeff d N / γ`, with
+      `1 / γ = 4 N² d binom(N, p) (N + 2) / ε`, which enters the count only through the
+      logarithm of the middle ratio (Layer 9.4).
+
+    So the large solutions cost `δ ^ (-n - 3) log δ⁻¹`, within ES02's `δ ^ (-n - 4)`; the two
+    `δ` need not be the same normalization (Q0.3's `δ` is the weight of a normalized system).
+  - End state aimed at: `C(n) δ ^ (-n - O(1)) ℓ log ℓ`, `C(n) = 2 ^ (O(n²))`, no `d`. **Reached**
+    (after Q1.9b): `c ^ (n + 7) Z ^ (n + 3) ℓ (1 + log (ℓ Z))`, i.e.
+    `2 ^ (O(n²)) δ ^ (-n - 3) ℓ log (ℓ / δ)`. What is left against ES02 is `n`: `c ^ (2 n + 10)`
+    against `4 ^ ((n + 8)²)` are both `2 ^ (O(n²))`; EF13's `2 ^ (2 n)` is Q2's.
 
 **Is there a more elementary route to Ev95's Thm 3 strength?** (searched 2026-09-30)
 
@@ -1130,12 +1191,11 @@ Two consequences for the plan:
   `logHeight_mul_le_cycleHeight`.
 
 Q1.1 does not depend on the Q1.3 decision. Q1.1a–d have landed, the excess Bézout inequality of
-Q1.1d(iv) modulo the unmixedness of `B_𝔭` (Cohen–Macaulay, expected from Mathlib). Q1.1e has the
+Q1.1d(iv) (with the Cohen–Macaulay property of `B_𝔭`, proved 2026-10-02). Q1.1e has the
 multiplicity estimate, its combination with Bézout, the Hasse-derivative form of its
 hypothesis and, in characteristic `0`, the transversal `Q_α` with the dimension formula
 `ht 𝔭 + trdeg = |σ|` and the positivity of the degree in the type of the adapted basis
-(`prod_pow_mul_pow_le`, Rémond 2001 Prop. 2.1 modulo unmixedness). Q1.2 is done modulo
-unmixedness: Rémond's Thm 1.1 and Cor. 1.1, geometric parts (`productTheorem_indexIdeal`,
+(`prod_pow_mul_pow_le`, Rémond 2001 Prop. 2.1). Q1.2 is done: Rémond's Thm 1.1 and Cor. 1.1, geometric parts (`productTheorem_indexIdeal`,
 `exists_productTheorem_indexIdeal`). Q1.3 (heights): the height parts of Thm 1.1 and Cor. 1.1
 hold for every `MultiprojectiveHeight` (`productTheorem_indexIdeal_height`,
 `exists_productTheorem_indexIdeal_height`), with Rémond's error term via his Lemma 5.2, and
@@ -1146,16 +1206,285 @@ actual heights of resultant forms satisfy the interface (`resultantHeight`), wit
 
 Move from points in `Kⁿ` to points in `ℚ̄ⁿ`, with counts independent of `K`.
 
-- **Q2.1** Twisted heights `H_{Q,L,c}` on `ℚ̄ⁿ` and their basic calculus (ES02 §§1–3). Here
-  `ArithmeticHeights`' absolute heights are consumed.
-- **Q2.2** Absolute Siegel's lemma (RT96), and an absolute Minkowski theorem for twisted heights.
-  ⚠ Settle how much of Zhang 1995 this needs before starting. If ES02 needs the full arithmetic
-  successive-minima theorem, the layer grows into Arakelov theory and should be split off.
-- **Q2.3** The absolute Subspace Theorem, qualitative (ES99).
+- **Q2.0** ✅ **Literature gate — decided: Q2 stays elementary.** The absolute geometry of numbers
+  is RT96 Theorem 6.3, proved from `FieldMinkowski.lean` by Roy–Thunder's own argument; no Zhang,
+  no Arakelov layer, no addendum.
+  - **What ES02 uses.** Exactly one external result, ES02 Prop. 7.1 = RT96 Thm 6.3 (ES02 §7,
+    `../lean-code/papers/EvertseSchlickewei2002.pdf`): for twisted heights
+    `H_A(x) = ∏_w max_i ‖L_i^{(w)}(x)‖_w / A_{iw}` on `ℚ̄ⁿ`, with place-dependent forms and
+    weights, the minima `λ_i = inf{λ : dim span{x ∈ ℚ̄ⁿ : H_A(x) ≤ λ} ≥ i}` satisfy
+    `n^{-n/2} ∏_v Δ_v/A_v ≤ λ₁⋯λₙ ≤ 2^{n(n-1)/2} ∏_v Δ_v/A_v`, under ES02's hypothesis (7.4)
+    that every `A_{iv}` is a value `‖α_{iv}‖_v`. The upper bound is the hard half; it is where
+    Schlickewei's `D_K^{n/2d}` came from (ES02 §1). ES02 removes (7.4) themselves (Cor. 7.2, an
+    elementary `N`-th-root approximation), and pass from RT's ℓ² norm at infinity to the max norm
+    with the factor `n^{1/2}` of (7.8). No absolute Siegel lemma in product form is used.
+  - **The proof of RT96 Thm 6.3** (`../lean-code/papers/RoyThunder1996.pdf`, §§1–6) is
+    elementary. Dependency chain: Thm 6.3 ← Lemma 3.3 (a local map adapted to a flag), Lemma 4.7
+    (the lower bound: Hadamard for wedges), Prop. 6.2 (`μ₁ ≤ 2^{(n-1)/2} |det A|^{1/n}`, induction
+    on `n`) ← twisted duality Thm 1.1 (quoted from Thunder 1993), Prop. 4.2 and Cor. 4.3 (pulling a
+    twisted height back along an injective map; exterior-power and determinant parts only), and the
+    base case `n = 2`, Prop. 5.3 ← Lemma 5.2 (Bombieri–Vaaler's adelic Minkowski theorem **with**
+    its field constant `C(K)`), Lemma 4.8 (heights of products in `S^r`, from Lemma 3.4(ii) and the
+    algebra identity `S^rA(x₁⋯x_r) = (Ax₁)⋯(Ax_r)`), Lemma 4.5 (`det S^rA = (det A)^{r(r+1)/2}`
+    for `n = 2`). The field constant disappears in Prop. 5.3: Lemma 5.2 on `S^r(K²)`, of
+    dimension `r + 1`, costs `C(K)^{O(r)}`, a nonzero binary form of degree `r` splits into `r`
+    linear forms over an extension of degree `≤ r`, and the counting argument takes an
+    `r(r+1)/2`-th root, leaving `C(K)^{2/r} → 1` as `r → ∞`. The absolute statement is a limit
+    of number-field statements, not Arakelov theory.
+  - **The addendum is not needed.** RT's *Addendum and erratum* (J. reine angew. Math. **508**
+    (1999) 47–51, paywalled, front page seen) refines the constant of RT96's Siegel lemma (Thm
+    2.2, not used by ES02) and "corrects a mistake that invalidates parts of some auxiliary
+    results in §§3–4", concerning the norms on symmetric powers. The mistake as we read it: §1
+    gives `S^r(Lⁿ)` the ℓ² norm in the monomial basis, and the proof of Lemma 3.2(ii) identifies
+    that inner product with `perm(⟨x_i, y_j⟩)`, which gives `⟨e₁², e₁²⟩ = 2`, not `1`; so `S^rφ`
+    need not preserve norms, and Lemma 3.2(ii) for `S^r`, Cor. 4.3(ii), Cor. 4.4(ii) and Prop. 4.6
+    fall. None of these is on the chain above: Prop. 4.6 is used only in the Remark after Thm 5.1,
+    and Lemma 4.8 uses the algebra identity, not norm preservation. ES02 cite RT96 alone. This
+    reading is ours, not the addendum's text; Q2.2c re-proves every step it uses, so nothing rests
+    on it.
+  - **Rejected alternatives.** *Zhang 1995* (`../lean-code/papers/Zhang1995.pdf`; ES02's
+    "Theorem 5.8" is Theorem 5.2 in the JAMS numbering, (5.8) there is a remark) implies the upper
+    bound: on `ℙ^{n-1}` with the twisted metric, `e_{n-k+1} ≥ log λ_k` is elementary and
+    `Σ e_i ≤ ĥ(ℙ(M), Ō(1))` is Thm 5.2. But Thm 5.2 rests on arithmetic Hilbert–Samuel
+    (Gillet–Soulé, Hironaka), arithmetic ampleness (Hörmander L² estimates) and an induction
+    through arbitrary arithmetic hypersurfaces — out of reach. *Forst–Fukshansky 2024*
+    (`ForstFukshansky.pdf`, an absolute Siegel lemma by linear algebra alone) bounds
+    `max H(ω_i) ≤ H(Z)`, not the product; it is for coordinate heights, which place-dependent
+    twists `L^{(v)}` are not, and over a fixed `k`, not `ℚ̄`; it does not give Thm 6.3. *Keeping
+    `|D_K|`* in the thresholds (as Q1.8 does) stays available as the unconditional fallback, but
+    is no longer the plan.
+  - **What `ArithmeticHeights` and DA already supply.** The general `NumberField.
+    prod_successiveMinimum_pow_mul_measure_le` (`DA/FieldMinkowski.lean`: any symmetric convex
+    body, any `𝓞 K`-lattice in `Kⁿ`, constant `2^{dn}`), with `DA/ModuleCovolume.lean` for the
+    covolume of a twisted lattice place by place and `DA/FieldMinima.lean` for minima over `K`,
+    is Lemma 5.2 up to computing a volume. `ArithmeticHeights/Hadamard.lean`, `CauchyBinet.lean`,
+    `Plucker.lean`, `Subspace.lean` and `Arakelov.lean` give Hadamard for wedges and ℓ² Plücker
+    heights; `Duality.lean` gives untwisted duality; `GaussLemma.lean`, `Gelfond.lean` and
+    Mathlib's `Polynomial.mahlerMeasure_mul` give heights of products; `Absolute.lean`,
+    `Extension.lean`, `DA/PlacesOver*.lean` and `DA/LocalExtension.lean` give independence of the
+    field and the places above a place.
+  - **The carrier of a twist — the one design decision.** RT's twists are adelic,
+    `A ∈ GLₙ(K_𝔸)`, and their constructions produce local matrices that are not `K`-rational
+    (Gram–Schmidt in Lemma 3.2(i)). Avoid completions as follows. At a **finite** place a twist
+    only matters through the `𝒪_v`-lattice it defines, and every lattice of `K_vⁿ` has a basis in
+    `Kⁿ` (density), so finite twists are `K`-rational: a matrix in `GLₙ(K)` per finite place, the
+    identity outside a finite set, and `‖A_v x‖_w` is read with the absolute value `w` of the
+    extension directly. At an **infinite** place a twist is a complex matrix `A_v` (real for a
+    real place) acting through the embedding of `v`, conjugated for a place `w` whose embedding
+    restricts to the conjugate — `‖conj(A) conj(y)‖ = ‖A y‖`. RT's Thm 6.3 needs one auxiliary
+    place `u₀` with `|b|_{u₀} > 1`; Q2.0 took it **finite** (`u₀ = p`, `b = 1/p`), so Lemma 3.3 is
+    needed at a finite place only and is `K`-rational too. Revised at Q2.2a: Q2.2e does both a
+    complex and a finite `u₀` (see there). ES02's twisted heights (7.3) are the special
+    case `A_v = diag(A_{iv}⁻¹) ∘ (L_i^{(v)})`.
+  - **Constants.** RT's `2^{n(n-1)/2}` comes from `2^{(n-1)/2}` in Prop. 6.2(ii), which in turn
+    comes from the base case `n = 2`; whatever constant Q2.2c delivers at `n = 2` propagates.
+    ES02's count only needs `c(n) ≤ 2^{O(n²)}`, so a weaker base constant is acceptable if exact
+    `√2` costs effort; record which one landed.
+- **Q2.1** Twisted heights on `ℚ̄ⁿ` and their basic calculus (RT96 §1, §4 Props. 4.1–4.2; ES02
+  (7.3)). The carrier of Q2.0: archimedean complex matrices, finite `K`-rational matrices, the
+  identity at almost all places; the ℓ² norm at infinity (RT's) with ES02's max-norm comparison
+  (7.8) beside it. The height `H_A` on `Eⁿ` for every finite extension `E ⊇ K`, independent of
+  `E` (on `Absolute.lean`'s pattern), so that it is a height on `ℚ̄ⁿ`; `|det A|_𝔸`; the height
+  of a subspace through `⋀^m A` and Plücker coordinates (Lemma 3.2(ii) for exterior powers:
+  unitary and `GLₙ(𝒪_v)` invariance of `⋀`); comparison with the untwisted height, two-sided with
+  constants depending on `A` (Prop. 4.1), so that Northcott makes the minima attained and positive;
+  the absolute minima `μ_i(A)` of RT Def. 6.1.
+  - **Q2.1a** ✅ **The height of a point** — landed, in `QuantitativeSubspace/TwistedHeight.lean`.
+    `NumberField.Twist K ι` is the carrier (`arch` per complex embedding with `arch_conjugate`,
+    `fin` per finite place, `K`-rational, `1` off a finite set, all invertible);
+    `Twist.mulHeight` is RT's `H_A` relative to a number field `E ⊇ K`, the archimedean product
+    taken over the complex embeddings of `E` (each complex place twice, which is its `n_w = 2`).
+    Proved: `mulHeight_algebraMap` (over `F ⊇ E` it is raised to `[F : E]`), `mulHeight_smul`
+    (product formula), `mulHeight_pos`; and `Twist.absMulHeight` on any `Ω` algebraic over `K`,
+    computed over `K(x₀, x₁, …)` and normalized by its degree, with `absMulHeight_eq_of_mem` (any
+    finite extension inside `Ω` containing the coordinates gives the same value),
+    `absMulHeight_smul` and `absMulHeight_pos`. The finite half of the extension formula is the
+    reusable `FinitePlace.finprod_under_pow_localDegree`, on a new `FinitePlace.under` (the place
+    below, from Mathlib's `HeightOneSpectrum.under`); its archimedean half is
+    `NumberField.prod_comp_eq_prod_pow`, made public in `ArithmeticHeights/Extension.lean` together
+    with `prod_embeddings_eq`. ⚠ The height of `0` is `0`, not Mathlib's junk `1`.
+  - **Q2.1b** ✅ **The comparison with the untwisted height** (RT Prop. 4.1) — landed, in the
+    same file, for any two twists at once: `compConst A B` is the product over `K` of the ℓ²
+    operator norms of `A_φ B_φ⁻¹` and the largest entries of `A_v B_v⁻¹`, and
+    `mulHeight_le_compConst_pow_mul` gives `H_A ≤ c ^ [E : K] · H_B` over every `E`, absolutely
+    `absMulHeight_le_compConst_rpow_mul` (`c ^ {1/[K:ℚ]}`). `B = 1` is RT's `H_A ≤ c_A H_1`,
+    `A = 1` is `H_1 ≤ c_{A⁻¹} H_A` (no inverse twist needed). `mulHeight_one_eq`: `H_1` is
+    `arakelovMulHeight`; hence `compConst_rpow_neg_le_absMulHeight`, a positive lower bound on
+    nonzero points (what makes `μ₁ > 0` in Q2.1c), and `finite_setOf_mulHeight_rep_le`,
+    Northcott over a fixed `E` (from `ArithmeticHeights/Northcott.lean`). `compConst_pos` needs
+    `ι` nonempty. ⚠ Over `ℚ̄` the minima of RT Def. 6.1 are infima — Northcott needs a degree
+    bound, so attainment is only over a fixed field.
+  - **Q2.1c** ✅ **The absolute minima** (RT Def. 6.1) — landed, in the same file:
+    `absMinimum A Ω i = sInf (absMinimumSet A Ω i)`, over any `Ω` algebraic over `K` (RT's
+    `μ_i(A)` at `Ω = AlgebraicClosure K`), meaningful for `1 ≤ i ≤ n` (junk `0` otherwise).
+    Proved: `absMinimumSet_nonempty` (standard basis), `absMinimum_le` (independent points bound
+    it), `absMinimum_one_le`, `absMinimum_le_absMinimum` (monotone), the uniform lower bound
+    `compConst_rpow_neg_le_absMinimum` and `absMinimum_pos`, and in place of attainment
+    `exists_linearIndependent_absMulHeight_lt` (independent points of height `< μ` above `μ_i`),
+    which is what RT's proof of Thm 6.3 takes (its `μ_i(A) + ε`).
+  - **Q2.1d** ✅ **`⋀^m A` and `|det A|_𝔸`** — landed, in
+    `QuantitativeSubspace/TwistedSubspaceHeight.lean`. `Matrix.compound k M` is *defined* as the
+    matrix of `exteriorPower.map k` in the induced basis, so `compound_mul`/`compound_one` are
+    functoriality (no Cauchy–Binet); `compound_mulVec_plucker` (`⋀^k M` on Plücker coordinates),
+    `compound_apply` (minors), `compound_map` (ring homs, for `arch_conjugate`),
+    `compound_card_apply` (top degree = `det`), `det_compound_ne_zero`.
+    `Twist.exteriorPower A k`, `Twist.absDet A` (`|det A|_𝔸`, absolute) with `absDet_pos`;
+    `Twist.absSubspaceHeight A V` for `V : Submodule Ω (ι → Ω)` (read off the Plücker point),
+    `absSubspaceHeight_eq` (any basis), `absSubspaceHeight_span_range`, `absSubspaceHeight_pos`,
+    and `absSubspaceHeight_top : H_A(Ωⁿ) = |det A|_𝔸`. Helpers in `TwistedHeight.lean`:
+    `FinitePlace.under_self`, `Twist.absMulHeight_algebraMap` (a point of `Kⁿ`: `H_{A,K}^{1/[K:ℚ]}`).
+    Deferred to Q2.2a, where it is used: a line's height is its point's (`⋀¹ A ≅ A` needs a
+    reindexing lemma for twists).
+- **Q2.2** **The absolute Minkowski theorem** (RT96 Thm 6.3; ES02 Prop. 7.1 and Cor. 7.2), in five
+  parts.
+  - **Q2.2a** ✅ **Local and global calculus** — landed, in three files. Lemma 3.3 moved to
+    Q2.2e, the only place it is used (see there).
+    - `QuantitativeSubspace/TwistedCalculus.lean`: **base change**
+      (`Twist.baseChange A E`, a twist over any finite extension `E`, with
+      `absMulHeight_baseChange`, `absSubspaceHeight_baseChange`, `absDet_baseChange`: no
+      absolute quantity changes; RT96 §6 needs it whenever `φ` or `B` lives over a larger
+      field), `absMulHeight_algHom` (the absolute height in any field of definition, through any
+      `K`-embedding), **lines** (`absSubspaceHeight_span_singleton : H_A(Ω x) = H_A(x)`, read
+      through `Set.powersetCard.ofSingleton` — no reindexed twist needed), and **Lemma 4.7**
+      (`absSubspaceHeight_span_range_le_prod : H_A(V) ≤ ∏ H_A(x_i)`, from
+      `sum_sq_norm_plucker_row_le_prod` and `iSup_plucker_le_prod` place by place).
+    - `QuantitativeSubspace/TwistedDuality.lean`: **twisted duality** (RT96 Thm 1.1).
+      `Twist.dual A` (`(A_v⁻¹)ᵀ`), `dual_dual`, `dual_baseChange`, `absDet_dual`;
+      `absSubspaceHeight_eq_absDet_mul : H_A(V) = |det A|_𝔸 · H_{A*}(V^⊥)` and
+      `absSubspaceHeight_dual`, `V^⊥` the transported annihilator of `Duality.lean`. Proof as
+      in `Duality.lean`: dual matrices `C Dᵀ = 1`; the rows of `C Mᵀ` and `D M⁻¹` are again dual
+      (`Matrix.plucker_mulVec_inl_eq_or_eq_neg`), so the twisted Plücker norms differ by
+      `|det C|·|det M|` at every place, and the product formula removes `det C`.
+      `ArithmeticHeights/Duality.lean` gained the public `Matrix.plucker_inl_eq_or_eq_neg`, and
+      five of its helpers (`exists_dual_matrices`, `span_range_inr_row_eq`,
+      `linearIndependent_row_of_mul_transpose_eq_one`,
+      `isUnit_det_submatrix_of_mul_transpose_eq_one`, `det_submatrix_equiv_eq_or_eq_neg`) are
+      no longer private.
+    - `QuantitativeSubspace/TwistedPullback.lean`: **Prop. 4.2 and the determinant identity**.
+      For `P : Matrix ι (Fin m) K` with independent columns, `Twist.pullback A P hP` with
+      `absMulHeight_pullback : H_B(x) = H_A(P x)` and
+      `absDet_pullback : |det B|_𝔸 = H_A(P Ωᵐ)`. Not RT's Lemma 3.2(i): at a finite place
+      `B_v` is a **maximal minor** of `A_v P` (`Matrix.iSup_mulVec_eq_of_isMaxMinor`: by Cramer
+      each row of `M` is a combination of the rows of a maximal minor with coefficients of
+      absolute value `≤ 1`, so the max norms agree over every extension), `1` off the finite set
+      `badPlaces` (there `iSup_mulVec_eq_of_det`, an integral matrix with unit determinant is an
+      isometry) — so no completions, DVRs or Iwasawa decomposition. At a complex embedding
+      `B_φ = gramSqrt (A_φ P)`, the CFC square root of the Gram matrix, and `gramSqrt_map_conj`
+      (uniqueness of the positive square root) gives `arch_conjugate`. The determinant identity
+      is Cauchy–Binet at infinity and `iSup_plucker_col_eq` (the largest Plücker coordinate is
+      the maximal minor) at the finite places. RT's Cor. 4.3(i) for general subspaces `W` is not
+      proved: Prop. 6.2 uses only the point and top-degree statements.
+  - **Q2.2b** ✅ **Lemma 5.2 over `K`** — landed, in `QuantitativeSubspace/TwistedMinkowski.lean`.
+    `exists_linearIndependent_prod_mulHeight_le`: `n` vectors of `Kⁿ`, independent over `K`, with
+    `∏ H_A(x_i) ≤ (√|D_K| · √n^d)ⁿ · |det A|_K` (relative heights; the exact constant of the proof
+    is `((2/π)^{r₂} √|D_K| √n^d)ⁿ`), and the absolute form
+    `exists_linearIndependent_prod_absMulHeight_le`, `(|D_K|^{1/2d} √n)ⁿ · |det A|_𝔸`. Proof:
+    `FieldMinkowski`'s upper bound and `FieldMinima`'s attained minima for
+    - the **lattice** `Twist.lattice` (`A_v x` integral at every finite `v`), which is the
+      approximation module of `DA/ApproximationDomain.lean` for the rows of the finite components
+      at level `1`, exponents `0` — so FG, discreteness, the lattice property and the covolume
+      `∏_v |det A_v|_v · covol(𝒪_K)ⁿ` are `covolume_approxLattice`, with no new finite-place work;
+    - the **body** `Twist.body`, the preimage of the sup-norm unit ball under the
+      `mixedSpace K`-linear map of `Twist.mixedMatrix` (real parts at real places, where
+      `arch_conjugate` makes the components real; `w.embedding` at complex places), of volume
+      `(2^{r₁}π^{r₂})ⁿ / ∏_φ |det A_φ|` (`volume_body`, via `volume_mixedBox` and
+      `abs_algebraNorm_eq_norm`).
+    A lattice point in `μ` times the body has `H_A ≤ (√n μ)^d` (`mulHeight_le_of_mem_lattice`).
+    ⚠ The constant is `c(K)ⁿ · n^{dn/2}`, not `c(K)ⁿ`: the box inside the ℓ² ball, as in RT's own
+    volume estimate (`(r + 1)^{d/r}` in their Thm 5.1). Prop. 5.3 takes the `r(r+1)/2`-th root
+    with `n = r + 1`, so the extra factor tends to `1`. No basis reduction is needed (Prop. 5.3
+    uses only independence). `DA/ApproximationVolume.lean`'s `placeHom`,
+    `normAtPlace_eq_norm_placeHom`, `placeHom_mixedEmbedding`, `mixedBox`, `mixedBox_eq` and
+    `volume_mixedBox` are no longer private.
+  - **Q2.2c** ✅ **The case `n = 2`** (RT Prop. 5.3) — landed, with RT's constant `c₂ = 2`:
+    `absMinimum_one_mul_absMinimum_two_le_two_mul : μ₁(A) μ₂(A) ≤ 2 |det A|_𝔸` for every twist of
+    the plane, minima over an algebraically closed `Ω`. Two files.
+    - `QuantitativeSubspace/TwistedSymmetric.lean`: binary forms dehomogenized (`binLinear x =
+      x₀ + x₁ T`, `coeffVec r` the first `r + 1` coefficients), `Matrix.symPow r M` (column `l` =
+      coefficients of `(M e₀)^{r-l} (M e₁)^l`), its action on products of linear forms
+      (`symPow_mulVec_coeffVec_prod`, from the homogenization identity `homEval_prod_binLinear`),
+      `symPow_mul`, `symPow_one`, `symPow_map`; **Lemma 4.5** `det_symPow : det S^r M =
+      (det M)^{r(r+1)/2}` by `diagonal_transvection_induction` (triangular/diagonal cases);
+      `Twist.symPow A r`, `absDet_symPow`; **Lemma 4.8** (lower half) `prod_absMulHeight_le :
+      ∏ H_A(x_j) ≤ √2^r H_{S^r A}(x₁ ⋯ x_r)`: Gauss's lemma at finite places (equality), and at
+      complex places `‖z‖ ≤ √2 M(ℓ_z)`, multiplicativity of the Mahler measure and Landau's
+      `M(p) ≤ ‖p‖₂` (Mathlib). The archimedean components of `S^r A` are just `S^r A_φ`; no
+      claim about `S^r` preserving norms is used, so the addendum's correction is irrelevant.
+    - `QuantitativeSubspace/TwistedPlane.lean`: splitting a binary form over `Ω`
+      (`exists_eq_C_mul_prod_binLinear`, a factor `(1, 0)` per root at infinity), the dimension
+      bound `card_filter_lt_card_le` (independent forms divisible by `ℓ^{t+1}` number `≤ r - t`,
+      divisibility read homogeneously through the factorization, so the point at infinity needs no
+      special case), the counting argument `exists_linearIndependent_pair` (any height `h ≥ 0`),
+      Prop. 5.3 for a given `r` with `planeConst r = 2 (|D_K|^{1/d} (r+1))^{1/r}`
+      (`absMinimum_one_mul_absMinimum_two_le`), and `tendsto_planeConst` (→ 2). RT's degree bound
+      `[K(y_i) : K] ≤ r` is not kept: the absolute minima do not need it.
+  - **Q2.2d** ✅ **The first minimum** (RT Prop. 6.2) — landed, with RT's constants, in
+    `QuantitativeSubspace/TwistedFirstMinimum.lean`, for twists of `Kⁿ` indexed by `Fin n`:
+    (ii) `absMinimum_one_pow_le : μ₁(A)^n ≤ √2^{n(n-1)} |det A|_𝔸` for every `n ≥ 1` (RT's form
+    `μ₁(A) ≤ √2^{n-1} |det A|_𝔸^{1/n}` is `absMinimum_one_le_rpow`), and (i)
+    `absDet_mul_dual_absMinimum_one_pow_le : |det A|_𝔸 μ₁(A*)^{n-1} ≤ √2^{(n-1)(n-2)} μ₁(A)`.
+    For (i), every nonzero `x` (not one of height near `μ₁(A)`, so no `ε`): over `F = K(x)`
+    `exists_col_span_eq_dual` gives `P` with independent columns spanning `(Ω x)^⊥` (a basis of
+    the kernel of `z ↦ Σ x_i z_i`, equality by dimension), the pullback `B` of `A*_F` along `P`
+    has `μ₁(A*) ≤ μ₁(B)` (`absMulHeight_pullback`) and `|det B|_𝔸 = |det A|_𝔸⁻¹ H_A(x)`
+    (`absDet_pullback`, `absSubspaceHeight_dual`, lines), and (ii) in dimension `n - 1` applies
+    to `B`. (ii) in dimension `n ≥ 3` is (i) for `A` and `A*` (private `pow_le_of_dual`);
+    `n = 2` is Q2.2c, `n = 1` is `absMinimum_one_le_absDet`. The field changes from `K` to `F`,
+    in the universe of `Ω`, so the induction (`absMinimum_one_pow_le_aux`) runs over number fields
+    in that universe, and the statements for arbitrary `K` call it in dimension `n - 1`.
+  - **Q2.2e** ✅ **The theorem** (RT Thm 6.3) — landed, with RT's constant, through **both**
+    auxiliary places: `|det A|_𝔸 ≤ μ₁(A) ⋯ μₙ(A) ≤ √2^{n(n-1)} |det A|_𝔸 = 2^{n(n-1)/2} |det A|_𝔸`
+    for twists of `Kⁿ` on `Fin n`, minima over an algebraically closed `Ω`. ES02 Prop. 7.1 and
+    Cor. 7.2 are not done here; they moved to Q2.2f (see there).
+    - `QuantitativeSubspace/TwistedSuccessiveMinima.lean`, **complex `u₀`** and the shared parts.
+      The **lower bound** `absDet_le_prod_absMinimum` (any `ι`, `Fintype.card ι = n`): Lemma 4.7
+      for bases of almost minimal height, then `ε → 0`. The **flag** (shared):
+      `exists_absMinimum_gap` (an `ε` below every jump of the minima),
+      `exists_linearIndependent_absMulHeight_lt_absMinimum_add` (a greedy basis with
+      `H_A(x_k) < μ_{k+1} + ε`), `absMinimum_le_absMulHeight_of_notMem_span` (outside
+      `span(x_k : k < i)` the height is `≥ μ_{i+1}`, RT's argument with the gap), plus
+      `absMinimum_zero`/`_nonneg`/`_mono`. The **upper bound** `prod_absMinimum_le`: `E` generated
+      by the basis and `√-1`, so a complex embedding `φ₀` of `E` is never real; Lemma 3.3 is
+      replaced by `Matrix.exists_isUpperTriangular_gram_eq` (an upper triangular `R` with
+      `Rᴴ R = Gᴴ G`, `G = A_{φ₀} φ₀(X)`, from Mathlib's `gramSchmidtOrthonormalBasis` and
+      `gramSchmidtOrthonormalBasis_inv_triangular`; the isometry is `norm_toLp_mulVec_eq_of_gram`
+      of Q2.2a, so no unitary matrix is built); `Twist.modify` (components `M`, `conj M` at
+      `φ₀`, `conj φ₀`) with `le_absMulHeight_modify` (`H_B ≥ c^{2/[E:ℚ]} H_A` from a bound at
+      every embedding `ψ : Ω → ℂ` above `φ₀`, extended by `RingHom.exists_comp_algebraMap_eq`) and
+      `absDet_modify`; `M = diag(a) R φ₀(X)⁻¹`, `a_i = μ_i^{-[E:ℚ]/2}` exactly. No `ε` in the
+      bound, no `N`-th roots.
+    - `QuantitativeSubspace/TwistedSuccessiveMinimaFinite.lean`, **finite `u₀`** (RT's route).
+      `Matrix.exists_integral_mul_isUpperTriangular` (Iwasawa at a nonarchimedean absolute value:
+      mutually inverse integral `V`, `W` with `V G` upper triangular, by Gaussian elimination with
+      the largest pivot, column by column on full-size matrices, so no block matrices),
+      `Matrix.iSup_mulVec_eq_of_mul_eq_one` (such `V` are max-norm isometries over every
+      extension), `Twist.modifyFin` with `mulHeight_modifyFin_ge`, `le_absMulHeight_modifyFin`,
+      `absDet_modifyFin`; `FinitePlace.exists_one_lt` (`u₀`, `b₀ ∈ K` with `|b₀|_{u₀} > 1`, from
+      the product formula at `2`). An `N`-th root `b` of `b₀` and any place `w'` above `u₀` give
+      `β = |b|_{w'}^{1/[E:ℚ]} ∈ (1, 1 + ε]` because the local degree is `≤ [E:K]`: no ramification
+      theory, unlike RT's "we may assume `1 < |a|_{v₀} < 1 + ε`". Weights `a_i = b^{m_i}`,
+      `m_i = ⌈-log μ_i / log β⌉`; `prod_absMinimum_le_one_add_pow_mul` (bound with `(1 + ε)ⁿ`) and
+      `prod_absMinimum_le_of_finitePlace` (`ε → 0`).
+  - **Q2.2f ES02 Prop. 7.1 and Cor. 7.2** (moved out of Q2.2e). ES02's height (7.3) is built from
+    their linear forms `L_i^{(v)}` of (6.3), (6.4), (6.7) and real weights `A_iv` at **every**
+    place, with the max norm at the infinite places. Prop. 7.1 (weights `‖α_iv‖_v`, (7.4)) is a
+    twist (`diag(α⁻¹) L^{(v)}`) and Thm 6.3 plus the comparison `H ≤ H̃ ≤ n^{1/2} H` (7.8) of the
+    max and ℓ² norms, giving `n^{-n/2} ∏ Δ_v/A_v ≤ ∏ λ_i ≤ 2^{n(n-1)/2} ∏ Δ_v/A_v`. Cor. 7.2
+    (real weights at finite places) does not fit the twist carrier (finite components are
+    `K`-matrices) and is ES02's approximation (7.11)–(7.15) by `‖β_v‖^{n/m}`, the same `N`-th-root
+    device as the finite `u₀` above. Both statements are about ES02's set-up, so they belong with
+    Q2.4's definitions; do them there, or here once that set-up is fixed.
+  - Not part of Q2.2: RT96 Thm 2.2 (the absolute Siegel lemma in product form), §7 (duality of
+    all minima) and §8; ES02 does not use them.
+- **Q2.3** The absolute Subspace Theorem, qualitative (ES99). ES99 is not local; the qualitative
+  statement is a corollary of Q2.4, so this milestone is optional and may be dropped.
 - **Q2.4** **ES02's quantitative absolute parametric Subspace Theorem**: the interval result and
   the count `4^{(n+9)^2} δ^{-n-4} …`. This theorem is the input to the Bugeaud–Evertse 2008
   complexity bound, whose statement is in `rwst/lean-code`
-  (`CITED/BugeaudEvertseComplexity.lean`).
+  (`CITED/BugeaudEvertseComplexity.lean`). It consumes Q2.2e in place of `FieldMinkowski.lean`,
+  and Q1's arguments redone for points over `ℚ̄` whose field of definition is not specified (ES02
+  §1: "we are forced to extend all other arguments in our proof"); scope that work when Q2.2 has
+  landed.
 
 ### Layer Q3: Chow forms and Chow weights (Faltings–Wüstholz 1994, Ferretti 2000/2003, Evertse–Ferretti 2002)
 

@@ -3071,7 +3071,7 @@ The parameters are explicit: `m = NumberField.subspaceChainLength n s ε A` and
 `σ = NumberField.subspaceRatio n s ε A`, where `(n + 1) s` bounds the number of distinct forms
 (`NumberField.formCount`; `s = |S|` always does), `A` bounds `NumberField.approxAbsWeight`, and
 `𝒲` has at most one member. The grid
-systems of 6.1, at most `(#ι)! (2 m' + 1) ^ (#ι + 2)` of them
+systems of 6.1, at most `(#ι)! (2 m' + 1) ^ #ι` of them
 (`NumberField.ncard_minimaGridSet_le`), share one `A`
 (`NumberField.approxAbsWeight_gridExponent_le`), hence one `m` and one `σ`.
 
@@ -3232,14 +3232,19 @@ lemma, and of the jump. Rounding each of the `#∞ binom(#ι, p)` entries separa
 constant and the jump, with one bijection per infinite place, gives
 `(#ι)! ^ #∞ (2 m + 1) ^ (#ι + 2)`. An entry then collects up to `p + 2` roundings, so the mesh is
 `#ι + 2` times finer, and the pool keeps only the grids whose absolute weight is that of a box and
-`#ι + 2` roundings, which is what the rounded grid satisfies.
+`#ι + 2` roundings, which is what the rounded grid satisfies. Since Q1.9b neither the constant
+nor the jump takes an integer: the threshold keeps `0 ≤ logb Q C ≤ γ`, so the constant rounds to
+`1`, and the top block, the one `p`-subset carrying the jump, contains `k`, so its sum plus the
+jump is a sum of `p` minima with `k - 1` in place of `k`, rounded by `b (k - 1) - b k`
+(`NumberField.minimaJump`). The grids are `(#ι)! (2 m + 1) ^ #ι`, `m = ⌈B / γ⌉`, an entry costs
+`p + 1` roundings, and its absolute value is at most `1 + #ι m`.
 ⚠ **The minima sit at one infinite place** (`…/WedgeDomainAt.lean`, Q1.8c; after
 Evertse–Schlickewei 2002, § 9, whose place is finite). Each minimal vector is scaled by a nonzero
 integer from Minkowski's first theorem for one scalar (`NumberField.exists_balance`) so that its
 minimum moves to a place `w₀` with `mult w₀ ∣ [K : ℚ]`, `a = [K : ℚ] / mult w₀` times; Evertse's
 lemma then has minima at `w₀` alone, and one bijection matters. The wedge domain
 `NumberField.wedgeExponentAt` has exactly the weight of the book's, and the grid of the minima has
-`(#ι)! (2 m + 1) ^ (#ι + 2)` members, independent of the number of infinite places. The cost is
+`(#ι)! (2 m + 1) ^ #ι` members, independent of the number of infinite places. The cost is
 `unitConst K ^ #ι` in the constant, `unitConst K = 2 ^ [K : ℚ] √|D_K|`, which only the thresholds
 see.
 

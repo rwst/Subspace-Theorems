@@ -238,7 +238,7 @@ variable {σ K : Type*} [Field K] [Finite σ] {𝔭 : Ideal (MvPolynomial σ K)}
 the multinomial coefficient `t! / ∏_i c_i!`. -/
 theorem mul_multidegree_le_card {ι : Type*} [Fintype ι] [DecidableEq ι] [LinearOrder ι]
     [CharZero K] {b : σ → ι}
-    (hb : Function.Surjective b) (hU : IsUnmixedRing (Localization.AtPrime 𝔭)) {δ : ι → ℕ}
+    (hb : Function.Surjective b) {δ : ι → ℕ}
     {R : Set (MvPolynomial σ K)} (hR : ∀ r ∈ R, IsWeightedHomogeneous (multiWeight b) r δ)
     (h𝔭R : 𝔭 ∈ (Ideal.span R).minimalPrimes) (h𝔭 : 𝔭.IsWeightedHomogeneous (multiWeight b))
     (hne : hilbertPoly b 𝔭 ≠ 0) {t : ℕ} (ht : 𝔭.height = t) (hδ : ∀ i, 0 < δ i) {ε : ℝ}
@@ -253,7 +253,7 @@ theorem mul_multidegree_le_card {ι : Type*} [Fintype ι] [DecidableEq ι] [Line
           coneType b T + ∑ j, Finsupp.single (f j) 1 = bottomType b) := by
   have := Fintype.ofFinite σ
   obtain ⟨T, hB, -, hTb, hcard, h⟩ :=
-    prod_pow_mul_pow_mul_multidegree_le hb hU hR h𝔭R h𝔭 hne ht hδ hε hRR' hI
+    prod_pow_mul_pow_mul_multidegree_le hb hR h𝔭R h𝔭 hne ht hδ hε hRR' hI
   obtain ⟨-, hpos⟩ := totalDegree_hilbertPoly_eq_and_one_le_multidegree hb h𝔭 hB hTb
   refine ⟨T, hB, hTb, hpos, ?_⟩
   have hβ : (bottomType b).degree - t ≤ (coneType b T).degree := by
@@ -538,7 +538,7 @@ has `∂_κ P ∈ 𝔭` whenever `∑_s κ_s / δ_{b s} ≤ ε`. If `δ` is decr
   `ε^t d_β(𝔭) ≤ #{f : Fin t → Fin m | β + ∑_j ε_{f j} = n} ≤ m^t`. The count is the multinomial
   coefficient `t! / ∏_i (codim Z_i)!`, so this is Rémond's `d(Z) ≤ ρ(ε, Z) ≤ (m/ε)^{codim Z}`. -/
 theorem productTheorem [CharZero K] {m : ℕ} {b : σ → Fin m}
-    (hb : Function.Surjective b) (hU : IsUnmixedRing (Localization.AtPrime 𝔭)) {δ : Fin m → ℕ}
+    (hb : Function.Surjective b) {δ : Fin m → ℕ}
     {R : Set (MvPolynomial σ K)} (hR : ∀ r ∈ R, IsWeightedHomogeneous (multiWeight b) r δ)
     (h𝔭R : 𝔭 ∈ (Ideal.span R).minimalPrimes) (h𝔭 : 𝔭.IsWeightedHomogeneous (multiWeight b))
     (hne : hilbertPoly b 𝔭 ≠ 0) {t : ℕ} (ht : 𝔭.height = t) (hδ : ∀ i, 0 < δ i) {ε : ℝ}
@@ -556,7 +556,7 @@ theorem productTheorem [CharZero K] {m : ℕ} {b : σ → Fin m}
         #(univ.filter fun f : Fin t → Fin m ↦
           β + ∑ j, Finsupp.single (f j) 1 = bottomType b) ≤ m ^ t := by
   obtain ⟨T, hB, hadapt, hTb, hcard, hineq⟩ :=
-    prod_pow_mul_pow_mul_multidegree_le hb hU hR h𝔭R h𝔭 hne ht hδ hε hRR' hI
+    prod_pow_mul_pow_mul_multidegree_le hb hR h𝔭R h𝔭 hne ht hδ hε hRR' hI
   obtain ⟨hmin, hrk, hpos, hle, hcount⟩ :=
     productTheorem_of_basis hb h𝔭 hne hδ hε hanti hratio hB hadapt hTb hcard hineq
   exact ⟨hmin, coneType b T, hrk, hpos, hle, hcount⟩
@@ -565,7 +565,7 @@ theorem productTheorem [CharZero K] {m : ℕ} {b : σ → Fin m}
 hypotheses of `MvPolynomial.productTheorem`, `V(𝔭)` is a component of the product of its
 projections. -/
 theorem mem_minimalPrimes_span_of_productTheorem [CharZero K] {m : ℕ} {b : σ → Fin m}
-    (hb : Function.Surjective b) (hU : IsUnmixedRing (Localization.AtPrime 𝔭)) {δ : Fin m → ℕ}
+    (hb : Function.Surjective b) {δ : Fin m → ℕ}
     {R : Set (MvPolynomial σ K)} (hR : ∀ r ∈ R, IsWeightedHomogeneous (multiWeight b) r δ)
     (h𝔭R : 𝔭 ∈ (Ideal.span R).minimalPrimes) (h𝔭 : 𝔭.IsWeightedHomogeneous (multiWeight b))
     (hne : hilbertPoly b 𝔭 ≠ 0) {t : ℕ} (ht : 𝔭.height = t) (hδ : ∀ i, 0 < δ i) {ε : ℝ}
@@ -575,7 +575,7 @@ theorem mem_minimalPrimes_span_of_productTheorem [CharZero K] {m : ℕ} {b : σ 
     (hanti : Antitone δ)
     (hratio : ∀ i j : Fin m, (i : ℕ) + 1 = j → (m : ℝ) ^ t < ε ^ t * (δ i / δ j)) :
     𝔭 ∈ (Ideal.span {f | f ∈ 𝔭 ∧ ∃ i, f ∈ supported K {s | b s = i}}).minimalPrimes :=
-  (productTheorem hb hU hR h𝔭R h𝔭 hne ht hδ hε le_rfl hI hanti hratio).1
+  (productTheorem hb hR h𝔭R h𝔭 hne ht hδ hε le_rfl hI hanti hratio).1
 
 end Product
 

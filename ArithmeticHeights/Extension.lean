@@ -86,7 +86,9 @@ in that form the extension statement is the count of extensions of an embedding.
 
 section Archimedean
 
-private lemma prod_embeddings_eq {M : Type*} [CommMonoid M] (f : InfinitePlace K → M) :
+/-- A `mult`-weighted product over the infinite places is the product over the complex
+embeddings, each place counted once per embedding inducing it. -/
+lemma prod_embeddings_eq {M : Type*} [CommMonoid M] (f : InfinitePlace K → M) :
     ∏ φ : K →+* ℂ, f (InfinitePlace.mk φ) = ∏ w : InfinitePlace K, f w ^ w.mult := by
   classical
   rw [← Finset.prod_fiberwise Finset.univ InfinitePlace.mk (fun φ ↦ f (InfinitePlace.mk φ))]
@@ -109,7 +111,9 @@ private lemma card_filter_comp_eq (ψ : K →+* ℂ) :
     exact ⟨⟨φ, fun r ↦ by simp [RingHom.algebraMap_toAlgebra, ← hφ]⟩, mem_univ _, rfl⟩
 
 open scoped Classical in
-private lemma prod_comp_eq_prod_pow (F : (K →+* ℂ) → ℝ) :
+/-- A product over the complex embeddings of `L` of a factor that reads an embedding only through
+its restriction to `K` is the `[L : K]`-th power of the product over the embeddings of `K`. -/
+lemma prod_comp_eq_prod_pow (F : (K →+* ℂ) → ℝ) :
     ∏ φ : L →+* ℂ, F (φ.comp (algebraMap K L)) = (∏ ψ : K →+* ℂ, F ψ) ^ finrank K L := by
   rw [← Finset.prod_fiberwise Finset.univ (fun φ : L →+* ℂ ↦ φ.comp (algebraMap K L))
     (fun φ ↦ F (φ.comp (algebraMap K L))), ← Finset.prod_pow]

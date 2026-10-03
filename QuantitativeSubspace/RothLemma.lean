@@ -50,8 +50,7 @@ The Roth lemma then follows Evertse's §5. Descend along `Z_0 ⊇ Z_{ε/m} ⊇ �
 point ideal `MvPolynomial.pointIdeal b P`). A projection of `V(𝔭)` to a factor `ℙ¹` is a point,
 hence `P_k` (`MvPolynomial.sub_mem_of_eRk_le_one`), and the point bound (L) of the height theory
 (`MvPolynomial.MultiprojectiveHeight.logHeight_mul_le_cycleHeight`) gives
-`h(P_k) ≤ d_β(𝔭) h(P_k) ≤ h_{β + ε_k}(𝔭)`. The unmixedness hypothesis `hCM` (Cohen–Macaulay) is
-the one of `MvPolynomial.exists_productTheorem_indexIdeal_height`.
+`h(P_k) ≤ d_β(𝔭) h(P_k) ≤ h_{β + ε_k}(𝔭)`.
 
 This is Layer Q1.4 of the `QuantitativeSubspace` roadmap.
 -/
@@ -235,7 +234,7 @@ and for every `k`,
 with `F_l`, `G_k` as in `MvPolynomial.productTheorem_height`. -/
 theorem exists_eRk_lt_and_mul_height_le [CharZero K] [Height.AdmissibleAbsValues K]
     (hb : Function.Surjective b) (H : MultiprojectiveHeight b)
-    (hU : IsUnmixedRing (Localization.AtPrime 𝔭)) {δ : Fin m → ℕ}
+    {δ : Fin m → ℕ}
     {R : Finset (MvPolynomial σ K)} (hR : ∀ r ∈ R, IsWeightedHomogeneous (multiWeight b) r δ)
     (h𝔭R : 𝔭 ∈ (Ideal.span (R : Set (MvPolynomial σ K))).minimalPrimes)
     (h𝔭 : 𝔭.IsWeightedHomogeneous (multiWeight b)) (hne : hilbertPoly b 𝔭 ≠ 0) {t : ℕ}
@@ -259,7 +258,7 @@ theorem exists_eRk_lt_and_mul_height_le [CharZero K] [Height.AdmissibleAbsValues
               ∑ j, Finsupp.single (g j) 1 = bottomType b) := by
   classical
   obtain ⟨T, hB, hadapt, hTb, hcard, hineq, P, hPa, hh⟩ :=
-    prod_pow_mul_pow_mul_height_le hb H hU hR h𝔭R h𝔭 hne ht hδ hε hRR' hI
+    prod_pow_mul_pow_mul_height_le hb H hR h𝔭R h𝔭 hne ht hδ hε hRR' hI
   obtain ⟨T', hB', hTb', hcard', G, hG0, hGm, hGnn, hcc, hfull⟩ :=
     exists_cutExcess hb h𝔭 hne hB hadapt hcard
   set β := coneType b T'
@@ -407,7 +406,6 @@ theorem exists_eRk_lt_and_mul_height_le_indexIdeal [CharZero K] [Height.Admissib
     (hb : Function.Surjective b) (H : MultiprojectiveHeight b) {δ : Fin m → ℕ} (hδ : ∀ i, 0 < δ i)
     {F : MvPolynomial σ K} (hF : IsWeightedHomogeneous (multiWeight b) F δ) {a ε : ℝ}
     (hε : 0 < ε) {𝔭 : Ideal (MvPolynomial σ K)} [𝔭.IsPrime]
-    (hU : IsUnmixedRing (Localization.AtPrime 𝔭))
     (h𝔭a : 𝔭 ∈ (indexIdeal b δ F a).minimalPrimes) (h𝔭ε : indexIdeal b δ F (a + ε) ≤ 𝔭)
     (hne : hilbertPoly b 𝔭 ≠ 0) {t : ℕ} (ht : 𝔭.height = t) (ht1 : 1 ≤ t) (hanti : Antitone δ)
     (hratio : ∀ i j : Fin m, (i : ℕ) + 1 = j → (m : ℝ) < ε * (δ i / δ j)) :
@@ -438,7 +436,7 @@ theorem exists_eRk_lt_and_mul_height_le_indexIdeal [CharZero K] [Height.Admissib
       · exact Real.log_le_log (Nat.cast_pos.mpr hn0) (Nat.cast_le.mpr hn)
     dsimp only
     gcongr
-  obtain ⟨β, hdeg, hpos, hrk, hk, hheight⟩ := exists_eRk_lt_and_mul_height_le hb H hU hR h𝔭R h𝔭
+  obtain ⟨β, hdeg, hpos, hrk, hk, hheight⟩ := exists_eRk_lt_and_mul_height_le hb H hR h𝔭R h𝔭
     hne ht ht1 hδ hε hRR' hI hanti hratio hmono fun a ha ↦ by
       rw [Nat.cast_sum]
       exact bombieriLogHeight_sum_nsmul_le b hM a ha
@@ -491,7 +489,6 @@ projection to some factor `ℙ¹` is a point, which is `P_k`
 `h(P_k) ≤ d_β(𝔭) h(P_k) ≤ h_{β + ε_k}(𝔭)`. -/
 theorem exists_mul_logHeight_le [CharZero K] [Height.AdmissibleAbsValues K]
     (hb : Function.Surjective b) (H : MultiprojectiveHeight (K := K) b)
-    (hCM : ∀ (𝔭 : Ideal (MvPolynomial σ K)) [𝔭.IsPrime], IsUnmixedRing (Localization.AtPrime 𝔭))
     (h2 : ∀ i, #(univ.filter (b · = i)) = 2) {δ : Fin m → ℕ} (hδ : ∀ i, 0 < δ i)
     (hanti : Antitone δ) {F : MvPolynomial σ K} (hF : IsWeightedHomogeneous (multiWeight b) F δ)
     (hF0 : F ≠ 0) {ε : ℝ} (hε : 0 < ε)
@@ -537,7 +534,7 @@ theorem exists_mul_logHeight_le [CharZero K] [Height.AdmissibleAbsValues K]
     rw [hε'def, div_mul_eq_mul_div, lt_div_iff₀ hmR]
     nlinarith
   obtain ⟨β, hdeg, hpos, -, ⟨k, hk⟩, hheight⟩ := exists_eRk_lt_and_mul_height_le_indexIdeal hb H
-    hδ hF hε' (hCM 𝔭) h𝔭min h𝔭next hne𝔭 ht ht1 hanti hratio'
+    hδ hF hε' h𝔭min h𝔭next hne𝔭 ht ht1 hanti hratio'
   refine ⟨k, ?_⟩
   -- The projection to the factor `k` is the point `P_k`.
   have hrk : (varMatroid 𝔭).eRk {s | b s = k} ≤ 1 := by

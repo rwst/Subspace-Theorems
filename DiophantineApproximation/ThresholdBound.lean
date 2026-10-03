@@ -1076,9 +1076,11 @@ theorem thresholdScale_wedgeForms_le (p : ℕ) [DecidableEq (Set.powersetCard ι
   nlinarith
 
 /-- **The coefficient of the threshold of Layer 6.1 along one size `p` of subsets**: one term for
-each argument of `parametricStepThreshold`, the wedge terms scaled by `wedgeScaleCoeff`. -/
+each argument of `parametricStepThreshold`, the wedge terms scaled by `wedgeScaleCoeff`, the
+Plücker term divided by the mesh `γ` of the grids. -/
 noncomputable def parametricStepCoeff (R : RothParams) (d N r t s p : ℕ) (ε A : ℝ) : ℝ :=
-  1 + minimaCoeff d N r t + Real.log 2 + 2 * wedgeWeightCoeff d N t p / ε + pluckerAtCoeff d N
+  1 + minimaCoeff d N r t + Real.log 2 + 2 * wedgeWeightCoeff d N t p / ε
+    + pluckerAtCoeff d N / parametricMesh N d p ε
     + (rankCoeff d (N.choose p) t (parametricDelta N ε / 2)
       + penultimateCoeff R d (N.choose p) r t (s ^ p) (N.choose p - 1) (parametricDelta N ε)
         (parametricWedgeAbsWeight N d p ε A)) * wedgeScaleCoeff d N r t p
@@ -1097,6 +1099,7 @@ theorem parametricStepCoeff_nonneg (R : RothParams) (d N r t s p : ℕ) {ε A : 
     (parametricWedgeAbsWeight_nonneg N d p hε.le hA)
   have := one_le_wedgeScaleCoeff d N r t p
   have := Real.log_nonneg (one_le_two : (1 : ℝ) ≤ 2)
+  have := parametricMesh_nonneg N d p hε.le
   rw [parametricStepCoeff]; positivity
 
 /-- `parametricStepCoeff` is monotone in the height cost of the Roth lemma. -/
@@ -1155,6 +1158,12 @@ theorem parametricStepThreshold_le [Nonempty ι] (R : RothParams)
   have hwwc := wedgeWeightCoeff_nonneg d N t p
   have hpl := log_pluckerConstAt_le (L := L) (Sfin := Sfin) N
   have hplc := pluckerAtCoeff_nonneg d N
+  have hB := parametricMesh_nonneg N d p hε.le
+  have hpl' : Real.log (pluckerConstAt K N) / parametricMesh N d p ε
+      ≤ pluckerAtCoeff d N / parametricMesh N d p ε * Λ := by
+    rw [div_mul_eq_mul_div]
+    exact div_le_div_of_nonneg_right hpl hB
+  have hplc' : 0 ≤ pluckerAtCoeff d N / parametricMesh N d p ε := div_nonneg hplc hB
   have hlog2 : 0 ≤ Real.log 2 := Real.log_nonneg one_le_two
   have hrank' := hrank.trans (mul_le_mul_of_nonneg_left hws hrc)
   have hpen' := hpen.trans (mul_le_mul_of_nonneg_left hws hpc)
@@ -1166,7 +1175,7 @@ theorem parametricStepThreshold_le [Nonempty ι] (R : RothParams)
   have h2 : Real.log 2 ≤ Real.log 2 * Λ := le_mul_of_one_le_right hlog2 hΛ
   have hsplit : parametricStepCoeff R d N r t s p ε A * Λ
       = Λ + minimaCoeff d N r t * Λ + Real.log 2 * Λ + 2 * wedgeWeightCoeff d N t p / ε * Λ
-        + pluckerAtCoeff d N * Λ
+        + pluckerAtCoeff d N / parametricMesh N d p ε * Λ
         + rankCoeff d M t (parametricDelta N ε / 2) * (ws * Λ)
         + penultimateCoeff R d M r t (s ^ p) (M - 1) (parametricDelta N ε)
             (parametricWedgeAbsWeight N d p ε A) * (ws * Λ) := by
@@ -1174,7 +1183,7 @@ theorem parametricStepThreshold_le [Nonempty ι] (R : RothParams)
   have hΛ0 : 0 ≤ Λ := by linarith
   have e1 : 0 ≤ minimaCoeff d N r t * Λ := mul_nonneg hminc hΛ0
   have e2 : 0 ≤ Real.log 2 * Λ := mul_nonneg hlog2 hΛ0
-  have e3 : 0 ≤ pluckerAtCoeff d N * Λ := mul_nonneg hplc hΛ0
+  have e3 : 0 ≤ pluckerAtCoeff d N / parametricMesh N d p ε * Λ := mul_nonneg hplc' hΛ0
   have e4 : 0 ≤ rankCoeff d M t (parametricDelta N ε / 2) * (ws * Λ) := by positivity
   have e5 : 0 ≤ penultimateCoeff R d M r t (s ^ p) (M - 1) (parametricDelta N ε)
       (parametricWedgeAbsWeight N d p ε A) * (ws * Λ) := by positivity

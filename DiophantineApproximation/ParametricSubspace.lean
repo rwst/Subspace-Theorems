@@ -101,15 +101,19 @@ is `B = N (A + 1) / d`. The ratios differ between the `p`, and their sum bounds 
 ⚠ **The grid rounds the minima, not the exponents** (Evertse 1996, Lemma 18). Rounding every
 wedge exponent separately would give `(2 m + 1) ^ (r binom(N, p))` grids, doubly exponential in
 `N`. The wedge exponents are functions of the `N` minima, the jump, a constant and the
-bijections, so rounding those `N + 2` numbers gives `N! ^ #bijections (2 m + 1) ^ (N + 2)` grids
-(`NumberField.minimaGrid`), at the cost of a mesh `N + 2` times finer.
+bijections, so rounding the `N` minima gives `N! ^ #bijections (2 m + 1) ^ N` grids
+(`NumberField.minimaGrid`), at the cost of a mesh `N + 2` times finer. The constant and the jump
+need no integers of their own (Q1.9b): the threshold keeps `0 ≤ log_Q C ≤ γ`, so the constant
+rounds to `1`, and the top block of `p = N - k` indices contains `k`, so its sum plus the jump
+`log_Q (μ (k - 1) / μ k)` is a sum of `p` minima, with `k - 1` in place of `k`
+(`NumberField.minimaJump`).
 
 ⚠ **The minima sit at one place** (Evertse–Schlickewei 2002, § 9 and Lemma 18.1). The book's
 wedge domain reads the minima at every infinite place, through one bijection per place, which
 would cost `N! ^ r` grids, `r` the number of infinite places. Scaling each realizing vector by a
 scalar from Minkowski's theorem (`NumberField.exists_balance`) moves its minimum to one infinite
 place `w₀` with `mult w₀ ∣ [K : ℚ]`, at the cost of a constant; Evertse's lemma then needs one
-bijection, and there are `N! (2 m + 1) ^ (N + 2)` grids. Together with the single exceptional
+bijection, and there are `N! (2 m + 1) ^ N` grids. Together with the single exceptional
 subspace of Layer 5.4 in `⋀^p`, the counts are singly exponential in `N` and depend neither on the
 number of places nor on that of the infinite places.
 
@@ -211,27 +215,28 @@ noncomputable def parametricDelta (N : ℕ) (ε : ℝ) : ℝ :=
   ε / (2 * (N : ℝ) ^ 2)
 
 /-- **The mesh of the grid** in `⋀^p`, `γ = δ / (2 d binom(N, p) (N + 2))`: an entry of a grid of
-the minima costs up to `p + 2 ≤ N + 2` roundings in the weight
+the minima costs up to `p + 1 ≤ N + 2` roundings in the weight
 (`NumberField.approxWeight_gridExponent_minimaGrid_le`). -/
 noncomputable def parametricMesh (N d p : ℕ) (ε : ℝ) : ℝ :=
   parametricDelta N ε / (2 * ((d : ℝ) * (N.choose p : ℝ) * ((N : ℝ) + 2)))
 
-/-- **The size of the box of grids**, `m = ⌈(1 + B N + 2 B) / γ⌉`. -/
+/-- **The size of the box of grids**, `m = ⌈B / γ⌉`: the rounded minima. The constant is `1`, as
+the threshold keeps `log_Q C ≤ γ`, and the jump is a difference of two rounded minima
+(`NumberField.minimaGridSet`), so neither needs a box. -/
 noncomputable def parametricBox (N d p : ℕ) (ε A : ℝ) : ℤ :=
-  ⌈(1 + parametricMinimaExp N d A * N + 2 * parametricMinimaExp N d A)
-    / parametricMesh N d p ε⌉
+  ⌈parametricMinimaExp N d A / parametricMesh N d p ε⌉
 
-/-- **The number of grids**, `N! (2 m + 1) ^ (N + 2)`: the grids of the minima at one place
-(`NumberField.minimaGrid`), one bijection and `N + 2` integers. -/
+/-- **The number of grids**, `N! (2 m + 1) ^ N`: the grids of the minima at one place
+(`NumberField.minimaGrid`), one bijection and `N` integers. -/
 noncomputable def parametricGridCount (N d p : ℕ) (ε A : ℝ) : ℕ :=
-  N.factorial * (2 * parametricBox N d p ε A + 1).toNat ^ (N + 2)
+  N.factorial * (2 * parametricBox N d p ε A + 1).toNat ^ N
 
 /-- **A bound for the absolute weight of every grid system**,
-`binom(N, p) A + γ (m + N + 2) binom(N, p) d`: the entries of the grids in play are at most
-`m + N + 2`, one box and `N + 2` roundings. -/
+`binom(N, p) A + γ (1 + N m) binom(N, p) d`: the entries of the grids in play are at most
+`1 + N m`, the constant and `p ≤ N` rounded minima. -/
 noncomputable def parametricWedgeAbsWeight (N d p : ℕ) (ε A : ℝ) : ℝ :=
   N.choose p * A
-    + parametricMesh N d p ε * (parametricBox N d p ε A + N + 2) * (N.choose p * d)
+    + parametricMesh N d p ε * (1 + N * parametricBox N d p ε A) * (N.choose p * d)
 
 /-- **The number of intervals of one grid system**: Layer 5.6's chain length in `⋀^p`, for at
 most `s` distinct forms, so at most `s ^ p` distinct wedge forms
@@ -313,7 +318,8 @@ theorem formCount_wedgeForms_le (p : ℕ) :
 open scoped Classical in
 /-- **The threshold of Layer 6.1 along one size `p` of subsets**, on the scale of `log Q`: the
 largest of `1`, the logarithms of the level `minimaThreshold` of the minima bounds, of `2`, of the
-Plücker constant and of the rank threshold of the wedge forms at weight `-δ / 2`, of
+Plücker constant divided by the mesh `γ` (so that `0 ≤ log_Q C ≤ γ` and the constant rounds to
+`1`), and of the rank threshold of the wedge forms at weight `-δ / 2`, of
 `2 log (wedgeWeightConst) / ε`, and of the threshold `penultimateThreshold` of Layer 5.6 for the
 wedge forms. -/
 noncomputable def parametricStepThreshold (Sfin : Finset (FinitePlace K))
@@ -324,7 +330,8 @@ noncomputable def parametricStepThreshold (Sfin : Finset (FinitePlace K))
   max 1 (max (Real.log (minimaThreshold Sfin L))
     (max (max (Real.log 2)
         (2 * Real.log (wedgeWeightConst Sfin L (pluckerConstAt K (Fintype.card ι)) p) / ε))
-      (max (Real.log (pluckerConstAt K (Fintype.card ι)))
+      (max (Real.log (pluckerConstAt K (Fintype.card ι))
+          / parametricMesh (Fintype.card ι) (finrank ℚ K) p ε)
         (max (Real.log (rankThreshold Sfin (fun v ↦ wedgeForms (L v) p)
             (parametricDelta (Fintype.card ι) ε / 2)))
           (penultimateThreshold Sfin (fun v ↦ wedgeForms (L v) p) R
@@ -421,12 +428,11 @@ theorem exists_forall_mem_interval_approxSpan_le (R : SubspaceRoth.{u} K)
   have hγeq : γ = δ / (2 * ((d : ℝ) * (M : ℝ) * ((N : ℝ) + 2))) := by
     rw [hγ, parametricMesh, hMch]
   have hγ0 : 0 < γ := by rw [hγeq]; positivity
-  set G : ℝ := 1 + B * N + 2 * B with hG
   set m : ℤ := parametricBox N d p ε A with hm
-  have hmG : m = ⌈G / γ⌉ := by rw [hm, parametricBox]
+  have hmG : m = ⌈B / γ⌉ := by rw [hm, parametricBox]
   have hm0 : 0 ≤ m := by
     rw [hmG]
-    exact Int.ceil_nonneg (div_nonneg (by positivity) hγ0.le)
+    exact Int.ceil_nonneg (div_nonneg hB.le hγ0.le)
   -- the finite pool of grids of the minima
   set A' : ℝ := parametricWedgeAbsWeight N d p ε A with hA'
   set pool : Set (InfinitePlace K → Set.powersetCard ι p → ℤ) :=
@@ -503,12 +509,12 @@ theorem exists_forall_mem_interval_approxSpan_le (R : SubspaceRoth.{u} K)
     positivity
   have hQ₁0 : 0 < Q₁ := lt_of_lt_of_le one_pos hQ₁
   set Q₀ : ℝ := max 1 (max (Real.log Q₁) (max (max (Real.log 2) (2 * Real.log wWC / ε))
-    (max (Real.log C) (max (Real.log aT) Q56)))) with hQ₀
+    (max (Real.log C / γ) (max (Real.log aT) Q56)))) with hQ₀
   refine ⟨𝒮, h𝒮card, fun Z hZ ↦ (Finset.mem_filter.1 hZ).2, Q₀,
     lt_of_lt_of_le one_pos (le_max_left _ _), ?_, fun Q₀' hQ₀' ↦ ?_⟩
   · rw [hQ₀, hQ₁eq, hwWC, hCeq, haT, hQ56, parametricStepThreshold, hMch]
   have hle : ∀ x, x ≤ max (Real.log Q₁) (max (max (Real.log 2) (2 * Real.log wWC / ε))
-      (max (Real.log C) (max (Real.log aT) Q56))) → x ≤ Q₀' := fun x hx ↦
+      (max (Real.log C / γ) (max (Real.log aT) Q56))) → x ≤ Q₀' := fun x hx ↦
     (hx.trans (le_max_right _ _)).trans hQ₀'
   have hQ₀1 : 1 ≤ Q₀' := (le_max_left _ _).trans hQ₀'
   have hlQ₁ : Real.log Q₁ ≤ Q₀' := hle _ (le_max_left _ _)
@@ -516,7 +522,7 @@ theorem exists_forall_mem_interval_approxSpan_le (R : SubspaceRoth.{u} K)
     hle _ ((le_max_left _ _).trans ((le_max_left _ _).trans (le_max_right _ _)))
   have hlW : 2 * Real.log wWC / ε ≤ Q₀' :=
     hle _ ((le_max_right _ _).trans ((le_max_left _ _).trans (le_max_right _ _)))
-  have hlC : Real.log C ≤ Q₀' :=
+  have hlC : Real.log C / γ ≤ Q₀' :=
     hle _ ((le_max_left _ _).trans ((le_max_right _ _).trans (le_max_right _ _)))
   have hlaT : Real.log aT ≤ Q₀' := hle _ ((le_max_left _ _).trans
     ((le_max_right _ _).trans ((le_max_right _ _).trans (le_max_right _ _))))
@@ -533,7 +539,12 @@ theorem exists_forall_mem_interval_approxSpan_le (R : SubspaceRoth.{u} K)
   intro Q hQ1 hQlog r hrank hR1 hRk hjump
   have hQ0 : (0 : ℝ) < Q := lt_trans one_pos hQ1
   have hQQ₁ : Q₁ ≤ Q := (Real.log_le_log_iff hQ₁0 hQ0).1 (hlQ₁.trans hQlog)
-  have hQC : C ≤ Q := (Real.log_le_log_iff (by linarith) hQ0).1 (hlC.trans hQlog)
+  have hQC : Real.logb Q C ≤ γ := by
+    rw [Real.logb, div_le_iff₀ (Real.log_pos hQ1)]
+    have := hlC.trans hQlog
+    rw [div_le_iff₀ hγ0] at this
+    linarith
+  have hQC0 : 0 ≤ Real.logb Q C := Real.logb_nonneg hQ1 hC1
   have hQaT : aT ≤ Q := (Real.log_le_log_iff haT0 hQ0).1 (hlaT.trans hQlog)
   have hQQ₂ : Q₂ ≤ Q := by
     rw [hQ₂eq]
@@ -571,30 +582,15 @@ theorem exists_forall_mem_interval_approxSpan_le (R : SubspaceRoth.{u} K)
   set y : Fin N → ι → K := fun j ↦ x' j + ∑ l ∈ Finset.Iio j, ξ j l • x' l with hy
   have hyind : LinearIndependent K y := linearIndependent_add_sum_smul hx'ind ξ
   set cw := wedgeExponentAt c w₀ a π μ C Q k p with hcw
-  set g := minimaGrid w₀ a k p π ⌈Real.logb Q C / γ⌉
-    ⌈Real.logb Q (μ (k - 1) / μ k) / γ⌉ (fun i ↦ ⌈Real.logb Q (μ i) / γ⌉) with hg
+  set bμ : Fin N → ℤ := fun i ↦ ⌈Real.logb Q (μ i) / γ⌉ with hbμ
+  set g := minimaGrid w₀ a k p π 1 (minimaJump k bμ) bμ with hg
   set c' := gridExponent cT γ g with hc'
   have hC0 : 0 < C := by linarith
   have hk1 : k - 1 < N := by omega
-  -- the rounded numbers stay in the box
-  have hBN : 0 ≤ B * N := by positivity
-  have hB1 : 1 ≤ G := by rw [hG]; linarith
-  have hBG : B ≤ G := by rw [hG]; linarith
+  -- the rounded minima stay in the box
   have hlogμ : ∀ i, i < N → |Real.logb Q (μ i)| ≤ B := fun i hi ↦
     Real.abs_logb_le hQ1 (hμpos i hi) (hminima Q hQQ₁ i hi).1 (hminima Q hQQ₁ i hi).2
-  have hlogC1 : |Real.logb Q C| ≤ 1 := by
-    refine Real.abs_logb_le hQ1 hC0 ?_ ?_
-    · rw [Real.rpow_neg_one]
-      exact (inv_le_one_of_one_le₀ hQ1.le).trans hC1
-    · rwa [Real.rpow_one]
-  have hlogC : |Real.logb Q C| ≤ G := hlogC1.trans hB1
-  have hlogJ2 : |Real.logb Q (μ (k - 1) / μ k)| ≤ 2 * B := by
-    rw [Real.logb_div (hμpos _ hk1).ne' (hμpos _ hkN).ne']
-    have h1 := hlogμ _ hk1
-    have h2 := hlogμ _ hkN
-    refine (abs_sub _ _).trans ?_
-    linarith
-  have hlogJ : |Real.logb Q (μ (k - 1) / μ k)| ≤ G := hlogJ2.trans (by rw [hG]; linarith)
+  have hbμ : ∀ i, |bμ i| ≤ m := fun i ↦ hmG ▸ abs_ceil_div_le hγ0 (hlogμ i i.2)
   have hfinex : ∀ v ∈ Sfin, ∀ T : Set.powersetCard ι p, cw v.1 T = cT v.1 T := by
     intro v _ T
     rw [hcw, wedgeExponentAt]
@@ -606,58 +602,60 @@ theorem exists_forall_mem_interval_approxSpan_le (R : SubspaceRoth.{u} K)
       (fun w hcc ↦ InfinitePlace.not_isNonarchimedean w (by rw [hcc]; exact hna v)) T
   -- the rounded exponents are one of the finitely many grids
   have hgpool : g ∈ pool := by
-    refine ⟨⟨π, _, _, _, hmG ▸ abs_ceil_div_le hγ0 hlogC,
-      hmG ▸ abs_ceil_div_le hγ0 hlogJ,
-      fun i ↦ hmG ▸ abs_ceil_div_le hγ0 ((hlogμ i i.2).trans hBG), rfl⟩, ?_, ?_⟩
-    · -- the absolute weight: one box and `N + 2` roundings
+    refine ⟨⟨π, bμ, hbμ, rfl⟩, ?_, ?_⟩
+    · -- the absolute weight: the constant and `p ≤ N` rounded minima
       have hbox : ∀ T : Set.powersetCard ι p,
-          |((⌈Real.logb Q C / γ⌉ : ℤ) : ℝ)| + |(((∑ t ∈ (T : Finset ι),
-            ⌈Real.logb Q (μ (π.symm t)) / γ⌉ + if ∀ t ∈ (T : Finset ι), k ≤ (π.symm t : ℕ)
-              then ⌈Real.logb Q (μ (k - 1) / μ k) / γ⌉ else 0 : ℤ)) : ℝ)| ≤ m + N + 2 := by
+          |((1 : ℤ) : ℝ)| + |(((∑ t ∈ (T : Finset ι), bμ (π.symm t) +
+            if ∀ t ∈ (T : Finset ι), k ≤ (π.symm t : ℕ) then minimaJump k bμ else 0 : ℤ)) : ℝ)|
+            ≤ 1 + N * m := by
         intro T
-        refine (abs_ceil_add_abs_sum_ceil_le (x := fun i : Fin N ↦ Real.logb Q (μ i)) hγ0
-          hB.le hlogC1 (fun i ↦ hlogμ i i.2) hlogJ2 hpN π.symm (T : Finset ι)
-          (Set.powersetCard.card_eq T) _).trans ?_
-        have hGm : G / γ ≤ m := by rw [hmG]; exact Int.le_ceil _
-        rw [← hG]
+        have h := abs_sum_add_minimaJump_le hk hkN hkp π hbμ (T : Finset ι)
+          (Set.powersetCard.card_eq T)
+        have h' : |(((∑ t ∈ (T : Finset ι), bμ (π.symm t) +
+            if ∀ t ∈ (T : Finset ι), k ≤ (π.symm t : ℕ) then minimaJump k bμ else 0 : ℤ)) : ℝ)|
+            ≤ p * m := by
+          rw [← Int.cast_abs]; exact_mod_cast h
+        have hpm : (p : ℝ) * m ≤ N * m :=
+          mul_le_mul_of_nonneg_right (by exact_mod_cast hpN) (by exact_mod_cast hm0)
+        rw [Int.cast_one, abs_one]
         linarith
-      have hsum := sum_mult_abs_minimaGrid_le (π := π) (z := ⌈Real.logb Q C / γ⌉)
-        (j := ⌈Real.logb Q (μ (k - 1) / μ k) / γ⌉) (b := fun i ↦ ⌈Real.logb Q (μ i) / γ⌉)
-        (m' := (m : ℝ) + N + 2) ha hbox
+      have hsum := sum_mult_abs_minimaGrid_le (π := π) (z := 1) (j := minimaJump k bμ) (b := bμ)
+        (m' := 1 + N * (m : ℝ)) ha hbox
       have hab := approxAbsWeight_gridExponent_le Sfin cT hγ0.le (g := g) hsum
       have h1 := approxAbsWeight_sum_le Sfin c p
       have h2 : (M : ℝ) * approxAbsWeight Sfin c ≤ M * A := mul_le_mul_of_nonneg_left hA hM0'.le
       have h3 : approxAbsWeight Sfin (gridExponent cT γ g) ≤ M * A +
-          γ * (d * M * ((m : ℝ) + N + 2)) := by
+          γ * (d * M * (1 + N * (m : ℝ))) := by
         rw [← hM] at h1
         linarith
       refine h3.trans (le_of_eq ?_)
       rw [hA', parametricWedgeAbsWeight, ← hMch]
       ring
     · have h1 := approxWeight_gridExponent_minimaGrid_le (Sfin := Sfin) (c := c) (C := C)
-        (Q := Q) (p := p) ha (π := π) hγ0 hμpos hk hkN
+        (Q := Q) (p := p) ha (π := π) hγ0 hμpos hk hkN hkp hQC0
       have h2 : approxWeight Sfin cw ≤ -δ := by
         refine (hwt Q hQQ₂ r hR1 hRk hjump cw
           (rpow_approxWeight_wedgeExponentAt Sfin c w₀ ha π hQ1 hC0 hμpos hkp hp)).trans ?_
         rw [hδ, parametricDelta, ← neg_div]
         exact div_le_div_of_nonneg_right hc (by positivity)
-      have h3 : γ * ((d : ℝ) * (M : ℝ) * ((p : ℝ) + 2)) ≤ δ / 2 := by
+      have h3 : γ * ((d : ℝ) * (M : ℝ) * ((p : ℝ) + 1)) ≤ δ / 2 := by
         have hN2 : (0 : ℝ) < (N : ℝ) + 2 := by positivity
         have hpN' : (p : ℝ) ≤ N := by exact_mod_cast hpN
         have : γ * ((d : ℝ) * (M : ℝ) * ((N : ℝ) + 2)) = δ / 2 := by
           rw [hγeq]
           field_simp
-        have h4 : γ * ((d : ℝ) * (M : ℝ) * ((p : ℝ) + 2)) ≤
-            γ * ((d : ℝ) * (M : ℝ) * ((N : ℝ) + 2)) := by gcongr
+        have h4 : γ * ((d : ℝ) * (M : ℝ) * ((p : ℝ) + 1)) ≤
+            γ * ((d : ℝ) * (M : ℝ) * ((N : ℝ) + 2)) := by gcongr; linarith
         linarith
       have h1' : approxWeight Sfin c' ≤
-          approxWeight Sfin cw + γ * ((d : ℝ) * (M : ℝ) * ((p : ℝ) + 2)) := h1
+          approxWeight Sfin cw + γ * ((d : ℝ) * (M : ℝ) * ((p : ℝ) + 1)) := h1
       change approxWeight Sfin c' ≤ -δ / 2
       linarith
   have hgP : g ∈ P := hpoolfin.mem_toFinset.2 hgpool
   -- the wedges of Evertse's vectors lie in the grid domain
   have hsub : approxDomain Sfin L' cw Q ⊆ approxDomain Sfin L' c' Q :=
-    approxDomain_subset_of_le hQ1.le (fun w T ↦ le_gridExponent_minimaGrid hγ0 hμpos hk hkN w T)
+    approxDomain_subset_of_le hQ1.le
+      (fun w T ↦ le_gridExponent_minimaGrid hγ0 hμpos hk hkN hkp hQC w T)
       (fun v hv T ↦ le_of_eq ((hfinex v hv T).trans (hgridfin v hv T).symm))
   have hwedgele : wedgeSpan k p y ≤ approxSpan Sfin L' c' Q := by
     rw [wedgeSpan]

@@ -21,28 +21,32 @@ finitely many systems of exponents occur. They are the sums of the exponents of 
 ```
 
 a function of the `#ι` numbers `logb Q μ i`, of `logb Q C`, of the jump, and of **one** bijection
-`π`. Rounding those `#ι + 2` numbers (Evertse 1996, Lemma 18; Evertse–Schlickewei 2002,
+`π`. Rounding the `#ι` numbers `logb Q μ i` (Evertse 1996, Lemma 18; Evertse–Schlickewei 2002,
 Lemma 18.1) gives the **grid of the minima** `NumberField.minimaGrid`, and there are at most
-`(#ι)! (2 m + 1) ^ (#ι + 2)` of them: singly exponential in `#ι`, and independent of the number of
-infinite places. An entry at `w₀` collects `a (p + 1) + 1` roundings, but `w₀` carries
-`mult w₀ = [K : ℚ] / a` in the weight, so the total cost in the weight is `[K : ℚ] (p + 2)` meshes
-per subset, as if every infinite place had collected `p + 2`.
+`(#ι)! (2 m + 1) ^ #ι` of them: singly exponential in `#ι`, and independent of the number of
+infinite places. The constant and the jump take no integers of their own: for
+`0 ≤ logb Q C ≤ γ` the constant rounds to `1`, and the top block, of `p = #ι - k` indices,
+contains `k`, so its sum plus the jump is the sum with `k - 1` in place of `k`, rounded by
+`b (k - 1) - b k` (`NumberField.minimaJump`). An entry at `w₀` collects `a p + 1` roundings, but
+`w₀` carries `mult w₀ = [K : ℚ] / a` in the weight, so the total cost in the weight is
+`[K : ℚ] (p + 1)` meshes per subset, as if every infinite place had collected `p + 1`.
 
 ## Main definitions
 
 * `NumberField.minimaGrid`: the integers of a grid system, from a bijection `π`, a constant `z`, a
   jump `j` and integers `b` for the minima.
+* `NumberField.minimaJump`: the jump `b (k - 1) - b k` of the grids that occur.
 * `NumberField.minimaGridSet`: the grids of the minima with bounded integers.
 
 ## Main results
 
 * `NumberField.le_gridExponent_minimaGrid`, `NumberField.gridExponent_minimaGrid_le`: rounding the
-  minima up dominates the wedge exponents, and costs at most one mesh, plus `a (p + 1)` at `w₀`.
+  minima up dominates the wedge exponents, and costs at most one mesh, plus `a p` at `w₀`.
 * `NumberField.approxWeight_gridExponent_minimaGrid_le`: the cost in the weight is
-  `γ [K : ℚ] binom(#ι, p) (p + 2)`.
+  `γ [K : ℚ] binom(#ι, p) (p + 1)`.
 * `NumberField.sum_mult_abs_minimaGrid_le`: the entries of a grid, weighted by the multiplicities,
   are bounded by those of the integers at one place.
-* `NumberField.ncard_minimaGridSet_le`: there are at most `(#ι)! (2 m + 1) ^ (#ι + 2)` grids of the
+* `NumberField.ncard_minimaGridSet_le`: there are at most `(#ι)! (2 m + 1) ^ #ι` grids of the
   minima.
 
 ## References
@@ -53,8 +57,8 @@ J.-H. Evertse, "An improvement of the quantitative subspace theorem", *Compositi
 J.-H. Evertse and H. P. Schlickewei, "A quantitative version of the absolute subspace theorem",
 *J. reine angew. Math.* **548** (2002), 21–127, Lemmas 17.2 and 18.1.
 
-This is part of Layer 6.1 of the `DiophantineApproximation` roadmap, and items Q1.7 and Q1.8c of
-the `QuantitativeSubspace` roadmap.
+This is part of Layer 6.1 of the `DiophantineApproximation` roadmap, and items Q1.7, Q1.8c and Q1.9b
+of the `QuantitativeSubspace` roadmap.
 -/
 
 @[expose] public section
@@ -75,12 +79,59 @@ noncomputable def minimaGrid (w₀ : InfinitePlace K) (a k p : ℕ) (π : Fin (F
   fun w T ↦ z + if w = w₀ then a * (∑ t ∈ (T : Finset ι), b (π.symm t) +
     if ∀ t ∈ (T : Finset ι), k ≤ (π.symm t : ℕ) then j else 0) else 0
 
+/-- **The jump of a grid of the minima**, `b (k - 1) - b k` (`0` if `k` is out of range): the
+top block `{k, …}` of size `p = #ι - k` contains `k`, so rounding `logb Q μ (k - 1)` and the
+`logb Q μ i` of the top block other than `k` rounds the top block's sum plus the jump, and the
+jump needs no integer of its own. -/
+def minimaJump {n : ℕ} (k : ℕ) (b : Fin n → ℤ) : ℤ :=
+  if h : 0 < k ∧ k < n then b ⟨k - 1, by omega⟩ - b ⟨k, h.2⟩ else 0
+
 variable (K ι) in
-/-- **The grids of the minima at `w₀` with integers in `[-m, m]`**, for one `k` and one `p`. -/
+/-- **The grids of the minima at `w₀` with integers in `[-m, m]`**, for one `k` and one `p`: the
+constant is `1` and the jump is `NumberField.minimaJump`, so a grid is a bijection and `#ι`
+integers. -/
 def minimaGridSet (w₀ : InfinitePlace K) (a k p : ℕ) (m : ℤ) :
     Set (InfinitePlace K → Set.powersetCard ι p → ℤ) :=
-  {g | ∃ (π : Fin (Fintype.card ι) ≃ ι) (z j : ℤ) (b : Fin (Fintype.card ι) → ℤ),
-      |z| ≤ m ∧ |j| ≤ m ∧ (∀ i, |b i| ≤ m) ∧ g = minimaGrid w₀ a k p π z j b}
+  {g | ∃ (π : Fin (Fintype.card ι) ≃ ι) (b : Fin (Fintype.card ι) → ℤ),
+      (∀ i, |b i| ≤ m) ∧ g = minimaGrid w₀ a k p π 1 (minimaJump k b) b}
+
+omit [NumberField K] [LinearOrder ι] in
+/-- **The top block contains `k`**: a `p`-subset `T` with `π⁻¹ t ≥ k` for all `t ∈ T`, where
+`k + p = #ι`, contains `π k`. -/
+theorem mem_of_forall_le {k p : ℕ} (hkN : k < Fintype.card ι) (hkp : k + p = Fintype.card ι)
+    (π : Fin (Fintype.card ι) ≃ ι) {T : Finset ι} (hT : T.card = p)
+    (htop : ∀ t ∈ T, k ≤ (π.symm t : ℕ)) : π ⟨k, hkN⟩ ∈ T := by
+  classical
+  by_contra h
+  have hsub : T.image (fun t ↦ (π.symm t : ℕ)) ⊆ Finset.Ico (k + 1) (Fintype.card ι) := by
+    intro x hx
+    obtain ⟨t, ht, rfl⟩ := Finset.mem_image.1 hx
+    refine Finset.mem_Ico.2 ⟨?_, (π.symm t).2⟩
+    rcases (htop t ht).lt_or_eq with hlt | heq
+    · exact hlt
+    · exfalso
+      refine h ?_
+      have : π.symm t = ⟨k, hkN⟩ := Fin.ext heq.symm
+      rw [← this, Equiv.apply_symm_apply]
+      exact ht
+  have hinj : Set.InjOn (fun t ↦ (π.symm t : ℕ)) T := fun x _ y _ hxy ↦
+    π.symm.injective (Fin.ext hxy)
+  have := Finset.card_le_card hsub
+  rw [Finset.card_image_of_injOn hinj, Nat.card_Ico] at this
+  omega
+
+omit [NumberField K] in
+open scoped Classical in
+/-- On the top block, the rounded sum plus the jump is the sum over the top block with `k`
+replaced by `k - 1`. -/
+theorem sum_add_minimaJump_eq {k p : ℕ} (hk : 0 < k) (hkN : k < Fintype.card ι)
+    (hkp : k + p = Fintype.card ι) (π : Fin (Fintype.card ι) ≃ ι) {T : Finset ι} (hT : T.card = p)
+    (htop : ∀ t ∈ T, k ≤ (π.symm t : ℕ)) {M : Type*} [AddCommGroup M]
+    (b : Fin (Fintype.card ι) → M) :
+    ∑ t ∈ T, b (π.symm t) + (b ⟨k - 1, by omega⟩ - b ⟨k, hkN⟩)
+      = ∑ t ∈ T.erase (π ⟨k, hkN⟩), b (π.symm t) + b ⟨k - 1, by omega⟩ := by
+  rw [← Finset.add_sum_erase T _ (mem_of_forall_le hkN hkp π hT htop), Equiv.symm_apply_apply]
+  abel
 
 /-- `γ ⌈x / γ⌉` lies in `[x, x + γ)`. -/
 private theorem le_mul_ceil_div {γ : ℝ} (hγ : 0 < γ) (x : ℝ) : x ≤ γ * ⌈x / γ⌉ := by
@@ -151,66 +202,107 @@ private theorem gridExponent_minimaGrid_eq (w : InfinitePlace K) (T : Set.powers
     push_cast
     ring
 
+omit [NumberField K] in
 open scoped Classical in
-/-- **Rounding the minima up dominates the wedge exponents**: with `z`, `b`, `j` the roundings
-up of `logb Q C`, of the `logb Q μ i` and of the jump, the grid exponent is at least the wedge
-exponent at every infinite place. -/
+/-- **The rounded minima on a subset**: with `b i = ⌈logb Q μ i / γ⌉` and the jump
+`NumberField.minimaJump`, the sum over `T` of the `γ b` plus `γ j` on the top block lies between
+the sum of the `logb Q μ` plus the jump and that plus `p γ`. -/
+private theorem minima_bracket (Q : ℝ) (hγ : 0 < γ) (hμ : ∀ j < Fintype.card ι, 0 < μ j)
+    (hk : 0 < k) (hkN : k < Fintype.card ι) (hkp : k + p = Fintype.card ι)
+    (T : Set.powersetCard ι p) :
+    (∑ t ∈ (T : Finset ι), Real.logb Q (μ (π.symm t)) +
+        if ∀ t ∈ (T : Finset ι), k ≤ (π.symm t : ℕ) then Real.logb Q (μ (k - 1) / μ k) else 0)
+      ≤ ∑ t ∈ (T : Finset ι), γ * ⌈Real.logb Q (μ (π.symm t)) / γ⌉ +
+        (if ∀ t ∈ (T : Finset ι), k ≤ (π.symm t : ℕ)
+          then γ * (minimaJump k fun i : Fin (Fintype.card ι) ↦ ⌈Real.logb Q (μ i) / γ⌉) else 0) ∧
+    (∑ t ∈ (T : Finset ι), γ * ⌈Real.logb Q (μ (π.symm t)) / γ⌉ +
+        if ∀ t ∈ (T : Finset ι), k ≤ (π.symm t : ℕ)
+          then γ * (minimaJump k fun i : Fin (Fintype.card ι) ↦ ⌈Real.logb Q (μ i) / γ⌉) else 0)
+      ≤ (∑ t ∈ (T : Finset ι), Real.logb Q (μ (π.symm t)) +
+        if ∀ t ∈ (T : Finset ι), k ≤ (π.symm t : ℕ) then Real.logb Q (μ (k - 1) / μ k) else 0)
+        + p * γ := by
+  set x : Fin (Fintype.card ι) → ℝ := fun i ↦ Real.logb Q (μ i) with hx
+  set b : Fin (Fintype.card ι) → ℤ := fun i ↦ ⌈Real.logb Q (μ i) / γ⌉ with hb
+  have hT := Set.powersetCard.card_eq T
+  have hlo : ∀ i, x i ≤ γ * b i := fun i ↦ le_mul_ceil_div hγ _
+  have hhi : ∀ i, γ * b i ≤ x i + γ := fun i ↦ mul_ceil_div_le hγ _
+  change (∑ t ∈ (T : Finset ι), x (π.symm t) + _) ≤ ∑ t ∈ (T : Finset ι), γ * (b (π.symm t) : ℝ)
+      + _ ∧ (∑ t ∈ (T : Finset ι), γ * (b (π.symm t) : ℝ) + _) ≤ _
+  by_cases htop : ∀ t ∈ (T : Finset ι), k ≤ (π.symm t : ℕ)
+  · have hmem := mem_of_forall_le hkN hkp π hT htop
+    have hX : (∑ t ∈ (T : Finset ι), x (π.symm t) + Real.logb Q (μ (k - 1) / μ k))
+        = ∑ t ∈ (T : Finset ι).erase (π ⟨k, hkN⟩), x (π.symm t) + x ⟨k - 1, by omega⟩ := by
+      rw [Real.logb_div (hμ _ (by omega)).ne' (hμ _ hkN).ne', ← sum_add_minimaJump_eq hk hkN hkp π
+        hT htop x]
+    have hY : (∑ t ∈ (T : Finset ι), γ * (b (π.symm t) : ℝ) + γ * (minimaJump k b : ℝ))
+        = ∑ t ∈ (T : Finset ι).erase (π ⟨k, hkN⟩), γ * (b (π.symm t) : ℝ)
+          + γ * b ⟨k - 1, by omega⟩ := by
+      rw [minimaJump, dite_eq_left ⟨hk, hkN⟩, ← sum_add_minimaJump_eq hk hkN hkp π hT htop
+        (fun i ↦ γ * (b i : ℝ))]
+      push_cast
+      ring
+    rw [ite_eq_left htop, ite_eq_left htop, hX, hY]
+    have hcard := Finset.card_erase_add_one hmem
+    rw [hT] at hcard
+    have hs1 := Finset.sum_le_sum fun t (_ : t ∈ (T : Finset ι).erase (π ⟨k, hkN⟩)) ↦
+      hlo (π.symm t)
+    have hs2 := Finset.sum_le_sum fun t (_ : t ∈ (T : Finset ι).erase (π ⟨k, hkN⟩)) ↦
+      hhi (π.symm t)
+    rw [Finset.sum_add_distrib, Finset.sum_const, nsmul_eq_mul] at hs2
+    have hc : (((T : Finset ι).erase (π ⟨k, hkN⟩)).card : ℝ) + 1 = p := by exact_mod_cast hcard
+    have h1 := hlo ⟨k - 1, by omega⟩
+    have h2 := hhi ⟨k - 1, by omega⟩
+    constructor
+    · linarith
+    · nlinarith
+  · simp only [htop, ↓reduceIte, add_zero]
+    have hs1 := Finset.sum_le_sum fun t (_ : t ∈ (T : Finset ι)) ↦ hlo (π.symm t)
+    have hs2 := Finset.sum_le_sum fun t (_ : t ∈ (T : Finset ι)) ↦ hhi (π.symm t)
+    rw [Finset.sum_add_distrib, Finset.sum_const, hT, nsmul_eq_mul] at hs2
+    exact ⟨hs1, by linarith⟩
+
+open scoped Classical in
+/-- **Rounding the minima up dominates the wedge exponents**: with the constant `1`, which
+dominates `logb Q C ≤ γ`, the `b i = ⌈logb Q μ i / γ⌉` and the jump `NumberField.minimaJump`, the
+grid exponent is at least the wedge exponent at every infinite place. -/
 theorem le_gridExponent_minimaGrid (hγ : 0 < γ)
     (hμ : ∀ j < Fintype.card ι, 0 < μ j) (hk : 0 < k) (hkN : k < Fintype.card ι)
+    (hkp : k + p = Fintype.card ι) (hC : Real.logb Q C ≤ γ)
     (w : InfinitePlace K) (T : Set.powersetCard ι p) :
     wedgeExponentAt c w₀ a π μ C Q k p w.1 T
       ≤ gridExponent (fun v (T : Set.powersetCard ι p) ↦ ∑ t ∈ (T : Finset ι), c v t) γ
-        (minimaGrid w₀ a k p π ⌈Real.logb Q C / γ⌉
-          ⌈Real.logb Q (μ (k - 1) / μ k) / γ⌉ fun i ↦ ⌈Real.logb Q (μ i) / γ⌉) w.1 T := by
+        (minimaGrid w₀ a k p π 1
+          (minimaJump k fun i : Fin (Fintype.card ι) ↦ ⌈Real.logb Q (μ i) / γ⌉)
+          fun i ↦ ⌈Real.logb Q (μ i) / γ⌉) w.1 T := by
   rw [wedgeExponentAt_eq hμ hk hkN, gridExponent_minimaGrid_eq]
+  have hz : Real.logb Q C ≤ γ * ((1 : ℤ) : ℝ) := by rw [Int.cast_one, mul_one]; exact hC
   by_cases hw : w = w₀
   · simp only [hw, ↓reduceIte]
-    refine add_le_add le_rfl (add_le_add (le_mul_ceil_div hγ _) ?_)
-    refine mul_le_mul_of_nonneg_right (add_le_add
-      (Finset.sum_le_sum fun t _ ↦ le_mul_ceil_div hγ _) ?_) (Nat.cast_nonneg a)
-    split_ifs
-    · exact le_mul_ceil_div hγ _
-    · exact le_rfl
+    refine add_le_add le_rfl (add_le_add hz ?_)
+    exact mul_le_mul_of_nonneg_right (minima_bracket Q hγ hμ hk hkN hkp T).1 (Nat.cast_nonneg a)
   · simp only [hw, ↓reduceIte, add_zero]
-    exact add_le_add le_rfl (le_mul_ceil_div hγ _)
+    exact add_le_add le_rfl hz
 
 open scoped Classical in
-/-- **Rounding the minima up costs at most one mesh**, and `a (p + 1)` more at `w₀`. -/
+/-- **Rounding the minima up costs at most one mesh**, and `a p` more at `w₀`, if
+`0 ≤ logb Q C`. -/
 theorem gridExponent_minimaGrid_le (hγ : 0 < γ)
     (hμ : ∀ j < Fintype.card ι, 0 < μ j) (hk : 0 < k) (hkN : k < Fintype.card ι)
+    (hkp : k + p = Fintype.card ι) (hC : 0 ≤ Real.logb Q C)
     (w : InfinitePlace K) (T : Set.powersetCard ι p) :
     gridExponent (fun v (T : Set.powersetCard ι p) ↦ ∑ t ∈ (T : Finset ι), c v t) γ
-        (minimaGrid w₀ a k p π ⌈Real.logb Q C / γ⌉
-          ⌈Real.logb Q (μ (k - 1) / μ k) / γ⌉ fun i ↦ ⌈Real.logb Q (μ i) / γ⌉) w.1 T
+        (minimaGrid w₀ a k p π 1
+          (minimaJump k fun i : Fin (Fintype.card ι) ↦ ⌈Real.logb Q (μ i) / γ⌉)
+          fun i ↦ ⌈Real.logb Q (μ i) / γ⌉) w.1 T
       ≤ wedgeExponentAt c w₀ a π μ C Q k p w.1 T +
-        (γ + if w = w₀ then γ * (((p : ℝ) + 1) * a) else 0) := by
+        (γ + if w = w₀ then γ * ((p : ℝ) * a) else 0) := by
   rw [wedgeExponentAt_eq hμ hk hkN, gridExponent_minimaGrid_eq]
-  have hz := mul_ceil_div_le hγ (Real.logb Q C)
+  have hz : γ * ((1 : ℤ) : ℝ) ≤ Real.logb Q C + γ := by rw [Int.cast_one, mul_one]; linarith
   by_cases hw : w = w₀
   · simp only [hw, ↓reduceIte]
-    have hsum := Finset.sum_le_sum fun t (_ : t ∈ (T : Finset ι)) ↦
-      mul_ceil_div_le hγ (Real.logb Q (μ (π.symm t)))
-    rw [Finset.sum_add_distrib, Finset.sum_const, Set.powersetCard.card_eq T, nsmul_eq_mul]
-      at hsum
-    have hj : (if ∀ t ∈ (T : Finset ι), k ≤ (π.symm t : ℕ)
-          then γ * ⌈Real.logb Q (μ (k - 1) / μ k) / γ⌉ else 0)
-        ≤ (if ∀ t ∈ (T : Finset ι), k ≤ (π.symm t : ℕ)
-          then Real.logb Q (μ (k - 1) / μ k) else 0) + γ := by
-      split_ifs
-      · exact mul_ceil_div_le hγ _
-      · linarith
-    have hmain : (∑ t ∈ (T : Finset ι), γ * ⌈Real.logb Q (μ (π.symm t)) / γ⌉ +
-          if ∀ t ∈ (T : Finset ι), k ≤ (π.symm t : ℕ)
-            then γ * ⌈Real.logb Q (μ (k - 1) / μ k) / γ⌉ else 0) * a
-        ≤ (∑ t ∈ (T : Finset ι), Real.logb Q (μ (π.symm t)) +
-          if ∀ t ∈ (T : Finset ι), k ≤ (π.symm t : ℕ)
-            then Real.logb Q (μ (k - 1) / μ k) else 0) * a + γ * (((p : ℝ) + 1) * a) :=
-      calc _ ≤ (∑ t ∈ (T : Finset ι), Real.logb Q (μ (π.symm t)) + p * γ +
-              ((if ∀ t ∈ (T : Finset ι), k ≤ (π.symm t : ℕ)
-                then Real.logb Q (μ (k - 1) / μ k) else 0) + γ)) * a :=
-            mul_le_mul_of_nonneg_right (add_le_add hsum hj) (Nat.cast_nonneg a)
-        _ = _ := by ring
-    linarith
+    have h := mul_le_mul_of_nonneg_right (minima_bracket (π := π) Q hγ hμ hk hkN hkp T).2
+      (Nat.cast_nonneg a)
+    nlinarith
   · simp only [hw, ↓reduceIte, add_zero]
     linarith
 
@@ -242,33 +334,35 @@ theorem approxWeight_le_add_of_le {ρ : Type*} [Fintype ρ] {Sfin : Finset (Fini
   linarith
 
 open scoped Classical in
-/-- **The cost of rounding the minima in the weight**: `γ [K : ℚ] binom(#ι, p) (p + 2)`, the
-place `w₀` carrying `mult w₀ a (p + 1) = [K : ℚ] (p + 1)` of it. -/
+/-- **The cost of rounding the minima in the weight**: `γ [K : ℚ] binom(#ι, p) (p + 1)`, the
+place `w₀` carrying `mult w₀ a p = [K : ℚ] p` of it. -/
 theorem approxWeight_gridExponent_minimaGrid_le {Sfin : Finset (FinitePlace K)}
     {c : AbsoluteValue K ℝ → ι → ℝ} {w₀ : InfinitePlace K} {a : ℕ}
     (ha : a * w₀.mult = finrank ℚ K) {π : Fin (Fintype.card ι) ≃ ι} {μ : ℕ → ℝ} {C Q γ : ℝ}
     {k p : ℕ} (hγ : 0 < γ) (hμ : ∀ j < Fintype.card ι, 0 < μ j) (hk : 0 < k)
-    (hkN : k < Fintype.card ι) :
+    (hkN : k < Fintype.card ι) (hkp : k + p = Fintype.card ι) (hC : 0 ≤ Real.logb Q C) :
     approxWeight Sfin (gridExponent (fun v (T : Set.powersetCard ι p) ↦ ∑ t ∈ (T : Finset ι),
-        c v t) γ (minimaGrid w₀ a k p π ⌈Real.logb Q C / γ⌉
-          ⌈Real.logb Q (μ (k - 1) / μ k) / γ⌉ fun i ↦ ⌈Real.logb Q (μ i) / γ⌉))
+        c v t) γ (minimaGrid w₀ a k p π 1
+          (minimaJump k fun i : Fin (Fintype.card ι) ↦ ⌈Real.logb Q (μ i) / γ⌉)
+          fun i ↦ ⌈Real.logb Q (μ i) / γ⌉))
       ≤ approxWeight Sfin (wedgeExponentAt c w₀ a π μ C Q k p) +
-        γ * (finrank ℚ K * Fintype.card (Set.powersetCard ι p) * (p + 2)) := by
+        γ * (finrank ℚ K * Fintype.card (Set.powersetCard ι p) * (p + 1)) := by
   have hna : ∀ v : FinitePlace K, IsNonarchimedean v.1 := fun v a b ↦ v.add_le a b
-  refine (approxWeight_le_add_of_le (fun w T ↦ gridExponent_minimaGrid_le hγ hμ hk hkN w T)
+  refine (approxWeight_le_add_of_le
+    (fun w T ↦ gridExponent_minimaGrid_le hγ hμ hk hkN hkp hC w T)
     fun v _ T ↦ le_of_eq ?_).trans (le_of_eq ?_)
   · rw [gridExponent_of_forall_ne _ _ (fun w hcc ↦ InfinitePlace.not_isNonarchimedean w
       (by rw [hcc]; exact hna v)) T]
     simp only [wedgeExponentAt, hna v, ↓reduceIte, add_zero]
   · have hsum : ∑ w : InfinitePlace K, (w.mult : ℝ) * (γ + if w = w₀ then
-        γ * (((p : ℝ) + 1) * a) else 0) = γ * (finrank ℚ K * (p + 2)) := by
+        γ * ((p : ℝ) * a) else 0) = γ * (finrank ℚ K * (p + 1)) := by
       simp only [mul_add, Finset.sum_add_distrib, mul_ite, mul_zero,
         Finset.sum_ite_eq', Finset.mem_univ, ↓reduceIte]
       have hd : ∑ w : InfinitePlace K, (w.mult : ℝ) = finrank ℚ K := by
         exact_mod_cast InfinitePlace.sum_mult_eq
       have ha' : (a : ℝ) * w₀.mult = finrank ℚ K := by exact_mod_cast ha
       rw [← Finset.sum_mul, hd]
-      linear_combination γ * (p + 1) * ha'
+      linear_combination γ * p * ha'
     rw [hsum]
     ring
 
@@ -325,97 +419,68 @@ theorem sum_mult_abs_minimaGrid_le {w₀ : InfinitePlace K} {a k p : ℕ}
         mul_le_mul_of_nonneg_left (Finset.sum_le_sum fun T _ ↦ hm T) (Nat.cast_nonneg _)
     _ = _ := by rw [Finset.sum_const, Finset.card_univ, nsmul_eq_mul]; ring
 
-omit [NumberField K] [Fintype ι] [LinearOrder ι] in
+omit [NumberField K] in
 open scoped Classical in
-/-- **The rounded integers stay in a box**: if `|xc| ≤ 1`, the `|x i| ≤ B` and `|y| ≤ 2 B`, the
-rounding `z` of `xc` and the rounded sum `∑_{t ∈ T} b (π⁻¹ t) + [top] j` of `p ≤ N` of the `x i`
-and of `y` have `|z| + |∑ b + j| ≤ (1 + B N + 2 B) / γ + N + 2`. -/
-theorem abs_ceil_add_abs_sum_ceil_le {N : ℕ} {γ B xc y : ℝ} (hγ : 0 < γ) (hB : 0 ≤ B)
-    (hxc : |xc| ≤ 1) {x : Fin N → ℝ} (hx : ∀ i, |x i| ≤ B) (hy : |y| ≤ 2 * B) {p : ℕ}
-    (hpN : p ≤ N) (f : ι → Fin N) (T : Finset ι) (hT : T.card = p) (P : Prop) [Decidable P] :
-    |((⌈xc / γ⌉ : ℤ) : ℝ)| + |(((∑ t ∈ T, ⌈x (f t) / γ⌉ + if P then ⌈y / γ⌉ else 0 : ℤ)) : ℝ)|
-      ≤ (1 + B * N + 2 * B) / γ + N + 2 := by
-  have hz1 := le_mul_ceil_div hγ xc
-  have hz2 := mul_ceil_div_le hγ xc
-  have hxc' := abs_le.1 hxc
-  have hγz : |γ * ((⌈xc / γ⌉ : ℤ) : ℝ)| ≤ 1 + γ := by
-    rw [abs_le]; constructor <;> linarith
-  set X : ℝ := ∑ t ∈ T, x (f t) + if P then y else 0 with hX
-  have hXB : |X| ≤ B * N + 2 * B := by
-    have h1 : |∑ t ∈ T, x (f t)| ≤ B * N := by
-      refine (Finset.abs_sum_le_sum_abs _ _).trans ?_
-      refine (Finset.sum_le_sum fun t _ ↦ hx (f t)).trans ?_
-      rw [Finset.sum_const, hT, nsmul_eq_mul, mul_comm]
-      exact mul_le_mul_of_nonneg_left (by exact_mod_cast hpN) hB
-    have h2 : |(if P then y else 0)| ≤ 2 * B := by
-      split_ifs
-      · exact hy
-      · simpa using hB
-    exact (abs_add_le _ _).trans (add_le_add h1 h2)
-  have hS1 : X ≤ γ * (((∑ t ∈ T, ⌈x (f t) / γ⌉ + if P then ⌈y / γ⌉ else 0 : ℤ)) : ℝ) := by
-    push_cast
-    rw [mul_add, Finset.mul_sum, hX]
-    refine add_le_add (Finset.sum_le_sum fun t _ ↦ le_mul_ceil_div hγ _) ?_
-    split_ifs
-    · exact le_mul_ceil_div hγ _
-    · simp
-  have hS2 : γ * (((∑ t ∈ T, ⌈x (f t) / γ⌉ + if P then ⌈y / γ⌉ else 0 : ℤ)) : ℝ) ≤
-      X + (p + 1) * γ := by
-    push_cast
-    rw [mul_add, Finset.mul_sum, hX]
-    have h1 : ∑ t ∈ T, γ * (⌈x (f t) / γ⌉ : ℝ) ≤ ∑ t ∈ T, x (f t) + p * γ := by
-      have := Finset.sum_le_sum fun t (_ : t ∈ T) ↦ mul_ceil_div_le hγ (x (f t))
-      rwa [Finset.sum_add_distrib, Finset.sum_const, hT, nsmul_eq_mul] at this
-    have h2 : (γ * if P then (⌈y / γ⌉ : ℝ) else 0) ≤ (if P then y else 0) + γ := by
-      split_ifs
-      · exact mul_ceil_div_le hγ _
-      · simp only [mul_zero, zero_add]; exact hγ.le
+/-- **The rounded integers stay in a box**: if the `|b i| ≤ m`, the sum `∑_{t ∈ T} b (π⁻¹ t)` over
+a `p`-subset, plus the jump `NumberField.minimaJump` on the top block, is at most `p m` in absolute
+value: on the top block it is a sum of `p` of the `b i` too. -/
+theorem abs_sum_add_minimaJump_le {k p : ℕ} (hk : 0 < k) (hkN : k < Fintype.card ι)
+    (hkp : k + p = Fintype.card ι) (π : Fin (Fintype.card ι) ≃ ι) {m : ℤ}
+    {b : Fin (Fintype.card ι) → ℤ} (hb : ∀ i, |b i| ≤ m) (T : Finset ι) (hT : T.card = p) :
+    |∑ t ∈ T, b (π.symm t) + if ∀ t ∈ T, k ≤ (π.symm t : ℕ) then minimaJump k b else 0|
+      ≤ p * m := by
+  by_cases htop : ∀ t ∈ T, k ≤ (π.symm t : ℕ)
+  · have hmem := mem_of_forall_le hkN hkp π hT htop
+    rw [ite_eq_left htop, minimaJump, dite_eq_left ⟨hk, hkN⟩,
+      sum_add_minimaJump_eq hk hkN hkp π hT htop b]
+    have hcard := Finset.card_erase_add_one hmem
+    have h1 : |∑ t ∈ T.erase (π ⟨k, hkN⟩), b (π.symm t)| ≤ (T.erase (π ⟨k, hkN⟩)).card * m :=
+      (Finset.abs_sum_le_sum_abs _ _).trans
+        ((Finset.sum_le_card_nsmul _ _ _ fun t _ ↦ hb _).trans (by rw [nsmul_eq_mul]))
+    refine (abs_add_le _ _).trans ?_
+    have h2 := hb ⟨k - 1, by omega⟩
+    have : ((T.erase (π ⟨k, hkN⟩)).card : ℤ) + 1 = p := by rw [← hT]; exact_mod_cast hcard
+    rw [← this, add_mul, one_mul]
     linarith
-  have hpN' : (p : ℝ) ≤ N := by exact_mod_cast hpN
-  have hγS : |γ * (((∑ t ∈ T, ⌈x (f t) / γ⌉ + if P then ⌈y / γ⌉ else 0 : ℤ)) : ℝ)| ≤
-      B * N + 2 * B + (N + 1) * γ := by
-    have hX' := abs_le.1 hXB
-    rw [abs_le]; constructor <;> nlinarith
-  rw [abs_mul, abs_of_pos hγ] at hγz hγS
-  rw [div_add' _ _ _ hγ.ne', div_add' _ _ _ hγ.ne', le_div_iff₀ hγ]
-  nlinarith
+  · simp only [htop, ↓reduceIte, add_zero]
+    refine (Finset.abs_sum_le_sum_abs _ _).trans
+      ((Finset.sum_le_card_nsmul _ _ _ fun t _ ↦ hb _).trans ?_)
+    rw [nsmul_eq_mul, hT]
 
-/-- **The number of grids of the minima**: at most `(#ι)! (2 m + 1) ^ (#ι + 2)` — one bijection,
-and `#ι + 2` integers. -/
+/-- **The number of grids of the minima**: at most `(#ι)! (2 m + 1) ^ #ι` — one bijection, and
+`#ι` integers for the minima; the constant and the jump cost nothing. -/
 theorem ncard_minimaGridSet_le (w₀ : InfinitePlace K) (a k p : ℕ) (m : ℤ) :
     (minimaGridSet K ι w₀ a k p m).ncard
-      ≤ (Fintype.card ι).factorial * (2 * m + 1).toNat ^ (Fintype.card ι + 2) := by
+      ≤ (Fintype.card ι).factorial * (2 * m + 1).toNat ^ Fintype.card ι := by
   classical
   set P := (Finset.univ : Finset (Fin (Fintype.card ι) ≃ ι)) ×ˢ
-    (Finset.Icc (-m) m ×ˢ (Finset.Icc (-m) m ×ˢ
-      Fintype.piFinset fun _ : Fin (Fintype.card ι) ↦ Finset.Icc (-m) m)) with hP
+      Fintype.piFinset (fun _ : Fin (Fintype.card ι) ↦ Finset.Icc (-m) m) with hP
   have hsub : minimaGridSet K ι w₀ a k p m
-      ⊆ ↑(P.image fun q ↦ minimaGrid w₀ a k p q.1 q.2.1 q.2.2.1 q.2.2.2) := by
-    rintro g ⟨π, z, j, b, hz, hj, hb, rfl⟩
-    refine Finset.mem_coe.2 (Finset.mem_image.2 ⟨(π, z, j, b), ?_, rfl⟩)
+      ⊆ ↑(P.image fun q ↦ minimaGrid w₀ a k p q.1 1 (minimaJump k q.2) q.2) := by
+    rintro g ⟨π, b, hb, rfl⟩
+    refine Finset.mem_coe.2 (Finset.mem_image.2 ⟨(π, b), ?_, rfl⟩)
     simp only [hP, Finset.mem_product, Finset.mem_univ, Finset.mem_Icc, Fintype.mem_piFinset,
       true_and]
-    exact ⟨abs_le.1 hz, abs_le.1 hj, fun i ↦ abs_le.1 (hb i)⟩
+    exact fun i ↦ abs_le.1 (hb i)
   refine (Set.ncard_le_ncard hsub (Finset.finite_toSet _)).trans ?_
   rw [Set.ncard_coe_finset]
   refine Finset.card_image_le.trans (le_of_eq ?_)
-  rw [hP, Finset.card_product, Finset.card_product, Finset.card_product, Finset.card_univ,
+  rw [hP, Finset.card_product, Finset.card_univ,
     Fintype.card_equiv (Fintype.equivFin ι).symm, Fintype.card_fin,
     Fintype.card_piFinset, Finset.prod_const, Finset.card_univ, Fintype.card_fin, Int.card_Icc,
-    show m + 1 - -m = 2 * m + 1 by ring, pow_add, pow_two]
-  ring
+    show m + 1 - -m = 2 * m + 1 by ring]
 
 /-- There are finitely many grids of the minima with bounded integers. -/
 theorem finite_minimaGridSet (w₀ : InfinitePlace K) (a k p : ℕ) (m : ℤ) :
     (minimaGridSet K ι w₀ a k p m).Finite := by
   classical
   refine Set.Finite.subset (Finset.finite_toSet (((Finset.univ : Finset
-      (Fin (Fintype.card ι) ≃ ι)) ×ˢ (Finset.Icc (-m) m ×ˢ (Finset.Icc (-m) m ×ˢ
-      Fintype.piFinset fun _ : Fin (Fintype.card ι) ↦ Finset.Icc (-m) m))).image
-      fun q ↦ minimaGrid w₀ a k p q.1 q.2.1 q.2.2.1 q.2.2.2)) ?_
-  rintro g ⟨π, z, j, b, hz, hj, hb, rfl⟩
-  refine Finset.mem_coe.2 (Finset.mem_image.2 ⟨(π, z, j, b), ?_, rfl⟩)
+      (Fin (Fintype.card ι) ≃ ι)) ×ˢ
+      Fintype.piFinset fun _ : Fin (Fintype.card ι) ↦ Finset.Icc (-m) m).image
+      fun q ↦ minimaGrid w₀ a k p q.1 1 (minimaJump k q.2) q.2)) ?_
+  rintro g ⟨π, b, hb, rfl⟩
+  refine Finset.mem_coe.2 (Finset.mem_image.2 ⟨(π, b), ?_, rfl⟩)
   simp only [Finset.mem_product, Finset.mem_univ, Finset.mem_Icc, Fintype.mem_piFinset, true_and]
-  exact ⟨abs_le.1 hz, abs_le.1 hj, fun i ↦ abs_le.1 (hb i)⟩
+  exact fun i ↦ abs_le.1 (hb i)
 
 end NumberField

@@ -94,7 +94,7 @@ multiprojective height theory `H`, natural combinations `P_1, …, P_t` of `R` w
 theorem prod_pow_mul_pow_mul_height_le [CharZero K] [Height.AdmissibleAbsValues K] {ι : Type*}
     [Fintype ι] [DecidableEq ι] [LinearOrder ι] {b : σ → ι}
     (hb : Function.Surjective b) (H : MultiprojectiveHeight b)
-    (hU : IsUnmixedRing (Localization.AtPrime 𝔭)) {e : ι → ℕ}
+    {e : ι → ℕ}
     {R : Finset (MvPolynomial σ K)} (hR : ∀ r ∈ R, IsWeightedHomogeneous (multiWeight b) r e)
     (h𝔭R : 𝔭 ∈ (Ideal.span (R : Set (MvPolynomial σ K))).minimalPrimes)
     (h𝔭 : 𝔭.IsWeightedHomogeneous (multiWeight b))
@@ -135,9 +135,9 @@ theorem prod_pow_mul_pow_mul_height_le [CharZero K] [Height.AdmissibleAbsValues 
       (w' := fun s ↦ ((δ (b s) : ℝ))⁻¹) (AddMonoidHom.id ℝ) (f := v) (fun _ ↦ rfl)]
   refine ⟨T, hB, hadapt, hTb, hcard, fun β hβ ↦ ?_, ?_⟩
   · rw [← prod_comp_eq_prod_pow hv hrange δ]
-    exact prod_mul_pow_mul_multidegree_le hb hU hR h𝔭R h𝔭 hne ht hQ hoff hdiag
+    exact prod_mul_pow_mul_multidegree_le hb hR h𝔭R h𝔭 hne ht hQ hoff hdiag
       (fun α ↦ hδ _) hε hI' β hβ
-  obtain ⟨P, hPa, ℓ, hℓ, -, hh⟩ := exists_localLength_mul_height_le hb H hU h𝔭 hne hR h𝔭R ht
+  obtain ⟨P, hPa, ℓ, hℓ, -, hh⟩ := exists_localLength_mul_height_le hb H h𝔭 hne hR h𝔭R ht
   have hx : ∀ j, P j ∈ Ideal.span (R : Set (MvPolynomial σ K)) := by
     intro j
     obtain ⟨a, -, ha⟩ := hPa j
@@ -296,7 +296,7 @@ type `β` as in `MvPolynomial.productTheorem`, and for every `k` with `β_k < n_
 `G_k = {g : Fin (t - 1) → Fin m | β + ε_k + ∑_j ε_{g j} = n}`. -/
 theorem productTheorem_height [CharZero K] [Height.AdmissibleAbsValues K] {m : ℕ}
     {b : σ → Fin m} (hb : Function.Surjective b) (H : MultiprojectiveHeight b)
-    (hU : IsUnmixedRing (Localization.AtPrime 𝔭)) {δ : Fin m → ℕ}
+    {δ : Fin m → ℕ}
     {R : Finset (MvPolynomial σ K)} (hR : ∀ r ∈ R, IsWeightedHomogeneous (multiWeight b) r δ)
     (h𝔭R : 𝔭 ∈ (Ideal.span (R : Set (MvPolynomial σ K))).minimalPrimes)
     (h𝔭 : 𝔭.IsWeightedHomogeneous (multiWeight b)) (hne : hilbertPoly b 𝔭 ≠ 0) {t : ℕ}
@@ -327,7 +327,7 @@ theorem productTheorem_height [CharZero K] [Height.AdmissibleAbsValues K] {m : �
                   ∑ j, Finsupp.single (g j) 1 = bottomType b) := by
   classical
   obtain ⟨T, hB, hadapt, hTb, hcard, hineq, P, hPa, hh⟩ :=
-    prod_pow_mul_pow_mul_height_le hb H hU hR h𝔭R h𝔭 hne ht hδ hε hRR' hI
+    prod_pow_mul_pow_mul_height_le hb H hR h𝔭R h𝔭 hne ht hδ hε hRR' hI
   obtain ⟨hmin, hrk, hpos, hle, hcount⟩ :=
     productTheorem_of_basis hb h𝔭 hne hδ hε hanti hratio hB hadapt hTb hcard hineq
   refine ⟨hmin, coneType b T, hrk, hpos, hle, hcount, fun k _ ↦ ?_⟩
@@ -360,7 +360,7 @@ coefficients of `R` indexed by `R × M`, `M` contains the supports of the `r ∈
 `c = ∑_{μ ∈ M} 1/C(δ, μ)`. -/
 theorem productTheorem_height_coeff [CharZero K] [Height.AdmissibleAbsValues K] {m : ℕ}
     {b : σ → Fin m} (hb : Function.Surjective b) (H : MultiprojectiveHeight b)
-    (hU : IsUnmixedRing (Localization.AtPrime 𝔭)) {δ : Fin m → ℕ}
+    {δ : Fin m → ℕ}
     {R : Finset (MvPolynomial σ K)} (hR : ∀ r ∈ R, IsWeightedHomogeneous (multiWeight b) r δ)
     (h𝔭R : 𝔭 ∈ (Ideal.span (R : Set (MvPolynomial σ K))).minimalPrimes)
     (h𝔭 : 𝔭.IsWeightedHomogeneous (multiWeight b)) (hne : hilbertPoly b 𝔭 ≠ 0) {t : ℕ}
@@ -399,7 +399,7 @@ theorem productTheorem_height_coeff [CharZero K] [Height.AdmissibleAbsValues K] 
       · exact Real.log_le_log (Nat.cast_pos.mpr hn0) (Nat.cast_le.mpr hn)
     dsimp only
     gcongr
-  simpa only [Nat.cast_pow, Real.log_pow] using productTheorem_height hb H hU hR h𝔭R h𝔭 hne ht hδ
+  simpa only [Nat.cast_pow, Real.log_pow] using productTheorem_height hb H hR h𝔭R h𝔭 hne ht hδ
     hε hRR' hI hanti hratio hmono fun a ha ↦ by
       rw [Nat.cast_sum]
       exact bombieriLogHeight_sum_nsmul_le b hM a ha

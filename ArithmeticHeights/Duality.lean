@@ -302,7 +302,7 @@ variable {K : Type*} [Field K] {ι : Type*} [Fintype ι] {r : Type*} [Fintype r]
 omit [Fintype ι] in
 /-- Two enumerations of the column index differ by a permutation, so the determinants they
 produce differ by a sign. -/
-private lemma det_submatrix_equiv_eq_or_eq_neg (X : Matrix r ι K) (e₁ e₂ : r ≃ ι) :
+theorem det_submatrix_equiv_eq_or_eq_neg (X : Matrix r ι K) (e₁ e₂ : r ≃ ι) :
     (X.submatrix id e₁).det = (X.submatrix id e₂).det ∨
       (X.submatrix id e₁).det = -(X.submatrix id e₂).det := by
   have h : X.submatrix id e₁ = (X.submatrix id e₂).submatrix id (e₁.trans e₂.symm) := by
@@ -312,14 +312,14 @@ private lemma det_submatrix_equiv_eq_or_eq_neg (X : Matrix r ι K) (e₁ e₂ : 
   rcases Int.units_eq_one_or (Equiv.Perm.sign (e₁.trans e₂.symm)) with hs | hs <;> rw [hs] <;> simp
 
 /-- Dual rows make the enumerated determinant a unit. -/
-private lemma isUnit_det_submatrix_of_mul_transpose_eq_one {C D : Matrix r ι K}
+theorem isUnit_det_submatrix_of_mul_transpose_eq_one {C D : Matrix r ι K}
     (hCD : C * Dᵀ = 1) (e : r ≃ ι) : IsUnit (C.submatrix id e).det :=
   IsUnit.of_mul_eq_one ((Dᵀ).submatrix e id).det <| by
     rw [← Matrix.det_mul, ← mul_eq_submatrix_mul_submatrix, hCD, Matrix.det_one]
 
 omit [Fintype r] in
 /-- Rows dual to a family of rows are linearly independent. -/
-private lemma linearIndependent_row_of_mul_transpose_eq_one {C D : Matrix r ι K}
+theorem linearIndependent_row_of_mul_transpose_eq_one {C D : Matrix r ι K}
     (hCD : C * Dᵀ = 1) : LinearIndependent K C.row := by
   refine linearIndependent_iff'.2 fun t g hg i hi ↦ ?_
   have h := congrArg (· ⬝ᵥ D.row i) hg
@@ -355,6 +355,34 @@ private lemma eq_sum_dotProduct_smul_row {C D : Matrix r ι K} (hCD : C * Dᵀ =
     Matrix.row, Finset.sum_mul]
   rw [Finset.sum_comm]
   exact Finset.sum_congr rfl fun j _ ↦ Finset.sum_congr rfl fun a _ ↦ by ring
+
+/-- **The complementary-minor identity, for any enumeration.** If the rows of `C` and of `D` are
+dual for the standard bilinear form, the Plücker coordinate at `s` of the first block of `C` is,
+up to a sign, the determinant of `C` read through `e` times the Plücker coordinate at the
+complement of `s` of the second block of `D`. The factor does not depend on `s`; this is the
+local form of duality the twisted duality theorem runs on. -/
+theorem plucker_inl_eq_or_eq_neg [LinearOrder ι] {k l : ℕ} (C D : Matrix (Fin k ⊕ Fin l) ι K)
+    (hCD : C * Dᵀ = 1) (hlk : l + k = Fintype.card ι) (e : Fin k ⊕ Fin l ≃ ι)
+    (s : Set.powersetCard ι k) :
+    exteriorPower.plucker k (C.submatrix Sum.inl id).row s =
+        (C.submatrix id e).det *
+          exteriorPower.plucker l (D.submatrix Sum.inr id).row (Set.powersetCard.compl hlk s) ∨
+      exteriorPower.plucker k (C.submatrix Sum.inl id).row s =
+        -((C.submatrix id e).det *
+          exteriorPower.plucker l (D.submatrix Sum.inr id).row (Set.powersetCard.compl hlk s)) := by
+  have hs : (s : Finset ι).card = k := Set.powersetCard.card_eq s
+  have hsc : ((s : Finset ι))ᶜ.card = l := by
+    rw [Finset.card_compl, hs]
+    omega
+  rw [Matrix.plucker_row_eq_det_submatrix, Matrix.plucker_row_eq_det_submatrix,
+    Matrix.det_submatrix_inl_eq_mul C D hCD hs hsc]
+  rcases det_submatrix_equiv_eq_or_eq_neg C (Matrix.enumEquiv hs hsc) e with hsign | hsign
+  · refine Or.inl ?_
+    rw [hsign]
+    rfl
+  · refine Or.inr ?_
+    rw [hsign, neg_mul]
+    rfl
 
 end Matrix
 
@@ -400,7 +428,7 @@ private lemma span_le_ker_piEquiv {s : Set (ι → K)} {x : ι → K} (h : ∀ v
 /-- **Every subspace sits in a dual pair of matrices.** The rows of `C` are a basis of `ι → K`
 whose first block is a basis of `V`; the rows of `D` are the dual basis, read back in `ι → K`
 through the standard bilinear form. -/
-private lemma exists_dual_matrices (V : Submodule K (ι → K)) (hk : finrank K V = k)
+theorem exists_dual_matrices (V : Submodule K (ι → K)) (hk : finrank K V = k)
     (hlk : l + k = Fintype.card ι) :
     ∃ C D : Matrix (Fin k ⊕ Fin l) ι K, C * Dᵀ = 1 ∧
       span K (Set.range (C.submatrix Sum.inl id).row) = V := by
@@ -440,7 +468,7 @@ variable [LinearOrder ι]
 
 omit [LinearOrder ι] in
 /-- **The second block of the dual basis spans the orthogonal complement.** -/
-private lemma span_range_inr_row_eq {V : Submodule K (ι → K)} {C D : Matrix (Fin k ⊕ Fin l) ι K}
+theorem span_range_inr_row_eq {V : Submodule K (ι → K)} {C D : Matrix (Fin k ⊕ Fin l) ι K}
     (hCD : C * Dᵀ = 1) (hlk : l + k = Fintype.card ι)
     (hV : span K (Set.range (C.submatrix Sum.inl id).row) = V) :
     span K (Set.range (D.submatrix Sum.inr id).row)

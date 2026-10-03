@@ -89,21 +89,23 @@ open MeasureTheory
 
 open scoped Classical in
 /-- The coordinate of the mixed space at an infinite place, read in `ℂ`. -/
-private noncomputable def placeHom (w : InfinitePlace K) : mixedSpace K →+* ℂ :=
+noncomputable def placeHom (w : InfinitePlace K) : mixedSpace K →+* ℂ :=
   if hw : IsReal w then
     Complex.ofRealHom.comp ((Pi.evalRingHom _ (⟨w, hw⟩ : {w // IsReal w})).comp (RingHom.fst _ _))
   else (Pi.evalRingHom _ (⟨w, not_isReal_iff_isComplex.1 hw⟩ : {w // IsComplex w})).comp
     (RingHom.snd _ _)
 
 omit [NumberField K] [Fintype ι] in
-private theorem normAtPlace_eq_norm_placeHom (w : InfinitePlace K) (x : mixedSpace K) :
+/-- The norm at a place is the norm of the coordinate there. -/
+theorem normAtPlace_eq_norm_placeHom (w : InfinitePlace K) (x : mixedSpace K) :
     normAtPlace w x = ‖placeHom w x‖ := by
   by_cases hw : IsReal w
   · simp [placeHom, hw, normAtPlace_apply_of_isReal hw]
   · simp [placeHom, hw, normAtPlace_apply_of_isComplex (not_isReal_iff_isComplex.1 hw)]
 
 omit [NumberField K] [Fintype ι] in
-private theorem placeHom_mixedEmbedding (w : InfinitePlace K) (x : K) :
+/-- The coordinate at `w` of the mixed embedding is the embedding of `w`. -/
+theorem placeHom_mixedEmbedding (w : InfinitePlace K) (x : K) :
     placeHom w (mixedEmbedding K x) = w.embedding x := by
   by_cases hw : IsReal w
   · simp [placeHom, hw]
@@ -121,11 +123,12 @@ private theorem placeHom_assemble (w : InfinitePlace K) (f : InfinitePlace K →
   · simp [placeHom, hw, assemble]
 
 /-- The box of radii `r`: at each infinite place the coordinate has norm at most `r w`. -/
-private def mixedBox (r : InfinitePlace K → ℝ) : Set (mixedSpace K) :=
+def mixedBox (r : InfinitePlace K → ℝ) : Set (mixedSpace K) :=
   {x | ∀ w, normAtPlace w x ≤ r w}
 
 omit [NumberField K] [Fintype ι] in
-private theorem mixedBox_eq (r : InfinitePlace K → ℝ) :
+/-- The box is a product of closed balls. -/
+theorem mixedBox_eq (r : InfinitePlace K → ℝ) :
     mixedBox r = (Set.univ.pi fun w : {w // IsReal w} ↦ Metric.closedBall 0 (r w.1)) ×ˢ
       (Set.univ.pi fun w : {w // IsComplex w} ↦ Metric.closedBall 0 (r w.1)) := by
   ext x
@@ -139,7 +142,8 @@ private theorem mixedBox_eq (r : InfinitePlace K → ℝ) :
     · rw [normAtPlace_apply_of_isComplex hw]; exact h2 ⟨w, hw⟩
 
 open scoped Classical in
-private theorem volume_mixedBox (r : InfinitePlace K → ℝ) (hr : ∀ w, 0 ≤ r w) :
+/-- The volume of the box of radii `r`: `2 ^ r₁ π ^ r₂ ∏_w r w ^ mult w`. -/
+theorem volume_mixedBox (r : InfinitePlace K → ℝ) (hr : ∀ w, 0 ≤ r w) :
     volume (mixedBox r) = ENNReal.ofReal (2 ^ nrRealPlaces K * Real.pi ^ nrComplexPlaces K *
       ∏ w, r w ^ w.mult) := by
   rw [mixedBox_eq, Measure.volume_eq_prod, Measure.prod_prod, volume_pi, Measure.pi_pi, volume_pi,
