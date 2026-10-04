@@ -354,6 +354,59 @@ theorem approxAbsWeight_conjExponent (S : Finset (HeightOneSpectrum (𝓞 K)))
   rw [approxAbsWeight, ← h]
   simp only [abs_conjExponent]
 
+/-! ### The largest exponents -/
+
+/-- **The weight of the largest exponents** of an approximation domain over `F`,
+`∑_w mult w · max_i c_iw + ∑_{v ∈ Sfin} max_i c_iv`. Less the weight over `#ι`, it is the spread
+`∑_v max_i (c_iv - (1/n) ∑_j c_jv)` of the centered exponents (EF13 (5.5)). -/
+noncomputable def approxSupWeight {F : Type*} [Field F] [NumberField F]
+    (Sfin : Finset (FinitePlace F)) (c : AbsoluteValue F ℝ → ι → ℝ) : ℝ :=
+  (∑ v : InfinitePlace F, v.mult * ⨆ i, c v.1 i) + ∑ v ∈ Sfin, ⨆ i, c v.1 i
+
+omit [Fintype ι] in
+/-- **The weight of the largest exponents over `E`** is `[E : K]` times `∑_p max_i e p i`. -/
+theorem approxSupWeight_conjExponent (S : Finset (HeightOneSpectrum (𝓞 K)))
+    (e : InfinitePlace K ⊕ S → ι → ℝ) :
+    approxSupWeight (systemPlacesOver E S) (conjExponent S e) =
+      finrank K E * ∑ p, ⨆ i, e p i := by
+  classical
+  have hinf : ∑ V : InfinitePlace E, (V.mult : ℝ) * ⨆ i, conjExponent S e V.1 i
+      = finrank K E * ∑ v : InfinitePlace K, ⨆ i, e (.inl v) i := by
+    rw [univ_eq_biUnion_placesOverFinset_inf (K := K),
+      Finset.sum_biUnion (pairwiseDisjoint_placesOverFinset_inf univ), Finset.mul_sum]
+    refine Finset.sum_congr rfl fun v _ ↦ ?_
+    have hv0 : (0 : ℝ) ≤ (v.mult : ℝ)⁻¹ := by positivity
+    have hterm : ∀ V ∈ InfinitePlace.placesOverFinset E v,
+        (V.mult : ℝ) * ⨆ i, conjExponent S e V.1 i
+          = (V.mult : ℝ) * ((⨆ i, e (.inl v) i) * (v.mult : ℝ)⁻¹) := fun V hV ↦ by
+      rw [conjExponent_inf S e (InfinitePlace.mem_placesOverFinset.mp hV),
+        Real.iSup_mul_of_nonneg hv0]
+      simp only [div_eq_mul_inv]
+    rw [Finset.sum_congr rfl hterm, ← Finset.sum_mul]
+    have hsum : ∑ V ∈ InfinitePlace.placesOverFinset E v, (V.mult : ℝ)
+        = v.mult * finrank K E := by
+      exact_mod_cast InfinitePlace.sum_mult v
+    have hv : (v.mult : ℝ) ≠ 0 := by exact_mod_cast v.mult_pos.ne'
+    rw [hsum]
+    field_simp
+  have hfin : ∑ V ∈ systemPlacesOver E S, ⨆ i, conjExponent S e V.1 i
+      = finrank K E * ∑ p : S, ⨆ i, e (.inr p) i := by
+    unfold systemPlacesOver
+    rw [Finset.sum_biUnion (pairwiseDisjoint_placesOverFinset_mk S),
+      Finset.mul_sum, ← Finset.univ_eq_attach]
+    refine Finset.sum_congr rfl fun ⟨p, hp⟩ _ ↦ ?_
+    have hterm : ∀ V ∈ FinitePlace.placesOverFinset E (FinitePlace.mk p),
+        ⨆ i, conjExponent S e V.1 i = (V.localDegree K : ℝ) * ⨆ i, e (.inr ⟨p, hp⟩) i :=
+      fun V hV ↦ by
+        rw [conjExponent_fin S e hp (FinitePlace.mem_placesOverFinset.mp hV),
+          Real.mul_iSup_of_nonneg (Nat.cast_nonneg _)]
+    rw [Finset.sum_congr rfl hterm, ← Finset.sum_mul]
+    have hsum : ∑ V ∈ FinitePlace.placesOverFinset E (FinitePlace.mk p), (V.localDegree K : ℝ)
+        = finrank K E := by
+      exact_mod_cast FinitePlace.sum_localDegree (FinitePlace.mk p)
+    rw [hsum]
+  rw [approxSupWeight, hinf, hfin, Fintype.sum_sum_type, mul_add]
+
 /-! ### Independence over `E` -/
 
 open scoped Classical in

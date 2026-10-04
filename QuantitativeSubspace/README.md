@@ -44,7 +44,7 @@ with its own record holder. The summit of this roadmap is the conjunction of the
 |---|---|---|
 | Number of subspaces containing the **large** solutions, linear forms, number field `K` | Evertse–Ferretti 2013: `10^9 · 2^{2n} · n^{14} · δ^{-3} · log(3δ^{-1}RD) · log(δ^{-1} log 3RD)` (as stated in Evertse 2010, Thm 2.1) | Q0 landed at Schmidt's parameters (Q0.3). Q1 started: the multigraded Hilbert polynomial and its degrees (Q1.1a–d, the excess Bézout inequality modulo Cohen–Macaulay) and the multiplicity estimate against degree (Q1.1e, with the transversal equations and the positivity of the degree in characteristic `0`, i.e. Rémond 2001 Prop. 2.1) are in `ForMathlib`. Q1.2, the geometric product theorem with its degree bound and corollary (Rémond 2001 Thm 1.1 and Cor. 1.1, i.e. Ev95 Thm 1 and Corollary with better constants), is in `QuantitativeSubspace/`, unconditionally since the Cohen–Macaulay property of `K[X]_𝔭` was proved (2026-10-02). DA 9.4 turns any *interval result* into this kind of count. DA 6.1 now has one with explicit counts and ratio (Q0.2d), and its threshold `Q₀` is at most `a · (formLogHeight + log |D_K| + ∑ log N(v) + 1)` with `a` explicit in `N`, `d`, `|S|`, `ε` and `A` (Q0.2e, `parametricThreshold_le`). Q0.3 feeds it to 9.4: the solutions of a normalized system above `X₀`, linear in `log H`, lie in a number of subspaces depending on `n`, `δ`, the degrees, the number of places and `|S|` alone; all solutions in that plus `O(log X₀)` plus 9.3's count (`exists_finset_submodule_of_isNormalizedSystem`). With Evertse's Roth lemma (Q1.6), Ev96's grids and exceptional subspaces (Q1.7), one scalar for the constants (Q1.8a) the auxiliary polynomial built from the distinct forms (Q1.8b) and the minima at one place (Q1.8c) that count is `c ^ (n + 7) Z ^ (n + 3) ℓ (1 + log (ℓ Z))`, `c = 2 ^ (n + 11) n ^ 6`, `Z = c / δ` (free of the degree since Q1.9a), `ℓ = 1 + log (2 ^ (n + 1) s ^ n)` with `s = R [E : K]` for `R` distinct forms: polynomial in `δ⁻¹`, singly exponential in `n`, independent of the degrees, of the number of places of the system and of `|S|`. ES02's shape: `δ ^ (-n - 3) log δ⁻¹` against ES02's `δ ^ (-n - 4)` (Q1.9b), and `c ^ (2 n + 10)` against `4 ^ ((n + 8)²)`. |
 | Number of subspaces containing the **small** solutions | Evertse 2010, Thm 2.2: `δ^{-1}((10^3 n)^{nd} + 4n log log 4H)`; over `ℚ`, `δ^{-1}(10^{3n} + 4n log log 4H)` | **Landed**, DA 9.3. |
-| **Absolute** form: points in `ℚ̄ⁿ`, count independent of the field | Evertse–Schlickewei 2002 (parametric, twisted heights), sharpened by Evertse–Ferretti 2013 | Not started. |
+| **Absolute** form: points in `ℚ̄ⁿ`, count independent of the field | Evertse–Schlickewei 2002 (parametric, twisted heights), sharpened by Evertse–Ferretti 2013 | Absolute geometry of numbers landed: RT96 Thm 6.3 for twisted heights on `Ωⁿ`, `\|det A\| ≤ μ₁⋯μₙ ≤ 2^{n(n-1)/2}\|det A\|` (Q2.2). EF13's set-up and its ES02 inputs are Q2.4; ES02's own count is skipped in favour of EF13's. |
 | `n = 2`: **quantitative Roth / Ridout** | Bugeaud–Evertse 2008, Appendix (improving Davenport–Roth 1955, Bombieri–van der Poorten 1988, Evertse 1996/97) | Davenport–Roth-strength count landed, DA 3.7. Bugeaud–Evertse's `δ⁻³ log · log` shape landed for systems in two variables (Q1.6, `systemLargeCountTwo_evertse_le`), with extra factors `t⁴` and the grid count. |
 | **Higher degree**: hypersurfaces and projective varieties | Evertse–Ferretti 2008 (general position); Quang 2022 (subgeneral position, better Chow-weight bound) | Not started. |
 
@@ -75,13 +75,13 @@ In chronological order. "Consumes" names the earlier results each paper actually
 | ES99 | J.-H. Evertse, H. P. Schlickewei, *The Absolute Subspace Theorem and linear equations with unknowns from a multiplicative group*, in *Number Theory in Progress* (Zakopane 1997), de Gruyter 1999, 121–142. ✓ | States the **absolute** Subspace Theorem, with points in `ℚ̄ⁿ`, and shows what it is for. | Sch72 and Sch77. |
 | ES02 | J.-H. Evertse, H. P. Schlickewei, *A quantitative version of the Absolute Subspace Theorem*, J. reine angew. Math. **548** (2002), 21–127. ✓ | **The quantitative absolute parametric Subspace Theorem**: twisted heights `H_{Q,L,c}`, an interval result, and the count `4^{(n+9)^2} δ^{-n-4} log(2RD) log log(2RD)` for the large solutions (Evertse 2010, Thm B). The source of every uniform count in ESS02 and BE08. | Ev95, Ev96, RT96, and an absolute Minkowski theorem. |
 | Ev10 | J.-H. Evertse, *On the Quantitative Subspace Theorem*, Zap. Nauchn. Sem. POMI **377** (2010), 217–240; J. Math. Sci. **171** (2010), 824–837; arXiv:1008.2268. ✓ | Survey of ES02 → EF13. Also proves the new gap principle and the **small-solutions bound**, which is the current record on that axis. | ES02, EF13 (announced). **The source of DA Layer 9.** |
-| EF13 | J.-H. Evertse, R. G. Ferretti, *A further improvement of the Quantitative Subspace Theorem*, Ann. of Math. **177** (2013), 513–590; arXiv:1008.2340. ✓ | **The current best count.** It lowers the dependence on `n` from `4^{n²}` to `2^{2n}` and the dependence on `δ` from `δ^{-n-4}` to `δ^{-3}`. It also gives a sharper interval result (Evertse 2010, Thm 3.1). | ES02, the Faltings–Wüstholz method (FW94), and the Chow-weight estimates of Ferretti and EF02. Ev95, through Ev96 Lemma 26 (EF13 Prop. 12.1). |
+| EF13 | J.-H. Evertse, R. G. Ferretti, *A further improvement of the Quantitative Subspace Theorem*, Ann. of Math. **177** (2013), 513–590; arXiv:1008.2340. ✓ | **The current best count.** It lowers the dependence on `n` from `4^{n²}` to `2^{2n}` and the dependence on `δ` from `δ^{-n-4}` to `δ^{-3}`. It also gives a sharper interval result (Evertse 2010, Thm 3.1). | ES02 (twisted heights, Cor. 7.2 = RT96 Thm 6.3), two ideas of FW94 (their auxiliary polynomial and their filtration, both redone in EF13 §§13, 15), Bombieri–Vaaler's Siegel lemma, Hoeffding's inequality. Ev95, through Ev96 Lemma 26 (EF13 Prop. 12.1). **No Chow forms or Chow weights** (Q3.0). |
 
 ### The geometric route (Faltings–Wüstholz, Chow weights)
 
 EF13 is a hybrid. It takes Schmidt's 1972 proof, as refined in ES02, and combines it with ideas
-from the Faltings–Wüstholz proof. The papers below are where those ideas and the needed estimates
-are developed.
+from the Faltings–Wüstholz proof. EF13 redoes those ideas itself (Q3.0); the Chow-weight papers
+below are needed only for higher degree (Layer Q5).
 
 | Ref | Paper | Contributes | Consumes |
 |---|---|---|---|
@@ -1465,63 +1465,642 @@ Move from points in `Kⁿ` to points in `ℚ̄ⁿ`, with counts independent of `
       theory, unlike RT's "we may assume `1 < |a|_{v₀} < 1 + ε`". Weights `a_i = b^{m_i}`,
       `m_i = ⌈-log μ_i / log β⌉`; `prod_absMinimum_le_one_add_pow_mul` (bound with `(1 + ε)ⁿ`) and
       `prod_absMinimum_le_of_finitePlace` (`ε → 0`).
-  - **Q2.2f ES02 Prop. 7.1 and Cor. 7.2** (moved out of Q2.2e). ES02's height (7.3) is built from
-    their linear forms `L_i^{(v)}` of (6.3), (6.4), (6.7) and real weights `A_iv` at **every**
-    place, with the max norm at the infinite places. Prop. 7.1 (weights `‖α_iv‖_v`, (7.4)) is a
-    twist (`diag(α⁻¹) L^{(v)}`) and Thm 6.3 plus the comparison `H ≤ H̃ ≤ n^{1/2} H` (7.8) of the
-    max and ℓ² norms, giving `n^{-n/2} ∏ Δ_v/A_v ≤ ∏ λ_i ≤ 2^{n(n-1)/2} ∏ Δ_v/A_v`. Cor. 7.2
-    (real weights at finite places) does not fit the twist carrier (finite components are
-    `K`-matrices) and is ES02's approximation (7.11)–(7.15) by `‖β_v‖^{n/m}`, the same `N`-th-root
-    device as the finite `u₀` above. Both statements are about ES02's set-up, so they belong with
-    Q2.4's definitions; do them there, or here once that set-up is fixed.
+  - **Q2.2f** Merged into **Q2.4c** (ES02 Prop. 7.1 and Cor. 7.2 = EF13 Prop. 9.2): they are
+    about ES02's height (7.3), whose forms and real weights Q2.4a introduces.
   - Not part of Q2.2: RT96 Thm 2.2 (the absolute Siegel lemma in product form), §7 (duality of
     all minima) and §8; ES02 does not use them.
 - **Q2.3** The absolute Subspace Theorem, qualitative (ES99). ES99 is not local; the qualitative
-  statement is a corollary of Q2.4, so this milestone is optional and may be dropped.
-- **Q2.4** **ES02's quantitative absolute parametric Subspace Theorem**: the interval result and
-  the count `4^{(n+9)^2} δ^{-n-4} …`. This theorem is the input to the Bugeaud–Evertse 2008
-  complexity bound, whose statement is in `rwst/lean-code`
-  (`CITED/BugeaudEvertseComplexity.lean`). It consumes Q2.2e in place of `FieldMinkowski.lean`,
-  and Q1's arguments redone for points over `ℚ̄` whose field of definition is not specified (ES02
-  §1: "we are forced to extend all other arguments in our proof"); scope that work when Q2.2 has
-  landed.
+  statement is a corollary of Q4 (formerly of ES02), so this milestone is optional and may be
+  dropped.
+- **Q2.4** **EF13's set-up, and what EF13 takes from ES02.** Scope decided 2026-10-03: EF13
+  (`../lean-code/papers/EvertseFerretti.pdf`) cites ES02 (`EvertseSchlickewei2002.pdf`) for
+  exactly Cor. 7.2 (EF13 Prop. 9.2), Lemma 6.3 (EF13 Lemma 11.1) and Davenport's Lemma 9.2 (EF13
+  Lemma 11.3, "the same proof, with small modifications"); Thm 20.1 only to compare bounds, and
+  §21 only for EF13 Cor. 3.2, stated without proof. EF13 restates ES02's set-up itself (§§2, 6,
+  7), and its Roth machinery (§§12–14) and reduction (§§15–18) replace ES02's (§§12–19). So
+  **ES02's own theorems (2.1, 3.1, 20.1) and their count `4^{(n+9)²} δ^{-n-4}` are not
+  formalized**: Q4 gives the better count, and consumers (BE08 and the rest) are to use EF13's
+  Thm 3.1. The work over `ℚ̄` that ES02 §1 warns about is the part of EF13 §§8–14 that Q4 does.
+  Notation as in EF13: `L = (L_i^{(v)})`, `c = (c_iv)` over all places `v ∈ M_K`, normalized
+  `‖·‖_v`, max norm at every place (RT96's ℓ² norm only in Q2.4c's proof).
+  - **Q2.4a** ✅ **The twisted height `H_{L,c,Q}`** (EF13 §2.2, §7):
+    `QuantitativeSubspace/FormHeight.lean`. Places are indexed as in EF13 (`InfinitePlace K`,
+    `FinitePlace K`), not by embeddings. `NumberField.FormSystem K ι` (an invertible `K`-matrix
+    of forms per place, finitely many distinct at the finite places) and
+    `NumberField.FormWeight K ι` (positive weights, `1` almost everywhere), in Mathlib's relative
+    normalization: ES02's `A_iv = ‖α_iv‖_v` is `a_iv = v α_iv`. `mulHeight` (relative,
+    `mulHeight_algebraMap` via the new `FinitePlace.localDegree_tower`), `absMulHeight` (through
+    `adjoin K (range x)`), `absMulHeight_smul`, `absMulHeight_algHom`, `absMulHeight_algEquiv`
+    (Galois invariance, EF13/ES02 Lemma 4.1). `FormExponent` and `FormExponent.weight`
+    (`Q ^ {c_iv [K:ℚ] / mult v}` at an infinite `v`, `Q ^ {c_iv [K:ℚ]}` at a finite one) make
+    `absMulHeight L (c.weight hQ)` EF13's `H_{L,c,Q}`. Lemma 7.2 (i):
+    `absMulHeight_of_scale`, `absMulHeight_weight_of_sub`. Lemma 7.3 (i), (iv): `comp`,
+    `absMulHeight_comp`, `absDet_comp`. `absDet` (`Δ_L`), `forms`, `detSet`, `absFormHeight`
+    (`H_L`); (7.4) `absDet_le_absFormHeight` and `absFormHeight_rpow_le_absDet`
+    (`H_L ^ {1 - C(r,n)} ≤ Δ_L`, the count from squared determinants, which depend only on the
+    set of rows: `det_sq_eq_of_image_eq`, `card_detSq_le`). Lemma 7.1: `one_le_absMulHeight`
+    (any weights, `1 ≤ n ((H_L/Δ_L) A) ^ {1/[K:ℚ]} H(x)`) via Cramer in row form
+    (`mul_adjugate_apply_eq_det_updateRow`), and `le_absMulHeight_weight`
+    (`H_{L,c,Q}(x) ≥ n⁻¹ H_L ^ {-C(r,n)} Q ^ {-θ}`, `θ = Σ_v max_i c_iv`, `Q ≥ 1`). Lemma 7.3
+    (ii), (iii) are about the weight `w(U)` of a subspace and go with Q3.
+  - **Q2.4b** ✅ **Successive infima** (EF13 §9 start, ES02 Lemma 4.2 and Cor. 7.5):
+    `QuantitativeSubspace/FormSuccessiveInfima.lean`. `Submodule.IsDefinedOver K T` (spanned by
+    points of `Kⁿ`); ES02 Lemma 4.2 as `Submodule.mem_span_algebraMap_of_forall_algHom` /
+    `isDefinedOver_of_forall_algHom` for `Ω` algebraically closed and algebraic over `K` (any
+    subspace stable under `Ω →ₐ[K] Ω`), proved with the trace dual basis of `K(x)` and
+    `AlgHom.liftNormal` instead of inverting `(σ_i(ω_j))`. `FormSystem.infSpace` (`T(λ)`),
+    `successiveInf` (`λ_i`, junk `0` for `i > n`), `infFlag` (`T_i`); `successiveInf_le`,
+    `le_finrank_infSpace`, `successiveInf_mono`, `exists_infSpace_eq_top`. EF13 Lemma 9.1:
+    (i) `infSpace_isDefinedOver`, `infFlag_isDefinedOver` (via the new
+    `absMulHeight_comp_algHom` in `FormHeight.lean`); (ii) `finrank_infSpace_of_lt`,
+    `infSpace_eq_infFlag`, `finrank_infFlag`. Stated for any weights `a`, so also for
+    `c.weight hQ`.
+  - **Q2.4c** ✅ **Absolute Minkowski for `H_{L,c,Q}`** (EF13 Prop. 9.2 = ES02 Prop. 7.1 +
+    Cor. 7.2, formerly Q2.2f): `QuantitativeSubspace/FormMinkowski.lean`.
+    `FormSystem.prod_successiveInf_weight_le` / `le_prod_successiveInf_weight`
+    (`n^{-n/2} Δ_L Q^{-α} ≤ λ₁(Q) ⋯ λₙ(Q) ≤ √2^{n(n-1)} Δ_L Q^{-α}`, any `Q > 0`, systems on
+    `Fin n`), from the general-weight `prod_successiveInf_le` / `le_prod_successiveInf` with
+    `FormWeight.absProd` (`∏_v ∏_i A_iv`, `FormExponent.absProd_weight` = `Q ^ c.sum`). ES02
+    Prop. 7.1 (`*_of_eq_apply`, weights `a_iv = v(α_iv)`) via `FormSystem.toTwist` into Q2.2e's
+    complex-route theorems: `absMulHeight_le_toTwist`, `toTwist_absMulHeight_le` (ES02 (7.8),
+    `√n`), `absDet_toTwist` (`Δ_L / A`); off `badPlaces` (weights `1`, forms and inverses
+    integral) the twist is the identity. Cor. 7.2 by `exists_eq_apply_weight`: `β_v` with
+    `|β_v|_v = N(𝔭_v) > 1`, `k_iv = round(N log A_iv / log|β_v|_v)`, `E = K(β_v^{1/N})`; weights
+    compared through `FormSystem.baseChange` / `FormWeight.baseChange` (height and `Δ_L`
+    unchanged), `absMulHeight_le_of_le` (monotone), `FormWeight.scale` + Lemma 7.2; factor
+    `(1+ε)^{s/[K:ℚ]}`, then `ε → 0`. Q2.4b's infima were made generic (`heightSpace`,
+    `heightInf`, `heightFlag` for any height function; `heightInf_le_mul`) to compare `L` over
+    `K`, over `E` and the twist.
+  - **Q2.4d** ✅ **Lemma 6.3 and scaling into local bounds** (EF13 Lemmas 11.1, 11.2 = ES02
+    Lemmas 6.3, 6.2 / 7.3, and Cor. 7.4): `QuantitativeSubspace/FormParallelepiped.lean`.
+    `exists_ne_zero_le_of_mul_le`: Minkowski for one scalar with finite places (Layer 4.1's
+    approximation domain for the coordinate form on `K¹`), constant
+    `unitConst K · ∏_{v ∈ Sfin} N(𝔭_v)`. ES02 Lemma 6.3 without `S`-units:
+    `exists_pow_le_of_one_lt` (`g ∈ K`, `|g|_u ≤ A_u ^ k` once `(∏ A_u)^k` beats the constant),
+    `le_of_pow_eq_algebraMap` (the `k`-th root, `|γ|_q ≤ C_u ^ {e f}`), `exists_le_of_one_lt`
+    (EF13 Lemma 11.1, `E = K(g^{1/k}) ⊆ Ω`). `FormSystem.LocallyLe` (local factors of `y ∈ Eⁿ`
+    below budgets `ρa_v`, `ρf_v ^ {e f}`), `mulHeight_le_of_locallyLe`,
+    `absMulHeight_le_of_locallyLe`. `exists_locallyLe_smul` (ES02 Lemma 6.2 / 7.3, general
+    budgets, finitely many points in one `E`): Lemma 6.3 over `F = K(x)` for the budgets divided
+    by the local factors, the root in `E = K(x, γ)` with the tower `F → E` built by hand.
+    `exists_smul_le_of_lt`: EF13 Lemma 11.2 ((11.3) `≤ 1/n` at the infinite places, `≤ 1` at the
+    finite ones off `v₀`; (11.4) `((n μ_j)^{[K:ℚ]})^{e f}` above `v₀`, any `μ_j > H(g_j)`).
+    `paraSet` (`μ ∗ Π(A)`, scaled at a finite `v₀` as in ES02 (6.13), (6.14)), `paraSpace`
+    (`U_A(μ)`), `paraInf`; `exists_smul_mem_paraSet` (ES02 Lemma 7.3, `H(x) < μ`),
+    `paraSpace_le_infSpace`, `infSpace_le_paraSpace`, `paraInf_eq_successiveInf` (Cor. 7.4).
+  - **Q2.4e** ✅ **Davenport's lemma** (EF13 Lemma 11.3 = ES02 Lemmas 9.1, 9.2 with EF13's
+    modifications): `QuantitativeSubspace/FormDavenport.lean`. ES02 Lemma 9.1 `exists_approx`
+    (`|γ_j + ϑ_j γ₀|_w ≤ 1`, `|γ₀|_w ≤ D` above `v₀`, `γ₀ ≠ 0` by the product formula): Q2.4c's
+    `prod_successiveInf_le` over `F = K(ϑ)` for the forms `X_j + ϑ_j X₀`, `X₀` (`approxMatrix`)
+    gives `λ₁ < 1`, Q2.4d's `exists_locallyLe_smul` the point; the field over `F` is read over `K`
+    by `restrictScalars` (definitionally the same places). The permutation of ES02 (9.24)–(9.33):
+    `HasIntegralEchelon` (reduced echelon basis in `Kⁿ`, pivots `π 0, …, π (r-1)`, `v₀`-integral),
+    built from the bottom by row reduction with the largest pivot (`exists_sup`, `exists_of_le`,
+    `exists_perm_hasIntegralEchelon`) instead of ES02's relations from the top; `apply_eq` is the
+    graph relation (9.32). Blocks (9.14): `blockStart`. The construction: `DavenportLe` (bounds
+    (11.6), (11.7) over a field `E ⊆ Ω`, `mono`), `exists_davenport_step`
+    (`h_q = γ₀ (g_q - z) + Σ_j (γ_j + θ_j γ₀) h_j` gives (9.47) and (9.48) together),
+    `exists_davenport_of_graph` (ES02 Lemma 9.2 given the pivots, any forms, weights and
+    nondecreasing `λ`), `exists_davenport` (EF13's statement under (8.7), (8.8) at `v₀` and
+    (11.1) with `≤`; constants `B = n(1+ε)`, `D = (1+ε) n^n 2^{n(n-1)/2}`,
+    `pow_mul_sqrt_two_pow_le`). Helpers: `archFactor_sum_smul_le`, `finFactor_sum_smul_le`,
+    `FinitePlace.apply_sum_le`, `FinitePlace.apply_inclusion_le`, `successiveInf_pos`.
+    `AbsoluteValue.exists_evertse_of_approx` is not reused: Evertse's lemma adds `R`-combinations
+    over one fixed field with per-place permutations, Davenport's rescales `g_q` over growing
+    extensions with one permutation at `v₀`.
+  - Not in Q2.4: ES02 §§5, 8, 10–21 (reductions, gap principle, Schmidt's auxiliary polynomial,
+    Index and Polynomial Theorems, counting), and Thms 2.1, 3.1, 20.1.
 
-### Layer Q3: Chow forms and Chow weights (Faltings–Wüstholz 1994, Ferretti 2000/2003, Evertse–Ferretti 2002)
+### Layer Q3: EF13's Faltings–Wüstholz ingredients
 
-This layer can proceed in parallel with Q1 and Q2. It is pure algebraic geometry until its last
-milestone.
+- **Q3.0** ✅ **Literature gate — decided (2026-10-03): EF13 uses no Chow theory.** Read against
+  `../lean-code/papers/EvertseFerretti.pdf` (arXiv:1008.2340v1, 93 pp.). The words "Chow",
+  "degree of contact" and "Mumford" do not occur, and the bibliography has neither Fe00, EF02 nor
+  Fe03. What EF13 takes from FW94 it reproves in a few pages:
+  - **The auxiliary polynomial** (§13) replaces Schmidt's. Its tools are Bombieri–Vaaler's Siegel
+    lemma with `C_K = |D_K|^{1/2[K:ℚ]}` (Lemma 13.1; landed as
+    `ArithmeticHeights/BombieriVaalerRelative.lean`) and Hoeffding's inequality (Lemma 13.2;
+    Mathlib's `ProbabilityTheory.measure_sum_ge_le_of_iIndepFun`), combined in the monomial count
+    Lemma 13.3 (`#{j ∈ U(r) : Σ_h r_h⁻¹ Σ_l j_hl ĉ_hl ≥ …} ≤ e^{-mε²/2} V`). Lemmas 13.4, 13.5 and
+    Prop. 13.6 work in the set-up of §11 (exterior powers, the `Q_h`, `ĉ`), i.e. Q2.4's.
+  - **The filtration** (§15) is linear algebra: the weight `w(U) = Σ_v Σ_{i ∈ I_v(U)} c_iv` is
+    supermodular (Lemma 15.1), so there is a unique destabilizing subspace of minimal dimension,
+    defined over `K` by Galois invariance (Lemma 15.2), and a unique filtration whose points
+    `(dim T_i, w(T_i))` are the vertices of the upper convex hull (Lemma 15.4, an adaptation of
+    FW94's Harder–Narasimhan filtration). Lemma 15.3 is the special case of the forms
+    `X_1, …, X_n, X_1 + ⋯ + X_n`.
+  - **The successive infima as `Q → ∞`** (§§16–17, Thm 16.1, Prop. 17.5) and the reduction of
+    the general case to the semistable one (§18). These need twisted heights `H_{L,c,Q}`.
+  - Other inputs: Ev96 Lemma 26 (Prop. 12.1, Q1) and ES02 Cor. 7.2 (Prop. 9.2, Q2.2e/f).
 
-- **Q3.1** Chow forms of projective varieties over `K`, and their heights.
-- **Q3.2** Chow weights (Mumford's degree of contact) with respect to a weight vector.
-- **Q3.3** The EF02 lower bound for Chow weights, and its improvement by Quang 2022 if that is
-  needed for Q5.
-- **Q3.4** The Faltings–Wüstholz filtration argument, as far as EF13 uses it. ⚠ Determine that
-  extent from EF13's §§ on the "interval result" before writing milestones.
+  So Q3 as first planned (Chow forms, Chow weights, the EF02 bound) is not on the way to Q4. It
+  moves to Q5, the only layer that needs it. What remains of Q3 is EF13's own FW material, and
+  almost all of it needs ES02's set-up: **Q3 follows Q2.4.** Its milestones (written
+  2026-10-03, after Q2.4) follow EF13 §§13, 15–18. Sections 8, 10, 12, 14, the end of §11
+  and Prop. 18.5 (which uses Thm 8.1) are Q4.1.
+- **Q3.1** ✅ **The abstract filtration** (EF13 Lemmas 15.2 and 15.4, for any supermodular weight
+  with finitely many values): `ForMathlib/LinearAlgebra/WeightFiltration.lean`.
+  `Submodule.IsSupermodularWeight`, `weightSlope` (`μ(V, U)` of (15.6)).
+  - `IsDestabilizing w V T`: the least proper subspace of `V` minimizing `μ(V, ·)`. EF13 takes a
+    minimizer of minimal dimension; by (ii) it lies in every minimizer.
+  - `exists_isDestabilizing` and `IsDestabilizing.unique` are Lemma 15.2 (i);
+    `weightSlope_inf_le` is (ii).
+  - `IsWeightFiltration w V r T`: the chain `⊥ = T 0 < ⋯ < T r = V` with strictly decreasing
+    slopes, every `P(U)` on or below each line through consecutive `P(T_l)`. Stated this way, the
+    `P(T_l)` are the vertices of the upper convex hull without forming it.
+  - `exists_isWeightFiltration` and `IsWeightFiltration.unique` are Lemma 15.4.
+  - `restrict` drops the top step, and `isDestabilizing` shows that `T (r-1)` is the
+    destabilizing subspace of `V`.
+  - `IsDestabilizing.map_eq` and `IsWeightFiltration.map_eq`: a lattice automorphism of the
+    subspaces that preserves dimension and `w` and fixes `V` fixes `T` and the filtration. This
+    is "defined over `K`" once applied to Galois conjugation (Q3.2).
+- **Q3.2** ✅ **The weight `w_{L,c}`** (EF13 (2.19)–(2.21), (15.3), (15.4), Lemmas 15.1, 7.3 (ii),
+  (iii)): `QuantitativeSubspace/FormSubspaceWeight.lean`.
+  - `Submodule.formWeight ℓ c U`: EF13's minimum (2.19) of `Σ_{i ∈ I} c_i` over the `I`
+    (`IsFormBasis`) with `(ℓ_i|_U)_{i ∈ I}` a basis of the dual of `U`.
+  - `isLeast_formWeight`, `formWeight_eq_sum`, `formWeight_eq_sum_range`: for any ordering `e`
+    making `c` increase (`exists_monotone_equiv`, by `Tuple.sort`), the greedy basis
+    (`greedy`, `card_greedy`, `linearIndepOn_greedy`) attains the minimum, which is
+    (15.4) in both forms (chain `formChain`). Optimality comes from summation by parts
+    (`sum_le_sum_of_card_filter_le`).
+  - `isSupermodularWeight_formWeight` (Lemma 15.1, local), `finite_range_formWeight`, and
+    `formWeight_orderIso` (transport along a lattice isomorphism preserving dimensions and the
+    kernels).
+  - `NumberField.galoisIso σ` (Galois conjugation of subspaces, `finrank_galoisIso`),
+    `FormSystem.matrixForms`, `FormSystem.subspaceWeight L c` (2.20; the finite places with
+    `c_v = 0` contribute `0`, `subspaceWeight_eq_sum`).
+  - Global results: `isSupermodularWeight_subspaceWeight` (Lemma 15.1),
+    `finite_range_subspaceWeight`, `subspaceWeight_galoisIso`.
+  - Defined over `K`: `isDefinedOver_of_isDestabilizing` and
+    `isDefinedOver_of_isWeightFiltration` (Lemmas 15.2 (i), 15.4, through
+    `isDefinedOver_of_forall_algHom`). `exists_isDestabilizing_top` gives `T(L, c)` of (2.21),
+    `exists_isWeightFiltration_top` the filtration of `Ωⁿ`.
+  - Lemma 7.3 (ii), (iii): `subspaceWeight_comp`, `isDestabilizing_comap_comp` (`compEquiv`).
+  - `Submodule.IsDefinedOver.comp_mem`, `Submodule.isDefinedOver_top`. The filtration file
+    gained `IsSupermodularWeight.add`, `.sum` and `IsDestabilizing.orderIso`.
+- **Q3.2b** ✅ **EF13 Lemma 15.3** (forms among `X_1, …, X_n, X_1 + ⋯ + X_n`: `T` is cut out by
+  sums over disjoint blocks), `QuantitativeSubspace/FormBlockSubspace.lean`. Split off from Q3.2:
+  it is used only for EF13's remark after (2.21) and §3's applications, not on the way to
+  Thm 2.3.
+  - `FormSystem.HasCoordSumForms` is (15.7); `exists_blockSums_of_isDestabilizing` is the lemma:
+    a finset `𝓘` of nonempty pairwise disjoint blocks with `x ∈ T ↔ ∀ I ∈ 𝓘, Σ_{j ∈ I} x_j = 0`.
+    It holds for any destabilizing subspace of `Ωⁿ`, so for `T(L, c)` and every `c`.
+  - The proof is EF13's. `sumSpace T` is the space `H` (with `u_0` the coordinate `none` of
+    `Option ι → Ω`). For `b ∈ H` with no zero coordinate, `diagEquiv` is `x ↦ (b_j x_j)`; on `T`
+    it multiplies each form by a nonzero constant, so `Submodule.formWeight_eq_of_linearEquiv`
+    gives the same weight, and the leastness in `IsDestabilizing` gives `φ(T) = T`.
+    `mul_mem_sumSpace` follows.
+  - EF13 then asserts that `H`, a unital subalgebra of `Ω^{n+1}`, is the set of vectors constant
+    on the blocks of a partition. Only one half of this is needed:
+    `Subalgebra.exists_indicator_mem` puts the indicator of each class of coordinates into `H`,
+    via products of the separating elements `(a - a_j)/(a_i - a_j)`. The converse inclusion
+    `T ⊇ {block sums vanish}` comes from a dual form separating `x ∉ T`, regrouped over the
+    classes.
+  - EF13's count `p = n - dim T` of the blocks is not formalized.
+- **Q3.3** ✅ **The monomial count** (EF13 (13.4), (13.5), Lemma 13.3),
+  `QuantitativeSubspace/FormMonomialCount.lean`.
+  - `Finset.blockCompositions r` is `U(r)`; `card_blockCompositions` is (13.4) (as a product of
+    `multichoose`); `card_blockCompositions_le` gives `#U(r) ≤ N^{Σ r_h}` and
+    `card_blockCompositions_le_exp` (13.5).
+  - `card_filter_blockCompositions_le` is Lemma 13.3. Instead of Hoeffding's inequality for
+    independent variables (Lemma 13.2), the Chernoff argument runs on the finite sums: the sum
+    over `U(r)` of `exp (t Σ_h Y_h)` factors over the blocks (`Finset.prod_univ_sum`), and each
+    factor is bounded by Hoeffding's lemma, restated for finite averages as
+    `Finset.sum_exp_mul_le_of_sum_eq_zero` (from Mathlib's
+    `hasSubgaussianMGF_of_mem_Icc_of_integral_eq_zero` on the uniform measure). The mean-zero
+    property comes from the symmetry of `U(r)` under permutations of the coordinates in a block.
+  - Lemma 13.3 holds for `0 ≤ ε`; EF13's `ε ≤ 1` is not needed.
+- **Q3.4** ✅ **The auxiliary polynomial** (EF13 Lemmas 13.1, 13.4, 13.5, Prop. 13.6).
+  - Lemma 13.1 is `ArithmeticHeights/BombieriVaalerRelative.lean`.
+  - Lemmas 13.5 and 13.6 need the exterior-power set-up of §11 (Q3.4a); 13.4–13.6 themselves
+    are Q3.4b.
+- **Q3.4a** ✅ **The exterior-power set-up** (EF13 §11, (6.10), (11.10)–(11.21), Lemmas 11.4,
+  11.5): `QuantitativeSubspace/FormExteriorPower.lean`.
+  - `FormSystem.exteriorPower L p` (`L̂`, the rows of `Matrix.compound`),
+    `FormWeight.exteriorPower` (`â_I = ∏_{i ∈ I} a_i`), `FormExponent.exteriorPower`
+    (`ĉ_I = Σ_{i ∈ I} c_i`) and `weight_exteriorPower`. The points `ĥ_J` are `plucker`.
+  - Off `v₀`: `archFactor_exteriorPower_plucker_le` and `finFactor_exteriorPower_plucker_le`
+    turn Davenport's (11.6) into (11.14), (11.17). This uses Hadamard (`Matrix.abv_det_le_of_col`)
+    and the ultrametric bound (`FinitePlace.apply_det_le_of_col`).
+  - Above `v₀`: `FinitePlace.apply_plucker_le_topBound` turns (11.7) into (11.17).
+    - `topSet k` is `I_N = {k, …, n-1}` (0-based `k`). `topBound λ π I` is EF13's
+      `Q^{ĉ_{I,v₀}} / 3^{n³}` of (11.15): `ν_{π̂⁻¹(I)}`, with `ν_{I_N}` replaced by
+      `ν_{I_N} λ_{k-1}/λ_k`.
+    - It rests on `prod_le_prod_topSet_mul` (`ν_J ≤ ν_{I_N} λ_{k-1}/λ_k` for `J ≠ I_N`) and
+      `min_le_topBound`.
+  - (11.21): `prod_topBound` and `sum_logb_topBound` give the identity
+    `∏_I topBound = (λ_0 ⋯ λ_{n-1})^{C(n-1, n-k-1)} λ_{k-1}/λ_k`.
+  - Lemma 11.4 (11.18)–(11.20): `sum_exteriorPower_arch/_fin` (via
+    `Finset.sum_powersetCard_sum`), `abs_exteriorPower_arch_le/_fin_le`,
+    `sum_iSup_abs_exteriorPower_le`.
+  - Lemma 11.5:
+    - Local bounds: `apply_inv_exteriorPower_arch_le` / `_fin_le`, using
+      `(M^{∧p})⁻¹ = (M⁻¹)^{∧p}` (`Matrix.inv_compound`) and `apply_inv_le`. The latter needs the
+      coordinate forms in the system (`one_mem_forms`, from (8.8)).
+    - Product: `prod_invBound` gives `p!^{[K:ℚ]} (H_L/Δ_L)^p`, and `prod_invBound_rpow_le` gives
+      `p! H_L^{p C(r, n)}` absolutely, through (7.4).
+    - This is a different constant from EF13's `H_L^{R^n}`, which comes from Jacobi's identity.
+      It is also not what §13 uses: Q3.4b proves EF13's joint form separately.
+  - Moved to Q4.1:
+    - the inequalities (11.21) `Σ ĉ_{i,v₀} ≤ -δ/n` and (11.22) `|ĉ_{i,v₀}| ≤ n`, which need
+      Lemmas 9.3 and 9.4 and `C_2` of (8.10);
+    - Lemma 11.6 (`H_2(T̂) ≥ Q^{δ/3R^n}`), which needs Lemma 10.3 and Lemma 6.1.
+- **Q3.4b** ✅ **Lemmas 13.4, 13.5, Prop. 13.6** (the auxiliary polynomial itself):
+  `QuantitativeSubspace/FormInverseHeight.lean`,
+  `QuantitativeSubspace/FormAuxiliaryPolynomial.lean`.
+  The polynomial machinery is DA's (Layer 5.2): `MvPolynomial.blockSubst`, `multiMons`, the chain
+  rule `coeff_blockSubst_hasseDeriv_eq_zero` and the multihomogeneous Siegel lemma.
+  - **Joint Lemma 11.5** (`FormInverseHeight`). EF13's Lemma 11.5 is a bound on the *joint*
+    height of all the `(L̂^{(v)})⁻¹`, which Q3.4a's per-place `prod_invBound` is not. It is
+    `FormSystem.invTuple` (`1` and the entries of all `((L^{(v)})^{∧p})⁻¹`, over
+    `matSet`, the distinct `L^{(v)}`), with `le_iSup_invTuple` (it dominates every inverse at every
+    absolute value) and `mulHeight_invTuple_le`: `H(invTuple) ≤ p!^{[K:ℚ]} H_L^{2ps}`,
+    `s = #matSet`.
+    The inverse determinants are cleared with `δ = ∏_{B ∈ matSet} det B`, and the computation is
+    DA's `Height.mulHeight_le_pow_mul_mul_pow`. The local bounds hold at any absolute value
+    (`apply_inv_compound_le`, and `_of_isNonarchimedean` with the new ultrametric Hadamard bound
+    `Matrix.abv_det_le_of_col_of_isNonarchimedean`).
+  - **Lemma 13.4.** `d^{(v)}_{I,J}(a_P)` is `(blockSubst (L̂^{(v)})⁻¹ (∂_I P)).coeff J`; (13.10) is
+    `blockSubst_blockSubst`. The bounds (13.11) are `iSup_coeff_blockSubst_hasseDeriv_le` and
+    `_of_isNonarchimedean`, against `invTuple`.
+  - **Lemma 13.3 on `multiMons`**: `MvPolynomial.blockAvg` (EF13's `Σ_h r_h⁻¹ Σ_l ν_{hl} f_{hl}`),
+    `multiMons_eq_map`, `card_filter_multiMons_le`.
+  - **Lemma 13.5**: `FormSystem.exists_auxiliaryPolynomial`, through
+    `MvPolynomial.exists_ne_zero_coeff_blockSubst_eq_zero_of_card` (Siegel for families of
+    conditions). Places are `InfinitePlace K ⊕ FinitePlace K` (`FormSystem.mat`,
+    `FormExponent.vec`).
+  - **Prop. 13.6**:
+    - `exists_representatives` (the `S₀` of (13.30)–(13.32));
+    - `exists_auxiliaryPolynomial_hasseDeriv` ((i)–(iii); (i) at every place);
+    - `prod_iSup_coeff_blockSubst_hasseDeriv_le` ((iv), (13.29)).
+  - Differences from EF13:
+    - Heights are relative to `K` with sup norms (`Height.mulHeight`), not absolute `H₂`.
+      (13.18) reads `h(P) ≤ ½ log |D_K| + ([K:ℚ](N/2 + log N + log p!) + 2ps log H_L) Σ r`.
+    - (13.22) is replaced by `2 (#matSet (n/ε + 2)^n + 1) ≤ e^{mε²/2}`. EF13's derivation of
+      (13.13) from (13.22) slips twice: `c_{iv}/γ_v ∈ [-(n-1), 1]`, not `[-1, 1]`; and
+      `2((3R/ε)^n + 1) ≤ (4R/ε)^n` fails at `n = 2`.
+    - The `v₀`-exponents `ĉ_{s,v₀}(Q_h)` are an input `e` with (11.21), (11.22) as hypotheses,
+      since these need Q4.1.
+- **Q3.5** ✅ **The successive infima as `Q → ∞`** (EF13 §16, Thm 16.1), conditional on the
+  qualitative EF13 Thm 8.1 (`NumberField.SemistableGap K Ω`, to be discharged by Q4.1). Four files:
+  - `QuantitativeSubspace/FormWeightExchange.lean`: matroid facts about the local weight
+    `Submodule.formWeight`. They are `formWeight_comp_embedding` (an exchange argument: only forms
+    `ℓ_{g j}` matter when every `ℓ_i` is a combination of them with `c_{g j} ≤ c_i`),
+    `formWeight_eq_of_mem_span` (triangular changes of the forms), `formWeight_map`,
+    `formWeight_comap` (`w(π⁻¹ U) = Σ_{i ∈ I} c_i + w_h(U)`, i.e. Lemma 16.2 (ii) locally),
+    `formWeight_bot/top`, and `formWeight_sub_const` and `formWeight_div_const` (Lemma 7.2 (ii)).
+  - `QuantitativeSubspace/FormInducedSystem.lean`: the systems `(L', c')`, `(L'', c'')` of
+    (16.4)–(16.6) and Lemmas 16.2, 16.3.
+    - A `NumberField.Splitting K n k m` is an invertible `n × (k + m)` matrix over `K`, giving
+      `φ'` (`inclLin`) and `φ''` (`projLin`). `Splitting.exists_range_inclLin` gives one with
+      `φ'(Ω^k) = T` for any `T` defined over `K`.
+    - `I_v(T)` is `Matrix.selectRows`: `k` rows of `L^{(v)} φ'` forming an invertible matrix with
+      the least `Σ c`. Its exchange property `Matrix.le_of_mul_inv_ne_zero` (by Cramer's rule,
+      `det_updateRow_sum`) replaces EF13's increasing order (15.1): `α_is ≠ 0 → c_{σ s} ≤ c_i`.
+    - `L''` is the Schur complement (`Splitting.quotMat`); its determinant is nonzero by
+      `det_fromBlocks₁₁`.
+    - `restrictSystem`/`restrictExp` and `quotSystem`/`quotExp` are the systems; their finite
+      ranges come from `finite_range_fin_exp` (the pairs `(L^{(v)}, c_v)` are finitely many).
+    - Lemma 16.2: `subspaceWeight_restrictSystem` and `subspaceWeight_quotSystem`.
+    - Lemma 16.3 comes from one comparison for systems with `L₂^{(v)} Φ₂ = M_v L₁^{(v)} Φ₁`
+      (`absMulHeight_le_of_mul_eq`, `exists_absMulHeight_weight_le`). The instances are
+      `exists_absMulHeight_restrictSystem_le`, `exists_absMulHeight_le_restrictSystem` and
+      `exists_absMulHeight_quotSystem_le`.
+  - `QuantitativeSubspace/FormSemistable.lean`: Lemma 16.4 and the reductions it uses.
+    - `FinitePlace.infinite` (a number field has infinitely many finite places), proved from the
+      product formula and Bézout. It is needed for the `v₀` of (8.8).
+    - `FormExponent.center` (8.3) and `FormExponent.divConst` (8.4), with
+      `subspaceWeight_top/center/divConst` and `absMulHeight_center` (Lemma 7.2).
+    - `SemistableGap K Ω`: Thm 8.1's conclusion under (8.3), (8.4), (8.8), (8.9): eventually
+      `H_{L,c,Q}(x) > Q^{-δ}` for all `x ≠ 0` and `0 < δ ≤ 1`. The interval structure of (8.11)
+      is not needed here.
+    - `exists_lt_absMulHeight_of_semistable`: Lemma 16.4, the lower bound. For `n = 1` it comes
+      from Lemma 7.1 directly. Otherwise it normalizes (8.3), (8.4) and (8.8) through
+      `L ∘ (L^{(v₀)})⁻¹` and applies the hypothesis.
+  - `QuantitativeSubspace/FormInfimaLimit.lean`: Thm 16.1.
+    - `IsWeightFiltration.comap_of_injective` carries the filtration of `T_{r-1}` to `Ω^k`.
+    - Generic comparisons of successive infima and of `T(λ)` through `φ'`:
+      `heightInf_le_mul_of_comp`, `heightInf_le_mul_of_lt`, `heightSpace_le_map`,
+      `map_heightSpace_le`, and `le_heightInf_of_forall_notMem` (16.14).
+    - `qHeight` is `H_{L,c,max(Q,1)}`. `prod_heightInf_le` and `exists_le_prod_heightInf` are
+      Prop. 9.2 for it.
+    - `InfimaBounds` and `eventually_infimaBounds`: the induction, on `n`. It bundles the upper
+      bounds, the lower bounds and the stability `T(λ) = T_{l+1}` for
+      `Q^{-μ_l+δ} ≤ λ ≤ Q^{-μ_{l+1}-δ}`, which replaces (16.16).
+    - `eventually_successiveInf`: (16.2) and (16.3) for `successiveInf` and `infFlag`.
+  - Differences from EF13:
+    - `I_v(T)` is a least-weight basis, not the greedy one after reordering (15.1); see above.
+    - The induction runs on `n`, not `r`. The base case `r = 1` is the case `T_{r-1} = 0` of the
+      step (`k = 0`, so `L''` is `L` reindexed), with no separate appeal to Lemma 16.4.
+    - The last infimum is bounded through Prop. 9.2's lower bound for `L'` on the first `d_{r-1}`
+      infima, instead of the bounds (16.17) for each of them.
+- **Q3.6** ✅ **A height bound for the filtration** (EF13 §17, Lemmas 17.1–17.4, Prop. 17.5):
+  `H₂(T_l) ≤ H₂^{4ⁿ}` for `0 < l < r`, `H₂` the largest height of a form of `L`, through Thm 16.1
+  applied to the exterior powers. Conditional on `SemistableGap K Ω`, like Q3.5. Three files:
+  - `QuantitativeSubspace/FormHyperplaneHeight.lean`: Lemma 17.4 and its algebra.
+    - `Submodule.extendPi`: the span `V ⊗ Ω ⊆ Ωⁿ` of `V ⊆ Kⁿ`; it is injective, monotone,
+      preserves `finrank`, `⊔` and `⊥`, and every subspace defined over `K` is one
+      (`exists_extendPi_eq`).
+    - The weight of a hyperplane `ker φ` is read from the coordinates of `φ` in the basis of
+      forms (`formWeight_ker_le`, `le_formWeight_ker`).
+    - `arakelovFormHeight` (`H₂`), `kerForms` (common kernels of forms, height `≤ H₂^{N-1}`) and
+      `arakelovMulHeight_finset_sup_le` (Struppeck–Vaaler for a finite join).
+    - `arakelovMulHeight_le_of_isDestabilizing`: Lemma 17.4, `H₂(T) ≤ H₂^{(N-1)²}` for a
+      destabilizing hyperplane `T`. `T` is the sum of the common kernels `U_v` of the forms with
+      `c_i ≤ max{c_j : φ_j ≠ 0}`; a functional vanishing on that sum but not on `T` would give a
+      hyperplane of larger weight (`dualExtend`).
+  - `QuantitativeSubspace/FormWedgeHeight.lean`: Lemmas 17.1 and 6.1 and (17.10).
+    - `FormSystem.reindex` and `FormExponent.reindex` move the exterior power, indexed by
+      `Set.powersetCard (Fin n) p`, to `Fin N`; heights and weights are unchanged.
+    - `absMulHeight_exteriorPower_plucker_le`: Lemma 17.1 with `p!` for EF13's `p^{p/2}`
+      (Leibniz instead of Hadamard at the infinite places).
+    - `arakelovFormHeight_exteriorPower_le`: (17.10), `H₂(L̂) ≤ H₂^p`.
+    - `FormExponent.sum_exteriorPower`: `Σĉ = C(n-1, p-1) Σc`.
+    - `exists_extendPi_span_compound_eq`: Lemma 6.1 for the wedges, `H₂(T̂) = H₂(T_l)`.
+    - `prod_heightInf_le_prod` (the first `#s` infima are at most the heights of any `#s`
+      independent points), `exists_linearIndependent_le_mul` (points with `H(g_j) ≤ C λ_j`) and
+      `Nat.mul_choose_sq_le` (`p C(n,p)² ≤ 4ⁿ`).
+  - `QuantitativeSubspace/FormFiltrationHeight.lean`: Prop. 17.5.
+    - `qHeight_compound_le`: Lemma 17.1 for the reindexed exterior power.
+    - `eventually_isDestabilizing`: for large `Q`, a subspace of dimension `N - 1` spanned by
+      points of height `≤ β` with `β Q^ε ≤ λ_N(Q)` is the destabilizing subspace (Thm 16.1).
+    - `arakelovMulHeight_le_of_isWeightFiltration`: Prop. 17.5.
+  - Differences from EF13:
+    - Heights are relative to `K` (EF13's absolute bound raised to `[K:ℚ]`).
+    - The weight of a hyperplane comes from dual coordinates, not from ordering the forms.
+    - `λ̂_N ≥ c ν_top` comes from Prop. 9.2 for `L` and `L̂` and the sorting bound
+      `prod_heightInf_le_prod`, not from Lemmas 17.2 and 17.3 as stated.
+    - The exponent `4ⁿ` (EF13 Prop. 17.5) uses `p (N-1)² ≤ p C(n,p)² ≤ 4ⁿ`; the earlier plan's
+      `4n` was a typo.
+- **Q3.7** ✅ **The height estimates of §18** (EF13 Lemmas 18.1–18.4) for the reduction to the
+  semistable case. Prop. 18.5 and the proof of Thm 2.3 are Q4.1. Conditional on
+  `SemistableGap K Ω` through Prop. 17.5, like Q3.5 and Q3.6. `R` is the number of forms of `L`.
+  Two files:
+  - `QuantitativeSubspace/FormMinorRatio.lean`: Lemmas 10.1, 10.2 and 18.1.
+    - `localRatio`, `mulSupProd`, `mulRatioProd` (`max/min` of a finite set of numbers, and
+      `∏_v M_v`, `∏_v M_v / m_v`); `mulRatioProd_le`: `∏_v M_v / m_v ≤ (∏_v M_v)^{#θ}` by the
+      product formula (the idea of (10.2)).
+    - `HasUnitForms` (`L` contains `X_1, …, X_n`), `minorSet` (the nonzero `θ` of (18.1) for the
+      columns of `G`), `plucker_mem_detSet` and `apply_mem_detSet` (Lemma 10.1, by a block
+      determinant), `mulSupProd_minorSet_le` (Lemma 10.2, (10.1), by Cauchy–Binet),
+      `arakelovFormHeight_le` (`H₂(L_i) ≤ √n H_L`).
+    - Change of coordinates: `exists_of_mem_forms_comp`, `mulFormHeight_comp_le`,
+      `minorSet_comp` (the `θ` are unchanged), `isWeightFiltration_comp` (via the new
+      `Submodule.IsWeightFiltration.orderIso` in `ForMathlib/LinearAlgebra/WeightFiltration.lean`),
+      `extendPi_span_col_inv_mul`.
+    - `mulRatioProd_minorSet_le` / `mulRatioProd_minorSet_rpow_le`: Lemma 18.1,
+      `∏_v M_v / m_v ≤ (2 H_L)^{(4R)ⁿ}`; the exponent count is `minorRatio_pow_le`.
+  - `QuantitativeSubspace/FormQuotientHeight.lean`: Lemmas 18.2–18.4 for Q3.5's
+    `quotSystem`/`quotExp`.
+    - `cramerCoeff`, `det_update_eq` (Cramer's rule) and `apply_cramerCoeff_le`;
+      `apply_quotCoeff_le` is (18.7), `‖α_ijv‖_v ≤ M_v / m_v`.
+    - `absMulHeight_quotSystem_le` and `absMulHeight_quotSystem_le_of_isWeightFiltration`: (18.5)
+      with the explicit constant of Lemma 16.3 (ii), `n (2 H_L)^{(4R)ⁿ}`.
+    - `quotRow`, `card_forms_quotSystem_le`: (18.15), at most `R^{k+1}` forms.
+    - `quotNormExp` (the `d` of (18.12)), `sum_iSup_quotNormExp_le` ((18.14):
+      `Σ_v max_i d_iv ≤ Σ_v max_i c_iv - Σ_v Σ_i c_iv / n`) and
+      `subspaceWeight_quotNormExp_nonpos` ((18.16) for proper `U`, when `ker φ''` is the
+      destabilizing subspace).
+    - `det_mul_det_eq` (a block determinant), `det_sum_smul` (multilinear expansion),
+      `exists_detSet_quotSystem`, `mulFormHeight_quotSystem_le` and `absFormHeight_quotSystem_le`:
+      Lemma 18.4, `H_{L''} ≤ (2 H_L)^{(8R)ⁿ}`.
+  - Differences from EF13:
+    - Lemmas 18.1 and 18.4 hold for any member `T_l`, `0 < l < r`, of the filtration, not only
+      for `T(L, c) = T_{r-1}`.
+    - No normalization (18.8), (18.9) and no full system `L̃`: the splitting of Q3.5 is arbitrary.
+      Lemma 18.4 comes from the block determinant identity and the product formula for
+      `det P' / det(B₀ φ')`, and (18.5) directly from the comparison of Q3.5. (18.6) is not
+      needed.
+    - (18.15) gives `R^{k+1} ≤ Rⁿ` forms (EF13 `n Rⁿ`): a form of `L''` is fixed by one form of
+      `L` and a `k`-tuple of forms of `L`. EF13 count through the ordered `n`-tuples of forms,
+      which does not carry over to the least-weight `I_v(T)` of Q3.5 (it depends on the values
+      of `c_v`, not only on their order).
+    - (18.14) is stated with `- α / n`, `α = Σ_v Σ_i c_iv`, so it gives `≤ 1` under (2.8) and
+      (2.9). (8.8) for `(L'', d)` is left to Q4.1.
 
 ### Layer Q4: the summit (Evertse–Ferretti 2013)
 
-- **Q4.1** EF13's parametric theorem, which combines Q2.4's framework with Q3's Chow-weight
-  estimates.
-- **Q4.2** EF13's interval result (Evertse 2010, Thm 3.1): `m = ⌊10^8 · 2^{2n} · n^{14} · δ^{-2} ·
-  log(3δ^{-1}RD)⌋` intervals with `ω = 3nδ^{-1} log 3RD`.
-- **Q4.3** **The count of the large solutions**, `10^9 · 2^{2n} · n^{14} · δ^{-3} · log(3δ^{-1}RD)
-  · log(δ^{-1} log 3RD)`, from Q4.2 and DA 9.4. Together with DA 9.3 this is the full
-  quantitative Subspace Theorem at the best known strength.
+- **Q4.1** ✅ EF13's parametric theorem, which combines Q2.4's framework with Q3's auxiliary
+  polynomial and filtration. Its Thm 8.1 must discharge `NumberField.SemistableGap K Ω`, the
+  hypothesis of Q3.5's Thm 16.1 (so EF13 §§16–18 stay free of circularity: §14 does not use §16).
+  Milestones (written 2026-10-04) follow EF13 §§9–12, 14, 18. Throughout, `Q` satisfies (9.3),
+  (9.4) (`Q ≥ C₂`, `λ₁(Q) ≤ Q^{-δ}`) and `(L, c)` satisfies (8.1)–(8.9).
+  - **Q4.1a** ✅ **The gap and the height of `T_k(Q)`** (EF13 Lemmas 9.3, 9.4, 10.3):
+    `QuantitativeSubspace/FormInfimaGap.lean`.
+    - `FormSystem.IsNormalSemistable L c Ω` bundles (8.3), (8.4), (8.8), (8.9); `sum_eq_zero`,
+      `hasUnitForms` (from `v₀`).
+    - `rpow_le_successiveInf_one` (`λ_1 ≥ n⁻¹ H_L^{-C(r,n)} Q^{-1}`, Lemma 7.1) and Lemma 9.3
+      (`rpow_le_prod_successiveInf`, `prod_successiveInf_le_rpow`) under the explicit size
+      conditions `n H_L^{C(r,n)} ≤ Q^{1/3n}` and `2^{n(n-1)/2} Δ_L ≤ Q^{1/6}`.
+    - Lemma 9.4: `exists_successiveInf_le`, from `λ_1 ≤ Q^{-δ}` and `n^{n/2} ≤ Δ_L Q^δ`.
+    - Lemma 10.3 by a route that stays over `K`. `T = T_k(Q)` is defined over `K` (Lemma 9.1);
+      Q3.5's splitting with `φ'(Ω^k) = T` gives the induced system `(L', c')` with
+      `H_{L',c',Q}(y) ≤ n H_{L,c,Q}(φ' y)` (`absMulHeight_restrictSystem_le`), so its infima are at
+      most `n λ_1, …, n λ_k` (points off `T` have height `≥ λ_{k+1}`), and `Σ c' = w(T) ≤ 0`
+      (`sum_restrictExp`). Prop. 9.2 for `L'` bounds `Δ_{L'} ≤ k^{k/2} nᵏ λ_1 ⋯ λ_k`, and
+      `prod_range_pow_le` gives `(λ_1 ⋯ λ_k)ⁿ ≤ Q^{-δ} (2^{n(n-1)/2} H_L)ⁿ` from the gap. The
+      determinants of `L'` are minors `θ` of Q3.7 (`det_restrictMat_mem_minorSet`), so EF13 (10.2)
+      (`mulSupProd_div_mulRatioProd_le`, `one_le_mulDet_restrictSystem_mul`) and Lemma 10.2 bound
+      `Δ_{L'}` below. EF13's determinants `θ_w` over a field containing near-minimal points are not
+      needed.
+    - `rpow_le_mul_arakelovMulHeight` is the resulting inequality,
+      `Q^δ ≤ (k^{k/2} nᵏ 2^{n(n-1)/2} H_L)ⁿ (C(n,k) H_L H₂(V)^{1/[K:ℚ]})^{n Rᵏ}`, and
+      `rpow_le_arakelovMulHeight_infFlag` is Lemma 10.3, `H₂(V)^{1/[K:ℚ]} ≥ Q^{δ/3Rⁿ}` for
+      `V ⊗ Ω = T_k(Q)`, once `(2^{3n²} H_L)^{3nRⁿ} ≤ Q^δ`. The size conditions on `Q` are
+      explicit hypotheses; Q4.1d derives them from `Q ≥ C₂`.
+    - The exponent of `H₂(V)` uses `#θ ≤ Rᵏ` (`card_minorSet_le`), not EF13's `C(R, k)`.
+    - Lemma 11.6 (Lemma 6.1 applied to `T_k(Q)`) moved to Q4.1b, where the wedges are built.
+  - **Q4.1b** ✅ **The points `ĥ_j(Q)` and the exponents `ĉ_{i,v₀}(Q)`** (EF13 (11.8)–(11.17),
+    Lemma 11.4 (11.21), (11.22), Lemma 11.6): `QuantitativeSubspace/FormWedgePoints.lean`.
+    - `exists_wedgePoints`: from Lemma 9.4's gap at `0 < k < n` (`k : Fin n`, 0-based as in
+      Q3.4a), Davenport's lemma (Q2.4e) with an `ε` from `exists_eps_davenport` (EF13 (11.1), by
+      continuity; `mul_two_pow_sq_lt_three_pow_sq` gives the room `n 2^{n²} < 3^{n²}`), the
+      wedges `x_J = ĥ_J` over the field `E` of the `h_j`, and the exponents
+      `e_I = log_Q(3^{n³} topBound λ π I)` (11.15). Its conclusions: `|e_I| ≤ n`,
+      `Σ_I e_I ≤ -δ/n`, local factors of `x_J` (`J ≠ I_N`) at most `1` for `(L̂, ĉ)` off `v₀`,
+      `‖x_J(I)‖_w ≤ Q^{e_I}` above `v₀` (11.17), the `x_J` independent, and their span the
+      extension of `W ⊆ K^N` of dimension `N - 1` with `H₂(W)^{1/[K:ℚ]} ≥ Q^{δ/3Rⁿ}`
+      (Lemma 11.6 = Lemma 6.1 + Lemma 10.3).
+    - (11.22): `abs_logb_topBound_le`, via `topBound_eq_prod` (`topBound` is a product of `n - k`
+      distinct infima) and Lemma 9.3, with `3^{n³} ≤ Q^{1/2}`. (11.21): `sum_logb_topBound_le`,
+      from Q3.4a's `sum_logb_topBound`, (9.2) and the gap, with
+      `(3^{n³} 2^{n(n-1)/2} H_L)^{2ⁿ} ≤ Q^{δ/n(n-1)}`. EF13's proof of (11.21) drops the factor
+      `Δ_L^{N'}` of (9.2); here it is kept, bounded by `H_L`.
+    - The size conditions on `Q` are hypotheses, as in Q4.1a.
+  - **Q4.1c** ✅ **The non-vanishing result** (EF13 Prop. 12.1 = Ev96 Lemma 26):
+    `QuantitativeSubspace/FormNonVanishing.lean`.
+    - `MvPolynomial.exists_eval_hasseDeriv_ne_zero_of_logHeight`: `P ≠ 0` over a number field `K`,
+      multihomogeneous of degree `r` in `m` blocks of `n + 1` variables, `r_h/r_{h+1} > m/ε`,
+      forms `M_h` over `K` with `n max(1, m/ε)^m (10 m² [K:ℚ] Σr + m h(P)) < r_h h(M_h)`, and `y_h`
+      spanning `M_h = 0` over any field `E ⊇ K` of characteristic zero. Conclusion: integers
+      `|z_{hl}| ≤ n/ε + 1` and `I` with `Σ_h |I_h|/r_h ≤ 2mε` and
+      `P_I((Σ_l z_{hl} y_{hl})_h) ≠ 0`. The ratio condition `m/ε` is weaker than EF13's `2m²/ε`.
+    - Proof: Evertse's Lemma 24 (Q1.5) over `K`, with Rémond's heights `resultantHeight`
+      (`botBound 1 ≤ 7`) and `θ = mε`; `formIndex_map` (via `substFormInv_map`) moves the index
+      along the forms to `E`; then DA 5.5–5.6 with `η = 2ε`.
+    - `Submodule.exists_normal_logHeight_le`: a hyperplane `W ⊆ Kⁿ` is `M ⬝ x = 0` with
+      `h₂(W) ≤ [K:ℚ]/2 log n + h(M)` (duality theorem, `arakelovLogHeight_le_logHeight`).
+    - `K : Type` (universe `0`): Rémond's heights are built for fields in `Type`.
+  - **Q4.1d** ✅ **Theorem 8.1** (EF13 §14): `QuantitativeSubspace/FormEvalBound.lean`,
+    `FormIntervalTheorem.lean`, `FormSemistableGap.lean`.
+    - `FormSystem.one_le_evalBound` (FormEvalBound): (14.10)–(14.17) and the product formula over
+      a number field `F` holding the points. Per place, `P_I(x)` is read in the coordinates
+      `L̂^{(v)}` (`eval_eq_eval_blockSubst`, `map_blockSubst`), and only the monomials allowed by
+      Prop. 13.6 (i), (ii) count (`prod_apply_pow_le`, exponent count `sum_log_mul_le`). The output
+      is `1 ≤ (∏_v A_v)(2^{NΣr} G^{Σr})^{[K:ℚ]} e^{[K:ℚ]Λm(10nε - δ/nN)}`.
+    - `FormSystem.false_of_chain` (FormIntervalTheorem): `m` values `Q_h` with the same gap
+      index `k`, `log Q_{h+1} ≥ (4m/ε) log Q_h`, and two numerical thresholds `hΘ₁` (Prop. 12.1's
+      height condition) and `hΘ₂` (the product formula) give a contradiction.
+      - The wedge points of the `Q_h` (`exists_wedgePoints`, which now takes `k` and its gap as
+        input) live in fields `E_h`, which are moved into the compositum
+        `F = ⨆ E_h` (`apply_mulVec_le_arch_of_le`, `apply_mulVec_le_fin_of_le`).
+      - The degrees `r_h = ⌈Λ/log Q_h⌉` are (14.8) (`exists_blockDegrees`). Prop. 12.1 is applied
+        over `Ω` with the normal vectors of the `W_h` (`mem_extendPi_of_sum_eq_zero`).
+      - (14.9) is replaced by `Λ ≥ log|D_K| log Q_0`, which absorbs `log|D_K|` of Prop. 13.6 (iii).
+    - `FormSystem.exists_intervals` (FormSemistableGap) is **Theorem 8.1**. The `Q ≥ C₂` with
+      `λ_1(Q) ≤ Q^{-δ}` lie in `(n - 1)(m - 1)` intervals `[a, a^{2ω}]`.
+      - The parameters are `ε = δ/(40n²2ⁿ)`, `m` from Prop. 13.6's count, `ω = 4m/ε`, and
+        `log C₂ = gapThreshold n R δ (log H_L)`, which is linear in `log H_L`.
+      - The proof covers the exceptional set greedily (`Real.exists_cover_of_not_chain`), and finds
+        a monochromatic sub-chain for the colouring by Lemma 9.4's `k` (`Real.exists_subchain`).
+      - The size conditions of §§9–13 follow from `log Q ≥ log C₂` term by term.
+    - `NumberField.semistableGap : SemistableGap K Ω` for `K : Type` and `Ω` algebraically closed.
+      Thm 16.1 (Q3.5), Prop. 17.5 (Q3.6) and Lemmas 18.1–18.4 (Q3.7) all assume `IsAlgClosed Ω`,
+      so passing `semistableGap K Ω` makes them unconditional for `K : Type`.
+    - The constants are not EF13's: EF13 have `ε = δ/(11n²2^{n-1})`, `m₂` intervals
+      `[Q_h, Q_h^{ω₂})` with `ω₂ = m₂^{5/2}`, and `C₂ = (2H_L)^{m₂^{2m₂}}`. The exponent `2ω` comes
+      from the covering, since the infimum of the exceptional set need not be exceptional.
+  - **Q4.1e** ✅ **Theorem 2.3** (EF13 §18 end): `QuantitativeSubspace/FormIntervalResult.lean`.
+    - Lemmas 18.1 and 18.4 for the destabilizing subspace `T = T(L, c)`, including `T = 0`
+      (`mulRatioProd_minorSet_rpow_le_of_isDestabilizing`: the filtration member `T_{r-1}` is `T`
+      by uniqueness, and for `k = 0` the only minor is `1`).
+    - **Prop. 18.5** (`absMulHeight_quotNormExp_le_rpow`): `H_{L'',d,Q'}(φ'' x) ≤ Q'^{-δ/2n}`,
+      `Q' = Q^{n/(n-k)}`, from `H_{L'',d,Q'} = Q^{μ(T)} H_{L'',c'',Q}` (`weight_divConst`,
+      `absMulHeight_center`), `μ(T) ≤ μ(0) = 0` and (18.5).
+    - (8.8) for `(L'', d)` by a change of coordinates (`isNormalSemistable_comp`, EF13 Lemma 7.3):
+      composing with `(L''^{(v₀)})⁻¹` at a finite place with `c_{v₀} = 0`. So Theorem 8.1 holds
+      without (8.8) (`exists_intervals_of_fin_eq_zero`).
+    - `n - k = 1` (`false_of_card_eq_one`): `d = 0`, and Lemma 7.1 (`le_absMulHeight_weight`)
+      bounds the heights below by `H_{L''}^{-R^n}`.
+    - EF13 (18.23) is `exists_intervals_of_isDestabilizing`, with Theorem 8.1 for `n - k`
+      variables, `Rⁿ` forms and `δ / 2n`, above `log C = quotThreshold n R δ (log H_L)`.
+    - **Theorem 2.3** is `exists_intervals_cover`. At most `intervalCount n R δ` reals
+      `b ≥ C₀ = max(H_L^{1/R}, n^{1/δ})` such that every `Q ≥ C₀` with (2.24) lies in some
+      `[b, b^{ω₀})`, `ω₀ = δ⁻¹ log 3R`. `Real.exists_cut` cuts `[a, a^θ]` into
+      `⌊log θ / log ω₀⌋ + 1` pieces. `[C₀, C)` is cut with `log C / log C₀ ≤ intervalBound n R δ`,
+      from `log C₀ ≥ log 2 / δ`, `log C₀ ≥ log H_L / R` and `log C` affine in `log H_L`.
+    - Differences from EF13:
+      - The hypothesis is `Σ_v Σ_i c_iv = 0`, weaker than (2.8) at every place.
+      - Prop. 18.5 loses `δ/2n` (EF13: `99δ/100n`).
+      - The count is explicit but is not EF13's `m₀ = ⌊10⁵ 2^{2n} n^{10} δ^{-2} log(3δ⁻¹R)⌋`;
+        it takes the largest over the possible `n - k` of the cut counts (a sum until
+        2026-10-04). A closed-form bound is Q4.2d.
+- **Q4.2** ✅ EF13's interval result for approximation domains (EF13 §5: Lemma 5.1 and Thm 3.3;
+  Evertse 2010, Thm 3.1: `m = ⌊10^8 · 2^{2n} · n^{14} · δ^{-2} · log(3δ^{-1}RD)⌋` intervals with
+  `ω = 3nδ^{-1} log 3RD`). Theorem 2.3 in the shape that Q0.3's assembly
+  (`exists_finset_submodule_of_forall_interval`) takes, i.e. a twin of Layer 6.1's
+  `exists_forall_mem_interval_approxDomain`: forms `L` on `Kⁱ` independent at the infinite places
+  and at `Sfin`, exponents of weight `≤ -ε` and spread `≤ 2A` (absolute weight `≤ A` until
+  2026-10-04), at most `s` distinct forms.
+  Milestones (written 2026-10-04):
+  - **Q4.2a** ✅ **The system of an approximation domain** (EF13 (5.1)–(5.5), Lemma 5.1):
+    `QuantitativeSubspace/FormDomainSystem.lean`.
+    - `domainSystem`: a `FormSystem K (Fin n)` through `ι ≃ Fin n` (`domainMatrix`), the forms of
+      `L` at the infinite places and at `Sfin`, the coordinates elsewhere.
+    - `domainExponent`: `(c_iv - (1/n) Σ_j c_jv) mult v / κ` at `S`, `0` elsewhere; (2.8) in sum
+      (`domainExponent_sum`) and EF13 (5.5): `Σ_v max_i ≤ M/κ` with the spread
+      `M = approxSupWeight - approxWeight / n = Σ_v mult v · max_i (c_iv - (1/n) Σ_j c_jv)`
+      (`domainExponent_sup_le_spread`; `approxSupWeight` in DA's `SystemDomain.lean`), and the
+      cruder `≤ 2A/κ`, `A` the absolute weight (`domainExponent_sup_le`).
+    - Lemma 5.1 (`absMulHeight_domainSystem_le`): a nonzero point of the domain at level `Q` has
+      `H_{L,c',Q'}(x) ≤ Q^{W / (n [K : ℚ])}`, `Q' = Q^{κ / [K : ℚ]}`, `W` the weight. EF13 take
+      `Q = H(x)^{1 + ε/n}` for their system (3.7); the domain has no `‖x‖_v`, and integrality off
+      `S` bounds the coordinates there, so this holds at every level.
+    - `FinitePlace.localDegree_self`: local degree `1` over the own field.
+  - **Q4.2b** ✅ **Heights** (EF13 (5.6), (5.10), (7.4)): at most `s + n` distinct forms
+    (`card_forms_domainSystem_le`); `log H_L ≤ log n! + n · formLogHeight / [K : ℚ]`
+    (`log_absFormHeight_domainSystem_le`, Hadamard and the ultrametric Leibniz bound through
+    `Height.mulHeight_le_pow_mul_pow`; EF13 have `H*(L_1) ⋯ H*(L_r)`, we have the `n`-th power of
+    the height of all entries). `Δ_L ≥ H_L^{1 - C(r, n)}` is `absFormHeight_rpow_le_absDet`.
+  - **Q4.2c** ✅ **The interval result** (EF13 Thm 3.3 with Lemma 5.2):
+    `exists_forall_mem_interval_approxDomain_ef`. One proper subspace (`domainComap` of
+    `T(L', c')` over `AlgebraicClosure K`, `domainComap_ne_top`), at most
+    `intervalCount n (s + n) δ'` reals `t ≥ X₀` with `δ' = ε / 4nA` (`domainDelta`; hypotheses
+    spread `≤ 2A` and `ε ≤ 4nA`), such that the
+    domain at every level `log Q ≥ X₀` lies in the subspace or `log Q ∈ [t, ω₀ t)`,
+    `ω₀ = cutRatio (s + n) δ'`. With `κ = 2A`: `H ≤ Q'^{-2δ'}`, and `Q'^{-δ'} ≤ Δ_L^{1/n}` and
+    `Q' ≥ C₀` above `X₀ ≥ domainThreshold n [K : ℚ] s ε A (formLogHeight)`, linear in the
+    height of the forms; an interval `[b, b^{ω₀})` of `Q'` is `[log b / M, ω₀ log b / M)` of
+    `log Q`, `M = 2A / [K : ℚ]`, moved up to `X₀` if below (Lemma 5.2).
+  - **Q4.2d** ✅ **A closed form for `intervalCount`**: `QuantitativeSubspace/FormIntervalCount.lean`,
+    `intervalCount_le`: `intervalCount n R δ ≤ 60 n (n + 3) m̄` with
+    `m̄ = 64000 n⁸ 4ⁿ δ⁻² log(64 n R / δ) + 2` (`chainBound`, a bound for the number of blocks of
+    Theorem 8.1 for every quotient, `gapBlocks_le_chainBound`). So `O(n¹⁰ 4ⁿ δ⁻² log(nR/δ))`:
+    EF13's `m₀ = 10⁵ 2^{2n} n^{10} δ⁻² log(3δ⁻¹R)` up to the constant.
+    - `Real.cutCount_le_div`: `cutCount θ ω₀ ≤ log θ / log ω₀ + 1`; `log ω₀ ≥ 1/2`
+      (`half_le_log_cutRatio`: `ω₀ ≥ log 6 > 5/3 > √e`).
+    - The intervals of Theorem 8.1 (ratio `2ω = 8m/ε ≤ Y`, `two_gapRatio_le`) give
+      `n m̄ (μ / log ω₀ + 1)` for the one quotient that occurs; the cut of `[C₀, C)` gives
+      `log intervalBound / log ω₀ + 1 ≤ 3 m̄ μ / log ω₀ + 1` (`log_intervalBound_le`), from
+      `gapThreshold_le` (Theorem 8.1's threshold is at most
+      `200 n⁷ 8ⁿ R^{2n} m³ (m/ε)^m / (εδ) · (1 + ℓ)`) and `intervalBound ≤ (R + 2) qT(1)`. Together
+      `intervalCount_le_div`: `≤ (n + 3) m̄ (μ / log ω₀ + 1)`, `μ = log(640 n³ 2ⁿ m̄ / δ)`
+      (`countLog`).
+    - EF13 §18's last step: `Y ≤ c ω₀⁴`, `c = 2744320000 n¹² 8ⁿ` (`countBase_le`), so
+      `μ / log ω₀ + 1 ≤ 2 log c + 5 ≤ 60 n` (`countLog_div_add_one_le`,
+      `two_log_countConst_add_five_le`).
+    - Until 2026-10-04 the cut counts were bounded by `2 log θ + 1`, dropping `log ω₀`, and summed
+      over all quotients: `(n² + 3) m̄ (2μ + 1)`, a factor `n μ` above EF13.
+- **Q4.3** ✅ **The count of the large solutions** (EF13 Thm 3.1 / Evertse 2010 Thm 2.1:
+  `10^9 · 2^{2n} · n^{14} · δ^{-3} · log(3δ^{-1}RD) · log(δ^{-1} log 3RD)`), from Q4.2 and DA 9.4:
+  `QuantitativeSubspace/FormSystemCount.lean`. Q0.3's assembly
+  (`exists_finset_submodule_of_forall_interval`) with Q4.2c's interval result in place of 6.1's.
+  - `exists_finset_submodule_of_efSystemThreshold_le`: for a normalized system (2.4) with forms
+    over a Galois `E / K` (fields in `Type`), the solutions with `log H(x) ≥ efSystemThreshold`
+    lie in at most `efLargeCount n [E : K] R δ = 1 + intervalCount n R' δ' (1 + log ω₀ /
+    log (1 + δ / 2n))` proper subspaces, `R' = R [E : K] + n`, `δ' = δ / (4 (n + δ))`
+    (`efSystemDelta`; Q4.2's `ε / 4nA` at `ε = [E:K] δ / 2` (`efEps`) and half the spread
+    `A = [E:K] (1 + δ/n) / 2` (`efSpread`), where `[E : K]` cancels, `domainDelta_efEps`; EF13
+    (5.4): `δ = ε / (n + ε)`), `ω₀ = cutRatio R' δ' = δ'⁻¹ log 3R'`.
+  - The spread: Q0.3's raised exponents (`IsNormalizedSystem.exists_raise`, now with weight
+    exactly `-δ` and `c' ≤ s(p)`) shifted by `δ / 2nt` have weight `-[E:K] δ/2` over `E` and
+    largest exponents of weight `approxSupWeight ≤ [E:K] (1 + δ/2n)`
+    (`approxSupWeight_conjExponent`); the assembly's interval hypothesis receives both.
+  - `exists_finset_submodule_of_isNormalizedSystem_ef`: all solutions, with DA 9.3 and one
+    interval of DA 9.4 (`exists_finset_submodule_of_isNormalizedSystem_of_large`).
+  - `efSystemThreshold_le`: the threshold is linear in `log H` (Q4.2's `domainThreshold`,
+    monotone in the height of the forms, at Q0.3's bound for the conjugated forms).
+  - Closed forms: `efLargeCount_le`: `≤ 1 + 60 n (n + 3) m̄ (1 + 4n δ⁻¹ log ω₀)` (Q4.2d and
+    `log (1 + x) ≥ x / 2`); `efLargeCount_le_shape`:
+    `≤ 3 · 10⁹ · 4ⁿ n¹³ δ⁻³ · log(64 n R' / δ') · log ω₀`; `efLargeCount_le_ef`, in EF13's
+    variables with `RD = R [E : K]`:
+    `≤ 2 · 10¹³ · 4ⁿ n¹⁴ δ⁻³ · log(3RD / δ) · log(δ⁻¹ log 3RD)`. EF13's shape; the constant is
+    larger (EF13: `10⁹`). Independent of `[E : ℚ]`, the places and `H`.
+  - The gap closed on 2026-10-04 (it was a factor `n μ`, `μ = O(n + log δ⁻¹ + log log RD)`):
+    - `n`: Q4.2 twisted by `κ = 2A` with `A` the absolute weight, `≍ n [E : K]` for the raised
+      exponents; EF13 twist by the spread, `≍ [E : K]` (`δ'` was `δ / (32 n (n + 1))`).
+    - `μ`: Q4.2d dropped `log ω₀` from the cut counts and summed over the quotients.
+  Together with DA 9.3 this is the full quantitative Subspace Theorem at EF13's strength.
 
 ### Layer Q5 (branch): higher degree (Evertse–Ferretti 2008, Quang 2022)
 
+- **Q5.0** Chow forms and Chow weights (moved here from Q3 by Q3.0; FW94, Fe00, Fe03, EF02).
+  Chow forms of projective varieties over `K` and their heights; Chow weights (Mumford's degree
+  of contact) with respect to a weight vector; the EF02 lower bound for Chow weights, and Quang's
+  2022 improvement for Q5.2. Fe00, EF02 and FW94 are not in the local paper folders.
+
 - **Q5.1** EF08: the number and degrees of the exceptional subvarieties for polynomials of higher
   degree in general position on a variety. It is reduced to Q2.4 or Q4.3 by a Veronese
-  embedding and Q3.
-- **Q5.2** Quang 2022: subgeneral position, via the sharper Chow-weight bound of Q3.3.
+  embedding and Q5.0.
+- **Q5.2** Quang 2022: subgeneral position, via the sharper Chow-weight bound of Q5.0.
 - **Q5.3** (optional) Grieve 2023: big linear systems and the structure of the exceptional set.
 
 ## Ordering
 
 ```
-DA 2–6, 9 (landed) ──► Q0 ──► Q1 ──► Q2 ──► Q4 ──► Q5
-                                        ▲
-                         Q3 ────────────┘ (Q3 also feeds Q5)
+DA 2–6, 9 (landed) ──► Q0 ──► Q1 ──► Q2 ──► Q3 ──► Q4 ──► Q5
+                                                           ▲
+                                     Chow theory (Q5.0) ───┘
 ```
 
 **Recommended first formalization target: Q0.** It is the only layer that yields a quantitative

@@ -274,7 +274,7 @@ theorem exists_finset_submodule_of_systemThresholdTwo_le (RL : SubspaceRoth.{u} 
     (X₀ := X₀) (ρ := 4 * σ⁻¹) (NS := 2)
     (NI := subspaceChainLength 1 s (2 * ε) A)
     ((le_max_right _ _).trans (le_max_right _ _)) ((le_max_left _ _).trans (le_max_right _ _))
-    hρ1 fun c' hcw hcA ↦ by
+    hρ1 fun c' hcw hcA _ _ ↦ by
       obtain ⟨T, hTcard, hTtop, hint⟩ :=
         exists_forall_mem_interval_approxDomain_two (K := E) (Sfin := Sfin') (L := L') RL hcard
           (linearIndependent_conjSystem_infinitePlace hwInf hLI)

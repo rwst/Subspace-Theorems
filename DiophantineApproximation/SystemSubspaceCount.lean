@@ -700,20 +700,21 @@ theorem systemValue_mul (S : Finset (HeightOneSpectrum (𝓞 K)))
 /-- **The exponents can be raised to absolute weight at most `2 n + δ`.** The positive exponents
 sum to at most `n`, since each is at most the normalized local degree; scaling the negative ones
 by `λ = (P + δ) / N ≤ 1`, `P` and `N` the sums of the positive and negative parts, leaves the
-weight at exactly `-δ`. Raising the exponents only enlarges the set of solutions. -/
+weight at exactly `-δ`, and no exponent above the normalized local degree. Raising the exponents
+only enlarges the set of solutions. -/
 theorem IsNormalizedSystem.exists_raise {S : Finset (HeightOneSpectrum (𝓞 K))}
     {w : AbsoluteValue K ℝ → AbsoluteValue E ℝ} {L : AbsoluteValue K ℝ → ι → Dual E (ι → E)}
     {C : InfinitePlace K ⊕ S → ℝ} {c : InfinitePlace K ⊕ S → ι → ℝ} {H : ℝ} {D R : ℕ} {δ : ℝ}
     (hN : IsNormalizedSystem S w L C c H D R δ) :
-    ∃ c' : InfinitePlace K ⊕ S → ι → ℝ, (∀ p i, c p i ≤ c' p i) ∧ systemWeight c' ≤ -δ ∧
-      ∑ p, ∑ i, |c' p i| ≤ 2 * Fintype.card ι + δ := by
+    ∃ c' : InfinitePlace K ⊕ S → ι → ℝ, (∀ p i, c p i ≤ c' p i) ∧ systemWeight c' = -δ ∧
+      ∑ p, ∑ i, |c' p i| ≤ 2 * Fintype.card ι + δ ∧ ∀ p i, c' p i ≤ systemExponent S p := by
   have hδ := hN.delta_pos
   set P := ∑ p, ∑ i, max (c p i) 0 with hP
   set M := ∑ p, ∑ i, max (-c p i) 0 with hM
   have hP0 : 0 ≤ P := Finset.sum_nonneg fun p _ ↦ Finset.sum_nonneg fun i _ ↦ le_max_right _ _
+  have hs : ∀ p, 0 ≤ systemExponent S p := fun p ↦ by
+    rcases p with v | v <;> simp only [systemExponent] <;> positivity
   have hPn : P ≤ Fintype.card ι := by
-    have hs : ∀ p, 0 ≤ systemExponent S p := fun p ↦ by
-      rcases p with v | v <;> simp only [systemExponent] <;> positivity
     calc P ≤ ∑ p, ∑ _i : ι, systemExponent S p :=
           Finset.sum_le_sum fun p _ ↦ Finset.sum_le_sum fun i _ ↦
             max_le (hN.exponent_le p i) (hs p)
@@ -734,7 +735,7 @@ theorem IsNormalizedSystem.exists_raise {S : Finset (HeightOneSpectrum (𝓞 K))
   have hl0 : 0 ≤ l := by positivity
   have hl1 : l ≤ 1 := (div_le_one hM0).2 hPM
   have hlM : l * M = P + δ := div_mul_cancel₀ _ hM0.ne'
-  refine ⟨fun p i ↦ max (c p i) 0 - l * max (-c p i) 0, fun p i ↦ ?_, ?_, ?_⟩
+  refine ⟨fun p i ↦ max (c p i) 0 - l * max (-c p i) 0, fun p i ↦ ?_, ?_, ?_, fun p i ↦ ?_⟩
   · change c p i ≤ max (c p i) 0 - l * max (-c p i) 0
     rcases le_total 0 (c p i) with h | h
     · rw [max_eq_left h, max_eq_right (by linarith)]; simp
@@ -751,6 +752,10 @@ theorem IsNormalizedSystem.exists_raise {S : Finset (HeightOneSpectrum (𝓞 K))
               abs_of_nonneg (mul_nonneg hl0 (le_max_right _ _))]
       _ = P + l * M := by simp only [Finset.sum_add_distrib, ← Finset.mul_sum, hP, hM]
       _ ≤ 2 * Fintype.card ι + δ := by rw [hlM]; linarith
+  · have h0 : 0 ≤ l * max (-c p i) 0 := mul_nonneg hl0 (le_max_right _ _)
+    have h1 : max (c p i) 0 ≤ systemExponent S p := max_le (hN.exponent_le p i) (hs p)
+    change max (c p i) 0 - l * max (-c p i) 0 ≤ _
+    linarith
 
 /-! ### The large solutions -/
 
@@ -758,7 +763,9 @@ open scoped Classical in
 /-- **The large solutions of a system, from any interval result** (the assembly of Q0.3). Under
 the normalization (2.4), with forms over a Galois extension `E / K`, suppose that every system of
 exponents over `E` of weight at most `-systemEps [E : K] δ` and absolute weight at most
-`systemAbsBound [E : K] n` has an interval result above `X₀` for the conjugated forms: its
+`systemAbsBound [E : K] n` (and, which the interval result may also use, of weight exactly
+`-[E : K] δ / 2` and largest exponents of weight `approxSupWeight ≤ [E : K] (1 + δ / 2n)`) has an
+interval result above `X₀` for the conjugated forms: its
 domains at levels `log Q ≥ X₀` lie in one of at most `NS` proper subspaces of `Eⁿ`, or `log Q`
 lies in one of at most `NI` intervals `[s, ρ s)` with `s ≥ X₀`. If `X₀` is at least
 `systemHeightThreshold` and `[K : ℚ] (2 n / δ) log n`, the solutions with `log H(x) ≥ X₀` lie in
@@ -785,6 +792,9 @@ theorem exists_finset_submodule_of_forall_interval [IsGalois K E]
     (hint : ∀ c' : AbsoluteValue E ℝ → ι → ℝ,
       approxWeight (systemPlacesOver E S) c' ≤ -systemEps (finrank K E) δ →
       approxAbsWeight (systemPlacesOver E S) c' ≤ systemAbsBound (finrank K E) (Fintype.card ι) →
+      approxWeight (systemPlacesOver E S) c' = -(finrank K E * δ / 2) →
+      approxSupWeight (systemPlacesOver E S) c' ≤
+        finrank K E * (1 + δ / (2 * Fintype.card ι)) →
       ∃ T : Finset (Submodule E (ι → E)), #T ≤ NS ∧ (∀ W ∈ T, W ≠ ⊤) ∧
         ∃ 𝒯 : Finset ℝ, #𝒯 ≤ NI ∧ (∀ s ∈ 𝒯, X₀ ≤ s) ∧
           ∀ Q : ℝ, 1 < Q → X₀ ≤ Real.log Q →
@@ -817,7 +827,7 @@ theorem exists_finset_submodule_of_forall_interval [IsGalois K E]
     have hK : (0 : ℝ) < finrank ℚ K := by exact_mod_cast finrank_pos
     exact (by positivity : (0 : ℝ) < finrank ℚ K * (2 * n / δ) * Real.log n).trans_le hX₀n
   -- the raised exponents
-  obtain ⟨c', hcc', hc'w, hc'A⟩ := hN.exists_raise
+  obtain ⟨c', hcc', hc'w, hc'A, hc's⟩ := hN.exists_raise
   -- the scalar
   set Z : ℝ := (n.factorial : ℝ) * (H ^ finrank ℚ E) ^ n with hZ
   have hZ1 : 1 ≤ Z := one_le_mul_of_one_le_of_one_le
@@ -874,7 +884,26 @@ theorem exists_finset_submodule_of_forall_interval [IsGalois K E]
             nsmul_eq_mul]
           ring
       _ ≤ 2 * n + 2 := by rw [htnγ]; linarith
-  obtain ⟨T, hTcard, hTtop, 𝒯, h𝒯card, h𝒯ge, hQint⟩ := hint _ hw' hA'
+  have hwe : approxWeight Sfin' (conjExponent S e') = -(e * δ / 2) := by
+    rw [approxWeight_conjExponent]
+    have : systemWeight e' = systemWeight c' + t * n * γ := by
+      simp only [he', systemWeight, Finset.sum_add_distrib, Finset.sum_const, Finset.card_univ,
+        hcardS, nsmul_eq_mul]
+      ring
+    rw [this, htnγ, hc'w]
+    ring
+  have hsup : approxSupWeight Sfin' (conjExponent S e') ≤ e * (1 + δ / (2 * n)) := by
+    rw [approxSupWeight_conjExponent]
+    refine mul_le_mul_of_nonneg_left ?_ he0.le
+    calc ∑ p, ⨆ i, e' p i ≤ ∑ p, (systemExponent S p + γ) :=
+          Finset.sum_le_sum fun p _ ↦ ciSup_le fun i ↦ by
+            simp only [he']
+            linarith [hc's p i]
+      _ = 1 + δ / (2 * n) := by
+          rw [Finset.sum_add_distrib, sum_systemExponent, Finset.sum_const, Finset.card_univ,
+            hcardS, nsmul_eq_mul, hγ]
+          field_simp
+  obtain ⟨T, hTcard, hTtop, 𝒯, h𝒯card, h𝒯ge, hQint⟩ := hint _ hw' hA' hwe hsup
   set T₁ := T.image fun W ↦ (W.restrictScalars K).comap (algebraMapPi K E ι) with hT₁
   -- `β x` lies in the domain
   have hdom : ∀ x ∈ systemSet S w L C c, X₀ ≤ Real.log (mulHeightAff x) →
@@ -1015,7 +1044,7 @@ theorem exists_finset_submodule_of_systemThreshold_le [IsGalois K E] (RL : Subsp
     (NS := parametricSubspaceCount n dE (R * e) ε A)
     (NI := parametricIntervalCount n dE (R * e) ε A)
     ((le_max_right _ _).trans (le_max_right _ _)) ((le_max_left _ _).trans (le_max_right _ _))
-    (one_le_parametricRatio RL.toRothParams _ _ (by omega) hε0 hA0) fun c' hcw hcA ↦ by
+    (one_le_parametricRatio RL.toRothParams _ _ (by omega) hε0 hA0) fun c' hcw hcA _ _ ↦ by
       obtain ⟨T, hTcard, hTtop, Q₀, -, hQ₀eq, hint⟩ :=
         exists_forall_mem_interval_approxDomain (K := E) (Sfin := Sfin') (L := L') RL
           (linearIndependent_conjSystem_infinitePlace hwInf hLI)
