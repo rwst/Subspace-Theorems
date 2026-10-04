@@ -1,0 +1,17 @@
+# The theorems of Evertse–Ferretti (Ann. of Math. 2013) that `lake test` certifies, in the order the
+# config lists them. `scripts/make-challenge.py --paper QuantitativeSubspace` reads this file and
+# regenerates `ChallengeQuantitativeSubspace.lean` and `comparator/quantitative-subspace.json` from
+# it. `#` starts a comment. See `COMPARATOR.md`.
+
+# Q4.3, Theorem 3.1 (Evertse 2010, Theorem 2.1): the large solutions
+NumberField.exists_finset_submodule_of_efSystemThreshold_le   # Theorem 3.1, the large solutions
+NumberField.exists_finset_submodule_of_isNormalizedSystem_ef  # Theorem 3.1 with Evertse 2010 Thm 2.2, all solutions
+NumberField.efLargeCount_le_ef                      # Theorem 3.1, the count in EF13's variables
+NumberField.efLargeCount_le_shape                   # the count before the logarithms are compared
+NumberField.efSystemThreshold_le                    # the threshold is linear in log H
+# Q4.2, Theorem 3.3 for approximation domains
+NumberField.exists_forall_mem_interval_approxDomain_ef  # Theorem 3.3 with Lemmas 5.1, 5.2
+NumberField.FormSystem.intervalCount_le             # the closed form of the number of intervals (m₀)
+# Q4.1, the parametric theorems
+NumberField.FormSystem.exists_intervals_cover       # Theorem 2.3
+NumberField.FormSystem.exists_intervals             # Theorem 8.1

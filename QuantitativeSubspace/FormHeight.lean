@@ -635,12 +635,16 @@ section Forms
 def formSet : Set (ι → K) := {f | ∃ v i, L.arch v i = f} ∪ {f | ∃ v i, L.fin v i = f}
 
 theorem finite_formSet : L.formSet.Finite := by
+  -- `rintro`, not `fun f ⟨v, i, h⟩ ↦ …`: `forms` carries this proof in its value, and a pattern
+  -- lambda mints a `private` matcher that comparator cannot compare (`COMPARATOR.md`).
   refine Set.Finite.union ?_ ?_
-  · exact (Set.finite_range fun p : InfinitePlace K × ι ↦ L.arch p.1 p.2).subset
-      fun f ⟨v, i, h⟩ ↦ ⟨(v, i), h⟩
+  · refine (Set.finite_range fun p : InfinitePlace K × ι ↦ L.arch p.1 p.2).subset ?_
+    rintro f ⟨v, i, h⟩
+    exact ⟨(v, i), h⟩
   · have : Finite (Set.range L.fin) := L.finite_range_fin
-    exact (Set.finite_iUnion fun M : Set.range L.fin ↦ Set.finite_range M.1).subset
-      fun f ⟨v, i, h⟩ ↦ Set.mem_iUnion.mpr ⟨⟨_, v, rfl⟩, i, h⟩
+    refine (Set.finite_iUnion fun M : Set.range L.fin ↦ Set.finite_range M.1).subset ?_
+    rintro f ⟨v, i, h⟩
+    exact Set.mem_iUnion.mpr ⟨⟨_, v, rfl⟩, i, h⟩
 
 /-- The forms `L_1, …, L_r` as a finset. -/
 noncomputable def forms : Finset (ι → K) := L.finite_formSet.toFinset

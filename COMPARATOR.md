@@ -131,6 +131,11 @@ The lanes so far:
 | Corvaja–Zannier 2004 | `comparator/corvaja-zannier-2004.json` | 11 | 229 lines |
 | Adamczewski–Bugeaud 2007 | `comparator/adamczewski-bugeaud-2007.json` | 32 | 483 lines, 22 KiB |
 | Evertse 1984 | `comparator/evertse-1984.json` | 14 | 316 lines, 16 KiB |
+| Evertse–Ferretti 2013 (`QuantitativeSubspace/`) | `comparator/quantitative-subspace.json` | 9 | 831 lines, 41 KiB |
+
+`QuantitativeSubspace/` is a roadmap library, not a paper directory, but its summit is one paper
+(Evertse–Ferretti, Ann. of Math. 2013), so it gets a lane of the same shape:
+`python3 scripts/make-challenge.py --paper QuantitativeSubspace`.
 
 Two traps surfaced on the Adamczewski–Bugeaud lane, both fixed in the development, not the
 challenge:
@@ -145,6 +150,29 @@ challenge:
   rejected `Function.IsAutomatic`. This is not a tie between loaded instances (the `TIES` table
   cannot help), but an instance missing from the module; importing
   `Mathlib.Algebra.Group.Nat.Defs` there fixed it.
+
+Four more surfaced on the Evertse–Ferretti lane. The first was fixed in the development, the other
+three in the generator, generically:
+
+- **A pattern lambda mints a `private` matcher.** `fun f ⟨v, i, h⟩ ↦ …` in the proof of
+  `FormSystem.finite_formSet` became `_private.….match_1_3`, and `FormSystem.forms` carries that
+  proof in its value. `rintro` elaborates to `casesOn` and mints nothing.
+- **Context commands naming what is not copied.** A copied part keeps the `open` and `variable`
+  commands its declarations follow, but `open … PenultimateMinimum` names a namespace, and
+  `variable (A : Twist K ι)` a structure, that no copied declaration needs, so neither elaborates
+  in the flat file. The data pass now records the development's declarations and the namespaces
+  only it populates. `open` drops such namespaces, and `variable` drops binder groups that mention
+  an uncopied declaration. No copied declaration can use such a binder, or its type would be in
+  the closure.
+- **An instance the module never loads, at a higher priority.** `IsRegularLocalRing.toIsLocalRing`
+  (priority 1000) proves `IsLocalRing F` for a field through a longer term than
+  `Field.instIsLocalRing` (priority 100). The flat file loads it; `TwistedHeight` does not. Since
+  the priorities differ, the `TIES` table cannot help. The generator's `ABSENT` table lowers such
+  an instance to priority 0 in the parts copied from modules that do not load it.
+- **A shared auxiliary proof.** `Submodule.IsFormBasis` reuses `Submodule.spanFirst._proof_1`,
+  which `spanFirst`, earlier in the same module, minted. Without `spanFirst` the copy mints
+  `IsFormBasis._proof_1`. The closure walk now follows `Y._proof_n` to `Y`, so `Y` is copied and
+  mints the proof first, as in the development.
 
 ## Regenerating
 

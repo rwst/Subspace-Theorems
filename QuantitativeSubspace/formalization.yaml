@@ -1,0 +1,333 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/mathlib-initiative/formalization.yaml/main/schema/formalization.schema.json
+version: "v0.4"
+
+project:
+  name: "Evertse–Ferretti 2013: the Quantitative Subspace Theorem in Lean"
+  description: >-
+    A Lean 4 / Mathlib formalization of J.-H. Evertse and R. G. Ferretti, A
+    further improvement of the Quantitative Subspace Theorem (Ann. of Math.
+    177 (2013)), built on the repository's libraries ForMathlib,
+    ArithmeticHeights and DiophantineApproximation. The library
+    QuantitativeSubspace is sorry-free and within Lean's three standard
+    axioms. Along the way it proves the inputs EF13 uses: Rémond's explicit
+    form of Faltings' product theorem and Evertse's Roth lemma (Evertse 1995,
+    1996), the absolute geometry of numbers of Roy–Thunder and
+    Evertse–Schlickewei (twisted heights, the absolute Minkowski theorem),
+    and EF13's own Faltings–Wüstholz part (the auxiliary polynomial, the
+    filtration, semistability and Chow-free weight bounds). It then proves
+    EF13 Theorem 8.1 (the semistable gap), Theorem 2.3 (the parametric
+    interval result), Theorem 3.3 for approximation domains, and Theorem 3.1
+    (Evertse 2010, Theorem 2.1): the large solutions of a normalized system
+    lie in at most 2·10¹³ · 4ⁿ n¹⁴ δ⁻³ · log(3RD/δ) · log(δ⁻¹ log 3RD)
+    proper subspaces, EF13's shape with a larger constant, independent of
+    the field, the places and the heights. Nine statements are compared.
+  authors:
+    - "Ralf Stephan"
+  license: "Apache-2.0"
+  responsible_maintainers:
+    - "Ralf Stephan"
+
+classification:
+  arxiv: [math.NT]
+  msc2020: ["11J68", "11J25", "11G50", "11H06", "14C17"]
+
+status:
+  scope: >-
+    The nine declarations named in comparator/quantitative-subspace.json,
+    listed under main_results, are EF13 Theorems 3.1, 3.3, 2.3 and 8.1 and
+    the closed forms of their counts. Theorem 3.1 is compared for the large
+    solutions (above a threshold linear in log H) and, with Evertse 2010
+    Theorem 2.2 on the small solutions (DiophantineApproximation Layer 9.3),
+    for all solutions. Its count efLargeCount is compared through three
+    bounds: the closed form in EF13's variables, the shape before the
+    logarithms are compared, and the threshold's linearity in log H.
+    Theorem 3.3 is stated for Schmidt's approximation domains (EF13 §5), in
+    the shape the repository's DiophantineApproximation Layer 6.1 has. The
+    intermediate steps (Rémond's product theorem, Evertse's Roth lemma, the
+    non-vanishing result Prop. 12.1, Roy–Thunder's absolute Minkowski
+    theorem, the auxiliary polynomial and filtration of §§13–15, Thm 16.1,
+    Prop. 17.5, Lemmas 18.1–18.4, Prop. 18.5) are proved in the library but
+    not compared. The roadmap's other axes (Bugeaud–Evertse's quantitative
+    Roth, higher degree) are not part of this entry.
+  sorry_count: 0
+  sorry_in_definitions: 0
+  axioms: ["propext", "Classical.choice", "Quot.sound"]
+  main_results:
+    - declaration: "NumberField.exists_finset_submodule_of_efSystemThreshold_le"
+      file: "QuantitativeSubspace/FormSystemCount.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/quantitative-subspace.json"
+      literature_dependencies: []
+    - declaration: "NumberField.exists_finset_submodule_of_isNormalizedSystem_ef"
+      file: "QuantitativeSubspace/FormSystemCount.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/quantitative-subspace.json"
+      literature_dependencies: []
+    - declaration: "NumberField.efLargeCount_le_ef"
+      file: "QuantitativeSubspace/FormSystemCount.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/quantitative-subspace.json"
+      literature_dependencies: []
+    - declaration: "NumberField.efLargeCount_le_shape"
+      file: "QuantitativeSubspace/FormSystemCount.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/quantitative-subspace.json"
+      literature_dependencies: []
+    - declaration: "NumberField.efSystemThreshold_le"
+      file: "QuantitativeSubspace/FormSystemCount.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/quantitative-subspace.json"
+      literature_dependencies: []
+    - declaration: "NumberField.exists_forall_mem_interval_approxDomain_ef"
+      file: "QuantitativeSubspace/FormDomainSystem.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/quantitative-subspace.json"
+      literature_dependencies: []
+    - declaration: "NumberField.FormSystem.intervalCount_le"
+      file: "QuantitativeSubspace/FormIntervalCount.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/quantitative-subspace.json"
+      literature_dependencies: []
+    - declaration: "NumberField.FormSystem.exists_intervals_cover"
+      file: "QuantitativeSubspace/FormIntervalResult.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/quantitative-subspace.json"
+      literature_dependencies: []
+    - declaration: "NumberField.FormSystem.exists_intervals"
+      file: "QuantitativeSubspace/FormSemistableGap.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/quantitative-subspace.json"
+      literature_dependencies: []
+
+fidelity:
+  divergences: >-
+    Absolute values and places are Mathlib's (infinite places, finite places
+    as FinitePlace or a finite set S of primes), with the normalization of
+    the product formula. A system of EF13 is a FormSystem: forms at every
+    infinite and finite place, coordinates almost everywhere, with exponents
+    FormExponent; twisted heights H_{L,c,Q} are absMulHeight over an
+    algebraically closed Ω. The systems of Theorem 3.1 are Evertse 2010's
+    normalized systems (2.4) (IsNormalizedSystem) with forms over a Galois
+    extension E / K; R distinct forms and D = [E : K], so EF13's RD is
+    R [E : K]. The fields are in Type, as Rémond's heights need.
+    The constants are not EF13's. Theorem 3.1: 2·10¹³ in place of 10⁹, with
+    the same powers of 4, n and δ and the same logarithms; δ' = δ / (4 (n + δ))
+    in place of EF13 (5.4)'s ε / (n + ε). Theorem 2.3: at most intervalCount
+    intervals, bounded by 60 n (n + 3) (64000 n⁸ 4ⁿ δ⁻² log(64 n R / δ) + 2),
+    against EF13's m₀ = 10⁵ 2^{2n} n^{10} δ⁻² log(3δ⁻¹R); the lower end is
+    C₀ = max(H_L^{1/R}, n^{1/δ}) and the ratio ω₀ = δ⁻¹ log 3R. Theorem 8.1:
+    ε = δ / (40 n² 2ⁿ), (n − 1)(m − 1) intervals [a, a^{2ω}] with ω = 4m/ε
+    (EF13: m₂ intervals [Q_h, Q_h^{ω₂})); the exponent 2ω comes from a
+    greedy covering, since the infimum of the exceptional set need not be
+    exceptional. Prop. 18.5 loses δ/2n where EF13 have 99δ/100n. The
+    non-vanishing result (Prop. 12.1) needs the ratio m/ε, weaker than
+    EF13's 2m²/ε; Lemma 10.3 uses R^k minors in place of C(R, k).
+    Hypotheses are weakened where nothing used them: Theorem 2.3 assumes
+    Σ_v Σ_i c_iv = 0 in place of (2.8) at every place, and Theorem 8.1 is
+    also proved without (8.8). Theorem 3.3 is stated for approximation
+    domains at any level Q, not at Q = H(x)^{1 + ε/n}: the domain has no
+    ‖x‖_v, and integrality off S bounds the coordinates there. EF13's
+    Faltings–Wüstholz part is redone over K by Rémond's elimination and the
+    repository's multigraded Hilbert polynomials, with no Chow forms and no
+    Arakelov intersection theory.
+    The single-file challenge differs from the development in presentation
+    only (see COMPARATOR.md at the repository root). Its Mathlib imports
+    follow the development's load order, and each part opens with a run_cmd
+    that clears Lean's module-local cache of auxiliary proofs, as a module
+    boundary does. In the parts copied from modules that do not load
+    Mathlib's regular local rings, a local attribute command lowers
+    IsRegularLocalRing.toIsLocalRing to priority 0, so that IsLocalRing of a
+    field is proved by Field.instIsLocalRing as in the development; it is an
+    instance of a proposition, so this changes which proof a statement
+    carries, never what it says.
+    Lemma names follow the development, not the paper's numbering; the
+    module docs cite the paper by section and equation.
+
+sources:
+  - title: "A further improvement of the Quantitative Subspace Theorem"
+    authors: ["Jan-Hendrik Evertse", "Roberto G. Ferretti"]
+    type: paper
+    location: >-
+      Ann. of Math. 177 (2013), 513–590; arXiv:1008.2340. Theorems 2.3, 3.1,
+      3.3 and 8.1, with §§5, 7–18 and 21
+    relationship: formalizes
+    author_endorsement: not-contacted
+    note: >-
+      The target. The module docs cite it by section, equation and result.
+  - title: "On the Quantitative Subspace Theorem"
+    authors: ["Jan-Hendrik Evertse"]
+    type: paper
+    location: >-
+      Zap. Nauchn. Sem. POMI 377 (2010), 217–240; J. Math. Sci. 171 (2010),
+      824–837; arXiv:1008.2268. Theorems 2.1, 2.2 and 3.1, and the
+      normalization (2.4)
+    relationship: formalizes
+    author_endorsement: not-contacted
+    note: >-
+      The survey stating EF13's count as Theorem 2.1. Its normalized systems,
+      gap principle and small-solutions bound are DiophantineApproximation
+      Layer 9, which the all-solutions statement uses.
+  - title: "An explicit version of Faltings' Product theorem and an improvement of Roth's lemma"
+    authors: ["Jan-Hendrik Evertse"]
+    type: paper
+    location: "Acta Arith. 73 (1995), 215–248"
+    relationship: background
+    author_endorsement: not-contacted
+    note: >-
+      The Roth lemma behind EF13 Prop. 12.1 (= Evertse 1996, Lemma 26),
+      proved in the library (Layer Q1).
+  - title: "Sur le théorème du produit"
+    authors: ["Gaël Rémond"]
+    type: paper
+    location: "J. Théor. Nombres Bordeaux 13 (2001), 287–302"
+    relationship: adapts
+    author_endorsement: not-contacted
+    note: >-
+      The product theorem with Rémond's constants, by multiplicities and
+      Kähler differentials in place of Arakelov theory; the route the
+      library takes to Evertse's Roth lemma.
+  - title: "An improvement of the quantitative Subspace theorem"
+    authors: ["Jan-Hendrik Evertse"]
+    type: paper
+    location: "Compositio Math. 101 (1996), 225–311; Lemmas 24–26"
+    relationship: background
+    author_endorsement: not-contacted
+    note: "Lemma 26 is EF13 Prop. 12.1, proved in the library."
+  - title: "An absolute Siegel's lemma"
+    authors: ["Damien Roy", "Jeffrey Lin Thunder"]
+    type: paper
+    location: "J. reine angew. Math. 476 (1996), 1–26; Theorem 6.3"
+    relationship: background
+    author_endorsement: not-contacted
+    note: >-
+      The absolute Minkowski theorem for twisted heights (EF13 via
+      Evertse–Schlickewei 2002, Cor. 7.2), proved in the library (Layer Q2).
+  - title: "A quantitative version of the Absolute Subspace Theorem"
+    authors: ["Jan-Hendrik Evertse", "Hans Peter Schlickewei"]
+    type: paper
+    location: "J. reine angew. Math. 548 (2002), 21–127"
+    relationship: background
+    author_endorsement: not-contacted
+    note: >-
+      Twisted heights and the set-up EF13 builds on (Layer Q2.4); ES02's own
+      count is not formalized.
+  - title: "The QuantitativeSubspace roadmap"
+    authors: ["Ralf Stephan"]
+    type: blueprint
+    location: "QuantitativeSubspace/README.md in this repository"
+    relationship: other
+    author_endorsement: participated
+    note: >-
+      The layered milestone plan (Q0–Q4) the library implements, written by
+      the agent under the releaser's direction and checked against the
+      papers layer by layer. Not reviewed.
+
+automation:
+  methods:
+    - method: agent
+      models: ["claude-opus-5-5"]
+      framework: "Claude Code"
+      role: >-
+        The formalization: the roadmap, the Lean text of the library and of
+        its ForMathlib dependencies, the challenge and solution modules and
+        the configuration, under the releaser's direction.
+    - method: manual
+      models: []
+      role: >-
+        Direction and release. Ralf Stephan chose the target, the sources,
+        the conventions and the gates, steered the agent turn by turn,
+        selected which outputs to keep, and releases the repository.
+  spend_usd: "subscription-based Claude Code usage; per-project spend not recorded separately"
+  notes: >-
+    The library is held to the repository's rules by scripts/check.sh (a
+    build with Mathlib's linter set as errors, the axiom audit against the
+    three standard axioms, the module-system check, the textual guards).
+    It has 54 files and uses ForMathlib (the multigraded Hilbert polynomial,
+    excess Bézout, regular local rings) and the repository's libraries
+    ArithmeticHeights and DiophantineApproximation. lake test runs
+    leanprover/comparator over comparator/quantitative-subspace.json against
+    the single Mathlib-only file ChallengeQuantitativeSubspace.lean (831
+    lines, 41 KiB), generated from comparator/quantitative-subspace.txt by
+    scripts/make-challenge.py --paper QuantitativeSubspace, with the proofs
+    re-exported by SolutionQuantitativeSubspace.lean. It passes. A negative
+    control (δ ≤ 1 weakened to δ ≤ 2 in efLargeCount_le_ef in the challenge)
+    was confirmed to be rejected. Wall time and hardware were not recorded.
+
+review:
+  status: unchecked
+  notes: >-
+    No human or external review of the Lean text or of the fidelity of the
+    statements has been performed. What is established is mechanical:
+    comparator compares each named statement against the challenge file
+    constant by constant, checks the axiom list, and replays the export
+    through the Lean kernel.
+
+limitations:
+  - >-
+    The compared theorems depend on propext, Classical.choice and Quot.sound
+    and nothing else. The library contains no sorry and no native_decide.
+    The sorries in the challenge file are the placeholders comparator
+    expects, and the configuration fixes no definition holes.
+  - >-
+    The counts have EF13's shape but larger constants; see fidelity. The
+    absolute form (points in ℚ̄ⁿ, a count independent of the field of the
+    points) is not compared: Theorem 3.1 counts subspaces of Kⁿ for a fixed
+    number field K, uniformly in K's degree, places and heights.
+  - >-
+    Everything proved here is in print; no novelty is claimed. The value
+    offered is the machine-checked account.
+
+alignment:
+  namespace: "NumberField, NumberField.FormSystem"
+  statements:
+    - source: "Theorem 3.1 (p. 518; Evertse 2010, Theorem 2.1), the large solutions"
+      lean: "NumberField.exists_finset_submodule_of_efSystemThreshold_le"
+      module: "ChallengeQuantitativeSubspace (statement), SolutionQuantitativeSubspace / QuantitativeSubspace.FormSystemCount (proof)"
+      status: proved
+      note: "For normalized systems (Evertse 2010 (2.4)); count efLargeCount, see the next three rows."
+    - source: "Theorem 3.1 with Evertse 2010, Theorem 2.2: all solutions"
+      lean: "NumberField.exists_finset_submodule_of_isNormalizedSystem_ef"
+      module: "ChallengeQuantitativeSubspace (statement), SolutionQuantitativeSubspace / QuantitativeSubspace.FormSystemCount (proof)"
+      status: proved
+    - source: "Theorem 3.1, the count 10⁹ 2^{2n} n^{14} δ⁻³ log(3δ⁻¹RD) log(δ⁻¹ log 3RD)"
+      lean: "NumberField.efLargeCount_le_ef"
+      module: "ChallengeQuantitativeSubspace (statement), SolutionQuantitativeSubspace / QuantitativeSubspace.FormSystemCount (proof)"
+      status: proved
+      note: "Constant 2·10¹³ in place of 10⁹."
+    - source: "Theorem 3.1, the count before the logarithms are compared (§21)"
+      lean: "NumberField.efLargeCount_le_shape"
+      module: "ChallengeQuantitativeSubspace (statement), SolutionQuantitativeSubspace / QuantitativeSubspace.FormSystemCount (proof)"
+      status: proved
+    - source: "Theorem 3.1, the threshold of the large solutions"
+      lean: "NumberField.efSystemThreshold_le"
+      module: "ChallengeQuantitativeSubspace (statement), SolutionQuantitativeSubspace / QuantitativeSubspace.FormSystemCount (proof)"
+      status: proved
+      note: "Linear in log H."
+    - source: "Theorem 3.3 with Lemmas 5.1 and 5.2, for approximation domains"
+      lean: "NumberField.exists_forall_mem_interval_approxDomain_ef"
+      module: "ChallengeQuantitativeSubspace (statement), SolutionQuantitativeSubspace / QuantitativeSubspace.FormDomainSystem (proof)"
+      status: proved
+    - source: "Theorem 2.3, the number m₀ of intervals (§18)"
+      lean: "NumberField.FormSystem.intervalCount_le"
+      module: "ChallengeQuantitativeSubspace (statement), SolutionQuantitativeSubspace / QuantitativeSubspace.FormIntervalCount (proof)"
+      status: proved
+      note: "O(n¹⁰ 4ⁿ δ⁻² log(nR/δ)), EF13's m₀ up to the constant."
+    - source: "Theorem 2.3 (p. 516)"
+      lean: "NumberField.FormSystem.exists_intervals_cover"
+      module: "ChallengeQuantitativeSubspace (statement), SolutionQuantitativeSubspace / QuantitativeSubspace.FormIntervalResult (proof)"
+      status: proved
+      note: "Σ_v Σ_i c_iv = 0 in place of (2.8); intervalCount intervals."
+    - source: "Theorem 8.1 (§8, proved in §14)"
+      lean: "NumberField.FormSystem.exists_intervals"
+      module: "ChallengeQuantitativeSubspace (statement), SolutionQuantitativeSubspace / QuantitativeSubspace.FormSemistableGap (proof)"
+      status: proved
+      note: "(n − 1)(m − 1) intervals [a, a^{2ω}]; constants not EF13's."

@@ -1,0 +1,21 @@
+{
+  "challenge_module": "ChallengeQuantitativeSubspace",
+  "solution_module": "SolutionQuantitativeSubspace",
+  "theorem_names": [
+    "NumberField.exists_finset_submodule_of_efSystemThreshold_le",
+    "NumberField.exists_finset_submodule_of_isNormalizedSystem_ef",
+    "NumberField.efLargeCount_le_ef",
+    "NumberField.efLargeCount_le_shape",
+    "NumberField.efSystemThreshold_le",
+    "NumberField.exists_forall_mem_interval_approxDomain_ef",
+    "NumberField.FormSystem.intervalCount_le",
+    "NumberField.FormSystem.exists_intervals_cover",
+    "NumberField.FormSystem.exists_intervals"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Quot.sound",
+    "Classical.choice"
+  ],
+  "enable_nanoda": false
+}

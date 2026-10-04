@@ -81,6 +81,10 @@ def challengeClosure (env : Environment) (root : Name) : Array Name := Id.run do
     let some ci := env.find? n | continue
     if (challengeOwner env n).isNone then continue
     out := out.push n
+    -- `Y._proof_n` is minted by `Y` and cached for the rest of the module, where a later
+    -- declaration can reuse it; the copy reproduces the name only if `Y` is copied too.
+    if let .str p s := n then
+      if s.startsWith "_proof_" then stack := stack.push p
     stack := stack ++ ci.type.getUsedConstants ++
       ((ci.value? (allowOpaque := true)).map (·.getUsedConstants)).getD #[]
     match ci with
@@ -117,6 +121,24 @@ elab "#challengeData " dir:str : command => do
     if let some r ← findDeclarationRanges? c then
       decls := decls.push s!"{m}\t{r.range.pos.line}\t{r.range.endPos.line}"
   IO.FS.writeFile (dir ++ "/decls.tsv") (String.intercalate "\n" decls.toList)
+  let mut outside : NameSet := {}
+  for (c, _) in env.constants.map₁.toList do
+    if (challengeOwner env c).isNone then
+      let mut p := c.getPrefix
+      while !p.isAnonymous && !outside.contains p do
+        outside := outside.insert p
+        p := p.getPrefix
+  let mut names : Array String := #[]
+  let mut nsSeen : NameSet := {}
+  for (c, _) in env.constants.map₁.toList do
+    if (challengeOwner env c).isNone || isPrivateName c then continue
+    names := names.push s!"decl\t{c}"
+    let mut p := c.getPrefix
+    while !p.isAnonymous && !nsSeen.contains p do
+      nsSeen := nsSeen.insert p
+      unless outside.contains p do names := names.push s!"ns\t{p}"
+      p := p.getPrefix
+  IO.FS.writeFile (dir ++ "/names.tsv") (String.intercalate "\n" names.toList)
   let mut graph : Array String := #[]
   for i in [0:env.header.moduleNames.size] do
     for imp in env.header.moduleData[i]!.imports do
@@ -369,16 +391,74 @@ def tree(items):
     return root
 
 
-def render(nodes, close):
+# What the copy may name: `NAMES` is filled by `main` from the data pass. A context command that
+# names a development declaration left out of the copy (`variable (A : Twist K ι)` where no copied
+# declaration takes `A`), or opens a namespace that only such declarations populate, does not
+# elaborate in the copy. No copied declaration can use what it introduces, or that declaration
+# would be in the closure, so it is dropped.
+NAMES = {"uncopied": set(), "copied": set(), "dev_ns": set(), "copied_ns": set()}
+IDENT_RE = re.compile(r"[^\W\d][\w.'!?₀-₉ₐ-ₜ]*")
+
+
+def scopes(ns):
+    """The names `X` may stand for inside the namespace `ns`, innermost first."""
+    return [".".join(ns[:k] + [""]) for k in range(len(ns), -1, -1)]
+
+
+def uncopied(ident, ns):
+    full = [p + ident for p in scopes(ns)]
+    return (any(f in NAMES["uncopied"] for f in full)
+            and not any(f in NAMES["copied"] for f in full))
+
+
+def dead_ns(ident, ns):
+    full = [p + ident for p in scopes(ns)]
+    return (any(f in NAMES["dev_ns"] for f in full)
+            and not any(f in NAMES["copied_ns"] for f in full))
+
+
+def top_groups(text):
+    """Split the binders of a `variable` command into its top-level bracket groups."""
+    groups, depth, start = [], 0, None
+    for i, ch in enumerate(text):
+        if ch in OPENERS:
+            if depth == 0:
+                start = i
+            depth += 1
+        elif ch in CLOSERS:
+            depth -= 1
+            if depth == 0:
+                groups.append(text[start:i + 1])
+    return groups
+
+
+def clean_ctx(text, ns):
+    """`text` without what names left-out declarations; `None` when nothing is left."""
+    m = re.match(r"^open( scoped)?((?: +[^\s()]+)+)\s*$", text)
+    if m:
+        keep = [x for x in m.group(2).split() if not dead_ns(x, ns)]
+        return f"open{m.group(1) or ''} {' '.join(keep)}" if keep else None
+    if text.startswith("variable"):
+        groups = top_groups(text[len("variable"):])
+        keep = [g for g in groups
+                if not any(uncopied(x, ns) for x in IDENT_RE.findall(g))]
+        if len(keep) == len(groups):
+            return text
+        return "variable " + " ".join(keep) if keep else None
+    return text
+
+
+def render(nodes, close, ns=()):
     """Drop the context commands no declaration follows and the blocks holding no declaration;
     with `close`, also end the blocks the source leaves open at the end of the file."""
     out, has_decl = [], False
     for idx, node in enumerate(nodes):
         if node[0] == "block":
-            inner, d = render(node[2], close)
+            m = OPEN_RE.match(node[1])
+            inner_ns = list(ns) + (m.group(2).split(".") if m.group(1) == "namespace" else [])
+            inner, d = render(node[2], close, inner_ns)
             if d:
                 has_decl = True
-                m = OPEN_RE.match(node[1])
                 out.append(node[1])
                 out.extend(inner)
                 if node[3] or close:
@@ -387,9 +467,11 @@ def render(nodes, close):
         elif node[0] == "decl":
             has_decl = True
             out.append(node[1])
-        elif any(n[0] == "decl" or (n[0] == "block" and render(n[2], close)[1])
+        elif any(n[0] == "decl" or (n[0] == "block" and render(n[2], close, ns)[1])
                  for n in nodes[idx + 1:]):
-            out.append(node[1])
+            text = clean_ctx(node[1], list(ns))
+            if text is not None:
+                out.append(text)
     return out, has_decl
 
 
@@ -417,6 +499,17 @@ TIES = [
       ("IsLocalRing.toNontrivial", "Mathlib.RingTheory.LocalRing.Defs")], 1000),
     ([("SubgroupClass.toSubmonoidClass", "Mathlib.Algebra.Group.Subgroup.Defs"),
       ("SubsemiringClass.toSubmonoidClass", "Mathlib.Algebra.Ring.Subsemiring.Defs")], 1000),
+]
+
+
+# Instances that some modules of the development never load, but the flat file does, and that
+# outrank what those modules choose: `IsRegularLocalRing.toIsLocalRing` (priority 1000) proves
+# `IsLocalRing F` for a field `F` through `Field.instIsLocalRing` (priority 100), so the same goal
+# elaborates to a longer term. In the part copied from a module that does not load the instance,
+# it goes to priority 0, below anything that module could have chosen. Each entry lists one that
+# comparator has rejected, with its module. See `COMPARATOR.md`.
+ABSENT = [
+    ("IsRegularLocalRing.toIsLocalRing", "Mathlib.RingTheory.RegularLocalRing.Defs"),
 ]
 
 
@@ -448,6 +541,9 @@ def pins(mod, flat_imports, edges):
             # every candidate after the module's first choice below `prio`, in the module's order
             for k, (x, _) in enumerate(want[1:], 1):
                 out.append(f"attribute [local instance {prio - k}] {x}")
+    for x, mx in ABSENT:
+        if mx in flat and mx not in dev:
+            out.append(f"attribute [local instance 0] {x}")
     return out
 
 
@@ -488,9 +584,18 @@ def main():
         run_data_pass(theorems)
     needed = collections.defaultdict(list)
     for row in open(os.path.join(DATA, "closure.tsv")):
-        mod, s, e, _kind, tgt, _name = row.rstrip("\n").split("\t")
+        mod, s, e, _kind, tgt, name = row.rstrip("\n").split("\t")
         if s != "-":
             needed[mod].append((int(s), int(e), tgt == "TARGET"))
+        NAMES["copied"].add(name)
+        parts = name.split(".")
+        NAMES["copied_ns"].update(".".join(parts[:k]) for k in range(1, len(parts)))
+    for row in open(os.path.join(DATA, "names.tsv")):
+        kind, name = row.rstrip("\n").split("\t")
+        if kind == "ns":
+            NAMES["dev_ns"].add(name)
+        elif name not in NAMES["copied"]:
+            NAMES["uncopied"].add(name)
     decls = collections.defaultdict(list)
     for row in open(os.path.join(DATA, "decls.tsv")):
         mod, s, e = row.rstrip("\n").split("\t")
