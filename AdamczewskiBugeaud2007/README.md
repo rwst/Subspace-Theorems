@@ -144,10 +144,13 @@ From a reading of the arXiv version (math/0511674v1). Everything still unformali
   `Z = ∑ z k 2^{-k}`. In characteristic 5, `f = ∑ z k X^k` satisfies `f^5 = f − X`, and
   `∑ u k X^k = X⁻¹ (f − X) + 2 (X / (1 − X) − f)`, which is algebraic. It is not rational, since
   `u` is not eventually periodic. So both objects are algebraic but not both rational. The
-  proof's step "real rational ⇒ `u` eventually periodic" needs `u k` to be base-`b` digits. The
-  step "`∑ u k X^k` algebraic ⇒ `u` is `p`-automatic" needs `u k < p`. The statement that holds is
-  the one for `u k < min b p`, and the counterexample is formalizable without Christol, since
-  `f^5 = f − X` is direct.
+  paper gives no proof of Theorem 7, only "Thanks to Theorem 2, we thus easily derive" after a
+  paraphrase of Christol–Kamae–Mendès France–Rauzy. That derivation needs two bounds. Theorem 2
+  (and "real rational ⇒ `u` eventually periodic") needs `u k` to be base-`b` digits. Christol
+  ("`∑ u k X^k` algebraic ⇒ `u` is `p`-automatic") needs `u k < p`, since it concerns `u mod p`;
+  the paper's paraphrase, "the sequence of integers u … is p-automatic", hides this. The
+  statement that holds is the one for `u k < min b p`, and the counterexample is formalizable
+  without Christol, since `f^5 = f − X` is direct.
 - **Theorem 4's proof has a small gap.** The letter of maximal growth `a` is chosen over the whole
   alphabet, but recurrence says nothing about letters that never occur. The fix is to take the
   maximum over the letters that occur. This is harmless, because `φ` maps occurring letters to
@@ -271,7 +274,7 @@ Findings from M2:
     `∑ a_n t^n ∈ 𝔽_p((t))` is algebraic over `𝔽_p(t)`, then `∑ a_n / p^n` is transcendental, and
     conversely. That is the base `b = p`, with the digit bound, stated as a dichotomy for
     aperiodic sequences. The two-base form `u_k < min(b, p)` recorded above is ours, and it is
-    what the paper's proof gives.
+    what the derivation the paper indicates (CKMR + Theorem 2) gives.
   - **No other source restates it.** None of the ~285 papers in `~/math/lean-code/papers/`
     (text-searched; 14 scanned files have no text, none relevant) restates Theorem 7. That
     includes Bugeaud's 2012 book, chapters 2–10, which never mentions Christol, and
