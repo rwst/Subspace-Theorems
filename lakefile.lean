@@ -94,7 +94,7 @@ lean_lib ForMathlib where
 -- its own held to the same rules, with its own plan (`<Paper>/README.md`) and, once its results
 -- are certified, its own comparator configs. The first is Corvaja–Zannier (Acta Math. 2004), the
 -- second Adamczewski–Bugeaud (Ann. of Math. 2007), the third Evertse (Compositio Math. 1984), the fourth
--- Nair–Kumar–Rout (arXiv:2506.02898, 2025).
+-- Nair–Kumar–Rout (arXiv:2506.02898, 2025), the fifth Bugeaud (Ann. Sci. ÉNS 2013).
 @[default_target]
 lean_lib CorvajaZannier2004 where
   globs := #[.submodules `CorvajaZannier2004]
@@ -131,6 +131,17 @@ lean_lib Evertse1984 where
 @[default_target]
 lean_lib NairKumarRout2025 where
   globs := #[.submodules `NairKumarRout2025]
+  leanOptions := #[
+    ⟨`weak.linter.mathlibStandardSet, true⟩,
+    ⟨`weak.linter.style.longFile, .ofNat 1500⟩,
+    ⟨`weak.linter.style.longFileDefValue, .ofNat 1500⟩,
+    ⟨`weak.linter.style.header, true⟩,
+    ⟨`warningAsError, true⟩
+  ]
+
+@[default_target]
+lean_lib Bugeaud2013 where
+  globs := #[.submodules `Bugeaud2013]
   leanOptions := #[
     ⟨`weak.linter.mathlibStandardSet, true⟩,
     ⟨`weak.linter.style.longFile, .ofNat 1500⟩,
