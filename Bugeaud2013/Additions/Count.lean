@@ -5,7 +5,7 @@ Authors: Ralf Stephan
 -/
 module
 
-public import Bugeaud2013.additions.Subspaces
+public import Bugeaud2013.Additions.Subspaces
 
 /-!
 # The number of points

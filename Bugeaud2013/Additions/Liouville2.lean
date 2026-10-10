@@ -5,7 +5,7 @@ Authors: Ralf Stephan
 -/
 module
 
-public import Bugeaud2013.additions.SubspaceCount
+public import Bugeaud2013.Additions.SubspaceCount
 public import DiophantineApproximation.AlgebraicExponent
 
 /-!

@@ -1,6 +1,6 @@
-# `Bugeaud2013/additions/`: the exponent `δ` in (6.1)
+# `Bugeaud2013/Additions/`: the exponent `δ` in (6.1)
 
-The theorem (6.1) of `outgoing.md`, machine-checked with the standard axioms only. Let
+The bound (6.1) of §6 of the paper, announced there without proof, machine-checked with the standard axioms only. Let
 `α = [0; a₁, a₂, …]` with `aₙ ≥ 1` be algebraic of degree at least 3. Then for every `C`, the
 number of factors of length `n` of `a₁ a₂ …` exceeds `C n (log n)^δ` for infinitely many `n`:
 
@@ -49,7 +49,7 @@ contradiction.
 
 * Each module builds without errors or warnings, and no `set_option` is used.
 * `#print axioms` gives `propext, Classical.choice, Quot.sound` for all three theorems.
-* `#lint in Bugeaud2013.additions` is clean.
+* `#lint in Bugeaud2013.Additions` is clean.
 * `scripts/guards.sh` passes.
-* `scripts/lint-style.sh`: headers conform. Its only complaint is the module name: lowercase
-  `additions` is not UpperCamelCase. Renaming the directory to `Additions/` fixes it.
+* `scripts/lint-style.sh`: headers conform; with the directory named `Additions/`, the module
+  names are UpperCamelCase.

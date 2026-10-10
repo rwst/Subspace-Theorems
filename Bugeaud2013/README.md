@@ -7,8 +7,8 @@ This directory is for formalizing the whole paper on top of the libraries of thi
 It is its own `lean_lib` (`Bugeaud2013`), held to the same rules (no `sorry`, no `set_option`,
 std3 axioms, fine-grained imports, module system, Mathlib root namespaces).
 
-`outgoing.md` records a follow-up that goes beyond the paper: the value of `δ` in (6.1), which
-Bugeaud announced but never wrote out.
+`Additions/` goes beyond the paper: it proves (6.1), which Bugeaud announced without proof, with
+an explicit exponent `δ < 1/4` (see `Additions/README.md`).
 
 ## The library
 
@@ -46,7 +46,7 @@ Bugeaud announced but never wrote out.
 | 3 | **Thm 3.1** | Condition `(♠)` (stammering, `W U V U`) ⇒ transcendental |
 | 4 | proofs of Thms 1.1, 1.4 | Schubfachprinzip on the prefix of length `(C+1)n` |
 | 5 | **Thm 5.1** | Condition `(♣)` (quasi-palindromic, `W U V Ū`) ⇒ transcendental |
-| 6 | remarks | `U^{7/3}` in binary algebraic continued fractions; (6.1), see `outgoing.md` |
+| 6 | remarks | `U^{7/3}` in binary algebraic continued fractions; (6.1), proved in `Additions/` |
 
 ## Plan
 
@@ -137,8 +137,8 @@ Bugeaud announced but never wrote out.
     same parity); iterating gives squares of period `P ≥ 2^k` at positions `≤ 9 P`, so Theorem 3.1
     (with `V` empty) suffices and Theorem 5.1 is not needed; `m < M` is not needed;
   - corollary: infinitely many overlaps;
-  - not formalized: the transcendence measures of [17] (only cited) and (6.1) with the bound
-    `p(n, a) ≥ (1 + 1/M) n`, announced without proof (`outgoing.md` has a sketch for (6.1)).
+  - not formalized here: the transcendence measures of [17] (only cited) and the bound
+    `p(n, a) ≥ (1 + 1/M) n`, announced without proof; (6.1) is proved in `Additions/`.
 
 ## Status
 
@@ -148,4 +148,5 @@ is `Nat.not_isAutomatic_of_three_le_natDegree`, Theorem 1.4 is
 `Nat.transcendental_contFrac_of_isQuasiPeriodic`, Theorem 5.1 is
 `Nat.transcendental_contFrac_of_isClub`, Theorem 1.3 is `Nat.transcendental_contFrac_of_isStar`.
 The §6 `U^{7/3}` remark is `Nat.frequently_hasSevenThirdsPowerAt` (with the deviation above);
-(6.1) is not formalized (announced without proof in the paper).
+(6.1), announced without proof in the paper, is proved in `Additions/` with `δ < 1/4`
+(`Nat.frequently_lt_encard_factors_of_lt_quarter`).

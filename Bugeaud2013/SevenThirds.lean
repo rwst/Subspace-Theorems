@@ -63,7 +63,8 @@ is the one of [11]: `7/3`-powers occur at infinitely many positions.
 constant.
 
 The other remarks of §6 are not formalized: [17] (transcendence measures) is only cited, and the
-bound (6.1) is announced without proof ("it seems to be possible"); see `outgoing.md`.
+bound (6.1) is announced without proof ("it seems to be possible"); it is proved in
+`Bugeaud2013/Additions/`.
 -/
 
 @[expose] public section

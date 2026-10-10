@@ -5,7 +5,7 @@ Authors: Ralf Stephan
 -/
 module
 
-public import Bugeaud2013.additions.Hyperplanes
+public import Bugeaud2013.Additions.Hyperplanes
 
 /-!
 # The points in a proper subspace of `ℚ⁴`

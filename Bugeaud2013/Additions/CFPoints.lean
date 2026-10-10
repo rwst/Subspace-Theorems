@@ -6,7 +6,7 @@ Authors: Ralf Stephan
 module
 
 public import Bugeaud2013.Claim
-public import Bugeaud2013.additions.Points
+public import Bugeaud2013.Additions.Points
 
 /-!
 # The points of §3 satisfy the inequalities of `Real.CFPoint`

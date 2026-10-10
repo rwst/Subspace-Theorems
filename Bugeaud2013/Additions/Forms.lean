@@ -5,7 +5,7 @@ Authors: Ralf Stephan
 -/
 module
 
-public import Bugeaud2013.additions.Points
+public import Bugeaud2013.Additions.Points
 public import Mathlib.LinearAlgebra.Matrix.AbsoluteValue
 
 /-!

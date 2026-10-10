@@ -5,7 +5,7 @@ Authors: Ralf Stephan
 -/
 module
 
-public import Bugeaud2013.additions.Forms
+public import Bugeaud2013.Additions.Forms
 public import Mathlib.LinearAlgebra.FiniteDimensional.Lemmas
 
 /-!

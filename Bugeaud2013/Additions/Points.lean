@@ -5,7 +5,7 @@ Authors: Ralf Stephan
 -/
 module
 
-public import Bugeaud2013.additions.Liouville2
+public import Bugeaud2013.Additions.Liouville2
 
 /-!
 # The points of §3 and the subspaces of dimension at most two

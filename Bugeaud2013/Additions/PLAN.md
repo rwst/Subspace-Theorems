@@ -2,7 +2,7 @@
 
 **COMPLETE 2026-10-10**: all 11 files build clean, std3 axioms, `#lint` clean, guards pass;
 `Nat.frequently_lt_encard_factors{,_of_lt_quarter,_of_lt_ninth}` in `Delta.lean`. See README.md.
-Only open item: lint-style wants `Additions/` (UpperCamelCase) — not renamed (user named the dir).
+Directory renamed to `Additions/` by the user; `outgoing.md` removed.
 
 User request (2026-10-10): "in an additions/ directory add the proofs for the delta bounds
 `δ < 1/4` (EF13), `δ < 1/9` (ES02) from outgoing.md". Lean, in `Bugeaud2013/additions/`

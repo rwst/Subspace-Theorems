@@ -5,10 +5,10 @@ Authors: Ralf Stephan
 -/
 module
 
-public import Bugeaud2013.additions.Asymptotics
-public import Bugeaud2013.additions.CFPoints
-public import Bugeaud2013.additions.Complexity
-public import Bugeaud2013.additions.Count
+public import Bugeaud2013.Additions.Asymptotics
+public import Bugeaud2013.Additions.CFPoints
+public import Bugeaud2013.Additions.Complexity
+public import Bugeaud2013.Additions.Count
 import Mathlib.Analysis.Complex.ExponentialBounds
 
 /-!
