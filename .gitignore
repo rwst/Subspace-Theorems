@@ -1,5 +1,6 @@
 # cache and other artifacts produced by Lean's Lake build tool
 .lake/
+.gitignore
 
 # scripts/ is this repository's own gate machinery, adapted from Tau Ceti and tracked. What stays
 # ignored is the part of the verbatim copy we have not adapted — local reference only, not
@@ -17,3 +18,8 @@
 
 # Literature, kept locally rather than committed
 *.pdf
+
+NairKumarRout2025/
+RecurrentSubspace/
+papers.md
+
