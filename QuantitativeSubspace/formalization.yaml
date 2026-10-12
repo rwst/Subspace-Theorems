@@ -6,7 +6,7 @@ project:
   description: >-
     A Lean 4 / Mathlib formalization of J.-H. Evertse and R. G. Ferretti, A
     further improvement of the Quantitative Subspace Theorem (Ann. of Math.
-    177 (2013)), built on the repository's libraries ForMathlib,
+    177 (2013)), built on the repository's libraries STForMathlib,
     ArithmeticHeights and DiophantineApproximation. The library
     QuantitativeSubspace is sorry-free and within Lean's three standard
     axioms. Along the way it proves the inputs EF13 uses: Rémond's explicit
@@ -238,7 +238,7 @@ automation:
       framework: "Claude Code"
       role: >-
         The formalization: the roadmap, the Lean text of the library and of
-        its ForMathlib dependencies, the challenge and solution modules and
+        its STForMathlib dependencies, the challenge and solution modules and
         the configuration, under the releaser's direction.
     - method: manual
       models: []
@@ -251,7 +251,7 @@ automation:
     The library is held to the repository's rules by scripts/check.sh (a
     build with Mathlib's linter set as errors, the axiom audit against the
     three standard axioms, the module-system check, the textual guards).
-    It has 54 files and uses ForMathlib (the multigraded Hilbert polynomial,
+    It has 54 files and uses STForMathlib (the multigraded Hilbert polynomial,
     excess Bézout, regular local rings) and the repository's libraries
     ArithmeticHeights and DiophantineApproximation. lake test runs
     leanprover/comparator over comparator/quantitative-subspace.json against

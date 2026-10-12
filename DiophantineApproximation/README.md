@@ -5352,7 +5352,7 @@ ways.
   taught.
 - `AB/StammeringSequences.lean`, `AB/ExpansionsInIntegerBases.lean` and
   `AB/ComplexityLowerBound.lean` state the definitions and theorems of 7.4–7.5, and
-  `ForMathlib/Combinatorics/SubwordComplexity.lean` develops the complexity function; the
+  `STForMathlib/Combinatorics/SubwordComplexity.lean` develops the complexity function; the
   theorems themselves are cited there, not proved.
 
 ## References

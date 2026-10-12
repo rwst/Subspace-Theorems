@@ -5,17 +5,17 @@ Authors: Ralf Stephan
 -/
 module
 
-public import ForMathlib.RingTheory.MvPolynomial.Associativity
-public import ForMathlib.RingTheory.MvPolynomial.Bezout
-public import ForMathlib.NumberTheory.Height.BombieriHeight
-public import ForMathlib.RingTheory.MvPolynomial.BlockMultinomial
+public import STForMathlib.RingTheory.MvPolynomial.Associativity
+public import STForMathlib.RingTheory.MvPolynomial.Bezout
+public import STForMathlib.NumberTheory.Height.BombieriHeight
+public import STForMathlib.RingTheory.MvPolynomial.BlockMultinomial
 public import Mathlib.Data.Nat.Choose.Multinomial
 public import Mathlib.NumberTheory.Height.Basic
 public import Mathlib.RingTheory.Ideal.MinimalPrime.Noetherian
 public import Mathlib.RingTheory.Polynomial.Basic
 
 -- Used only inside proofs.
-import ForMathlib.RingTheory.Ideal.LengthPow
+import STForMathlib.RingTheory.Ideal.LengthPow
 
 /-!
 # Multiprojective heights: the interface
@@ -56,7 +56,7 @@ sphere measure. The fields are:
 Heights of cycles (`MvPolynomial.cycleHeight`) are defined here from the heights of primes: the
 height of index `β` of `V(J)` is `∑_𝔮 ℓ(K[X]_𝔮/J_𝔮) h_β(𝔮)`, over the minimal primes `𝔮` of `J`
 of dimension `|β| - 1` with `H_𝔮 ≠ 0`. The polynomial height `h_m` of LNM 1752, Ch. 7, §3.2 is
-also concrete (`MvPolynomial.bombieriLogHeight`, in `ForMathlib`): the maximum of the
+also concrete (`MvPolynomial.bombieriLogHeight`, in `STForMathlib`): the maximum of the
 coefficients at the finite places, and the norm `(∑_m |p_m|_v² / C(δ, m))^{1/2}` at the infinite
 ones, with the multinomial coefficients `C(δ, m) = ∏_i δ_i! / ∏_s m_s!`
 (`MvPolynomial.blockMultinomial`).

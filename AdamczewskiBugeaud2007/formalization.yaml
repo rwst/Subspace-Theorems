@@ -7,7 +7,7 @@ project:
     A Lean 4 / Mathlib formalization of B. Adamczewski and Y. Bugeaud, On the
     complexity of algebraic numbers I. Expansions in integer bases (Ann. of
     Math. 165 (2007)), built on the repository's libraries ArithmeticHeights,
-    DiophantineApproximation and ForMathlib, whose Subspace Theorem with
+    DiophantineApproximation and STForMathlib, whose Subspace Theorem with
     algebraic coefficients it uses. The library AdamczewskiBugeaud2007 is
     sorry-free and within Lean's three standard axioms. It proves Theorem 1
     (the complexity of an irrational algebraic number in an integer base

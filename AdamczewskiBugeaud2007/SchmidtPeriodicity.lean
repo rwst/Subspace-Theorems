@@ -7,8 +7,8 @@ module
 
 public import AdamczewskiBugeaud2007.BetaApproximation
 public import DiophantineApproximation.StammeringWords
-public import ForMathlib.Analysis.Real.BetaExpansion
-public import ForMathlib.NumberTheory.PisotNumber
+public import STForMathlib.Analysis.Real.BetaExpansion
+public import STForMathlib.NumberTheory.PisotNumber
 public import Mathlib.FieldTheory.IntermediateField.Adjoin.Defs
 
 -- Used only inside proofs.

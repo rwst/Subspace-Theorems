@@ -5,7 +5,7 @@ Authors: Ralf Stephan
 -/
 module
 
-public import ForMathlib.LinearAlgebra.WeightFiltration
+public import STForMathlib.LinearAlgebra.WeightFiltration
 public import QuantitativeSubspace.FormSuccessiveInfima
 
 -- Used only inside proofs.
@@ -35,7 +35,7 @@ w(U) = Σ_j c_j (dim (U ∩ U_{j-1}) - dim (U ∩ U_j))
 
 The second form is a combination with nonnegative coefficients of `dim U`, which is modular, and
 of the `dim (U ∩ U_j)`, which are supermodular; so `w` is supermodular (EF13 Lemma 15.1), and the
-destabilizing subspace and the filtration of `ForMathlib/LinearAlgebra/WeightFiltration.lean`
+destabilizing subspace and the filtration of `STForMathlib/LinearAlgebra/WeightFiltration.lean`
 exist for it. Both are invariant under Galois conjugation, which preserves dimensions and the
 kernels of the forms, hence they are defined over `K` (ES02 Lemma 4.2).
 

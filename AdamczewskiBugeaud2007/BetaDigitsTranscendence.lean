@@ -10,7 +10,7 @@ public import AdamczewskiBugeaud2007.Morphism
 public import AdamczewskiBugeaud2007.PisotTranscendence
 public import AdamczewskiBugeaud2007.SchmidtPeriodicity
 public import DiophantineApproximation.FactorComplexity
-public import ForMathlib.Analysis.Real.BetaExpansion
+public import STForMathlib.Analysis.Real.BetaExpansion
 
 -- Used only inside proofs.
 import AdamczewskiBugeaud2007.AutomaticComplexity

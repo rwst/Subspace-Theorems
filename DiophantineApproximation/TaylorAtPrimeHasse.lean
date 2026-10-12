@@ -6,16 +6,16 @@ Authors: Ralf Stephan
 module
 
 public import DiophantineApproximation.MvHasseDerivTaylor
-public import ForMathlib.RingTheory.MvPolynomial.MultiplicityBezout
-public import ForMathlib.RingTheory.MvPolynomial.Projection
+public import STForMathlib.RingTheory.MvPolynomial.MultiplicityBezout
+public import STForMathlib.RingTheory.MvPolynomial.Projection
 
 -- Used only inside proofs.
-import ForMathlib.RingTheory.MvPolynomial.Product
+import STForMathlib.RingTheory.MvPolynomial.Product
 
 /-!
 # The Taylor map at the generic point of a prime, by Hasse derivatives
 
-`ForMathlib`'s multiplicity estimate (`MvPolynomial.prod_mul_pow_le_localLength`) and its
+`STForMathlib`'s multiplicity estimate (`MvPolynomial.prod_mul_pow_le_localLength`) and its
 combination with the excess Bézout inequality (`MvPolynomial.prod_mul_pow_mul_multidegree_le`)
 state their vanishing hypothesis through the Taylor map at the generic point of `𝔭`,
 `taylorAtPrime 𝔭 v : B → (B/𝔭)[Z_1, …, Z_d]`, `X_s ↦ (X_s mod 𝔭) + ∑_{v_α = s} Z_α`. This file
@@ -28,7 +28,7 @@ the generators of `I`.
 The directions `v_α` in the multiplicity estimate are automatically distinct: `∂Q_α/∂X_{v_α} ∉ 𝔭`
 while `∂Q_β/∂X_{v_α} ∈ 𝔭` for `β ≠ α`.
 
-The file lives here rather than in `ForMathlib` because the Hasse calculus
+The file lives here rather than in `STForMathlib` because the Hasse calculus
 (`DiophantineApproximation/MvHasseDeriv.lean`, `.../MvHasseDerivTaylor.lean`) does.
 
 ## Main statements

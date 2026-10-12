@@ -6,7 +6,7 @@ Authors: Ralf Stephan
 module
 
 public import DiophantineApproximation.TaylorAtPrimeHasse
-public import ForMathlib.RingTheory.MvPolynomial.ProductStructure
+public import STForMathlib.RingTheory.MvPolynomial.ProductStructure
 
 -- Used only inside proofs.
 import Mathlib.Algebra.BigOperators.Module

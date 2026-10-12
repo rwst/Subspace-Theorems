@@ -78,7 +78,7 @@ with `sorry`. Each part opens by clearing Lean's auxiliary-proof cache, as a mod
 and some lower instances locally to restore their module's tie-break. See `COMPARATOR.md`.
 -/
 
--- ForMathlib.NumberTheory.PisotNumber
+-- STForMathlib.NumberTheory.PisotNumber
 run_cmd Lean.modifyEnv (Lean.Meta.auxLemmasExt.setState · {})
 section
 attribute [local instance 999] instFaithfulSMul_1

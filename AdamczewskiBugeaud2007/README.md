@@ -47,7 +47,7 @@ The rest of the paper is planned below (§ "Plan: the rest of the paper").
 | `ChristolTranscendence.lean` | **Theorem 7**, corrected (`u_k < min(b, p)`); the counterexample to the printed form |
 | `OpenProblems.lean` | `IsMorphic`; **the Conjecture** and **the ternary problem** of §2, stated (open) |
 
-Pisot and Salem numbers and `β`-expansions are in the library `ForMathlib` (`ForMathlib/README.md`).
+Pisot and Salem numbers and `β`-expansions are in the library `STForMathlib` (`STForMathlib/README.md`).
 
 ## The results of `AB/`, and where they are now
 
@@ -193,7 +193,7 @@ From a reading of the arXiv version (math/0511674v1). Everything still unformali
 **M2: Theorem 5 in full, and the `β`-expansions. Done** (about 1200 lines, std3).
 
 - **WP5, Pisot and Salem numbers.** `IsPisot` moved from `CorvajaZannier2004/` to the new
-  library `ForMathlib` (`ForMathlib/NumberTheory/PisotNumber.lean`), next to `IsSalem`. Theorem 5
+  library `STForMathlib` (`STForMathlib/NumberTheory/PisotNumber.lean`), next to `IsSalem`. Theorem 5
   uses only: `β > 1` is an algebraic integer whose other conjugates have modulus `≤ 1`, and every
   theorem of M2 is stated with that hypothesis (`hconj`), with `IsPisot`/`IsSalem` corollaries.
 - **WP6, Lemma 1 and bound (3)** (`BetaApproximation.lean`).
@@ -219,7 +219,7 @@ From a reading of the arXiv version (math/0511674v1). Everything still unformali
     (`Real.eventually_mul_one_add_mul_pow_le`, `Real.div_pow_mul_pow_le_rpow`); the endgame is
     `Real.mem_range_algebraMap_of_forall_mem`.
 - **WP8, `β`-expansions** (`BetaDigitsTranscendence.lean`; the greedy digits are in
-  `ForMathlib/Analysis/Real/BetaExpansion.lean`).
+  `STForMathlib/Analysis/Real/BetaExpansion.lean`).
   - `Real.tsum_mem_adjoin_of_isEventuallyPeriodic`: eventually periodic ⇒ value in `ℚ(β)`, for
     every real `β > 1`.
   - `Real.betaDigitsFin`: the digits as letters of `Fin (⌊β⌋₊ + 1)`.
@@ -336,7 +336,7 @@ negative controls are rejected: Theorem 5A with `IsSalem` for `IsPisot`, and The
 | Theorem 6, Theorem 1B, Theorem 2B | `PadicTranscendence.lean` | done (std3) |
 | Theorem E | — | not restated (DA 6.2/6.3) |
 | M1: automata, morphisms, Theorems 3, 4, 3B, 4B, (1), examples | `Automaton.lean`, `Morphism.lean`, `MorphicTranscendence.lean`, `Examples.lean` | done (std3) |
-| WP5 Pisot/Salem, WP8 `β`-digits (part) | `ForMathlib/` | done (std3) |
+| WP5 Pisot/Salem, WP8 `β`-digits (part) | `STForMathlib/` | done (std3) |
 | M2 Theorem 5 in full, Lemma 1, K. Schmidt, Theorems 1A–5A | `BetaApproximation.lean`, `PisotSubspace.lean`, `PisotTranscendence.lean`, `SchmidtPeriodicity.lean`, `BetaDigitsTranscendence.lean` | done (std3) |
 | M3 faithful Hensel expansions, Theorems 1B and 6 as printed | `HenselDigits.lean` | done (std3) |
 | certification | `comparator/adamczewski-bugeaud-2007.*`, `formalization.yaml` | done (comparator passes) |

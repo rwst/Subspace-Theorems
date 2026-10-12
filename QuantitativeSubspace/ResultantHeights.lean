@@ -5,9 +5,9 @@ Authors: Ralf Stephan
 -/
 module
 
-public import ForMathlib.NumberTheory.Height.PointHeight
-public import ForMathlib.NumberTheory.Height.SectionHeight
-public import ForMathlib.NumberTheory.Height.SpaceHeight
+public import STForMathlib.NumberTheory.Height.PointHeight
+public import STForMathlib.NumberTheory.Height.SectionHeight
+public import STForMathlib.NumberTheory.Height.SpaceHeight
 public import QuantitativeSubspace.MultiprojectiveHeight
 
 /-!

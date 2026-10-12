@@ -8,8 +8,8 @@ module
 public import QuantitativeSubspace.ProductTheorem
 
 -- Used only inside proofs.
-import ForMathlib.RingTheory.MvPolynomial.Associativity
-import ForMathlib.RingTheory.MvPolynomial.Product
+import STForMathlib.RingTheory.MvPolynomial.Associativity
+import STForMathlib.RingTheory.MvPolynomial.Product
 import Mathlib.Algebra.Order.Sub.Prod
 
 /-!

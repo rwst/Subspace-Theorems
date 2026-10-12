@@ -42,7 +42,7 @@ with its own record holder. The summit of this roadmap is the conjunction of the
 
 | Axis | Best known | Status in this repo |
 |---|---|---|
-| Number of subspaces containing the **large** solutions, linear forms, number field `K` | Evertse–Ferretti 2013: `10^9 · 2^{2n} · n^{14} · δ^{-3} · log(3δ^{-1}RD) · log(δ^{-1} log 3RD)` (as stated in Evertse 2010, Thm 2.1) | Q0 landed at Schmidt's parameters (Q0.3). Q1 started: the multigraded Hilbert polynomial and its degrees (Q1.1a–d, the excess Bézout inequality modulo Cohen–Macaulay) and the multiplicity estimate against degree (Q1.1e, with the transversal equations and the positivity of the degree in characteristic `0`, i.e. Rémond 2001 Prop. 2.1) are in `ForMathlib`. Q1.2, the geometric product theorem with its degree bound and corollary (Rémond 2001 Thm 1.1 and Cor. 1.1, i.e. Ev95 Thm 1 and Corollary with better constants), is in `QuantitativeSubspace/`, unconditionally since the Cohen–Macaulay property of `K[X]_𝔭` was proved (2026-10-02). DA 9.4 turns any *interval result* into this kind of count. DA 6.1 now has one with explicit counts and ratio (Q0.2d), and its threshold `Q₀` is at most `a · (formLogHeight + log |D_K| + ∑ log N(v) + 1)` with `a` explicit in `N`, `d`, `|S|`, `ε` and `A` (Q0.2e, `parametricThreshold_le`). Q0.3 feeds it to 9.4: the solutions of a normalized system above `X₀`, linear in `log H`, lie in a number of subspaces depending on `n`, `δ`, the degrees, the number of places and `|S|` alone; all solutions in that plus `O(log X₀)` plus 9.3's count (`exists_finset_submodule_of_isNormalizedSystem`). With Evertse's Roth lemma (Q1.6), Ev96's grids and exceptional subspaces (Q1.7), one scalar for the constants (Q1.8a) the auxiliary polynomial built from the distinct forms (Q1.8b) and the minima at one place (Q1.8c) that count is `c ^ (n + 7) Z ^ (n + 3) ℓ (1 + log (ℓ Z))`, `c = 2 ^ (n + 11) n ^ 6`, `Z = c / δ` (free of the degree since Q1.9a), `ℓ = 1 + log (2 ^ (n + 1) s ^ n)` with `s = R [E : K]` for `R` distinct forms: polynomial in `δ⁻¹`, singly exponential in `n`, independent of the degrees, of the number of places of the system and of `|S|`. ES02's shape: `δ ^ (-n - 3) log δ⁻¹` against ES02's `δ ^ (-n - 4)` (Q1.9b), and `c ^ (2 n + 10)` against `4 ^ ((n + 8)²)`. |
+| Number of subspaces containing the **large** solutions, linear forms, number field `K` | Evertse–Ferretti 2013: `10^9 · 2^{2n} · n^{14} · δ^{-3} · log(3δ^{-1}RD) · log(δ^{-1} log 3RD)` (as stated in Evertse 2010, Thm 2.1) | Q0 landed at Schmidt's parameters (Q0.3). Q1 started: the multigraded Hilbert polynomial and its degrees (Q1.1a–d, the excess Bézout inequality modulo Cohen–Macaulay) and the multiplicity estimate against degree (Q1.1e, with the transversal equations and the positivity of the degree in characteristic `0`, i.e. Rémond 2001 Prop. 2.1) are in `STForMathlib`. Q1.2, the geometric product theorem with its degree bound and corollary (Rémond 2001 Thm 1.1 and Cor. 1.1, i.e. Ev95 Thm 1 and Corollary with better constants), is in `QuantitativeSubspace/`, unconditionally since the Cohen–Macaulay property of `K[X]_𝔭` was proved (2026-10-02). DA 9.4 turns any *interval result* into this kind of count. DA 6.1 now has one with explicit counts and ratio (Q0.2d), and its threshold `Q₀` is at most `a · (formLogHeight + log |D_K| + ∑ log N(v) + 1)` with `a` explicit in `N`, `d`, `|S|`, `ε` and `A` (Q0.2e, `parametricThreshold_le`). Q0.3 feeds it to 9.4: the solutions of a normalized system above `X₀`, linear in `log H`, lie in a number of subspaces depending on `n`, `δ`, the degrees, the number of places and `|S|` alone; all solutions in that plus `O(log X₀)` plus 9.3's count (`exists_finset_submodule_of_isNormalizedSystem`). With Evertse's Roth lemma (Q1.6), Ev96's grids and exceptional subspaces (Q1.7), one scalar for the constants (Q1.8a) the auxiliary polynomial built from the distinct forms (Q1.8b) and the minima at one place (Q1.8c) that count is `c ^ (n + 7) Z ^ (n + 3) ℓ (1 + log (ℓ Z))`, `c = 2 ^ (n + 11) n ^ 6`, `Z = c / δ` (free of the degree since Q1.9a), `ℓ = 1 + log (2 ^ (n + 1) s ^ n)` with `s = R [E : K]` for `R` distinct forms: polynomial in `δ⁻¹`, singly exponential in `n`, independent of the degrees, of the number of places of the system and of `|S|`. ES02's shape: `δ ^ (-n - 3) log δ⁻¹` against ES02's `δ ^ (-n - 4)` (Q1.9b), and `c ^ (2 n + 10)` against `4 ^ ((n + 8)²)`. |
 | Number of subspaces containing the **small** solutions | Evertse 2010, Thm 2.2: `δ^{-1}((10^3 n)^{nd} + 4n log log 4H)`; over `ℚ`, `δ^{-1}(10^{3n} + 4n log log 4H)` | **Landed**, DA 9.3. |
 | **Absolute** form: points in `ℚ̄ⁿ`, count independent of the field | Evertse–Schlickewei 2002 (parametric, twisted heights), sharpened by Evertse–Ferretti 2013 | Absolute geometry of numbers landed: RT96 Thm 6.3 for twisted heights on `Ωⁿ`, `\|det A\| ≤ μ₁⋯μₙ ≤ 2^{n(n-1)/2}\|det A\|` (Q2.2). EF13's set-up and its ES02 inputs are Q2.4; ES02's own count is skipped in favour of EF13's. |
 | `n = 2`: **quantitative Roth / Ridout** | Bugeaud–Evertse 2008, Appendix (improving Davenport–Roth 1955, Bombieri–van der Poorten 1988, Evertse 1996/97) | Davenport–Roth-strength count landed, DA 3.7. Bugeaud–Evertse's `δ⁻³ log · log` shape landed for systems in two variables (Q1.6, `systemLargeCountTwo_evertse_le`), with extra factors `t⁴` and the grid count. |
@@ -362,7 +362,7 @@ Two consequences for the plan:
   associativity formula over the minimal primes. Everything is finite-dimensional linear algebra
   over `k`, which suits Mathlib; the multigrading already exists
   (`MvPolynomial.weightedHomogeneousSubmodule`, `weightedGradedAlgebra`). Sub-milestones:
-  - **Q1.1a** ✅ Setup (2026-09-30, `ForMathlib/RingTheory/MvPolynomial/Multigraded.lean`): the
+  - **Q1.1a** ✅ Setup (2026-09-30, `STForMathlib/RingTheory/MvPolynomial/Multigraded.lean`): the
     blocks `b : σ → ι` and the grading `multiWeight b`; `Γ(d)`; the count
     `#(blockMonomials b d) = ∏ i, C(N_i + d i - 1, d i)` (`card_blockMonomials`) and
     `dim Γ(d)` equal to it (`finrank_multiWeight`); multihomogeneous ideals
@@ -373,11 +373,11 @@ Two consequences for the plan:
     polynomials `H_{J+(g)}(T) = H_J(T) − H_{(J:g)}(T − e)` (`hilbertPoly_sup_span_singleton`),
     with the prime case `H_{𝔭+(g)}(T) = H_𝔭(T) − H_𝔭(T − e)` for `g ∉ 𝔭`. Additivity along prime
     filtrations moves to Q1.1d, where it is needed.
-  - **Q1.1c** ✅ Polynomiality (`ForMathlib/RingTheory/MvPolynomial/HilbertPolynomial.lean`,
+  - **Q1.1c** ✅ Polynomiality (`STForMathlib/RingTheory/MvPolynomial/HilbertPolynomial.lean`,
     `exists_hilbertPolynomial`; the polynomial `hilbertPoly`, unique by
     `hilbertPoly_eq_of_forall_le`; for the whole space `hilbertPoly_bot = ∏ i, C(T_i + n_i, n_i)`).
     **The proof is not Rémond's.** It goes through leading monomials
-    (`ForMathlib/RingTheory/MvPolynomial/StandardMonomials.lean`). For any monomial order,
+    (`STForMathlib/RingTheory/MvPolynomial/StandardMonomials.lean`). For any monomial order,
     `dim I_d` is the number of leading monomials of `I` of multidegree `d`, with no Gröbner basis
     needed. So `h_I(d)` counts the monomials outside an upper set, which Dickson's lemma generates
     by finitely many monomials `G`. Removing one generator `g` changes the count by the count for
@@ -387,7 +387,7 @@ Two consequences for the plan:
     partial degrees. These move to Q1.1d.
   - **Q1.1d** Degrees. Pieces, in order:
     - (i) ✅ **Positivity** (2026-09-30,
-      `ForMathlib/RingTheory/MvPolynomial/MultiprojectiveDegree.lean`, with the top-form calculus
+      `STForMathlib/RingTheory/MvPolynomial/MultiprojectiveDegree.lean`, with the top-form calculus
       `MvPolynomial.AgreeAbove` in `.../AgreeAbove.lean`). If every generator of the leading-monomial upper set has coordinates `≤ k`, being standard depends only
       on the truncation `min(c, k)`, so the standard monomials are a disjoint union of cones
       `a + ℕ^V` (a Stanley decomposition with no induction). Each cone contributes a product of
@@ -406,8 +406,8 @@ Two consequences for the plan:
       (`multidegree_sup_span_singleton_of_isPrime`), and the dimension drops by exactly one when
       every `e_i > 0` and `dim 𝔭 ≥ 1` (`totalDegree_hilbertPoly_sup_span_singleton`).
     - (iii) ✅ **The associativity formula** (2026-09-30,
-      `ForMathlib/RingTheory/MvPolynomial/Associativity.lean`, with localized lengths in
-      `ForMathlib/RingTheory/Ideal/LocalLength.lean`). `d_α(I) = ∑_𝔭 ℓ(B_𝔭/I_𝔭) d_α(𝔭)` for
+      `STForMathlib/RingTheory/MvPolynomial/Associativity.lean`, with localized lengths in
+      `STForMathlib/RingTheory/Ideal/LocalLength.lean`). `d_α(I) = ∑_𝔭 ℓ(B_𝔭/I_𝔭) d_α(𝔭)` for
       `|α| ≥ dim I`, over the finite set of multihomogeneous primes `𝔭 ⊇ I` with `H_𝔭 ≠ 0` and
       `dim 𝔭 = dim I`, all of whose lengths are finite (`multidegree_eq_sum_localLength`,
       `coeff_hilbertPoly_eq_sum_localLength`). The proof builds a prime filtration by colon ideals,
@@ -428,7 +428,7 @@ Two consequences for the plan:
         (`multidegree_sup_span_singleton_of_colon_eq`, with the exact dimension drop); the prime
         case is a corollary.
       - ✅ **Bézout with multiplicities for complete intersections**
-        (`ForMathlib/RingTheory/MvPolynomial/Bezout.lean`). Along a regular sequence
+        (`STForMathlib/RingTheory/MvPolynomial/Bezout.lean`). Along a regular sequence
         (`IsRegularSeq`) of multidegrees `e_j`,
         `d_β(J + (g_1, …, g_t)) = ∑_{f : Fin t → ι} ∏_j e_j(f j) · d_{β + ∑ ε_{f j}}(J)`
         (`multidegree_sup_span_range_of_isRegularSeq`), and the dimension drops by exactly `t` when
@@ -436,13 +436,13 @@ Two consequences for the plan:
         the associativity formula: `∑_𝔭 ℓ(B_𝔭/I_𝔭) d_β(𝔭)` over the primes of maximal dimension
         of `I = (g_1, …, g_t)` equals the weighted number of `f` with `β + ∑ ε_{f j} = n`
         (`sum_localLength_mul_multidegree_eq_bezout`).
-      - ✅ **Products, Ev95 Lemma 2** (`ForMathlib/RingTheory/MvPolynomial/Product.lean`). For
+      - ✅ **Products, Ev95 Lemma 2** (`STForMathlib/RingTheory/MvPolynomial/Product.lean`). For
         `I₁ ⊆ K[X]`, `I₂ ⊆ K[Y]`: `h_{I₁ × I₂}(d₁, d₂) = h₁(d₁) h₂(d₂)`
         (`hilbertFunction_prodIdeal`), by linear algebra in each degree: complements of `(I_i)_{d_i}`
         for `≤`, and the map `K[X, Y] → K[X]/I₁ ⊗ K[Y]/I₂` for `≥`. Hence `H = H₁ H₂`,
         dimensions add, and `d_{(α₁, α₂)} = d_{α₁}(I₁) d_{α₂}(I₂)` (`multidegree_prodIdeal`).
       - ✅ **The excess form, Ev95 Lemma 4 / Rémond 2001 Prop. 3.2 (degree part)**
-        (`ForMathlib/RingTheory/MvPolynomial/ExcessBezout.lean`). For `I` generated
+        (`STForMathlib/RingTheory/MvPolynomial/ExcessBezout.lean`). For `I` generated
         by a set `R` of multihomogeneous polynomials of multidegree `e`, and a multihomogeneous
         prime `𝔭` minimal over `I` with `H_𝔭 ≠ 0` and `ht 𝔭 = t`:
         `ℓ(B_𝔭/I_𝔭) · d_β(𝔭) ≤ ∑_{f : β + ∑ ε_{f j} = n} ∏ j, e (f j)` for `|β| ≥ |n| - t`, and
@@ -455,7 +455,7 @@ Two consequences for the plan:
         (`multidegree_le_of_le` in `Associativity.lean`). `K` must be infinite, for prime
         avoidance in a vector space.
         - ✅ **The Cohen–Macaulay input, proved** (2026-10-02,
-          `ForMathlib/RingTheory/RegularLocalRing/RegularSequence.lean`). Until then the excess
+          `STForMathlib/RingTheory/RegularLocalRing/RegularSequence.lean`). Until then the excess
           form and everything after it assumed Macaulay's unmixedness of `B_𝔭`
           (`IsUnmixedRing`, now deleted); it cannot be dropped for arbitrary rings:
           `J = (x², xy)`, `g = y` gives `ℓ = 2 > 1`. Mathlib has `B_𝔭` regular local and the Rees
@@ -473,8 +473,8 @@ Two consequences for the plan:
   - **Q1.1e** Multiplicities, projections and Ev95 Lemma 3 (Rémond LNM Ch. 5 Thm 2.10(3)). The
     multiplicity side follows Rémond 2001 rather than Ev95 Lemma 10.
     - ✅ **The multiplicity estimate, Rémond 2001 Prop. 3.1 with Lemma 3.1, without Samuel
-      multiplicities** (2026-09-30, `ForMathlib/RingTheory/MvPolynomial/Multiplicity.lean`, with
-      `ForMathlib/RingTheory/Ideal/LengthPow.lean`). Let `Q_1, …, Q_d ∈ 𝔭` and directions
+      multiplicities** (2026-09-30, `STForMathlib/RingTheory/MvPolynomial/Multiplicity.lean`, with
+      `STForMathlib/RingTheory/Ideal/LengthPow.lean`). Let `Q_1, …, Q_d ∈ 𝔭` and directions
       `v_1, …, v_d` satisfy `∂Q_β/∂X_{v_α} ∈ 𝔭` exactly when `α ≠ β`, and give `v_α` the weight
       `1/δ_α`, `δ_α ∈ ℕ_{>0}`. If every `P ∈ I` vanishes at the generic point of `𝔭` to weighted
       order `> ε` along the `v_α`, then `ε^d ∏ δ_α ≤ ℓ(B_𝔭/(x_1, …, x_d)B_𝔭)` for any `x_α ∈ I`
@@ -496,7 +496,7 @@ Two consequences for the plan:
       prime `𝔭` of height `t`, `|β| ≥ |n| - t`. This is the inequality Rémond's Prop. 2.1 (degree
       part) is derived from.
     - ✅ **The Hasse-derivative bridge** (`DiophantineApproximation/TaylorAtPrimeHasse.lean`,
-      which imports both the Hasse calculus and `ForMathlib`). For injective `v`, the coefficient
+      which imports both the Hasse calculus and `STForMathlib`). For injective `v`, the coefficient
       of `Z^γ` in `taylorAtPrime 𝔭 v P` is `∂_{v_* γ} P mod 𝔭` (`coeff_taylorAtPrime`, from
       `coeff_taylor` of `MvHasseDerivTaylor.lean` and Mathlib's `killCompl`); so vanishing to
       weighted order `> a` means `∂_{v_* γ} P ∈ 𝔭` for every `γ` of weight `≤ a`
@@ -506,7 +506,7 @@ Two consequences for the plan:
       only. Q1.2 should define Rémond's `Z_σ(P)` by Hasse derivatives (equivalent to his `∂^κ` in
       characteristic 0), as the index in `PolynomialIndex.lean` already is.
     - ✅ **The transversal `Q_α`, in characteristic `0`, without Kähler differentials**
-      (`ForMathlib/RingTheory/MvPolynomial/Transversal.lean`, `.../TransversalHeight.lean`).
+      (`STForMathlib/RingTheory/MvPolynomial/Transversal.lean`, `.../TransversalHeight.lean`).
       Rémond gets them from exact sequences of differentials (§4); here they come from
       separability. A transcendence basis `(x_t)_{t ∈ T}` of `B/𝔭` is chosen greedily in order of
       decreasing factor, so each `x_s`, `s ∉ T`, is algebraic over the `x_t` of factor `≥ b s`; a
@@ -524,7 +524,7 @@ Two consequences for the plan:
       `∑_s κ_s/δ_{b s} ≤ ε`, then `ε^t (∏_i δ_i^{c_i}) d_β(𝔭) ≤` the Bézout number, `c_i` the number
       of variables of factor `i` outside the adapted transcendence basis.
     - ✅ **Projections: the degree in the type of the basis is positive** (2026-10-01,
-      `ForMathlib/RingTheory/MvPolynomial/Projection.lean`; Rémond LNM Ch. 5 Thm 2.10(3)). For a
+      `STForMathlib/RingTheory/MvPolynomial/Projection.lean`; Rémond LNM Ch. 5 Thm 2.10(3)). For a
       transcendence basis `(x_t)_{t ∈ T}` of `B/𝔭` made of variables and meeting every block,
       `deg H_𝔭 = |T| - |ι|` and `d_β(𝔭) ≥ 1` for `β_i = |T ∩ block i| - 1`
       (`totalDegree_hilbertPoly_eq_and_one_le_multidegree`). No projections are formed and no
@@ -559,7 +559,7 @@ Two consequences for the plan:
       `Z_1 × ⋯ × Z_m`. Second, `ε^t d_β(𝔭) ≤ #{f : β + ∑ ε_{f j} = n} ≤ m^t` with `β_i = dim Z_i`;
       the count is the multinomial coefficient `t!/∏ (codim Z_i)!`, which is Rémond's
       `d(Z) ≤ ρ(ε, Z)`. The proof uses ranks in the algebraic matroid of the variables
-      (`ForMathlib/RingTheory/MvPolynomial/ProductStructure.lean`) in place of heights of primes.
+      (`STForMathlib/RingTheory/MvPolynomial/ProductStructure.lean`) in place of heights of primes.
       It compares two transcendence bases, one adapted to the last blocks and one to the first,
       by Abel summation over the cuts.
     - `productTheorem_indexIdeal` (`ZerosOfIndex.lean`) is Thm 1.1 as Rémond states it, for
@@ -603,7 +603,7 @@ Two consequences for the plan:
     `Height.AdmissibleAbsValues` normalization, so `[K : ℚ]` times Rémond's.
   - ✅ For every such structure:
     - Rémond's Lemma 5.1, natural combinations avoiding finitely many subspaces
-      (`ForMathlib/LinearAlgebra/SmallCombination.lean`).
+      (`STForMathlib/LinearAlgebra/SmallCombination.lean`).
     - Prop. 3.2, height part (`exists_localLength_mul_height_le`, `ArithmeticBezout.lean`):
       Rémond's chain `J_{k+1} = (J_k + (P_{k+1}))B_𝔭 ∩ B` with `P_{k+1}` a combination of the
       generators with coefficients `≤ |δ|^k`, and
@@ -622,7 +622,7 @@ Two consequences for the plan:
       `∑_{j < t} max(h(P) + [K : ℚ](|δ| log 2 + j log |δ| + |√n|), 0)`, Rémond's, with
       `|√n| = ∑_i √n_i`.
     - Rémond's Lemma 5.2, `∑_{|a| = d} a₀! ⋯ aₙ!/d! ≤ e^{2√n}`
-      (`Finset.sum_inv_multinomial_le`, `ForMathlib/Data/Nat/Choose/MultinomialSum.lean`), so
+      (`Finset.sum_inv_multinomial_le`, `STForMathlib/Data/Nat/Choose/MultinomialSum.lean`), so
       `log (∑_{μ ∈ M_δ} 1/C(δ, μ))^{1/2} ≤ |√n|` (`log_sqrt_sum_inv_blockMultinomial_le`,
       `PolynomialHeight.lean`). The combinatorial half is Rémond's recurrence for the sums over
       compositions with positive parts, an identity of natural numbers proved by the bijection
@@ -635,7 +635,7 @@ Two consequences for the plan:
     at the archimedean places. `botBound n = log M(det_{n+1})`, the Gaussian Mahler measure of
     the generic determinant, and `log M(det_N) ≤ N (log (2N) / 2 + 2)`
     (`resultantHeight_botBound_le`, by Hadamard's inequality and Jensen;
-    `ForMathlib/Analysis/Polynomial/GaussianMahlerDet.lean`). H1–H2 follow route (ii), H3–H6
+    `STForMathlib/Analysis/Polynomial/GaussianMahlerDet.lean`). H1–H2 follow route (ii), H3–H6
     route (i); see the milestones below.
   - ✅ The point bound (L) of Ev95 §5 (p. 247), as the interface field
     `logHeight_mul_le_cycleHeight`: if `J ∋ P_s X_t - P_t X_s` (`b s = b t = h`), then
@@ -643,8 +643,8 @@ Two consequences for the plan:
     algebraic closure, the resultant form becomes `c (u · P)^D`: its zeros come from zeros of `J`
     (`exists_zero_of_eval_specEval_resForm`), which are proportional to `P` in the block `h`.
     Lifting back gives `P_{s₀}^D res = (u · P)^D g` (`C_mul_resForm_eq`,
-    `ForMathlib/RingTheory/MvPolynomial/ResultantPoint.lean`), and Gauss additivity with
-    nonnegativity gives the bound (`ForMathlib/NumberTheory/Height/PointHeight.lean`).
+    `STForMathlib/RingTheory/MvPolynomial/ResultantPoint.lean`), and Gauss additivity with
+    nonnegativity gives the bound (`STForMathlib/NumberTheory/Height/PointHeight.lean`).
 - **Q1.4** Ev95 Thm 2 and Thm 3, the improved Roth lemma on `(ℙ¹)^m`.
   - ✅ Thm 3, Roth's lemma (`exists_mul_logHeight_le`, `RothLemma.lean`, 2026-10-01), for every
     `MultiprojectiveHeight`. If `δ_i / δ_{i+1} > m²/ε` and `F`
@@ -658,7 +658,7 @@ Two consequences for the plan:
     points) becomes the bound `∑_k G_k ≥ ∑_i r(B_i) - r(σ)` on the cut excesses
     `G_k = r(P_k) + r(σ \ P_k) - r(σ)` of the algebraic matroid of the variables, by
     submodularity (`exists_cutExcess`). The descent runs below the point ideal of `P`
-    (`ForMathlib/RingTheory/MvPolynomial/PointIdeal.lean`), and the point bound (L) closes it.
+    (`STForMathlib/RingTheory/MvPolynomial/PointIdeal.lean`), and the point bound (L) closes it.
   - Not done: Thm 2 (the height bound for the factors of a product). Q1.5 did not need it.
 - **Q1.5** Ev96 Lemma 26, the grid form that replaces DA 5.3 in the Subspace proofs.
   - ✅ Ev96 Lemma 24 (`formIndex_le_of_sq_lt_ratio`, `GeneralizedRothLemma.lean`, 2026-10-02),
@@ -1086,7 +1086,7 @@ Two consequences for the plan:
 
 *Milestones.* H1 and H2 are pure algebra and are needed by both routes.
 - **H1. Elimination (Ch. 5 §2).**
-  - ✅ §2.1 (`ForMathlib/RingTheory/MvPolynomial/Elimination.lean`):
+  - ✅ §2.1 (`STForMathlib/RingTheory/MvPolynomial/Elimination.lean`):
     - The characteristic and eliminant ideals `𝔈_d(I) = 𝔄_d(I) ∩ A[d]` (Def. 2.1).
     - The elimination theorem (Thm 2.2) over an algebraically closed field: the
       Nullstellensatz, then the determinant trick in one multidegree.
@@ -1094,7 +1094,7 @@ Two consequences for the plan:
     - Lemma 2.4: for primes, `𝔄_d(𝔭)` and `𝔈_d(𝔭)` are prime and `𝔄_d(𝔭) ∩ K[X] = 𝔭`; both
       ideals commute with intersections.
   - ✅ Partial degrees for primes (Thm 2.10(1), (3), Lemma 2.7;
-    `ForMathlib/RingTheory/MvPolynomial/PartialDegree.lean`): `e_J = r_J - |J|` with `r_J` a
+    `STForMathlib/RingTheory/MvPolynomial/PartialDegree.lean`): `e_J = r_J - |J|` with `r_J` a
     rank in the algebraic matroid of the variables, via the cone decomposition and nested bases.
   - ✅ Lemma 2.12 (passage to `L = Frac(K[u^{(1)}])`): `𝔮 = 𝔄_{(d_1)}(𝔭) L[X]` is prime,
     `H_𝔮 = Δ_{d_1} H_𝔭`, `deg 𝔮 = deg 𝔭 * d_1` (`GenericSection.lean`, with `BaseChange.lean` for
@@ -1162,22 +1162,22 @@ Two consequences for the plan:
   - Lemma 2.1: (1) averaging over specializations is Fubini; (2) is Cauchy–Schwarz.
   Finite places: the maximum of the coefficients, with Gauss's lemma. Lemma 2.1 (1) there
   needs specializations whose reduction avoids a hypersurface (an infinite residue field).
-- ✅ **H3** (`ForMathlib/Probability/ComplexGaussian.lean`,
-  `ForMathlib/Analysis/Polynomial/GaussianMahler*.lean`, `ResultantMahler.lean`,
-  `ForMathlib/RingTheory/MvPolynomial/GaussNorm.lean`, `ResultantGauss.lean`). Thm 2.2 holds at
+- ✅ **H3** (`STForMathlib/Probability/ComplexGaussian.lean`,
+  `STForMathlib/Analysis/Polynomial/GaussianMahler*.lean`, `ResultantMahler.lean`,
+  `STForMathlib/RingTheory/MvPolynomial/GaussNorm.lean`, `ResultantGauss.lean`). Thm 2.2 holds at
   every place, and as `h(α res_{(δ, d')}) = ∑_i δ_i h(α res_{(ε_i, d')})`
-  (`ForMathlib/NumberTheory/Height/ResultantHeight.lean`). The finite places use a valuation
+  (`STForMathlib/NumberTheory/Height/ResultantHeight.lean`). The finite places use a valuation
   ring of an algebraic closure of `K(u)` instead of Rémond's specializations avoiding a
   hypersurface.
 - **H4. The heights `h_a(V)` and their easy properties.**
   - ✅ Nonnegativity: `|f_m| ≤ M(f)` for a monomial `m` depending only on the support (Jensen and
     rotation invariance), then the product formula (`gaussHeight_nonneg`). Rémond's Arakelov
     argument is not needed.
-  - ✅ `h(ℙ) ≤ [K : ℚ] log M(det_{n_j+1})` (`ForMathlib/NumberTheory/Height/SpaceHeight.lean`),
+  - ✅ `h(ℙ) ≤ [K : ℚ] log M(det_{n_j+1})` (`STForMathlib/NumberTheory/Height/SpaceHeight.lean`),
     with `log M(det_N) ≤ N (log (2N) / 2 + 2)` (`detLogMahler_le`).
   - ✅ The point bound (L) (`logHeight_mul_le_gaussHeight_resForm`,
-    `ForMathlib/NumberTheory/Height/PointHeight.lean`).
-- ✅ **H5. The intersection inequality** (`ForMathlib/NumberTheory/Height/SectionHeight.lean`;
+    `STForMathlib/NumberTheory/Height/PointHeight.lean`).
+- ✅ **H5. The intersection inequality** (`STForMathlib/NumberTheory/Height/SectionHeight.lean`;
   for cycles via Thm 3.3 for heights, `LinearHeight.lean`, and the degree in the first form,
   `ResultantLinear.lean`). The error is exactly Rémond's `d_β(V) h_m(P)`.
   `h_a(V · div P) ≤ ∑_i δ_i h_{a+ε_i}(V) + d_a(V) (h_2(P) + c(n) |δ|)`.
@@ -1599,7 +1599,7 @@ Move from points in `Kⁿ` to points in `ℚ̄ⁿ`, with counts independent of `
   2026-10-03, after Q2.4) follow EF13 §§13, 15–18. Sections 8, 10, 12, 14, the end of §11
   and Prop. 18.5 (which uses Thm 8.1) are Q4.1.
 - **Q3.1** ✅ **The abstract filtration** (EF13 Lemmas 15.2 and 15.4, for any supermodular weight
-  with finitely many values): `ForMathlib/LinearAlgebra/WeightFiltration.lean`.
+  with finitely many values): `STForMathlib/LinearAlgebra/WeightFiltration.lean`.
   `Submodule.IsSupermodularWeight`, `weightSlope` (`μ(V, U)` of (15.6)).
   - `IsDestabilizing w V T`: the least proper subspace of `V` minimizing `μ(V, ·)`. EF13 takes a
     minimizer of minimal dimension; by (ii) it lies in every minimizer.
@@ -1846,7 +1846,7 @@ Move from points in `Kⁿ` to points in `ℚ̄ⁿ`, with counts independent of `
       `arakelovFormHeight_le` (`H₂(L_i) ≤ √n H_L`).
     - Change of coordinates: `exists_of_mem_forms_comp`, `mulFormHeight_comp_le`,
       `minorSet_comp` (the `θ` are unchanged), `isWeightFiltration_comp` (via the new
-      `Submodule.IsWeightFiltration.orderIso` in `ForMathlib/LinearAlgebra/WeightFiltration.lean`),
+      `Submodule.IsWeightFiltration.orderIso` in `STForMathlib/LinearAlgebra/WeightFiltration.lean`),
       `extendPi_span_col_inv_mul`.
     - `mulRatioProd_minorSet_le` / `mulRatioProd_minorSet_rpow_le`: Lemma 18.1,
       `∏_v M_v / m_v ≤ (2 H_L)^{(4R)ⁿ}`; the exponent count is `minorRatio_pow_le`.

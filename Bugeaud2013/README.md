@@ -60,7 +60,7 @@ an explicit exponent `δ < 1/4` (see `Additions/README.md`).
   from `0`; the paper's `a₁ a₂ …` is `fun k ↦ a (k + 1)`.
 - **Cobham's bound** `p(n) = O(n)` for automatic sequences and `Function.IsAutomatic`:
   `AdamczewskiBugeaud2007/AutomaticComplexity.lean`. Thm 1.2 needs it; either import that
-  library or move the two files to `ForMathlib` first (preferred).
+  library or move the two files to `STForMathlib` first (preferred).
 - **Continued fractions of a real number** (`Real.cfTail`, `Real.cfQuot`, `Real.cfNum`,
   `Real.cfDen`, `IsQuadraticIrrational`): `CorvajaZannier2004/ContinuedFraction.lean`,
   `QuadraticIrrational.lean`. Those start from `x`, the paper starts from the sequence `a`. Here

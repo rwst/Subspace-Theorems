@@ -5,14 +5,14 @@ Authors: Ralf Stephan
 -/
 module
 
-public import ForMathlib.RingTheory.MvPolynomial.ExcessBezout
+public import STForMathlib.RingTheory.MvPolynomial.ExcessBezout
 public import QuantitativeSubspace.MultiprojectiveHeight
 
 -- Used only inside proofs.
-import ForMathlib.LinearAlgebra.SmallCombination
-import ForMathlib.RingTheory.Ideal.LengthPow
-import ForMathlib.RingTheory.MvPolynomial.Projection
-import ForMathlib.RingTheory.RegularLocalRing.RegularSequence
+import STForMathlib.LinearAlgebra.SmallCombination
+import STForMathlib.RingTheory.Ideal.LengthPow
+import STForMathlib.RingTheory.MvPolynomial.Projection
+import STForMathlib.RingTheory.RegularLocalRing.RegularSequence
 import Mathlib.RingTheory.Ideal.AssociatedPrime.Finiteness
 import Mathlib.RingTheory.Ideal.AssociatedPrime.Localization
 import Mathlib.RingTheory.Ideal.KrullsHeightTheorem

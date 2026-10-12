@@ -8,7 +8,7 @@ module
 public import QuantitativeSubspace.MultiprojectiveHeight
 
 -- Used only inside proofs.
-import ForMathlib.Data.Nat.Choose.MultinomialSum
+import STForMathlib.Data.Nat.Choose.MultinomialSum
 import Mathlib.Algebra.FiniteSupport.Basic
 import Mathlib.Algebra.Order.Ring.IsNonarchimedean
 import Mathlib.NumberTheory.Height.MvPolynomial

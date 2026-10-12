@@ -3466,12 +3466,12 @@ and where the next roadmap should start, not as work in scope.
 
 Secondary to everything above: the milestones are the specification, and the files here are cited
 sources to port from, not prescriptions of shape. All are in
-[`rwst/lean-code`](https://github.com/rwst/lean-code) under `ForMathlib/`, released under CC0,
+[`rwst/lean-code`](https://github.com/rwst/lean-code) under `STForMathlib/`, released under CC0,
 sorry-free against a recent Mathlib, and written as general statements with no number theory
 beyond what the milestone needs; a contributor should port and generalize rather than reprove, and
 credit the source in the ported file.
 
-- [`LinearAlgebra/LinearIndependentRestrictScalars.lean`](https://github.com/rwst/lean-code/blob/main/ForMathlib/LinearAlgebra/LinearIndependentRestrictScalars.lean)
+- [`LinearAlgebra/LinearIndependentRestrictScalars.lean`](https://github.com/rwst/lean-code/blob/main/STForMathlib/LinearAlgebra/LinearIndependentRestrictScalars.lean)
   — 4.4 in full: `LinearIndependent.fintype_card_le_finrank_mul_finrank_span` (the counting half),
   `exists_linearIndependent_comp_of_lt_finrank_span` (greedy selection under arbitrary index
   bounds) and `LinearIndependent.exists_linearIndependent_comp_finrank_mul` (the packaged
@@ -3480,19 +3480,19 @@ credit the source in the ported file.
   names, re-headed and re-documented to this repository's house style. The mathematics needed no
   generalisation — the source was already stated for an arbitrary tower — and the port cost was two
   `Function.comp` unfoldings that this Mathlib beta-reduces where the source's did not.
-- [`NumberTheory/HeightTuple.lean`](https://github.com/rwst/lean-code/blob/main/ForMathlib/NumberTheory/HeightTuple.lean)
+- [`NumberTheory/HeightTuple.lean`](https://github.com/rwst/lean-code/blob/main/STForMathlib/NumberTheory/HeightTuple.lean)
   — the tuple sum bound of 2.4 (`Height.mulHeight_sum_comp_le`, with the constant
   `#s ^ totalWeight K`), the matrix product bound of 2.5 (`Matrix.mulHeight_mul_le`, with the
   `totalWeight` exponent), and the counterexample to the naive two-tuple sum bound
   (`Height.exists_not_mulHeight_add_le`).
-- [`NumberTheory/HeightExtension.lean`](https://github.com/rwst/lean-code/blob/main/ForMathlib/NumberTheory/HeightExtension.lean)
+- [`NumberTheory/HeightExtension.lean`](https://github.com/rwst/lean-code/blob/main/STForMathlib/NumberTheory/HeightExtension.lean)
   — the `K = ℚ` case of 0.3, `H_K(x) = H_ℚ(x)^{[K : ℚ]}` (`NumberField.mulHeight_ratCast`,
   `NumberField.mulHeight₁_ratCast`).
-- [`Analysis/InnerProductSpace/Hadamard.lean`](https://github.com/rwst/lean-code/blob/main/ForMathlib/Analysis/InnerProductSpace/Hadamard.lean)
+- [`Analysis/InnerProductSpace/Hadamard.lean`](https://github.com/rwst/lean-code/blob/main/STForMathlib/Analysis/InnerProductSpace/Hadamard.lean)
   — Hadamard's determinant inequality (`Matrix.norm_det_le_prod_col_norm`), the input to 6.3's
   regulator bound. In Cassels it is the *sphere* case, Ch. VIII Theorem I, and not a step in
   Theorem V: 4.2's landed lower bound goes through a cross-polytope and uses no Hadamard.
-- [`NumberTheory/FinitePlaceProduct.lean`](https://github.com/rwst/lean-code/blob/main/ForMathlib/NumberTheory/FinitePlaceProduct.lean)
+- [`NumberTheory/FinitePlaceProduct.lean`](https://github.com/rwst/lean-code/blob/main/STForMathlib/NumberTheory/FinitePlaceProduct.lean)
   — `∏ᶠ w : FinitePlace K, w q = (|q| ^ d)⁻¹` for `q : ℚ`, the finite part of the height of a
   rational `S`-unit, an acceptance test for 6.4.
   ⚠ **Ported**, as `NumberField.FinitePlace.finprod_apply_ratCast` in `ArithmeticHeights/SUnit.lean`,

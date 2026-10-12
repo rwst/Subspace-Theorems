@@ -10,7 +10,7 @@ public import Mathlib.FieldTheory.Minpoly.IsIntegrallyClosed
 public import Mathlib.NumberTheory.Real.Irrational
 public import Mathlib.RingTheory.Polynomial.ScaleRoots
 public import Mathlib.Algebra.GCDMonoid.IntegrallyClosed
-public import ForMathlib.NumberTheory.PisotNumber
+public import STForMathlib.NumberTheory.PisotNumber
 
 /-!
 # Pisot and pseudo-Pisot numbers
@@ -26,7 +26,7 @@ Conjugates are the complex roots of `minpoly ℚ α`, and the trace is their sum
 ## Main definitions
 
 * `IsPseudoPisot`: the predicate of Corvaja–Zannier, p. 2. Pisot numbers, `IsPisot`, are in
-  `ForMathlib/NumberTheory/PisotNumber.lean`.
+  `STForMathlib/NumberTheory/PisotNumber.lean`.
 
 ## Main results
 

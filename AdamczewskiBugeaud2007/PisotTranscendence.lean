@@ -8,7 +8,7 @@ module
 public import AdamczewskiBugeaud2007.BetaApproximation
 public import AdamczewskiBugeaud2007.PisotSubspace
 public import DiophantineApproximation.StammeringWords
-public import ForMathlib.NumberTheory.PisotNumber
+public import STForMathlib.NumberTheory.PisotNumber
 
 -- Used only inside proofs.
 import Mathlib.Analysis.SpecialFunctions.Pow.Real

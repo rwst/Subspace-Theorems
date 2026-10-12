@@ -10,7 +10,7 @@ public import QuantitativeSubspace.PolynomialHeight
 public import QuantitativeSubspace.ProductTheorem
 
 -- Used only inside proofs.
-import ForMathlib.RingTheory.MvPolynomial.Product
+import STForMathlib.RingTheory.MvPolynomial.Product
 import Mathlib.Algebra.Order.BigOperators.Ring.Finset
 
 /-!

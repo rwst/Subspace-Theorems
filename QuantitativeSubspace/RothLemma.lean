@@ -5,7 +5,7 @@ Authors: Ralf Stephan
 -/
 module
 
-public import ForMathlib.RingTheory.MvPolynomial.PointIdeal
+public import STForMathlib.RingTheory.MvPolynomial.PointIdeal
 public import QuantitativeSubspace.ZerosOfIndexHeight
 
 -- Used only inside proofs.

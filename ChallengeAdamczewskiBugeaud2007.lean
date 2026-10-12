@@ -220,7 +220,7 @@ def IsRecurrent (a : ℕ → α) : Prop :=
   ∀ i, ∃ j, j ≠ i ∧ a j = a i
 end Function
 end
--- ForMathlib.NumberTheory.PisotNumber
+-- STForMathlib.NumberTheory.PisotNumber
 run_cmd Lean.modifyEnv (Lean.Meta.auxLemmasExt.setState · {})
 section
 attribute [local instance 999] instFaithfulSMul_1
@@ -268,7 +268,7 @@ theorem tsum_mem_adjoin_of_isEventuallyPeriodic {β : ℝ} (hβ : 1 < β) {a : �
 end Real
 end
 end
--- ForMathlib.Analysis.Real.BetaExpansion
+-- STForMathlib.Analysis.Real.BetaExpansion
 run_cmd Lean.modifyEnv (Lean.Meta.auxLemmasExt.setState · {})
 section
 attribute [local instance 999] SubgroupClass.toSubmonoidClass

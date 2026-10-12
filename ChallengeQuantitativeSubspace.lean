@@ -378,7 +378,7 @@ noncomputable def systemMiddleRatio (d n : ℕ) (H δ X : ℝ) : ℝ :=
 end NumberField
 end
 end
--- ForMathlib.LinearAlgebra.WeightFiltration
+-- STForMathlib.LinearAlgebra.WeightFiltration
 run_cmd Lean.modifyEnv (Lean.Meta.auxLemmasExt.setState · {})
 section
 attribute [local instance 0] IsRegularLocalRing.toIsLocalRing
