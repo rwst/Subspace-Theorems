@@ -17,7 +17,7 @@ follows from the proved EF13 count.
 
 | file | content |
 |---|---|
-| `SubspaceCount.lean` | `Real.SubspaceBound`; EF13 for forms in `1, α, α²` ⇒ `subspaceBound_three` |
+| `SubspaceCount.lean` | `Real.SubspaceBound`; EF13 for forms in `1, α, α²` ⇒ `subspaceBound_three`, the case `S = ∅` of `QuantitativeSubspace/RealFormCount.lean` (Q4.6) |
 | `Liouville2.lean` | `b₀ + b₁α + b₂α² ≠ 0` and the quadratic Liouville bound (degree ≥ 3) |
 | `Points.lean` | the abstract point inequalities `CFPoint`, `Doubling` heights, lines and planes |
 | `Forms.lean` | the forms of the subspace applications; `det = ±z_j² Λ`; cross product |

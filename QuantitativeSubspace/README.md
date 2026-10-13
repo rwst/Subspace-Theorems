@@ -2080,7 +2080,53 @@ Move from points in `Kⁿ` to points in `ℚ̄ⁿ`, with counts independent of `
     - `n`: Q4.2 twisted by `κ = 2A` with `A` the absolute weight, `≍ n [E : K]` for the raised
       exponents; EF13 twist by the spread, `≍ [E : K]` (`δ'` was `δ / (32 n (n + 1))`).
     - `μ`: Q4.2d dropped `log ω₀` from the cut counts and summed over the quotients.
-  Together with DA 9.3 this is the full quantitative Subspace Theorem at EF13's strength.
+  Together with DA 9.3 this is the full quantitative Subspace Theorem at EF13's strength **in the
+  count**. It is not EF13's statement in the **threshold**: EF13 Thm 2.1 (Evertse 2010 Thm 2.1)
+  counts the solutions above `max (2 H, n ^ (2 n / δ))` (DA's `NumberField.IsLargeSolution`),
+  while Q4.3 counts those above `efSystemThreshold`, which is linear in `log H` with large
+  coefficients and carries `log |D_K|`- and `S`-unit-type terms (`scalarConst`). Between the two
+  thresholds, DA 9.3 and one interval of 9.4 give a count depending on `H`, not EF13's. See Q4.4.
+
+- **Q4.6** ✅ **Q4.3 for real forms at `∞` and finitely many primes, at integer points**
+  (2026-10-13): `QuantitativeSubspace/RealFormCount.lean`. `Real.SubspaceBoundAt α S a`: for
+  `2 ≤ n ≤ 4`, forms `∑_k (b₀ + b₁ α + b₂ α²) X_k` at `∞` (integer data `≤ B`, `|det| ≥ γ`,
+  constant `C`, exponents `e i ≤ 1`, one `= 1`, one `≤ 0`) and the coordinates at the primes `l ∈ S`
+  (exponents `f l i ≤ 0`, one `= 0` at each `l`), total weight `≤ -δ`: the integer solutions with
+  `log |x| ≥ K δ⁻¹ (1 + log B + log C + log γ⁻¹)` lie in `K δ⁻³ (1 + log δ⁻¹)²` proper
+  subspaces, `K = K(α, S, n)`. `Real.subspaceBoundAt_three` proves it from
+  `exists_finset_submodule_of_efSystemThreshold_le` and `efLargeCount_le_ef`, with `R = 2n` forms
+  over the Galois closure of `α` in `ℂ`. The normalization at `∞` (scale the forms whose exponent
+  is not within `δ / 2n` of `1` by `2^k`) costs `δ / 2`; at the primes the forms are the
+  coordinates, with determinant `1` and constant `1`. The threshold is linear in `δ⁻¹`
+  (`efSystemThreshold_le_thrConstAt`). Consumers: `Bugeaud2013/Additions` (`S = ∅`,
+  `Real.subspaceBound_three` is now its corollary) and `BugeaudEvertse2008` (BE.0: `n = 3`,
+  `S` = the primes of the base, and `n = 2` for the planes, where EF13's count replaces the
+  two-variable count Q1.6).
+
+Possible additions (proposed 2026-10-12; not started). They come from a consumer: `lean-code`'s
+`CITED/BugeaudEvertseRidout.lean` keeps Bugeaud–Evertse 2008 Cor. 5.2 as a cited axiom
+(`BugeaudEvertse.ridout_line_cover`), used by its `BB13/` root, because nothing below discharges it.
+
+- **Q4.4** **EF13's count above Evertse's threshold.** For a normalized system, the solutions
+  with `IsLargeSolution H δ x` lie in at most `efLargeCount` (or an explicit multiple) proper
+  subspaces; this is EF13 Thm 2.1 as stated. The gap is the passage from
+  `max (2 H, n ^ (2 n / δ)) ≤ H(x)` to the level where Q4.2's interval result starts. In
+  ES02 this is the reduction of §§5, 8 (normalization of the forms and the gap principle near
+  the threshold), which Q2.4 left out; EF13 §§3–4 redo it for their parametric theorem. Read
+  EF13 §§3–4 and ES02 §§5, 8 before writing milestones; it may be that only the absolute
+  normalization (dividing out `|D_K|` by working over `ℚ̄`, Q2) makes the thresholds free of the
+  field. Also check whether the `n = 2` count of Q1.6 (`systemLargeCountTwo`) can be moved to
+  the same threshold, since for `n = 2` it is the sharper count.
+- **Q4.5** **Bugeaud–Evertse 2008, Thm 5.1 and Cor. 5.2** (quantitative Ridout), as an
+  application of Q4.4 (or Q1.6 at the new threshold): for algebraic `ξ` of degree `d`, finite
+  disjoint sets `S₁, S₂` of primes and exponents `f_p ≥ 0` with `∑_{p ∈ S} f_p = 2 + ε`, the
+  solutions of `|ξ − x/y| ≤ y^{−f_∞}`, `|x|_p ≤ y^{−f_p}` (`p ∈ S₁`), `|y|_p ≤ y^{−f_p}`
+  (`p ∈ S₂`) with `y > max (2 H(ξ), 2^{4/ε})` lie on at most
+  `2³² (1 + ε⁻¹)³ log (6d) log ((1 + ε⁻¹) log (6d))` lines, or on our own count's number of lines.
+  BE08 §5 deduce Cor. 5.2 from Thm 5.1 in one page; Thm 5.1 is ES02's (now EF13's) count for
+  the system `(x − ξ y, y)` at `∞` and `(x, y)` at the primes. The consumer needs the
+  statement for `ξ ∈ ℚ` (`d = 1`) with an explicit count; the constant need not be BE08's.
+  Optional after Q4.4: lower Q4.3's constant `2 · 10¹³` to EF13's `10⁹`.
 
 ### Layer Q5 (branch): higher degree (Evertse–Ferretti 2008, Quang 2022)
 
@@ -2116,8 +2162,11 @@ heights, and both are foundations Mathlib lacks (Layer Q1).
 These use the counts above and are recorded in [`papers.md`](../papers.md):
 
 - **BE08**, Bugeaud–Evertse 2008, Thm 2.1: `p(n) > n (log n)^η` infinitely often for the digits of
-  an algebraic irrational, for every `η < 1/11`. It uses ES02. (?) Nobody has yet checked whether
-  EF13 improves `η`.
+  an algebraic irrational, for every `η < 1/11`. It uses ES02. With EF13 (Q4.6) **proved for
+  `η < 1/7`** in `BugeaudEvertse2008/Theorem21.lean` (`Real.frequently_lt_complexity`, std3,
+  2026-10-13).
+- **BE08**, Cor. 5.2 (quantitative Ridout, a line count above `max (2 H(ξ), 2^{4/ε})`): used by
+  `lean-code`'s Problem 10.13 root, where it is still a cited axiom. Needs Q4.4 and Q4.5.
 - **ESS02**: the uniform bound for unit equations in a multiplicative group of finite rank.
 - **Sch90**: bounds for S-unit equations over number fields.
 - **AB10, AB11**: transcendence and irrationality measures from repetitive patterns.

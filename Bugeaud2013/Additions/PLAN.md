@@ -54,8 +54,9 @@ H. N/2 ≤ k·cnt4·B_S + cnt3·B_P ≲ ε^{-(a+1)} log³ ⇒ contradiction for 
 ## Lean status
 
 * `SubspaceCount.lean` **DONE** (builds clean): `Real.subspaceBound_three` (EF13 ⇒
-  `SubspaceBound α 3`), via `isNormalizedSystem_qForms`, `mem_systemSet_qForms`,
-  `efSystemThreshold_le_thrConst`, `normLam`/`normExp`.
+  `SubspaceBound α 3`). Since 2026-10-13 the case `S = ∅` of `Real.subspaceBoundAt_three`
+  (`QuantitativeSubspace/RealFormCount.lean`, Q4.6, which took over the normalization
+  `normLam`/`normExp`, `isNormalizedSystem_placeForms`, `efSystemThreshold_le_thrConstAt`).
 * **DONE, build clean** (2026-10-10): `Liouville2.lean` (`exists_pos_le_abs_quadVal`,
   `quadVal_ne_zero`), `Points.lean` (`CFPoint`, `Doubling`, `LiouvilleQuad`,
   `rpow_le_of_mem_span_pair`, `Doubling.card_le`, `card_mem_le_of_finrank_le_two`),
