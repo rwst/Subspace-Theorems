@@ -39,7 +39,7 @@ variable (ha : ∀ n, 1 ≤ a (n + 1)) (hA : ∀ n, a (n + 1) ≤ A)
 include ha hA
 
 /-- `q_{ℓ+1} ≤ (A + 1) q_ℓ`. -/
-theorem contDen_succ_le (n : ℕ) : (contDen a (n + 1) : ℝ) ≤ (A + 1) * contDen a n := by
+theorem contDen_succ_le_real (n : ℕ) : (contDen a (n + 1) : ℝ) ≤ (A + 1) * contDen a n := by
   rcases n with _ | n
   · simp only [contDen_one, zero_add]
     have := hA 0
@@ -56,11 +56,11 @@ theorem contDen_succ_le (n : ℕ) : (contDen a (n + 1) : ℝ) ≤ (A + 1) * cont
     nlinarith
 
 /-- `q_ℓ ≤ (A + 1)^ℓ`. -/
-theorem contDen_le_pow (n : ℕ) : (contDen a n : ℝ) ≤ (A + 1) ^ n := by
+theorem contDen_le_pow_real (n : ℕ) : (contDen a n : ℝ) ≤ (A + 1) ^ n := by
   induction n with
   | zero => simp [contDen]
   | succ n ih =>
-    have := contDen_succ_le ha hA n
+    have := contDen_succ_le_real ha hA n
     rw [pow_succ]
     have hA0 : (0 : ℝ) ≤ A + 1 := by positivity
     nlinarith
@@ -147,7 +147,7 @@ theorem head_aux_two {Q0 Q1 R0 R1 a1 a2 A : ℝ} (hA1 : 1 ≤ A) (ha1' : a1 ≤ 
 theorem head_le {j r : ℕ} (hr : 2 ≤ r) (hne : 1 ≤ j → a (j + 1) ≠ a (j + 1 + r)) :
     (contDen a (j + 1) : ℝ) * contDen a (j + 1 + r) ≤ (A + 1) ^ 4 * |(spadeVec a j r 0 : ℝ)| := by
   have hA1 : (1 : ℝ) ≤ A := by exact_mod_cast (ha 0).trans (hA 0)
-  have hsucc := contDen_succ_le ha hA
+  have hsucc := contDen_succ_le_real ha hA
   have hpos (n : ℕ) : (1 : ℝ) ≤ contDen a n := by exact_mod_cast one_le_contDen ha n
   have hlo (n : ℕ) : (1 : ℝ) ≤ a (n + 1) := by exact_mod_cast ha n
   have hhi (n : ℕ) : (a (n + 1) : ℝ) ≤ A := by exact_mod_cast hA n
@@ -432,7 +432,7 @@ theorem cfPoint_spadeVec (ha : ∀ n, 1 ≤ a (n + 1)) (hA : ∀ n, a (n + 1) �
     intro z hz
     have hsum0 : 0 ≤ ∑ i, |z i| := Finset.sum_nonneg fun i _ ↦ abs_nonneg _
     have hA2 : (1 : ℝ) ≤ (A + 1) ^ 2 := one_le_pow₀ (by linarith)
-    have hsucc := contDen_succ_le ha hA
+    have hsucc := contDen_succ_le_real ha hA
     rcases le_or_gt 2 j with hj | hj
     · have h := abs_claim_le ha hj (hne (by omega)) z hz
       have hqj := contDen_pos_real ha j
@@ -449,7 +449,7 @@ theorem cfPoint_spadeVec (ha : ∀ n, 1 ≤ a (n + 1)) (hA : ∀ n, a (n + 1) �
             nlinarith
     · -- `w ≤ 2`: `q_w ≤ (A + 1)²`
       have hQ : Qw ≤ (A + 1) ^ 2 :=
-        (contDen_le_pow ha hA (j + 1)).trans (pow_le_pow_right₀ (by linarith) (by omega))
+        (contDen_le_pow_real ha hA (j + 1)).trans (pow_le_pow_right₀ (by linarith) (by omega))
       have hΛ : |z 0 + (z 1 + z 2) * α + z 3 * α ^ 2| ≤ ∑ i, |z i| := by
         rw [Fin.sum_univ_four]
         have hαa : |α| ≤ 1 := by rw [abs_of_pos hα0]; linarith

@@ -67,8 +67,8 @@ H. N/2 ≤ k·cnt4·B_S + cnt3·B_P ≲ ε^{-(a+1)} log³ ⇒ contradiction for 
   `K ε^-K ≤ log H` ⇒ `#I ≤ K ε^-(a+1) (1+log ε⁻¹)³`).
   `CFPoints.lean` **DONE** (`Nat.cfPoint_spadeVec ha hA hu hur (hr : 2 ≤ r) hrep
   (hne : 1 ≤ j → a (j+1) ≠ a (j+1+r)) (hεu : (q_{j+1} q_{j+1+r})^ε ≤ 2^u)` : CFPoint (contFrac a)
-  A ε (spadeVec a j r) (q_{j+1} q_{j+1+r}) q_{j+1}; also `contDen_le_pow` q_n ≤ (A+1)^n,
-  `contDen_succ_le`, `head_le`, `le_abs_formL2`).
+  A ε (spadeVec a j r) (q_{j+1} q_{j+1+r}) q_{j+1}; also `contDen_le_pow_real` q_n ≤ (A+1)^n,
+  `contDen_succ_le_real`, `head_le`, `le_abs_formL2`).
   `Complexity.lean`, `Asymptotics.lean`, `Delta.lean` **DONE** (sequence `ℓ_k = E^(k+1)(k+1)^(2(k+1))`
   explicit instead of recursive).
 * `Complexity.lean` design: `Nat.exists_config (hℓ : 12 ≤ ℓ) (hfin : (factors x ℓ).Finite)

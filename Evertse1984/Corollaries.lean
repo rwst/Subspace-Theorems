@@ -11,6 +11,7 @@ public import Mathlib.NumberTheory.Padics.PadicNorm
 
 -- Used only inside proofs.
 import DiophantineApproximation.NormForm
+import DiophantineApproximation.UnitEquationSeveral
 import Mathlib.NumberTheory.Height.NumberField
 
 /-!

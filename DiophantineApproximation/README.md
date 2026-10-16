@@ -4264,6 +4264,76 @@ pairs `(2 ^ k, 2 ^ k)`, `k ≥ 2`, satisfy the gcd hypothesis with `ε = 1/2` an
 many, so the curves are load-bearing; and with `b = c = 1`, `a = 2 ^ k − 1` makes
 `(a b + 1)(a c + 1)` a power of `2`, so `c < b` is.
 
+**8.8 Counting the unit equation** (Schlickewei, Invent. Math. **102** (1990); the plan is
+`Schlickewei1990/README.md`) — **started**. This milestone holds the parts of Schlickewei's count
+that are not specific to his paper, so that `Schlickewei1990/` and `Evertse1984/` import them
+from here and not from each other. Landed (S90.0–S90.2, 2026-10-16), moved from `Evertse1984/`:
+
+* `DiophantineApproximation/PlaceProd.lean`: `NumberField.placeProd S T g`, the product of `g` over
+  the places of `T` in `S∞ ∪ S` in the product-formula normalization, with `relevantPlaces`, its
+  API (`placeProd_mul`, `placeProd_le_placeProd`, `placeProd_inter_mul_diff`, …), the product
+  formula for an algebraic integer (`one_le_placeProd_univ`), the `S`-product formula
+  (`placeProd_univ_eq_one_of_mem_unit`, `placeProd_univ_mul_unit`; Schlickewei's (3.3)), the
+  height of an `S`-integral tuple (`mulHeight_le_placeProd_univ`) and `H(x) ≤ ‖x‖ ^ [K : ℚ]`
+  (`mulHeight_le_iSup_house_pow`). Evertse's minimal subsum
+  (`exists_subset_sum_eq_forall_ne_zero`) went to 8.2's `UnitEquationSeveral.lean` instead, where
+  8.2's `exists_subset_sum_eq_one_forall_ne_zero` is now its special case;
+* `DiophantineApproximation/SumForms.lean`: `NumberField.sumForms r`, the coordinates with the
+  one `r v` names replaced by their sum, linearly independent at every place
+  (`linearIndependent_sumForms`), and their product at a point (`prod_sumForms_mul`,
+  `affineProd_sumForms_mul`). These are Evertse's forms (his §2) and Schlickewei's (3.7). The
+  choice `r : AbsoluteValue K ℝ → Option ι` is Schlickewei's class (3.12). Added with S90.2
+  (2026-10-16): the product on the hyperplane `y₁ + ⋯ + y_{n+1} = 0`, coordinates indexed by
+  `Option ι` (`prod_sumForms_mul_eq_prod_option`, `affineProd_sumForms_mul_eq_prod_option`;
+  Schlickewei's (3.11), (3.14)). It is exact for every `r`: the sum form is `−y_{n+1}`.
+
+Added with the S90.3 check (2026-10-16): `DiophantineApproximation/BalancedPoint.lean`, **a balanced
+representative by one Minkowski scalar** (`exists_smul_balanced`, `exists_smul_systemValue_le`).
+A projective point is moved to an `S`-integral representative `β x` that meets Evertse's
+normalization (2.4) for the largest exponents with fixed constants `balancedConst` of product `1`.
+The cost is `κ = scalarConst K S`, and not the `S`-unit covering radius of Lemma 7.5.4. Also there:
+the coefficients normalized by Minkowski's bound on ideal classes
+(`exists_mul_isIntegral_inv_le_finprod_iSup`: `c α` integral, the finite part of its height at least
+`(2^d √|D_K|)⁻¹`), and its consequence `placeProd_iSup_le_mul_mulHeight` (the `S`-product of the sup
+norms of `c α` times `S`-units is at most `2^d √|D_K|` times the height). Also
+`apply_sumForms_le_iSup` and `det_pi_sumForms` (`SumForms.lean`), and
+`one_le_placeProd_univ_of_mem_integer` and `placeProd_univ_iSup_mul` (`PlaceProd.lean`).
+
+Added with S90.3 (2026-10-16): `iSup_le_card_mul_iSup_sumForms` (the sup norm is at most `n` times
+the largest form), `sumForms_ne_zero`, `sumForms_mem_range` and `sumForms_basisFun` (at most `n + 1`
+forms, coefficients `0, 1`), all in `SumForms.lean`; `exists_smul_systemValue_le` now also gives
+`H_aff(β x) ≤ κ² ∏_{S∞∪S} ‖β x‖_v`. The product-to-system step went to 9.1
+(`SystemGrid.lean`, below).
+
+Added with S90.4 (2026-10-16), for Schlickewei's gap principle:
+* in `PlaceProd.lean`: `mulHeight_eq_placeProd_mul_finprod` (the height is the product over
+  `S∞ ∪ S` times the product over the primes off `S`), and from it
+  `mulHeight_mul_unit_mul_placeProd` (multiplying the coordinates by `S`-units changes the height
+  only over `S∞ ∪ S`: `H(α u) · ∏ max ‖α‖ = H(α) · ∏ max ‖α u‖`) and
+  `placeProd_iSup_le_mulHeight_of_eq_one` (a tuple with a coordinate `1` has height at least its
+  product over `S∞ ∪ S`). Also `placeProd_prod`;
+* in `SumForms.lean`: `apply_sumForms_eq` (on the hyperplane each form has the size of the
+  coordinate `y_o`, `o ≠ r v`) and `det_sumForms_apply` (the forms at `n` points have the
+  determinant of the points), and `mulHeight_elim_neg_sum_le`
+  (`H(y₁, …, yₙ, −(y₁ + ⋯ + yₙ)) ≤ n ^ [K : ℚ] H(y₁, …, yₙ)`, which takes the point on the
+  hyperplane to its first `n` coordinates);
+* in `SystemGrid.lean`: `exists_le_rpow_prod_grid`. If `0 < u p i ≤ 1` with product `b`, there are
+  grid exponents `k p i / N` with `u p i ≤ b ^ (k p i / N)` and `∑ k / N ≥ 1 − #P #ι / N`. These
+  are the subclasses of the gap principle, in place of Lemma 4.1's simplex net. Also
+  `systemPlace_mem_relevantPlaces`.
+
+The count of points of small height uniform in `K` (S90.5) went to ArithmeticHeights instead
+(Layer 1.3, `Projectivization.ncard_setOfPred_mulHeight_le`).
+
+Added with S90.6 (2026-10-16), for Schlickewei's induction (§7):
+* in 8.2's `UnitEquationSeveral.lean`: `exists_subset_nonempty_sum_eq_zero_forall_ne_zero` (a
+  vanishing sum over a nonempty set contains a nonempty vanishing subsum with no vanishing proper
+  subsum; `exists_subset_sum_eq_forall_ne_zero` returns `∅` there) and
+  `exists_ne_zero_forall_sum_mul_eq_zero_of_ne_top` (a proper subspace lies in a hyperplane
+  `∑ bᵢ yᵢ = 0`, `b ≠ 0`);
+* in `BalancedPoint.lean`: `exists_absNorm_le_two_pow` (a prime above `2` has norm at most
+  `2 ^ [K : ℚ]`), which the theorem of record adds to `S` so that S90.3 has a finite place.
+
 ### Layer 9: counting subspaces
 
 The elementary half of the quantitative Subspace Theorem (Evertse, "On the Quantitative Subspace
@@ -4292,6 +4362,19 @@ at most `−δ/2` catch, for **any** positive constants and above a level, every
 solution of `affineProd ≤ H(x) ^ (−δ)`). With 6.4 this gives Evertse's **Theorem A**, the
 Subspace Theorem for one system of negative weight
 (`NumberField.exists_finset_submodule_of_systemWeight_neg`).
+
+**Added with S90.3 (2026-10-16): the product inequality as normalized systems**, in
+`DiophantineApproximation/SystemGrid.lean`. If an `S`-integral `x` with `H = H_aff(x) > 1` has
+every form at most `C p · H ^ s(p)`, no form zero, and
+`∏_p ∏_i |L_i(x)|_p · H ^ (n + 2δ) ≤ (∏_p max_i |L_i(x)|_p) ^ n`, then `x` solves the system
+`(C, systemGridExponent S N k)` of a grid point `k` with entries `≤ (n + 1) N`, a zero at every
+place and `∑ k / N ≥ n + δ`, once `N δ ≥ t n` (`NumberField.exists_mem_systemSet_systemGridExponent`).
+Its exponents meet (2.4) (`systemGridExponent_le`, `exists_systemGridExponent_eq`,
+`systemWeight_systemGridExponent_le`), with the constants unchanged. Unlike
+`exists_finset_forall_exists_mem_systemSet` the systems are **normalized**, there is no
+existential level, and there are `((n + 1) N + 1) ^ (n t)` of them. The lower bound on the largest
+forms is the caller's; `placeProd_iSup_le_mul_prod_iSup_systemValue` gets it from
+`|x|_p ≤ c · max_i |L_i(x)|_p`. Schlickewei's Lemma 4.1 (a simplex net) does the same job.
 
 ⚠ **The exponents are Evertse's own numbers.** His absolute values are the `[K : ℚ]`-th roots of
 Mathlib's, the infinite ones raised to `mult v`, and his height is the `[K : ℚ]`-th root of

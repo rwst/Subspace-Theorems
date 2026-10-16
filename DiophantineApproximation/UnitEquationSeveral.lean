@@ -42,6 +42,10 @@ because no subsum vanishes, again with fewer variables.
 * `NumberField.finite_setOf_sum_mem_eq_one`: the same for a finitely generated subgroup.
 * `NumberField.exists_finite_forall_exists_mul_mem`: Corollary 7.4.3, vanishing subsums allowed.
 * `NumberField.generalProd_sumEquationForms_eq`: the central quantity at a solution.
+* `NumberField.exists_subset_nonempty_sum_eq_zero_forall_ne_zero`: a minimal nonempty vanishing
+  subsum.
+* `NumberField.exists_ne_zero_forall_sum_mul_eq_zero_of_ne_top`: a proper subspace lies in a
+  hyperplane.
 
 ## Implementation notes
 
@@ -143,25 +147,49 @@ theorem isGeneralPosition_sumEquationForms :
     exact Rat.linearIndependent_proj.comp g hg
 
 omit [Fintype ι] in
+/-- **A minimal subsum has no vanishing subsum.** A sum over `s` equal to `y` contains a subsum
+equal to `y` none of whose nonempty subsums vanishes. -/
+theorem exists_subset_sum_eq_forall_ne_zero (a : ι → K) (s : Finset ι) :
+    ∃ J ⊆ s, ∑ i ∈ J, a i = ∑ i ∈ s, a i ∧ ∀ I ⊆ J, I.Nonempty → ∑ i ∈ I, a i ≠ 0 := by
+  classical
+  obtain ⟨J, hJ, hmin⟩ := (s.powerset.filter fun J ↦ ∑ i ∈ J, a i = ∑ i ∈ s, a i).exists_min_image
+    Finset.card ⟨s, by simp⟩
+  rw [Finset.mem_filter, Finset.mem_powerset] at hJ
+  refine ⟨J, hJ.1, hJ.2, fun I hIJ hI h0 ↦ ?_⟩
+  have hlt : (J \ I).card < J.card := Finset.card_lt_card (Finset.sdiff_ssubset hIJ hI)
+  have hsum : ∑ i ∈ J \ I, a i = ∑ i ∈ s, a i := by
+    rw [← hJ.2, ← Finset.sum_sdiff hIJ, h0, add_zero]
+  exact hlt.not_ge (hmin _ (by
+    rw [Finset.mem_filter, Finset.mem_powerset]
+    exact ⟨Finset.sdiff_subset.trans hJ.1, hsum⟩))
+
+omit [Fintype ι] in
+/-- **A minimal vanishing subsum.** A vanishing sum over a nonempty `s` contains a nonempty
+vanishing subsum none of whose proper nonempty subsums vanishes. -/
+theorem exists_subset_nonempty_sum_eq_zero_forall_ne_zero (a : ι → K) {s : Finset ι}
+    (hs : s.Nonempty) (h0 : ∑ i ∈ s, a i = 0) :
+    ∃ J ⊆ s, J.Nonempty ∧ ∑ i ∈ J, a i = 0 ∧
+      ∀ I ⊆ J, I.Nonempty → I ≠ J → ∑ i ∈ I, a i ≠ 0 := by
+  classical
+  obtain ⟨J, hJ, hmin⟩ :=
+    (s.powerset.filter fun J ↦ J.Nonempty ∧ ∑ i ∈ J, a i = 0).exists_min_image
+      Finset.card ⟨s, by simp [hs, h0]⟩
+  rw [Finset.mem_filter, Finset.mem_powerset] at hJ
+  refine ⟨J, hJ.1, hJ.2.1, hJ.2.2, fun I hIJ hI hne hI0 ↦ ?_⟩
+  have hlt : I.card < J.card := Finset.card_lt_card (Finset.ssubset_iff_subset_ne.2 ⟨hIJ, hne⟩)
+  exact hlt.not_ge (hmin _ (by
+    rw [Finset.mem_filter, Finset.mem_powerset]
+    exact ⟨hIJ.trans hJ.1, hI, hI0⟩))
+
+omit [Fintype ι] in
 /-- **A minimal subsum.** If `∑ i ∈ J, b i * z i = 1`, some `J' ⊆ J` has the same sum and no
 nonempty subset of `J'` has a vanishing sum. -/
 theorem exists_subset_sum_eq_one_forall_ne_zero {b z : ι → K} {J : Finset ι}
     (h : ∑ i ∈ J, b i * z i = 1) :
     ∃ J' ⊆ J, ∑ i ∈ J', b i * z i = 1 ∧
       ∀ I ⊆ J', I.Nonempty → ∑ i ∈ I, b i * z i ≠ 0 := by
-  classical
-  obtain ⟨J', hJ', hmin⟩ := Finset.exists_min_image
-    (J.powerset.filter fun J' ↦ ∑ i ∈ J', b i * z i = 1) Finset.card
-    ⟨J, Finset.mem_filter.mpr ⟨Finset.mem_powerset_self J, h⟩⟩
-  rw [Finset.mem_filter, Finset.mem_powerset] at hJ'
-  refine ⟨J', hJ'.1, hJ'.2, fun I hI hIne hI0 ↦ ?_⟩
-  have hsd : ∑ i ∈ J' \ I, b i * z i = 1 := by
-    have := Finset.sum_sdiff hI (f := fun i ↦ b i * z i)
-    rw [hI0, add_zero, hJ'.2] at this
-    exact this
-  have hle := hmin (J' \ I) (Finset.mem_filter.mpr
-    ⟨Finset.mem_powerset.mpr (Finset.sdiff_subset.trans hJ'.1), hsd⟩)
-  exact absurd (Finset.card_lt_card (Finset.sdiff_ssubset hI hIne)) (not_lt.mpr hle)
+  obtain ⟨J', hJ', hsum, hne⟩ := exists_subset_sum_eq_forall_ne_zero (fun i ↦ b i * z i) J
+  exact ⟨J', hJ', hsum.trans h, hne⟩
 
 /-- **A proper subspace shortens the equation.** If `W ≠ ⊤`, there are coefficients `b` with some
 `b j = 0` such that every point of `W` on `∑ i, y i = 1` also lies on `∑ i, b i * y i = 1`. -/
@@ -182,6 +210,20 @@ theorem exists_sum_mul_eq_one_of_ne_top {W : Submodule K (ι → K)} (hW : W ≠
         rw [Finset.sum_div, ← Finset.sum_sub_distrib]
         exact Finset.sum_congr rfl fun i _ ↦ by ring
     _ = 1 := by rw [← hfc, hfy, hsum, zero_div, sub_zero]
+
+/-- **A proper subspace lies in a hyperplane**: some nonzero `b` has `∑ i, b i * y i = 0` on
+`W ≠ ⊤`. -/
+theorem exists_ne_zero_forall_sum_mul_eq_zero_of_ne_top {W : Submodule K (ι → K)} (hW : W ≠ ⊤) :
+    ∃ b : ι → K, b ≠ 0 ∧ ∀ y ∈ W, ∑ i, b i * y i = 0 := by
+  classical
+  obtain ⟨f, hf0, hWf⟩ := W.exists_le_ker_of_lt_top hW.lt_top
+  set c : ι → K := fun i ↦ f fun j ↦ if i = j then 1 else 0 with hc
+  have hfc : ∀ y, f y = ∑ i, c i * y i := fun y ↦ by
+    rw [LinearMap.pi_apply_eq_sum_univ f y]
+    exact Finset.sum_congr rfl fun i _ ↦ by rw [smul_eq_mul, mul_comm]
+  refine ⟨c, fun h ↦ hf0 (LinearMap.ext fun y ↦ by simp [hfc, h]), fun y hy ↦ ?_⟩
+  rw [← hfc]
+  exact LinearMap.mem_ker.mp (hWf hy)
 
 variable [NumberField K]
 

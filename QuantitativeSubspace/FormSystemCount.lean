@@ -60,6 +60,7 @@ lie in that many subspaces plus Layer 9.3's count plus one interval of Layer 9.4
 * `NumberField.efLargeCount_le`, `NumberField.efLargeCount_le_shape`,
   `NumberField.efLargeCount_le_ef`: the closed forms.
 * `NumberField.efSystemThreshold_le`: `X₀` is linear in `log H`.
+* `NumberField.one_le_efLargeCount`: the count is at least `1`.
 
 ## Implementation notes
 
@@ -129,6 +130,26 @@ noncomputable def efLargeCount (n e r : ℕ) (δ : ℝ) : ℝ :=
   1 + FormSystem.intervalCount n (r * e + n) (efSystemDelta n δ) *
     (1 + Real.log (FormSystem.cutRatio (r * e + n) (efSystemDelta n δ)) /
       Real.log (1 + δ / (2 * n)))
+
+/-- **The count of the large solutions is at least `1`**: the ratio `ω₀ = log (3 R') / δ'` is at
+least `1`, as `δ' ≤ 1 < log 3`. -/
+theorem one_le_efLargeCount (n e r : ℕ) {δ : ℝ} (hδ : 0 < δ) (hR : 1 ≤ r * e + n) :
+    1 ≤ efLargeCount n e r δ := by
+  rw [efLargeCount]
+  refine le_add_of_nonneg_right (mul_nonneg (Nat.cast_nonneg _) ?_)
+  have hδ' := efSystemDelta_pos (n := n) hδ
+  have hδ1 := efSystemDelta_le_one n hδ
+  have hR' : (1 : ℝ) ≤ ((r * e + n : ℕ) : ℝ) := by exact_mod_cast hR
+  have h3 : 1 ≤ Real.log (3 * ((r * e + n : ℕ) : ℝ)) := by
+    rw [← Real.log_exp 1]
+    exact Real.log_le_log (Real.exp_pos 1) (by linarith [Real.exp_one_lt_d9])
+  have hcut : 1 ≤ FormSystem.cutRatio (r * e + n) (efSystemDelta n δ) := by
+    rw [FormSystem.cutRatio, le_div_iff₀ hδ']
+    linarith
+  have hlog : 0 ≤ Real.log (1 + δ / (2 * n)) :=
+    Real.log_nonneg (le_add_of_nonneg_right (by positivity))
+  have := Real.log_nonneg hcut
+  positivity
 
 variable {K E : Type} [Field K] [NumberField K] [Field E] [NumberField E] [Algebra K E]
 variable {ι : Type*} [Fintype ι]

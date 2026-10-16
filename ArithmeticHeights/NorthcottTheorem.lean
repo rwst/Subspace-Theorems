@@ -34,6 +34,14 @@ roots of `f`.
   field all of whose elements are algebraic — a point of `ℙⁿ` whose height and whose coordinate
   ratios' degrees are bounded is one of finitely many. Its logarithmic form is
   `Projectivization.finite_setOfPred_absLogHeight_le_of_finrank_le`.
+* `NumberField.ncard_setOfPred_absMulHeight₁_le_of_finrank_le` and
+  `Projectivization.ncard_setOfPred_absMulHeight_le_of_finrank_le`: **the counted forms**, at
+  most `northcottCount D (max B 1 ^ D)` numbers and its `#ι`-th power of points. The count
+  depends on `D` and `B` only, because Mathlib's `Polynomial.card_mahlerMeasure_le_prod` counts
+  the integer polynomials of bounded degree and Mahler measure.
+* `Projectivization.ncard_setOfPred_mulHeight_le`: over a number field `K`, at most
+  `northcottCount [K : ℚ] (max X 1) ^ #ι` points of relative height at most `X`, uniformly in `K`
+  of a given degree.
 
 ## Implementation notes
 
@@ -115,6 +123,51 @@ theorem finite_setOfPred_absLogHeight₁_le_of_finrank_le (B : ℝ) (D : ℕ) :
   (finite_setOfPred_absMulHeight₁_le_of_finrank_le (Real.exp B) D).subset fun _ hx ↦
     ⟨hx.1, Real.le_exp_of_log_le hx.2.1, hx.2.2⟩
 
+/-- **The count in Northcott's theorem**: `D` roots for each integer polynomial of degree at most
+`D` and Mahler measure at most `M`, of which there are at most
+`∏_{i ≤ D} (2 ⌊binom D i · M⌋ + 1)` (Mathlib's `Polynomial.card_mahlerMeasure_le_prod`). It
+depends on `D` and `M` only, not on the field. -/
+noncomputable def northcottCount (D : ℕ) (M : NNReal) : ℕ :=
+  D * ∏ i : Fin (D + 1), (2 * ⌊D.choose i * M⌋₊ + 1)
+
+/-- **Northcott's theorem, counted.** There are at most `northcottCount D (max B 1 ^ D)`
+algebraic numbers of absolute height at most `B` and degree at most `D`, in any field of
+characteristic zero. The proof is that of `finite_setOfPred_absMulHeight₁_le_of_finrank_le`, with
+the roots counted. -/
+theorem ncard_setOfPred_absMulHeight₁_le_of_finrank_le (B : ℝ) (D : ℕ) :
+    {x : K | IsIntegral ℚ x ∧ absMulHeight₁ x ≤ B ∧ finrank ℚ ℚ⟮x⟯ ≤ D}.ncard ≤
+      northcottCount D ((max B 1) ^ D).toNNReal := by
+  classical
+  set M : NNReal := ((max B 1) ^ D).toNNReal
+  have hM : (M : ℝ) = (max B 1) ^ D := Real.coe_toNNReal _ (by positivity)
+  set P := {p : ℤ[X] | p.natDegree ≤ D ∧ (p.map (Int.castRingHom ℂ)).mahlerMeasure ≤ M}
+  have hP : P.Finite := finite_mahlerMeasure_le D M
+  have hsub : {x : K | IsIntegral ℚ x ∧ absMulHeight₁ x ≤ B ∧ finrank ℚ ℚ⟮x⟯ ≤ D} ⊆
+      ↑(hP.toFinset.biUnion fun p ↦ (p.map (Int.castRingHom K)).roots.toFinset) := by
+    rintro x ⟨hx, hxB, hxD⟩
+    obtain ⟨f, hf, hdeg, hroot, hMf⟩ := exists_isPrimitive_absMulHeight₁_pow_natDegree hx
+    simp only [Finset.coe_biUnion, Set.Finite.coe_toFinset, Set.mem_iUnion, Finset.mem_coe,
+      Multiset.mem_toFinset, exists_prop]
+    refine ⟨f, ⟨hdeg ▸ hxD, ?_⟩, ?_⟩
+    · rw [hM, ← hMf]
+      calc absMulHeight₁ x ^ f.natDegree ≤ (max B 1) ^ f.natDegree :=
+            pow_le_pow_left₀ (zero_le_one.trans (one_le_absMulHeight₁ x))
+              (hxB.trans (le_max_left _ _)) _
+        _ ≤ (max B 1) ^ D := pow_le_pow_right₀ (le_max_right _ _) (hdeg ▸ hxD)
+    · rw [mem_roots ((Polynomial.map_eq_zero_iff (Int.castRingHom K).injective_int).not.mpr
+        hf.ne_zero), IsRoot, ← eval₂_eq_eval_map, ← algebraMap_int_eq, ← aeval_def]
+      exact hroot
+  calc _ ≤ (hP.toFinset.biUnion fun p ↦ (p.map (Int.castRingHom K)).roots.toFinset).card := by
+        rw [← Set.ncard_coe_finset]; exact Set.ncard_le_ncard hsub
+    _ ≤ hP.toFinset.card * D := by
+        refine Finset.card_biUnion_le_card_mul _ _ _ fun p hp ↦ ?_
+        rw [Set.Finite.mem_toFinset] at hp
+        exact (Multiset.toFinset_card_le _).trans ((card_roots' _).trans
+          ((natDegree_map_le).trans hp.1))
+    _ ≤ northcottCount D M := by
+        rw [northcottCount, mul_comm D, ← Set.ncard_eq_toFinset_card P hP]
+        exact Nat.mul_le_mul_right _ (card_mahlerMeasure_le_prod D M)
+
 end NumberField
 
 namespace Projectivization
@@ -160,6 +213,87 @@ theorem finite_setOfPred_absLogHeight_le_of_finrank_le (B : ℝ) (D : ℕ) :
     ⟨Real.le_exp_of_log_le ?_, hP.2⟩
   rw [← absLogHeight_eq_log_absMulHeight]
   exact hP.1
+
+
+/-- **Northcott's theorem on projective space, counted.** There are at most
+`northcottCount D (max B 1 ^ D) ^ #ι` points of `ℙ(ι → K)` of absolute height at most `B` whose
+coordinate ratios have degree at most `D`: the normalized representative of
+`finite_setOfPred_absMulHeight_le_of_finrank_le` has every coordinate in the set counted by
+`NumberField.ncard_setOfPred_absMulHeight₁_le_of_finrank_le`. -/
+theorem ncard_setOfPred_absMulHeight_le_of_finrank_le (B : ℝ) (D : ℕ) :
+    {P : Projectivization K (ι → K) | absMulHeight P ≤ B ∧
+      ∀ i j, finrank ℚ ℚ⟮P.rep i / P.rep j⟯ ≤ D}.ncard ≤
+        northcottCount D ((max B 1) ^ D).toNNReal ^ Nat.card ι := by
+  set A := {x : K | IsIntegral ℚ x ∧ absMulHeight₁ x ≤ B ∧ finrank ℚ ℚ⟮x⟯ ≤ D}
+  have hA : A.Finite := finite_setOfPred_absMulHeight₁_le_of_finrank_le B D
+  set V : Set {w : ι → K // w ≠ 0} := Subtype.val ⁻¹' Set.univ.pi fun _ : ι ↦ A
+  have hV : V.Finite := (Set.Finite.pi fun _ ↦ hA).preimage Subtype.val_injective.injOn
+  have hsub : {P : Projectivization K (ι → K) | absMulHeight P ≤ B ∧
+      ∀ i j, finrank ℚ ℚ⟮P.rep i / P.rep j⟯ ≤ D} ⊆ mk' K '' V := by
+    rintro P ⟨hPB, hPD⟩
+    obtain ⟨v, hv, i₀, hi₀, hratio, rfl⟩ := exists_rep_apply_eq_one P
+    have hvint : ∀ i, IsIntegral ℚ (v i) := fun i ↦
+      (Algebra.IsAlgebraic.isAlgebraic (v i)).isIntegral
+    refine ⟨⟨v, hv⟩, fun i _ ↦ ⟨hvint i, ?_, ?_⟩, rfl⟩
+    · exact (NumberField.absMulHeight₁_le_absMulHeight hvint hi₀ i).trans
+        (by rwa [absMulHeight_mk] at hPB)
+    · change finrank ℚ ℚ⟮v i⟯ ≤ D
+      rw [hratio i]
+      exact hPD i i₀
+  have hAc : Nat.card A ≤ northcottCount D ((max B 1) ^ D).toNNReal := by
+    rw [Nat.card_coe_set_eq]
+    exact NumberField.ncard_setOfPred_absMulHeight₁_le_of_finrank_le B D
+  have : Finite A := hA
+  calc _ ≤ (mk' K '' V).ncard := Set.ncard_le_ncard hsub (hV.image _)
+    _ ≤ V.ncard := Set.ncard_image_le hV
+    _ ≤ Nat.card (ι → A) := by
+        rw [← Nat.card_coe_set_eq]
+        exact Nat.card_le_card_of_injective (fun w i ↦ ⟨w.1.1 i, w.2 i trivial⟩)
+          fun w w' h ↦ Subtype.ext (Subtype.ext (funext fun i ↦ congrArg Subtype.val
+            (congrFun h i)))
+    _ ≤ _ := by
+        rw [Nat.card_fun]
+        exact Nat.pow_le_pow_left hAc _
+end Projectivization
+
+namespace Projectivization
+
+section NumberFieldBase
+
+variable {K : Type*} [Field K] [NumberField K] {ι : Type*} [Finite ι]
+
+/-- Over a number field `K` of degree `d`, a point of relative height at most `X` has absolute
+height at most `max X 1 ^ (1 / d)`, and every coordinate ratio has degree at most `d`. -/
+private theorem setOfPred_mulHeight_le_subset (X : ℝ) :
+    {P : Projectivization K (ι → K) | mulHeight P ≤ X} ⊆
+      {P | absMulHeight P ≤ max X 1 ^ ((finrank ℚ K : ℝ))⁻¹ ∧
+        ∀ i j, finrank ℚ ℚ⟮P.rep i / P.rep j⟯ ≤ finrank ℚ K} := by
+  intro P hP
+  refine ⟨?_, fun i j ↦ (ℚ⟮P.rep i / P.rep j⟯).toSubalgebra.toSubmodule.finrank_le⟩
+  rw [absMulHeight_eq]
+  exact Real.rpow_le_rpow (Projectivization.mulHeight_pos P).le
+    (Set.mem_ofPred.1 hP |>.trans (le_max_left _ _)) (by positivity)
+
+/-- **Northcott's theorem over a number field, counted uniformly in the field.** The points of
+`ℙ(ι → K)` of relative height at most `X` number at most
+`northcottCount [K : ℚ] (max X 1) ^ #ι`, a bound that sees `K` only through its degree (Sch90,
+Lemma 5.1, with another constant). -/
+theorem ncard_setOfPred_mulHeight_le (X : ℝ) :
+    {P : Projectivization K (ι → K) | mulHeight P ≤ X}.ncard ≤
+      northcottCount (finrank ℚ K) (max X 1).toNNReal ^ Nat.card ι := by
+  have hd : (finrank ℚ K : ℝ) ≠ 0 := Nat.cast_ne_zero.2 finrank_pos.ne'
+  have hB : 1 ≤ max X 1 ^ ((finrank ℚ K : ℝ))⁻¹ :=
+    Real.one_le_rpow (le_max_right _ _) (by positivity)
+  have hBd : max (max X 1 ^ ((finrank ℚ K : ℝ))⁻¹) 1 ^ finrank ℚ K = max X 1 := by
+    rw [max_eq_left hB, ← Real.rpow_natCast, ← Real.rpow_mul (by positivity),
+      inv_mul_cancel₀ hd, Real.rpow_one]
+  refine (Set.ncard_le_ncard (setOfPred_mulHeight_le_subset X)
+    (finite_setOfPred_absMulHeight_le_of_finrank_le (K := K) (ι := ι) _ _)).trans ?_
+  have h := ncard_setOfPred_absMulHeight_le_of_finrank_le (K := K) (ι := ι)
+    (max X 1 ^ ((finrank ℚ K : ℝ))⁻¹) (finrank ℚ K)
+  rwa [hBd] at h
+
+end NumberFieldBase
 
 end Projectivization
 

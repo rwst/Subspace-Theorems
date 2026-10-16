@@ -5,11 +5,12 @@ Authors: Ralf Stephan
 -/
 module
 
-public import Evertse1984.PlaceProd
+public import DiophantineApproximation.PlaceProd
 public import Mathlib.LinearAlgebra.Projectivization.Basic
 public import Mathlib.NumberTheory.Height.Basic
 
 -- Used only inside proofs.
+import DiophantineApproximation.UnitEquationSeveral
 import Evertse1984.SumForms
 import Mathlib.RingTheory.Localization.Integral
 

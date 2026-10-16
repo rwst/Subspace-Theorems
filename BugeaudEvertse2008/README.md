@@ -314,9 +314,11 @@ BE.0–BE.5 are done (2026-10-13).
 
   `#lint` on the five library files is clean.
 
-  **Next, outside this repository:** the lean-code axiom `BugeaudEvertse.exists_pComplexity_gt`
-  (`CITED/BugeaudEvertseComplexity.lean`, `η < 1/11`) can now be discharged, using the
-  `pComplexity = complexity` bridge (see *Lean targets*).
+  **In lean-code (2026-10-13):** the axiom `BugeaudEvertse.exists_pComplexity_gt`
+  (`CITED/BugeaudEvertseComplexity.lean`, `η < 1/11`) is now written as a theorem derived from
+  `Real.frequently_lt_complexity`, next to the new `exists_pComplexity_gt_seventh`. The bridge
+  moved there as `BugeaudEvertse.pComplexity_eq_complexity`. lean-code builds it once its
+  `SubspaceTheorems` dependency points at a commit that contains this library.
 - Optional, later: **Thm 3.1** and Cor. 3.2 (Cor. 5.2 enters through Lemma 8.1; check whether that
   use survives ST's threshold before planning it), Thm 9.1, 9.2.
 

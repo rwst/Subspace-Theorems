@@ -493,6 +493,16 @@ unity has absolute height `1` is 1.2 applied to `cyclotomic n ℤ` together with
 `Polynomial.cyclotomic_mahlerMeasure_eq_one`, and it is what refutes dropping the degree bound.
 What is left of 1.4 is the converse.
 
+**Added with Sch90's S90.5 (2026-10-16): the counted forms.** The proof counts as well as it
+bounds, since Mathlib's `Polynomial.card_mahlerMeasure_le_prod` bounds the number of integer
+polynomials of degree `≤ D` and Mahler measure `≤ M` by `∏_{i ≤ D} (2 ⌊binom D i · M⌋ + 1)`.
+`NumberField.northcottCount D M` is `D` times that. It gives
+`NumberField.ncard_setOfPred_absMulHeight₁_le_of_finrank_le` (at most
+`northcottCount D (max B 1 ^ D)` numbers),
+`Projectivization.ncard_setOfPred_absMulHeight_le_of_finrank_le` (its `#ι`-th power, through the normalized representative) and, over a number field,
+`Projectivization.ncard_setOfPred_mulHeight_le`: at most `northcottCount [K : ℚ] (max X 1) ^ #ι`
+points of relative height `≤ X`, **uniformly in `K` of a given degree** (Sch90, Lemma 5.1).
+
 **1.4 Kronecker's theorem** (Bombieri–Gubler, Theorem 1.5.9; Hindry–Silverman, Corollary B.2.3.1).
 For `x` algebraic over `ℚ`, `absMulHeight₁ x = 1 ↔ x = 0 ∨ ∃ n, 0 < n ∧ x ^ n = 1`, and the strict
 form `absLogHeight₁ x = 0 ↔ …`. Route: through 1.2 and Mathlib's

@@ -5,7 +5,7 @@ Authors: Ralf Stephan
 -/
 module
 
-public import Evertse1984.PlaceProd
+public import DiophantineApproximation.PlaceProd
 
 -- Used only inside proofs.
 import ArithmeticHeights.SUnit
@@ -33,8 +33,6 @@ integral, at the infinite places it balances the sizes.
 ## Main results
 
 * `NumberField.exists_pos_forall_exists_unit_house_le`: **the normalization**.
-* `NumberField.mulHeight_le_placeProd_univ`: the height of a tuple of `S`-integers is at most its
-  product over `S∞ ∪ S`.
 
 ## References
 
@@ -50,22 +48,6 @@ open IsDedekindDomain Height Module
 namespace NumberField
 
 variable {K : Type*} [Field K] [NumberField K] (S : Finset (HeightOneSpectrum (𝓞 K)))
-
-/-- **The height of a tuple of `S`-integers is at most its product over `S∞ ∪ S`.** -/
-theorem mulHeight_le_placeProd_univ {ι : Type*} [Finite ι] {x : ι → K} (hx : x ≠ 0)
-    (hxS : ∀ i, x i ∈ (S : Set (HeightOneSpectrum (𝓞 K))).integer K) :
-    mulHeight x ≤ placeProd S Set.univ (fun v ↦ ⨆ i, v (x i)) := by
-  refine (mulHeight_le_prod_of_forall_mem_integer S hx hxS).trans_eq ?_
-  simp only [placeProd, Set.mulIndicator_univ]
-  rfl
-
-/-- **The `S`-product formula** in the notation of `NumberField.placeProd`. -/
-theorem placeProd_univ_eq_one_of_mem_unit {u : Kˣ}
-    (hu : u ∈ (S : Set (HeightOneSpectrum (𝓞 K))).unit K) :
-    placeProd S Set.univ (fun v ↦ v (u : K)) = 1 := by
-  refine Eq.trans ?_ (prod_apply_eq_one_of_mem_unit S hu)
-  simp only [placeProd, Set.mulIndicator_univ]
-  rfl
 
 /-- The house is at most any bound on the infinite places. -/
 theorem house_le_of_forall_infinitePlace_le {α : K} {B : ℝ} (hB : 0 ≤ B)

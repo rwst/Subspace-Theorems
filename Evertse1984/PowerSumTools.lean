@@ -5,7 +5,7 @@ Authors: Ralf Stephan
 -/
 module
 
-public import Evertse1984.PlaceProd
+public import DiophantineApproximation.PlaceProd
 public import Mathlib.Algebra.Polynomial.Eval.Defs
 public import Mathlib.GroupTheory.Perm.Basic
 

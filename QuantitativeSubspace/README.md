@@ -2076,6 +2076,7 @@ Move from points in `Kⁿ` to points in `ℚ̄ⁿ`, with counts independent of `
     variables with `RD = R [E : K]`:
     `≤ 2 · 10¹³ · 4ⁿ n¹⁴ δ⁻³ · log(3RD / δ) · log(δ⁻¹ log 3RD)`. EF13's shape; the constant is
     larger (EF13: `10⁹`). Independent of `[E : ℚ]`, the places and `H`.
+    `one_le_efLargeCount` (added with S90.3, 2026-10-16): the count is at least `1`.
   - The gap closed on 2026-10-04 (it was a factor `n μ`, `μ = O(n + log δ⁻¹ + log log RD)`):
     - `n`: Q4.2 twisted by `κ = 2A` with `A` the absolute weight, `≍ n [E : K]` for the raised
       exponents; EF13 twist by the spread, `≍ [E : K]` (`δ'` was `δ / (32 n (n + 1))`).

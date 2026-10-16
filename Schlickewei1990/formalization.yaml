@@ -1,0 +1,172 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/mathlib-initiative/formalization.yaml/main/schema/formalization.schema.json
+version: "v0.4"
+
+project:
+  name: "Schlickewei 1990: S-unit equations over number fields"
+  description: >-
+    A Lean 4 / Mathlib formalization of H. P. Schlickewei, S-unit equations
+    over number fields (Invent. Math. 102 (1990)), built on the repository's
+    libraries ArithmeticHeights, DiophantineApproximation and
+    QuantitativeSubspace, whose quantitative Subspace Theorem (Evertse and
+    Ferretti's, in place of Schlickewei's own of 1992) it uses. The library
+    Schlickewei1990 is sorry-free and within Lean's three standard axioms.
+    It proves Theorem 1.1 in the form S90-A: the number of solutions of
+    a₁x₁ + ⋯ + aₙxₙ = 1 in S-units with no vanishing subsum is at most
+    C(n, s) (1 + log M)^(2^(n+1) − 1), M = log |D_K| + Σ log N(p) + 2,
+    uniformly in the coefficients, the field and S with at most s places.
+    Three statements are compared.
+  authors:
+    - "Ralf Stephan"
+  license: "Apache-2.0"
+  responsible_maintainers:
+    - "Ralf Stephan"
+
+classification:
+  arxiv: [math.NT]
+  msc2020: ["11D61", "11J87", "11R27"]
+
+status:
+  scope: >-
+    The three declarations named in comparator/schlickewei-1990.json, listed
+    under main_results: Theorem 1.1 (form S90-A, see fidelity), the
+    equivalence of Theorem 1.1 with the projective form (1.6), and Lemma 5.1
+    (a count of points of bounded height uniform in the field, with another
+    constant), which lives in ArithmeticHeights. Lemma 3.1 (the Subspace
+    step), the gap principle (Lemmas 4.2 and 5.3, with other windows), Lemma
+    5.2, Lemma 6.1 and the induction of §7 are proved in the library but
+    not compared: their counts are long explicit constants.
+  sorry_count: 0
+  sorry_in_definitions: 0
+  axioms: ["propext", "Classical.choice", "Quot.sound"]
+  main_results:
+    - declaration: "NumberField.ncard_unitSolutions_le"
+      file: "Schlickewei1990/UnitCount.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/schlickewei-1990.json"
+      literature_dependencies: []
+    - declaration: "NumberField.ncard_projUnitSolutions"
+      file: "Schlickewei1990/ProjectiveSolutions.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/schlickewei-1990.json"
+      literature_dependencies: []
+    - declaration: "Projectivization.ncard_setOfPred_mulHeight_le"
+      file: "ArithmeticHeights/NorthcottTheorem.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/schlickewei-1990.json"
+      literature_dependencies: []
+
+fidelity:
+  divergences: >-
+    Theorem 1.1 is proved with a weaker count than the paper's
+    (4sd!)^(2^(36n) s^6): the bound depends on n and s and on the field and
+    S through the factor (1 + log M)^(2^(n+1) − 1), M = log |D_K| +
+    Σ_{p ∈ S} log N(p) + 2. The reason is the quantitative Subspace Theorem
+    available (Evertse–Ferretti 2013 as formalized in QuantitativeSubspace),
+    whose threshold is linear in log |D_K| and Σ log N(p); Schlickewei's own
+    (1992) has a threshold free of the field. The count is uniform in the
+    coefficients, as in the paper. The constant C is existential in the
+    compared statement, and explicit in the library
+    (exists_ncard_unitSolutions_le). The coefficients a may be any elements
+    of K (zero coefficients give no solutions), not only S-units. The gap
+    principle uses windows [B, B^(1 + 1/(4n))) starting at (n!)^(2d) and at
+    A^(1/(n+1)) instead of the paper's [B, B A^(1/(2(n²−1)))]; the
+    subclasses are a grid instead of Lemma 4.1's simplex net. Lemma 5.1 is
+    proved with the count northcottCount d (max X 1)^n of Mahler-measure
+    polynomials, not Schmidt's n 36^(n−1) 2^(2d(n−1)) X^(2(n−1)).
+    Absolute values and heights are Mathlib's (mulHeight is the relative
+    height, of degree [K : ℚ]). The single-file challenge differs from the
+    development in presentation only (see COMPARATOR.md at the repository
+    root).
+
+sources:
+  - title: "S-unit equations over number fields"
+    authors: ["Hans Peter Schlickewei"]
+    type: paper
+    location: "Invent. Math. 102 (1990), 95–107. Theorem 1.1, (1.6), Lemmas 3.1–6.1, §7"
+    relationship: formalizes
+    author_endorsement: not-contacted
+    note: >-
+      The whole paper, with the count weakened as described under fidelity.
+  - title: "A further improvement of the Quantitative Subspace Theorem"
+    authors: ["Jan-Hendrik Evertse", "Roberto G. Ferretti"]
+    type: paper
+    location: "Ann. of Math. 177 (2013), 513–590"
+    relationship: background
+    author_endorsement: not-contacted
+    note: >-
+      Used in place of Schlickewei's quantitative Subspace Theorem (1992);
+      formalized in this repository (QuantitativeSubspace) and certified by
+      comparator/quantitative-subspace.json.
+
+automation:
+  methods:
+    - method: agent
+      models: ["claude-opus-5-5"]
+      framework: "Claude Code"
+      role: >-
+        The formalization: the plan, the Lean text of the library, the
+        challenge and solution modules and the configuration, under the
+        releaser's direction.
+    - method: manual
+      models: []
+      role: >-
+        Direction and release. Ralf Stephan chose the paper, the conventions
+        and the gates, steered the agent turn by turn, and releases the
+        repository.
+  spend_usd: "a few hours of subscription-based Claude Code usage"
+  notes: >-
+    The library is held to the repository's rules by scripts/check.sh (a
+    build with Mathlib's linter set as errors, the axiom audit against the
+    three standard axioms, the module-system check, the textual guards).
+    It has 8 files, and uses the repository's libraries ArithmeticHeights,
+    DiophantineApproximation and QuantitativeSubspace. lake test runs
+    leanprover/comparator over comparator/schlickewei-1990.json against the
+    single Mathlib-only file ChallengeSchlickewei1990.lean, generated from
+    comparator/schlickewei-1990.txt by scripts/make-challenge.py --paper
+    Schlickewei1990, with the proofs re-exported by
+    SolutionSchlickewei1990.lean. It passes. Wall time and hardware were not
+    recorded.
+
+review:
+  status: unchecked
+  notes: >-
+    No human or external review of the Lean text or of the fidelity of the
+    statements has been performed. What is established is mechanical:
+    comparator compares each named statement against the challenge file
+    constant by constant, checks the axiom list, and replays the export
+    through the Lean kernel.
+
+limitations:
+  - >-
+    The compared theorems depend on propext, Classical.choice and Quot.sound
+    and nothing else. The library contains no sorry and no native_decide.
+    The sorries in the challenge file are the placeholders comparator
+    expects, and the configuration fixes no definition holes.
+  - >-
+    The count of Theorem 1.1 is weaker than the paper's (see fidelity);
+    the paper's, free of the field, waits for a quantitative Subspace
+    Theorem with a threshold free of the field (QS Q4.4).
+  - >-
+    Everything proved here is in print, up to the weaker count; no novelty
+    is claimed. The value offered is the machine-checked account.
+
+alignment:
+  namespace: "NumberField, Projectivization"
+  statements:
+    - source: "Theorem 1.1 (p. 95)"
+      lean: "NumberField.ncard_unitSolutions_le"
+      module: "ChallengeSchlickewei1990 (statement), SolutionSchlickewei1990 / Schlickewei1990.UnitCount (proof)"
+      status: proved
+      note: "Count C(n, s) (1 + log M)^(2^(n+1) − 1) in place of (4sd!)^(2^(36n) s^6)."
+    - source: "(1.6), equivalent to Theorem 1.1 (p. 96)"
+      lean: "NumberField.ncard_projUnitSolutions"
+      module: "ChallengeSchlickewei1990 (statement), SolutionSchlickewei1990 / Schlickewei1990.ProjectiveSolutions (proof)"
+      status: proved
+    - source: "Lemma 5.1 (p. 103)"
+      lean: "Projectivization.ncard_setOfPred_mulHeight_le"
+      module: "ChallengeSchlickewei1990 (statement), SolutionSchlickewei1990 / ArithmeticHeights.NorthcottTheorem (proof)"
+      status: proved
+      note: "Another constant; heights ≤ X instead of < D."

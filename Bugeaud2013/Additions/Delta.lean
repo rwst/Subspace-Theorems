@@ -51,7 +51,7 @@ theorem le_two_mul_log_contDen (ha : ∀ n, 1 ≤ a (n + 1)) {n : ℕ} (hn : 1 �
 
 theorem log_contDen_le (ha : ∀ n, 1 ≤ a (n + 1)) (hA : ∀ n, a (n + 1) ≤ A) (n : ℕ) :
     Real.log (contDen a n) ≤ n * Real.log (A + 1) := by
-  have := Real.log_le_log (contDen_pos_real ha n) (contDen_le_pow ha hA n)
+  have := Real.log_le_log (contDen_pos_real ha n) (contDen_le_pow_real ha hA n)
   rwa [Real.log_pow] at this
 
 /-- The height `H = q_w q_{w+r}` of a repetition of length `u ≥ ℓ/4`, `u ≤ r`, is between

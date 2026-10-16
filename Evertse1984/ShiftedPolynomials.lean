@@ -104,16 +104,6 @@ end Ideal
 
 variable {K : Type*} [Field K] [NumberField K] (S : Finset (HeightOneSpectrum (𝓞 K)))
 
-/-- **The product formula for a nonzero `S`-integer**: its sizes at the places of `S∞ ∪ S`
-multiply to at least `1`. -/
-theorem one_le_placeProd_univ_of_mem_integer {x : K}
-    (hx : x ∈ (S : Set (HeightOneSpectrum (𝓞 K))).integer K) (hx0 : x ≠ 0) :
-    1 ≤ placeProd S Set.univ (fun v ↦ v x) := by
-  have h := mulHeight_le_placeProd_univ S (x := fun _ : Unit ↦ x) (fun h ↦ hx0 (congrFun h ()))
-    fun _ ↦ hx
-  rw [mulHeight_eq_one_of_subsingleton] at h
-  simpa using h
-
 /-- The product over the places is multiplicative on a multiset product. -/
 theorem placeProd_multiset_prod (T : Set (AbsoluteValue K ℝ)) (xs : Multiset K) :
     placeProd S T (fun v ↦ v xs.prod) = (xs.map fun x ↦ placeProd S T (fun v ↦ v x)).prod := by

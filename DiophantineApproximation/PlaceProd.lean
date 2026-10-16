@@ -14,6 +14,9 @@ import DiophantineApproximation.NormForm
 /-!
 # Products over a set of places, and the house of a tuple
 
+**Layer 8.8, first piece** (moved from `Evertse1984/PlaceProd.lean`; used by Evertse 1984 and
+Schlickewei 1990).
+
 Evertse (1984) writes every inequality with his normalized absolute values `‖·‖_v`, one for each
 place `v` of the number field `K`, with `‖α‖_v = |α|_p ^ [K_v : ℚ_p]` on `ℚ`, so that the product
 formula holds. In Mathlib's normalization this is `w α ^ mult w` at an infinite place `w` and
@@ -39,14 +42,24 @@ conjugate of a coordinate, `⨆ i, house (x i)`.
   along any set `Q`.
 * `NumberField.placeProd_inter_relevantPlaces`: only the places of `S∞ ∪ S` count.
 * `NumberField.one_le_placeProd_univ`: the product formula for a nonzero algebraic integer.
+* `NumberField.placeProd_univ_eq_one_of_mem_unit`, `NumberField.placeProd_univ_mul_unit`: the
+  `S`-product formula.
+* `NumberField.mulHeight_le_placeProd_univ`: the height of a tuple of `S`-integers is at most its
+  product over `S∞ ∪ S`.
+* `NumberField.mulHeight_eq_placeProd_mul_finprod`: the height is the product over `S∞ ∪ S`
+  times the product over the primes off `S`; so `NumberField.mulHeight_mul_unit_mul_placeProd`
+  (multiplying by `S`-units changes the height only over `S∞ ∪ S`) and
+  `NumberField.placeProd_iSup_le_mulHeight_of_eq_one`.
+* `NumberField.placeProd_prod`: the product of a finite family of functions.
 * `NumberField.mulHeight_le_iSup_house_pow`: `H(x) ≤ ‖x‖ ^ [K : ℚ]` for algebraic integers.
 * `NumberField.exists_pos_forall_le_of_finite`: finitely many cases, one constant.
-* `NumberField.exists_subset_sum_eq_forall_ne_zero`: a minimal subsum has no vanishing subsum.
 
 ## References
 
 J.-H. Evertse, *On sums of `S`-units and linear recurrences*, Compositio Math. **53** (1984),
 225–244, §1.
+
+This is milestone 8.8 of `DiophantineApproximation/README.md`.
 -/
 
 @[expose] public section
@@ -153,16 +166,135 @@ theorem placeProd_inter_mul_diff (Q : Set (AbsoluteValue K ℝ)) (g : AbsoluteVa
   simp only [placeProd, ← h, mul_pow, Finset.prod_mul_distrib]
   ring
 
-/-- **The product formula for a nonzero algebraic integer**: its sizes at the places of `S∞ ∪ S`
+/-- **The product formula for a nonzero `S`-integer**: its sizes at the places of `S∞ ∪ S`
 multiply to at least `1`. -/
-theorem one_le_placeProd_univ {a : K} (ha : IsIntegral ℤ a) (ha0 : a ≠ 0) :
+theorem one_le_placeProd_univ_of_mem_integer {a : K}
+    (ha : a ∈ (S : Set (HeightOneSpectrum (𝓞 K))).integer K) (ha0 : a ≠ 0) :
     1 ≤ placeProd S Set.univ (fun v ↦ v a) := by
   have h := mulHeight_le_prod_of_forall_mem_integer S (x := fun _ : Unit ↦ a)
-    (fun h ↦ ha0 (congrFun h ())) fun _ ↦ mem_integer_of_isIntegral ha
+    (fun h ↦ ha0 (congrFun h ())) fun _ ↦ ha
   rw [mulHeight_eq_one_of_subsingleton] at h
   refine h.trans_eq ?_
   simp only [ciSup_const, placeProd, Set.mulIndicator_univ]
   rfl
+
+/-- **The product formula for a nonzero algebraic integer**: its sizes at the places of `S∞ ∪ S`
+multiply to at least `1`. -/
+theorem one_le_placeProd_univ {a : K} (ha : IsIntegral ℤ a) (ha0 : a ≠ 0) :
+    1 ≤ placeProd S Set.univ (fun v ↦ v a) :=
+  one_le_placeProd_univ_of_mem_integer S (mem_integer_of_isIntegral ha) ha0
+
+/-- **The product of the sup norms of a multiple** `β x` is the product for `β` times that
+for `x`. -/
+theorem placeProd_univ_iSup_mul {ι : Type*} (β : K) (x : ι → K) :
+    placeProd S Set.univ (fun v ↦ ⨆ i, v (β * x i)) =
+      placeProd S Set.univ (fun v ↦ v β) * placeProd S Set.univ (fun v ↦ ⨆ i, v (x i)) := by
+  rw [← placeProd_mul]
+  refine placeProd_congr S _ fun v _ ↦ ?_
+  simp only [map_mul]
+  exact (Real.mul_iSup_of_nonneg (apply_nonneg _ _) _).symm
+
+/-- **The `S`-product formula** in the notation of `NumberField.placeProd`. -/
+theorem placeProd_univ_eq_one_of_mem_unit {u : Kˣ}
+    (hu : u ∈ (S : Set (HeightOneSpectrum (𝓞 K))).unit K) :
+    placeProd S Set.univ (fun v ↦ v (u : K)) = 1 := by
+  refine Eq.trans ?_ (prod_apply_eq_one_of_mem_unit S hu)
+  simp only [placeProd, Set.mulIndicator_univ]
+  rfl
+
+/-- **Multiplying by an `S`-unit does not change the product over `S∞ ∪ S`.** -/
+theorem placeProd_univ_mul_unit (a : K) {u : Kˣ}
+    (hu : u ∈ (S : Set (HeightOneSpectrum (𝓞 K))).unit K) :
+    placeProd S Set.univ (fun v ↦ v (a * u)) = placeProd S Set.univ (fun v ↦ v a) := by
+  simp only [map_mul]
+  rw [placeProd_mul, placeProd_univ_eq_one_of_mem_unit S hu, mul_one]
+
+/-- **The height of a tuple of `S`-integers is at most its product over `S∞ ∪ S`.** -/
+theorem mulHeight_le_placeProd_univ {ι : Type*} [Finite ι] {x : ι → K} (hx : x ≠ 0)
+    (hxS : ∀ i, x i ∈ (S : Set (HeightOneSpectrum (𝓞 K))).integer K) :
+    mulHeight x ≤ placeProd S Set.univ (fun v ↦ ⨆ i, v (x i)) := by
+  refine (mulHeight_le_prod_of_forall_mem_integer S hx hxS).trans_eq ?_
+  simp only [placeProd, Set.mulIndicator_univ]
+  rfl
+
+/-- **The product over a finite family** of functions is the product of the products. -/
+theorem placeProd_prod {α : Type*} (s : Finset α) (f : α → AbsoluteValue K ℝ → ℝ) :
+    placeProd S T (fun v ↦ ∏ a ∈ s, f a v) = ∏ a ∈ s, placeProd S T (f a) := by
+  classical
+  induction s using Finset.induction_on with
+  | empty => simp [placeProd]
+  | insert a s ha ih =>
+    simp only [Finset.prod_insert ha]
+    rw [placeProd_mul, ih]
+
+open scoped Classical in
+/-- **The height splits into the product over `S∞ ∪ S` and the primes off `S`.** -/
+theorem mulHeight_eq_placeProd_mul_finprod {ι : Type*} [Finite ι] {x : ι → K} (hx : x ≠ 0) :
+    mulHeight x = placeProd S Set.univ (fun v ↦ ⨆ i, v (x i)) *
+      ∏ᶠ P : HeightOneSpectrum (𝓞 K), if P ∈ S then 1 else ⨆ i, FinitePlace.mk P (x i) := by
+  set F : HeightOneSpectrum (𝓞 K) → ℝ := fun P ↦ ⨆ i, FinitePlace.mk P (x i) with hF
+  have h1 : Function.HasFiniteMulSupport fun P ↦ if P ∈ S then F P else 1 :=
+    S.finite_toSet.subset fun P hP ↦ by
+      by_contra h
+      exact hP (by simp [show P ∉ S by simpa using h])
+  have h2 : Function.HasFiniteMulSupport fun P ↦ if P ∈ S then 1 else F P :=
+    (hasFiniteMulSupport_iSup_mk hx).subset fun P hP ↦ by
+      rw [Function.mem_mulSupport] at hP ⊢
+      split_ifs at hP
+      · exact absurd rfl hP
+      · exact hP
+  have hS : ∏ᶠ P, (if P ∈ S then F P else 1) = ∏ P ∈ S, F P := by
+    rw [finprod_eq_finsetProd_of_mulSupport_subset _ (s := S) fun P hP ↦ ?_]
+    · exact Finset.prod_congr rfl fun P hP ↦ by simp [hP]
+    · by_contra h
+      exact hP (by simp [show P ∉ S by simpa using h])
+  have hsplit : ∏ᶠ P, F P = (∏ P ∈ S, F P) * ∏ᶠ P, (if P ∈ S then 1 else F P) := by
+    rw [← hS, ← finprod_mul_distrib h1 h2]
+    exact finprod_congr fun P ↦ by split_ifs <;> simp
+  rw [NumberField.mulHeight_eq hx, finprod_iSup_eq, hsplit, ← mul_assoc]
+  simp only [placeProd, Set.mulIndicator_univ]
+  rfl
+
+open scoped Classical in
+/-- **Multiplying the coordinates by `S`-units changes the height only over `S∞ ∪ S`**: off `S`
+the units have absolute value `1`, so `H(α u) / H(α)` is the ratio of the products over
+`S∞ ∪ S` of the sup norms. -/
+theorem mulHeight_mul_unit_mul_placeProd {ι : Type*} [Finite ι] {α : ι → K} (hα : α ≠ 0)
+    (u : ι → Kˣ) (hu : ∀ i, u i ∈ (S : Set (HeightOneSpectrum (𝓞 K))).unit K) :
+    mulHeight (fun i ↦ α i * u i) * placeProd S Set.univ (fun v ↦ ⨆ i, v (α i)) =
+      mulHeight α * placeProd S Set.univ (fun v ↦ ⨆ i, v (α i * u i)) := by
+  have hαu : (fun i ↦ α i * (u i : K)) ≠ 0 := by
+    obtain ⟨i, hi⟩ := Function.ne_iff.mp hα
+    exact Function.ne_iff.mpr ⟨i, mul_ne_zero hi (u i).ne_zero⟩
+  have hoff : (∏ᶠ P : HeightOneSpectrum (𝓞 K),
+      if P ∈ S then 1 else ⨆ i, FinitePlace.mk P (α i * u i)) =
+      ∏ᶠ P : HeightOneSpectrum (𝓞 K), if P ∈ S then 1 else ⨆ i, FinitePlace.mk P (α i) :=
+    finprod_congr fun P ↦ by
+      split_ifs with hP
+      · rfl
+      · refine iSup_congr fun i ↦ ?_
+        have h1 : FinitePlace.mk P (u i : K) = 1 :=
+          (FinitePlace.mk_apply_eq_one_iff P _).2
+            (Set.unit_valuation_eq_one (S : Set (HeightOneSpectrum (𝓞 K))) K ⟨u i, hu i⟩
+              (by simpa using hP))
+        rw [map_mul, h1, mul_one]
+  rw [mulHeight_eq_placeProd_mul_finprod S hαu, mulHeight_eq_placeProd_mul_finprod S hα, hoff]
+  ring
+
+open scoped Classical in
+/-- **A tuple with a coordinate `1` has height at least its product over `S∞ ∪ S`**: off `S` its
+sup norm is at least `1`. -/
+theorem placeProd_iSup_le_mulHeight_of_eq_one {ι : Type*} [Finite ι] {x : ι → K} {i₀ : ι}
+    (h : x i₀ = 1) : placeProd S Set.univ (fun v ↦ ⨆ i, v (x i)) ≤ mulHeight x := by
+  have hx : x ≠ 0 := fun h0 ↦ one_ne_zero (h.symm.trans (congrFun h0 i₀))
+  rw [mulHeight_eq_placeProd_mul_finprod S hx]
+  refine le_mul_of_one_le_right
+    (placeProd_nonneg S _ fun v _ ↦ Real.iSup_nonneg fun _ ↦ apply_nonneg _ _)
+    (finprod_induction (1 ≤ ·) le_rfl (fun a b ha hb ↦ one_le_mul_of_one_le_of_one_le ha hb)
+      fun P ↦ ?_)
+  split_ifs
+  · exact le_rfl
+  · exact Finite.le_ciSup_of_le i₀ (by rw [h, map_one])
 
 /-- The house of a coordinate is at most the size of the tuple. -/
 theorem house_le_iSup_house {ι : Type*} [Finite ι] (x : ι → K) (i : ι) :
@@ -208,22 +340,5 @@ theorem exists_pos_forall_le_of_finite {α β : Type*} {s : Set β} (hs : s.Fini
     rcases Finset.mem_insert.mp (Finset.mem_coe.mp hb) with rfl | hb
     · exact (mul_le_mul_of_nonneg_right (min_le_right _ _) (hf x)).trans (h₂ x hbx)
     · exact (mul_le_mul_of_nonneg_right (min_le_left _ _) (hf x)).trans (h₁ x ⟨b, hb, hbx⟩)
-
-omit [NumberField K] in
-/-- **A minimal subsum has no vanishing subsum.** A sum over `s` equal to `y` contains a subsum
-equal to `y` none of whose nonempty subsums vanishes. -/
-theorem exists_subset_sum_eq_forall_ne_zero {ι : Type*} (a : ι → K) (s : Finset ι) :
-    ∃ J ⊆ s, ∑ i ∈ J, a i = ∑ i ∈ s, a i ∧ ∀ I ⊆ J, I.Nonempty → ∑ i ∈ I, a i ≠ 0 := by
-  classical
-  obtain ⟨J, hJ, hmin⟩ := (s.powerset.filter fun J ↦ ∑ i ∈ J, a i = ∑ i ∈ s, a i).exists_min_image
-    Finset.card ⟨s, by simp⟩
-  rw [Finset.mem_filter, Finset.mem_powerset] at hJ
-  refine ⟨J, hJ.1, hJ.2, fun I hIJ hI h0 ↦ ?_⟩
-  have hlt : (J \ I).card < J.card := Finset.card_lt_card (Finset.sdiff_ssubset hIJ hI)
-  have hsum : ∑ i ∈ J \ I, a i = ∑ i ∈ s, a i := by
-    rw [← hJ.2, ← Finset.sum_sdiff hIJ, h0, add_zero]
-  exact hlt.not_ge (hmin _ (by
-    rw [Finset.mem_filter, Finset.mem_powerset]
-    exact ⟨Finset.sdiff_subset.trans hJ.1, hsum⟩))
 
 end NumberField
