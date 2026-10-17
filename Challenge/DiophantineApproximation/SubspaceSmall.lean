@@ -59,11 +59,6 @@ import Mathlib.RingTheory.FractionalIdeal.Operations
 import Mathlib.LinearAlgebra.FiniteDimensional.Lemmas
 import Mathlib.Algebra.FiniteSupport.Basic
 import Mathlib.NumberTheory.NumberField.CanonicalEmbedding.ConvexBody
-import Mathlib.NumberTheory.NumberField.House
-import Mathlib.LinearAlgebra.Dimension.Free
-import Mathlib.LinearAlgebra.LinearIndependent.Lemmas
-import Mathlib.LinearAlgebra.LinearIndependent.BaseChange
-import Mathlib.RingTheory.AlgebraTower
 import Mathlib.Algebra.Module.ZLattice.Basic
 import Mathlib.LinearAlgebra.Basis.Fin
 import Mathlib.LinearAlgebra.Dimension.Localization
@@ -72,6 +67,11 @@ import Mathlib.MeasureTheory.Measure.Haar.Unique
 import Mathlib.MeasureTheory.Measure.Prod
 import Mathlib.Analysis.Convex.Measure
 import Mathlib.MeasureTheory.Measure.Haar.Disintegration
+import Mathlib.NumberTheory.NumberField.House
+import Mathlib.LinearAlgebra.Dimension.Free
+import Mathlib.LinearAlgebra.LinearIndependent.Lemmas
+import Mathlib.LinearAlgebra.LinearIndependent.BaseChange
+import Mathlib.RingTheory.AlgebraTower
 import Mathlib.Algebra.Order.Floor.Semiring
 import Mathlib.LinearAlgebra.Matrix.Dual
 import Mathlib.Data.Fintype.BigOperators

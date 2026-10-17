@@ -22,9 +22,9 @@ public import Mathlib.NumberTheory.NumberField.CanonicalEmbedding.Basic
 import Mathlib.RingTheory.Norm.Transitivity
 import Mathlib.RingTheory.Complex
 import Challenge.DiophantineApproximation.RationalPlaces
-import Mathlib.MeasureTheory.Measure.Lebesgue.EqHaar
-import Mathlib.MeasureTheory.Measure.Lebesgue.VolumeOfBalls
-import Mathlib.NumberTheory.NumberField.Discriminant.Basic
+public import Mathlib.MeasureTheory.Measure.Lebesgue.EqHaar
+public import Mathlib.MeasureTheory.Measure.Lebesgue.VolumeOfBalls
+public import Mathlib.NumberTheory.NumberField.Discriminant.Basic
 public import Mathlib.Algebra.Module.ZLattice.Covolume
 public import Mathlib.Analysis.Convex.Gauge
 public import Mathlib.MeasureTheory.Group.GeometryOfNumbers
@@ -57,19 +57,19 @@ import Mathlib.RingTheory.Localization.Ideal
 import Mathlib.RingTheory.Localization.Integer
 import Mathlib.Algebra.FiniteSupport.Basic
 import Mathlib.NumberTheory.NumberField.CanonicalEmbedding.ConvexBody
+public import Mathlib.Algebra.Module.ZLattice.Basic
+public import Mathlib.LinearAlgebra.Basis.Fin
+public import Mathlib.LinearAlgebra.Dimension.Localization
+public import Mathlib.LinearAlgebra.Dimension.RankNullity
+public import Mathlib.MeasureTheory.Measure.Haar.Unique
+public import Mathlib.MeasureTheory.Measure.Prod
+public import Mathlib.Analysis.Convex.Measure
+public import Mathlib.MeasureTheory.Measure.Haar.Disintegration
 public import Mathlib.NumberTheory.NumberField.House
 import Mathlib.LinearAlgebra.Dimension.Free
 import Mathlib.LinearAlgebra.LinearIndependent.Lemmas
 import Mathlib.LinearAlgebra.LinearIndependent.BaseChange
 import Mathlib.RingTheory.AlgebraTower
-import Mathlib.Algebra.Module.ZLattice.Basic
-import Mathlib.LinearAlgebra.Basis.Fin
-import Mathlib.LinearAlgebra.Dimension.Localization
-import Mathlib.LinearAlgebra.Dimension.RankNullity
-import Mathlib.MeasureTheory.Measure.Haar.Unique
-import Mathlib.MeasureTheory.Measure.Prod
-import Mathlib.Analysis.Convex.Measure
-import Mathlib.MeasureTheory.Measure.Haar.Disintegration
 import Mathlib.Analysis.SpecialFunctions.Pow.Asymptotics
 public import Mathlib.Algebra.Order.AbsoluteValue.Basic
 public import Mathlib.Basic.Real.Basic
@@ -78,9 +78,9 @@ import Mathlib.Algebra.BigOperators.Ring.Finset
 import Mathlib.Algebra.Order.BigOperators.Group.Finset
 import Mathlib.Data.Finset.Powerset
 import Mathlib.LinearAlgebra.Matrix.Adjugate
-import Mathlib.Algebra.Ring.Subring.Basic
-import Mathlib.LinearAlgebra.Span.Defs
-import Mathlib.NumberTheory.NumberField.InfinitePlace.Basic
+public import Mathlib.Algebra.Ring.Subring.Basic
+public import Mathlib.LinearAlgebra.Span.Defs
+public import Mathlib.NumberTheory.NumberField.InfinitePlace.Basic
 import Mathlib.Algebra.Ring.GeomSum
 import Mathlib.Algebra.BigOperators.Field
 import Mathlib.LinearAlgebra.Dimension.OrzechProperty
@@ -105,6 +105,7 @@ public import Mathlib.Algebra.MvPolynomial.Eval
 public import Mathlib.Algebra.Order.Antidiag.FinsuppEquiv
 public import Mathlib.Data.Matrix.Mul
 public import Mathlib.RingTheory.MvPolynomial.WeightedHomogeneous
+import Mathlib.RingTheory.MvPolynomial.Ideal
 public import Mathlib.Data.Finsupp.Antidiagonal
 public import Mathlib.Basic.ENNReal.BigOperators
 public import Mathlib.Algebra.Polynomial.RingDivision
@@ -150,10 +151,10 @@ public import Mathlib.Data.Nat.Choose.Sum
 
 @[expose] public section
 open Filter Finset Module NumberField NumberField.mixedEmbedding exteriorPower
+universe u
 namespace NumberField
-variable {K : Type*} [Field K] [NumberField K] {ι : Type*} [Fintype ι]
+variable {K : Type*} [Field K] [NumberField K] {ι : Type u} [Fintype ι]
   {Sfin : Finset (FinitePlace K)} {L : AbsoluteValue K ℝ → ι → Dual K (ι → K)}
-open scoped Classical in
 theorem exists_finset_submodule_forall_approxDomain_subset [Nontrivial ι]
     (hLInf : ∀ w : InfinitePlace K, LinearIndependent K (L w.1))
     (hLFin : ∀ v ∈ Sfin, LinearIndependent K (L v.1)) {c : AbsoluteValue K ℝ → ι → ℝ}

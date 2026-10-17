@@ -1,0 +1,15 @@
+{
+  "challenge_module": "ChallengeSchlickewei1990",
+  "solution_module": "SolutionSchlickewei1990",
+  "theorem_names": [
+    "NumberField.ncard_unitSolutions_le",
+    "NumberField.ncard_projUnitSolutions",
+    "Projectivization.ncard_setOfPred_mulHeight_le"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Quot.sound",
+    "Classical.choice"
+  ],
+  "enable_nanoda": false
+}

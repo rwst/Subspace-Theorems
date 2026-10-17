@@ -35,9 +35,9 @@ public import Mathlib.NumberTheory.NumberField.CanonicalEmbedding.Basic
 import Mathlib.RingTheory.Norm.Transitivity
 import Mathlib.RingTheory.Complex
 import Challenge.DiophantineApproximation.RationalPlaces
-import Mathlib.MeasureTheory.Measure.Lebesgue.EqHaar
-import Mathlib.MeasureTheory.Measure.Lebesgue.VolumeOfBalls
-import Mathlib.NumberTheory.NumberField.Discriminant.Basic
+public import Mathlib.MeasureTheory.Measure.Lebesgue.EqHaar
+public import Mathlib.MeasureTheory.Measure.Lebesgue.VolumeOfBalls
+public import Mathlib.NumberTheory.NumberField.Discriminant.Basic
 public import Mathlib.Algebra.Module.ZLattice.Covolume
 public import Mathlib.Analysis.Convex.Gauge
 public import Mathlib.MeasureTheory.Group.GeometryOfNumbers
@@ -59,7 +59,7 @@ import Mathlib.RingTheory.Ideal.Norm.RelNorm
 import Mathlib.Algebra.Order.Group.PosPart
 import Mathlib.NumberTheory.NumberField.Units.DirichletTheorem
 import Mathlib.RingTheory.DedekindDomain.SInteger
-import Mathlib.LinearAlgebra.FreeModule.PID
+public import Mathlib.LinearAlgebra.FreeModule.PID
 import Mathlib.NumberTheory.NumberField.ClassNumber
 import Mathlib.RingTheory.DedekindDomain.SelmerGroup
 import Mathlib.NumberTheory.NumberField.Units.Regulator
@@ -69,19 +69,19 @@ import Mathlib.RingTheory.Localization.Ideal
 import Mathlib.RingTheory.Localization.Integer
 import Mathlib.Algebra.FiniteSupport.Basic
 import Mathlib.NumberTheory.NumberField.CanonicalEmbedding.ConvexBody
+public import Mathlib.Algebra.Module.ZLattice.Basic
+public import Mathlib.LinearAlgebra.Basis.Fin
+public import Mathlib.LinearAlgebra.Dimension.Localization
+public import Mathlib.LinearAlgebra.Dimension.RankNullity
+public import Mathlib.MeasureTheory.Measure.Haar.Unique
+public import Mathlib.MeasureTheory.Measure.Prod
+public import Mathlib.Analysis.Convex.Measure
+public import Mathlib.MeasureTheory.Measure.Haar.Disintegration
 public import Mathlib.NumberTheory.NumberField.House
 import Mathlib.LinearAlgebra.Dimension.Free
 import Mathlib.LinearAlgebra.LinearIndependent.Lemmas
 import Mathlib.LinearAlgebra.LinearIndependent.BaseChange
 import Mathlib.RingTheory.AlgebraTower
-import Mathlib.Algebra.Module.ZLattice.Basic
-import Mathlib.LinearAlgebra.Basis.Fin
-import Mathlib.LinearAlgebra.Dimension.Localization
-import Mathlib.LinearAlgebra.Dimension.RankNullity
-import Mathlib.MeasureTheory.Measure.Haar.Unique
-import Mathlib.MeasureTheory.Measure.Prod
-import Mathlib.Analysis.Convex.Measure
-import Mathlib.MeasureTheory.Measure.Haar.Disintegration
 import Mathlib.Analysis.SpecialFunctions.Pow.Asymptotics
 
 @[expose] public section

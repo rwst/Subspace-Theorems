@@ -4334,6 +4334,17 @@ Added with S90.6 (2026-10-16), for Schlickewei's induction (§7):
 * in `BalancedPoint.lean`: `exists_absNorm_le_two_pow` (a prime above `2` has norm at most
   `2 ^ [K : ℚ]`), which the theorem of record adds to `S` so that S90.3 has a finite place.
 
+**8.9 Corvaja–Zannier's general Thue equation** (Corvaja–Zannier, Amer. J. Math. **126** (2004);
+the plan is `CorvajaZannier2004Thue/README.md`) — **started**. The Diophantine pieces of that paper
+that are not specific to the equation `f₁ ⋯ f_r = g`. Landed with CZ.5 (2026-10-16):
+`DiophantineApproximation/LocalNullstellensatz.lean`, **the local Nullstellensatz inequality**
+(`MvPolynomial.exists_le_abv_eval_of_pow_mem`). If every `X_s` has a power in
+`(X₀, G^h, homogenize δ f)`, `deg f i ≤ δ`, then at any absolute value of `K` there are `c > 0`
+and `R` with `c ‖P‖_v ^ δ ≤ |f i (P)|_v` for some `i`, for every zero `P` of `G` with
+`‖P‖_v ≥ R`. The proof evaluates the identity `X_s ^ M = A₀ X₀ + ∑ B G^h + ∑ A f^h` at `(1, P)`,
+with forms `A` of the right degrees (`MvPolynomial.exists_sum_mul_eq_of_isHomogeneous` in
+`STForMathlib`). It replaces the paper's limit points at infinity in Lemma 3.3.
+
 ### Layer 9: counting subspaces
 
 The elementary half of the quantitative Subspace Theorem (Evertse, "On the Quantitative Subspace

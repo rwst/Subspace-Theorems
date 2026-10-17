@@ -46,6 +46,7 @@ public import Mathlib.Algebra.MvPolynomial.NoZeroDivisors
 public import Mathlib.Analysis.Complex.ExponentialBounds
 import Mathlib.Algebra.FiniteSupport.Basic
 public import Mathlib.Algebra.MvPolynomial.Coeff
+import Mathlib.RingTheory.MvPolynomial.Ideal
 public import Mathlib.Algebra.MvPolynomial.Funext
 public import Mathlib.Topology.Compactification.OnePoint.Basic
 public import Mathlib.NumberTheory.Transcendental.Liouville.LiouvilleWith
@@ -432,10 +433,10 @@ end
 run_cmd Lean.modifyEnv (Lean.Meta.auxLemmasExt.setState · {})
 @[expose] public section
 open Filter Finset Module NumberField NumberField.mixedEmbedding exteriorPower
+universe u
 namespace NumberField
-variable {K : Type*} [Field K] [NumberField K] {ι : Type*} [Fintype ι]
+variable {K : Type*} [Field K] [NumberField K] {ι : Type u} [Fintype ι]
   {Sfin : Finset (FinitePlace K)} {L : AbsoluteValue K ℝ → ι → Dual K (ι → K)}
-open scoped Classical in
 theorem exists_finset_submodule_forall_approxDomain_subset [Nontrivial ι]
     (hLInf : ∀ w : InfinitePlace K, LinearIndependent K (L w.1))
     (hLFin : ∀ v ∈ Sfin, LinearIndependent K (L v.1)) {c : AbsoluteValue K ℝ → ι → ℝ}

@@ -52,6 +52,7 @@ public import Mathlib.NumberTheory.Ostrowski
 public import Mathlib.NumberTheory.NumberField.House
 import Mathlib.LinearAlgebra.LinearIndependent.BaseChange
 public import Mathlib.Algebra.MvPolynomial.Coeff
+import Mathlib.RingTheory.MvPolynomial.Ideal
 public import Mathlib.Algebra.MvPolynomial.Funext
 import Mathlib.GroupTheory.FiniteAbelian.Basic
 public import Mathlib.Algebra.Polynomial.Homogenize
@@ -82,6 +83,24 @@ noncomputable def affineProd (S : Finset (HeightOneSpectrum (𝓞 K)))
       (L (FinitePlace.mk v).1 i fun j ↦ algebraMap K F (x j))
 end NumberField
 end
+-- DiophantineApproximation.PlaceProd
+run_cmd Lean.modifyEnv (Lean.Meta.auxLemmasExt.setState · {})
+section
+attribute [local instance 999] Module.Free.instFaithfulSMulOfNontrivial
+attribute [local instance 998] instFaithfulSMul_1
+attribute [local instance 999] EuclideanDomain.toNontrivial
+attribute [local instance 999] SubgroupClass.toSubmonoidClass
+@[expose] public section
+open IsDedekindDomain Height Module
+namespace NumberField
+variable {K : Type*} [Field K] [NumberField K]
+noncomputable def placeProd (S : Finset (HeightOneSpectrum (𝓞 K))) (T : Set (AbsoluteValue K ℝ))
+    (g : AbsoluteValue K ℝ → ℝ) : ℝ :=
+  (∏ v : InfinitePlace K, T.mulIndicator g v.1 ^ v.mult) *
+    ∏ P ∈ S, T.mulIndicator g (FinitePlace.mk P).1
+end NumberField
+end
+end
 -- DiophantineApproximation.SubspaceAffine
 run_cmd Lean.modifyEnv (Lean.Meta.auxLemmasExt.setState · {})
 @[expose] public section
@@ -104,24 +123,6 @@ theorem exists_finset_submodule_of_integer_of_affineProd_le [Nontrivial ι]
         affineProd S w L x ≤ mulHeight x ^ (-ε) → ∃ W ∈ T, x ∈ W := by
   sorry
 end NumberField
-end
--- Evertse1984.PlaceProd
-run_cmd Lean.modifyEnv (Lean.Meta.auxLemmasExt.setState · {})
-section
-attribute [local instance 999] Module.Free.instFaithfulSMulOfNontrivial
-attribute [local instance 998] instFaithfulSMul_1
-attribute [local instance 999] EuclideanDomain.toNontrivial
-attribute [local instance 999] SubgroupClass.toSubmonoidClass
-@[expose] public section
-open IsDedekindDomain Height Module
-namespace NumberField
-variable {K : Type*} [Field K] [NumberField K]
-noncomputable def placeProd (S : Finset (HeightOneSpectrum (𝓞 K))) (T : Set (AbsoluteValue K ℝ))
-    (g : AbsoluteValue K ℝ → ℝ) : ℝ :=
-  (∏ v : InfinitePlace K, T.mulIndicator g v.1 ^ v.mult) *
-    ∏ P ∈ S, T.mulIndicator g (FinitePlace.mk P).1
-end NumberField
-end
 end
 -- Evertse1984.SUnitSums
 run_cmd Lean.modifyEnv (Lean.Meta.auxLemmasExt.setState · {})

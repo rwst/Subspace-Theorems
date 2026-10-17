@@ -42,7 +42,8 @@ per roadmap. Keep in step with `LIBRARY_ROOTS` in `scripts/source-modules.sh`. -
 def auditedRoots : List Name :=
   [`STForMathlib, `ArithmeticHeights, `DiophantineApproximation, `QuantitativeSubspace,
     `CorvajaZannier2004, `AdamczewskiBugeaud2007, `Evertse1984,
-    `NairKumarRout2025, `Bugeaud2013, `BugeaudEvertse2008, `Schlickewei1990]
+    `NairKumarRout2025, `Bugeaud2013, `BugeaudEvertse2008, `Schlickewei1990,
+    `CorvajaZannier2004Thue]
 
 /-- The audited roots as one string, for the audit's own messages. -/
 def auditedRootsString : String := ", ".intercalate (auditedRoots.map toString)

@@ -1,0 +1,8 @@
+# The theorems of Schlickewei (Invent. Math. 1990) that `lake test` certifies, in the order the
+# config lists them. `scripts/make-challenge.py --paper Schlickewei1990` reads this file and
+# regenerates `ChallengeSchlickewei1990.lean` and `comparator/schlickewei-1990.json` from it. `#`
+# starts a comment. See `COMPARATOR.md`.
+
+NumberField.ncard_unitSolutions_le                      # Theorem 1.1 (p. 95), S90-A
+NumberField.ncard_projUnitSolutions                     # (1.6) counts what Theorem 1.1 counts
+Projectivization.ncard_setOfPred_mulHeight_le           # Lemma 5.1 (p. 103), another constant
