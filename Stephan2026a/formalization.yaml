@@ -5,8 +5,8 @@ project:
   name: "Stephan 2026: superlinear complexity of the (3/2)^n steering word"
   description: >-
     A minimal Lean 4 / Mathlib formalization of R. Stephan, Superlinear
-    complexity of the (3/2)^n steering word (arXiv:2607.11648, fourth
-    version), built on the repository's libraries ArithmeticHeights and
+    complexity of the (3/2)^n steering word (arXiv:2607.11648), built on
+    the repository's libraries ArithmeticHeights and
     DiophantineApproximation, whose p-adic Subspace Theorem it uses. Write
     (3/2)^n = m_n + ε_n with m_n the nearest integer and t_n = 2 m_{n+1} −
     3 m_n. The library Stephan2026a is sorry-free and within Lean's three
@@ -76,7 +76,7 @@ sources:
   - title: "Superlinear complexity of the (3/2)^n steering word"
     authors: ["Ralf Stephan"]
     type: paper
-    location: "arXiv:2607.11648 (2026), fourth version. Theorem 1.1, §§2–4"
+    location: "arXiv:2607.11648 (2026). Theorem 1.1, §§2–4"
     relationship: formalizes
     author_endorsement: participated
     note: >-
@@ -122,9 +122,9 @@ automation:
 review:
   status: unchecked
   notes: >-
-    Yann Bugeaud reviewed the paper and noted that the argument can be
-    simplified. This simplification is implemented in the current version
-    of the paper and its formalization. No human or external review of the
+    Yann Bugeaud reviewed the paper and suggested a simplification of the
+    argument, which the paper and this formalization implement. No human
+    or external review of the
     Lean text has been performed. What is established is mechanical:
     comparator compares each named statement against the challenge file
     constant by constant, checks the axiom list, and replays the export

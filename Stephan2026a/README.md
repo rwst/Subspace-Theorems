@@ -1,8 +1,8 @@
 # Stephan 2026: superlinear complexity of the `(3/2)^n` steering word
 
-R. Stephan, *Superlinear complexity of the `(3/2)^n` steering word*, arXiv:2607.11648 (2026). The
-version formalized is the third (`paper-M4A3-v3.tex`), whose Section 4 proves the kernel (K) by
-one three-variable application of the Subspace Theorem and Ridout's theorem.
+R. Stephan, *Superlinear complexity of the `(3/2)^n` steering word*, arXiv:2607.11648 (2026).
+Its Section 4 proves the kernel (K) by a two-variable (Ridout-type) and a three-variable
+application of the Subspace Theorem.
 
 **Status (2026-10-18): Theorem 1.1 is proved, within Lean's three standard axioms**
 (`SteeringWord.tendsto_complexity_div`, `SteeringWord.exists_forall_lt_complexity`). The
@@ -13,12 +13,8 @@ Theorem 1.1: `comparator/stephan-2026a.txt`, `ChallengeStephan2026a.lean`,
 `SolutionStephan2026a.lean`, `comparator/stephan-2026a.json`, and `formalization.yaml` here.
 
 This is the **minimal** formalization: the main theorem and the numbered results on its proof
-path, nothing else. An earlier formalization of the paper's first two versions
-([`rwst/Superlinear-Complexity`](https://github.com/rwst/Superlinear-Complexity)) took the
-Subspace Theorem as an axiom (`Subspace.evertseSchlickewei`) and derived from it the
-Corvaja–Zannier Main Theorem and a corrected Nair–Kumar–Rout pair theorem. Here the Subspace
-Theorem and Ridout's theorem are theorems of `DiophantineApproximation`, so nothing is assumed,
-and neither the Corvaja–Zannier nor the Nair–Kumar–Rout route is needed.
+path, nothing else. The Subspace Theorem and Ridout's theorem are theorems of
+`DiophantineApproximation`, so nothing is assumed.
 
 ## The results of the paper, and where they are
 
