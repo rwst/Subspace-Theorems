@@ -5,7 +5,7 @@ project:
   name: "Stephan 2026: superlinear complexity of the (3/2)^n steering word"
   description: >-
     A minimal Lean 4 / Mathlib formalization of R. Stephan, Superlinear
-    complexity of the (3/2)^n steering word (arXiv:2607.11648, third
+    complexity of the (3/2)^n steering word (arXiv:2607.11648, fourth
     version), built on the repository's libraries ArithmeticHeights and
     DiophantineApproximation, whose p-adic Subspace Theorem it uses. Write
     (3/2)^n = m_n + ε_n with m_n the nearest integer and t_n = 2 m_{n+1} −
@@ -26,7 +26,7 @@ project:
 
 classification:
   arxiv: [math.NT]
-  msc2020: ["68R15", "11J87", "11J54", "11J71", "37B10", "68V20"]
+  msc2020: ["68R15", "11J87", "11J54", "11J71", "37B10"]
 
 status:
   scope: >-
@@ -76,7 +76,7 @@ sources:
   - title: "Superlinear complexity of the (3/2)^n steering word"
     authors: ["Ralf Stephan"]
     type: paper
-    location: "arXiv:2607.11648 (2026), third version. Theorem 1.1, §§2–4"
+    location: "arXiv:2607.11648 (2026), fourth version. Theorem 1.1, §§2–4"
     relationship: formalizes
     author_endorsement: participated
     note: >-
@@ -99,8 +99,7 @@ automation:
       role: >-
         The formalization: the Lean text of the library, the challenge and
         solution modules and the configuration, under the author's
-        direction, partly ported from the earlier formalization in
-        rwst/Superlinear-Complexity.
+        direction.
     - method: manual
       models: []
       role: >-
@@ -123,8 +122,10 @@ automation:
 review:
   status: unchecked
   notes: >-
-    No human or external review of the Lean text or of the fidelity of the
-    statements has been performed. What is established is mechanical:
+    Yann Bugeaud reviewed the paper and noted that the argument can be
+    simplified. This simplification is implemented in the current version
+    of the paper and its formalization. No human or external review of the
+    Lean text has been performed. What is established is mechanical:
     comparator compares each named statement against the challenge file
     constant by constant, checks the axiom list, and replays the export
     through the Lean kernel.
