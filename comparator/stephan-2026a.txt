@@ -1,0 +1,7 @@
+# The theorems of Stephan (arXiv:2607.11648, 2026) that `lake test` certifies, in the order the
+# config lists them. `scripts/make-challenge.py --paper Stephan2026a` reads this file and
+# regenerates `ChallengeStephan2026a.lean` and `comparator/stephan-2026a.json` from it. `#` starts
+# a comment. See `COMPARATOR.md`.
+
+SteeringWord.tendsto_complexity_div                     # Theorem 1.1: p_T(k) / k → ∞
+SteeringWord.exists_forall_lt_complexity                # Theorem 1.1, as printed

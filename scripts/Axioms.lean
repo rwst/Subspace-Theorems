@@ -38,7 +38,7 @@ def auditedRoots : List Name :=
   [`STForMathlib, `ArithmeticHeights, `DiophantineApproximation, `QuantitativeSubspace,
     `CorvajaZannier2004, `AdamczewskiBugeaud2007, `Evertse1984,
     `NairKumarRout2025, `Bugeaud2013, `BugeaudEvertse2008, `Schlickewei1990,
-    `CorvajaZannier2004Thue]
+    `CorvajaZannier2004Thue, `FaltingsWustholz1994, `Stephan2026a]
 
 /-- The audited roots as one string, for the audit's own messages. -/
 def auditedRootsString : String := ", ".intercalate (auditedRoots.map toString)

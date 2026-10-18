@@ -1,0 +1,14 @@
+{
+  "challenge_module": "ChallengeStephan2026a",
+  "solution_module": "SolutionStephan2026a",
+  "theorem_names": [
+    "SteeringWord.tendsto_complexity_div",
+    "SteeringWord.exists_forall_lt_complexity"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Quot.sound",
+    "Classical.choice"
+  ],
+  "enable_nanoda": false
+}

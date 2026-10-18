@@ -315,9 +315,20 @@ Layer 4's approximation domains, and `…/SubspaceSmall.lean` is the second gap 
 Theorem 2.2, over `K` and over `ℚ`.
 ⚠ **9.4 took one**: `…/SubspaceIntervals.lean` is the covering of intervals by windows of the gap
 principle, on a chain lemma now shared with 9.3 in `…/SubspaceGap.lean`.
-Layers 0, 1.1, 1.2, 1.3, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 3.1–3.8, 4.1–4.5, 5.1–5.6, 6.1–6.6,
-7.1–7.5, 8.1–8.7 and 9.1–9.4 together stand at **one hundred and forty-two** files,
-and nothing suggests the pattern stops.
+⚠ **6.7 took one**: `…/SubspaceSubmodule.lean` is 6.3 in the coordinates of a basis of `U`, for
+`FaltingsWustholz1994/`.
+⚠ **8.8 took three, and the seam is the place**: `…/PlaceProd.lean` is the product over a
+set of places and knows no form; `…/SumForms.lean` is the sum forms of Evertse and Schlickewei;
+`…/BalancedPoint.lean` is the balanced representative by one Minkowski scalar. 9.1 gained a second
+file with them, `…/SystemGrid.lean`, the product inequality as finitely many normalized systems.
+⚠ **8.9 took one**: `…/LocalNullstellensatz.lean`, for `CorvajaZannier2004Thue/`.
+Layers 0, 1.1, 1.2, 1.3, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 3.1–3.8, 4.1–4.5, 5.1–5.6, 6.1–6.7,
+7.1–7.5, 8.1–8.9 and 9.1–9.4 together stand at **one hundred and fifty** files,
+and nothing suggests the pattern stops. Six more files in this directory belong to milestones of
+[`QuantitativeSubspace`](../QuantitativeSubspace/README.md), not of this roadmap:
+`…/ReducedIntegralBasis.lean`, `…/ThresholdHeights.lean` and `…/ThresholdBound.lean` (Q0.2e),
+`…/SystemDomain.lean` (Q0.2c), `…/SystemSubspaceCount.lean` (Q0.3) and
+`…/TaylorAtPrimeHasse.lean` (Q1.1e).
 
 **This roadmap stands on [`ArithmeticHeights`](../ArithmeticHeights/README.md).** That roadmap's
 long-horizon section names the Subspace Theorem, Roth's theorem and unit equations as what its
@@ -407,7 +418,8 @@ successive minimum used below is consumed from there by milestone number and non
   recovered from it as the case of equal sizes — **also landed** — and the **consistency with
   Layer 3**: on the projective line the Subspace Theorem is Roth's theorem, the two statements
   are one proposition, and Roth's theorem over a number field comes back out of Layer 6 —
-  **also landed**. **Layer 6 is complete.**
+  **also landed** — and the theorem for points of a **subspace** `U ⊆ Kⁱ`, with forms
+  independent on `U` — **also landed**. **Layer 6 is complete.**
 - The **elementary half of the quantitative theory**: systems of inequalities, the **gap
   principle** for subspaces, the count of **small solutions**, and the reduction of a count of
   subspaces to an interval result.
@@ -420,7 +432,9 @@ successive minimum used below is consumed from there by milestone number and non
 - The applications that are theorems about equations: the **`S`-unit equation** in two and in `n`
   variables, **Thue** and **Thue–Mahler equations**, the **hyperelliptic equation**, **norm-form
   equations**, **triangularly connected decomposable-form equations**, and the **Corvaja–Zannier
-  bound** on `gcd (u − 1, v − 1)`.
+  bound** on `gcd (u − 1, v − 1)` — all landed — and the pieces of **Schlickewei's count** of the
+  unit equation and of **Corvaja–Zannier's general Thue equation** that are not specific to those
+  papers — **also landed**.
 
 ### Consumed
 
@@ -3529,6 +3543,26 @@ linear independence, and `NumberField.generalProd` over `Finset.univ` is `approx
 Vojta's refinement also lands on 3.4 through the same one equation. Both of Layer 6's Subspace
 Theorems contain Roth's theorem on the projective line.
 
+**6.7 The Subspace Theorem on a subspace** (for `FaltingsWustholz1994/` FW.1) — **landed**, in
+`DiophantineApproximation/SubspaceSubmodule.lean`.
+- **Statement.**
+  - **Data:** a `K`-subspace `U ⊆ Kⁱ` with `dim U = #κ ≥ 2`, and at each `v ∈ S∞ ∪ S₀` forms
+    `L v k : Module.Dual F (Fⁱ)` whose restrictions to `U` are `F`-linearly independent as
+    functions `U → F`.
+  - **Conclusion:** the `x ∈ U ∖ 0` with
+    `generalProd S∞ S₀ w univ L x ≤ mulHeight x ^ (−#κ − ε)` lie in finitely many proper
+    subspaces of `U` (`NumberField.exists_finset_submodule_lt_of_generalProd_le`).
+- **Proof:** 6.3 in the coordinates of a basis `M` of `U`.
+  - The local factor changes by at most `max 1 (∑ |M j k|_v)` per form
+    (`NumberField.iSup_mulVec_le`).
+  - The height changes by a constant, through a left inverse of `M` and
+    `Matrix.mulHeight_mulVec_le`.
+  - Halving `ε` and Northcott remove the constant, as in 6.5.
+- ⚠ **Independence on `U` is stated without `U_F`.** Asking the restrictions to be independent as
+  functions on the `K`-points of `U` is independence on `span_F U`, and it is exactly what makes
+  the forms `L v k ∘ M` independent on `Fᵏ`. 6.3 is the case `U = ⊤`, up to `generalProd` over
+  `univ` being `approxProd`.
+
 ### Layer 7: approximation of algebraic numbers, and transcendence
 
 What the Subspace Theorem says about numbers. Every milestone is 6.3 over `K = ℚ` with an
@@ -4265,7 +4299,7 @@ many, so the curves are load-bearing; and with `b = c = 1`, `a = 2 ^ k − 1` ma
 `(a b + 1)(a c + 1)` a power of `2`, so `c < b` is.
 
 **8.8 Counting the unit equation** (Schlickewei, Invent. Math. **102** (1990); the plan is
-`Schlickewei1990/README.md`) — **started**. This milestone holds the parts of Schlickewei's count
+`Schlickewei1990/README.md`) — **landed**. This milestone holds the parts of Schlickewei's count
 that are not specific to his paper, so that `Schlickewei1990/` and `Evertse1984/` import them
 from here and not from each other. Landed (S90.0–S90.2, 2026-10-16), moved from `Evertse1984/`:
 
@@ -4335,7 +4369,7 @@ Added with S90.6 (2026-10-16), for Schlickewei's induction (§7):
   `2 ^ [K : ℚ]`), which the theorem of record adds to `S` so that S90.3 has a finite place.
 
 **8.9 Corvaja–Zannier's general Thue equation** (Corvaja–Zannier, Amer. J. Math. **126** (2004);
-the plan is `CorvajaZannier2004Thue/README.md`) — **started**. The Diophantine pieces of that paper
+the plan is `CorvajaZannier2004Thue/README.md`) — **landed**. The Diophantine pieces of that paper
 that are not specific to the equation `f₁ ⋯ f_r = g`. Landed with CZ.5 (2026-10-16):
 `DiophantineApproximation/LocalNullstellensatz.lean`, **the local Nullstellensatz inequality**
 (`MvPolynomial.exists_le_abv_eval_of_pow_mem`). If every `X_s` has a power in
@@ -5309,7 +5343,16 @@ the degenerate case are located but not built.
 box of monomials `u ^ (i + 1) v ^ j` less `1`, divided by the gcd; two fixed families of forms
 serve every solution, the product formula leaves the gcd to the power of the number of variables,
 and the homogeneous unit equation of 8.6 turns the subspace into a curve or a bounded gcd. It is
-stated for the ordinary gcd. **Layer 8 is complete.**
+stated for the ordinary gcd. **8.1–8.7 are complete.**
+
+⚠ **6.7 is landed, in one file, after the fact.** `FaltingsWustholz1994/` needed the theorem for
+points of a subspace `U`; it is 6.3 in the coordinates of a basis of `U`, with the constants
+removed by halving `ε` and Northcott as in 6.5.
+
+⚠ **8.8 and 8.9 are landed**, as the parts of `Schlickewei1990/` and `CorvajaZannier2004Thue/`
+that are not specific to those papers: `PlaceProd.lean`, `SumForms.lean` and `BalancedPoint.lean`
+(with `SystemGrid.lean` in 9.1) for 8.8, and `LocalNullstellensatz.lean` for 8.9. Both papers are
+finished on top of them; a later consumer may add to them. **Layer 8 is complete.**
 
 ⚠ **9.1 is landed, in one file, and it is easier than 5.1.** Against the affine height of
 Evertse's (2.2) every exponent is bounded above with no unit and no fundamental inequality, and
@@ -5412,8 +5455,8 @@ of Layer 2 and all of Layer 3 — **Roth's theorem, the classical forms of it th
 applications quote, the Subspace Theorem in two variables, Mahler's theorem on `(p/q)^k`,
 Thue's theorem, the count of approximations and Roth's theorem with moving targets** — and
 the approximation domains, the successive minima over `K`, the rank, Evertse's lemma and the
-exterior powers — all of Layer 4 — and the reductions of 5.1 are proved in this repository and
-nothing else of Layers 5–9 is. What
+exterior powers — all of Layer 4 — and Layers 5–9, the Subspace Theorem and its applications,
+are proved in this repository. What
 exists elsewhere, in
 [`rwst/lean-code`](https://github.com/rwst/lean-code)
 (CC0), is the *other side* of the interface — statements of the Subspace Theorem recorded as

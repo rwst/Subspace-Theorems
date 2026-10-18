@@ -18,7 +18,7 @@
 # NUL-delimited list to FILES and the corresponding Lean module names, one per
 # line, to MODULES. Callers choose their own temporary destinations.
 
-LIBRARY_ROOTS=(STForMathlib ArithmeticHeights DiophantineApproximation QuantitativeSubspace CorvajaZannier2004 AdamczewskiBugeaud2007 Evertse1984 NairKumarRout2025 Bugeaud2013 BugeaudEvertse2008 Schlickewei1990 CorvajaZannier2004Thue)
+LIBRARY_ROOTS=(STForMathlib ArithmeticHeights DiophantineApproximation QuantitativeSubspace CorvajaZannier2004 AdamczewskiBugeaud2007 Evertse1984 NairKumarRout2025 Bugeaud2013 BugeaudEvertse2008 Schlickewei1990 CorvajaZannier2004Thue FaltingsWustholz1994 Stephan2026a)
 
 library_source_modules() {
   local files_out="$1"

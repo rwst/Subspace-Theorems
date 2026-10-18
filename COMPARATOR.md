@@ -132,6 +132,7 @@ The lanes so far:
 | Adamczewski–Bugeaud 2007 | `comparator/adamczewski-bugeaud-2007.json` | 32 | 483 lines, 22 KiB |
 | Evertse 1984 | `comparator/evertse-1984.json` | 14 | 317 lines, 16 KiB |
 | Evertse–Ferretti 2013 (`QuantitativeSubspace/`) | `comparator/quantitative-subspace.json` | 9 | 831 lines, 41 KiB |
+| Stephan 2026 (`Stephan2026a/`, arXiv:2607.11648) | `comparator/stephan-2026a.json` | 2 | 113 lines, 5 KiB |
 
 `QuantitativeSubspace/` is a roadmap library, not a paper directory, but its summit is one paper
 (Evertse–Ferretti, Ann. of Math. 2013), so it gets a lane of the same shape:

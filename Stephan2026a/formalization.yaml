@@ -1,0 +1,152 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/mathlib-initiative/formalization.yaml/main/schema/formalization.schema.json
+version: "v0.4"
+
+project:
+  name: "Stephan 2026: superlinear complexity of the (3/2)^n steering word"
+  description: >-
+    A minimal Lean 4 / Mathlib formalization of R. Stephan, Superlinear
+    complexity of the (3/2)^n steering word (arXiv:2607.11648, third
+    version), built on the repository's libraries ArithmeticHeights and
+    DiophantineApproximation, whose p-adic Subspace Theorem it uses. Write
+    (3/2)^n = m_n + ε_n with m_n the nearest integer and t_n = 2 m_{n+1} −
+    3 m_n. The library Stephan2026a is sorry-free and within Lean's three
+    standard axioms. It proves Theorem 1.1, the subword complexity p_T(k) of
+    the steering word T = (t_n) satisfies p_T(k)/k → ∞, together with the
+    numbered results on its proof path: the repetition identity and its
+    corollaries (§2), the reduction to the Diophantine kernel (K) (§3), and
+    the kernel itself, by Ridout-type and three-variable applications of the
+    Subspace Theorem (§4). The open problems of §5 and Conjecture A.2 are
+    stated in Stephan2026a/Problems.lean. Two statements are compared, both
+    forms of Theorem 1.1.
+  authors:
+    - "Ralf Stephan"
+  license: "Apache-2.0"
+  responsible_maintainers:
+    - "Ralf Stephan"
+
+classification:
+  arxiv: [math.NT]
+  msc2020: ["68R15", "11J87", "11J54", "11J71", "37B10", "68V20"]
+
+status:
+  scope: >-
+    The two declarations named in comparator/stephan-2026a.json, listed
+    under main_results: Theorem 1.1 as the limit p_T(k)/k → ∞ and in the
+    printed form "for every C there is K with p_T(k) > C k for all k ≥ K".
+    Lemma 2.1, Theorem 2.3, Corollary 2.4, Proposition 2.5, Lemmas 2.7 and
+    2.8, Theorems 2.9 and 2.10, Proposition 2.12, Theorem 3.2, Theorem 4.1
+    (for S = {2, 3}), Lemma 4.2, Corollary 4.3 and Theorem 4.5 are proved in
+    the library but not compared. Proposition 1.2, Corollary 1.3, the
+    remarks and Appendix A are not formalized.
+  sorry_count: 0
+  sorry_in_definitions: 0
+  axioms: ["propext", "Classical.choice", "Quot.sound"]
+  main_results:
+    - declaration: "SteeringWord.tendsto_complexity_div"
+      file: "Stephan2026a/Kernel.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/stephan-2026a.json"
+      literature_dependencies: []
+    - declaration: "SteeringWord.exists_forall_lt_complexity"
+      file: "Stephan2026a/Kernel.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/stephan-2026a.json"
+      literature_dependencies: []
+
+fidelity:
+  divergences: >-
+    None in the statement of Theorem 1.1. The subword complexity is
+    Function.complexity of DiophantineApproximation (the number of distinct
+    factors, as lists, of each length), and the steering word is t n = 2 m
+    (n + 1) − 3 m n with m n = round ((3/2)^n) computed in ℚ, where round
+    rounds half-integers up, as in Definition 1.4. The distance to the
+    nearest integer is computed in ℚ, as |x − round x|. The kernel (K)
+    quantifies over rational θ, as in Definition 3.1. Theorem 4.1 is used in
+    the form proved in DiophantineApproximation (Layer 7.4): integer points,
+    forms with coefficients in a number field at ∞, coordinate forms at the
+    primes, sup norm of the point; here the field is ℚ. The paper orders
+    the coordinates of the point of Theorem 4.5 as (3^c, 2^s 3^a, 2^c M);
+    the formalization puts 2^c M first. The single-file challenge differs
+    from the development in presentation only (see COMPARATOR.md at the
+    repository root).
+
+sources:
+  - title: "Superlinear complexity of the (3/2)^n steering word"
+    authors: ["Ralf Stephan"]
+    type: paper
+    location: "arXiv:2607.11648 (2026), third version. Theorem 1.1, §§2–4"
+    relationship: formalizes
+    author_endorsement: participated
+    note: >-
+      The main theorem and the numbered results on its proof path.
+  - title: "Heights in Diophantine Geometry"
+    authors: ["Enrico Bombieri", "Walter Gubler"]
+    type: book
+    location: "Cambridge University Press (2006), Chapter 7"
+    relationship: background
+    author_endorsement: not-contacted
+    note: >-
+      The Subspace Theorem with finite places, formalized in this
+      repository (DiophantineApproximation, Layers 6–7).
+
+automation:
+  methods:
+    - method: agent
+      models: ["claude-opus-5-5"]
+      framework: "Claude Code"
+      role: >-
+        The formalization: the Lean text of the library, the challenge and
+        solution modules and the configuration, under the author's
+        direction, partly ported from the earlier formalization in
+        rwst/Superlinear-Complexity.
+    - method: manual
+      models: []
+      role: >-
+        Direction and release. Ralf Stephan wrote the paper, chose the
+        conventions and the gates, steered the agent, and releases the
+        repository.
+  spend_usd: "a few hours of subscription-based Claude Code usage"
+  notes: >-
+    The library is held to the repository's rules by scripts/check.sh (a
+    build with Mathlib's linter set as errors, the axiom audit against the
+    three standard axioms, the module-system check, the textual guards).
+    It has 9 files and uses the repository's libraries ArithmeticHeights
+    and DiophantineApproximation. lake test runs leanprover/comparator over
+    comparator/stephan-2026a.json against the single Mathlib-only file
+    ChallengeStephan2026a.lean, generated from comparator/stephan-2026a.txt
+    by scripts/make-challenge.py --paper Stephan2026a, with the proofs
+    re-exported by SolutionStephan2026a.lean. Wall time and hardware were
+    not recorded.
+
+review:
+  status: unchecked
+  notes: >-
+    No human or external review of the Lean text or of the fidelity of the
+    statements has been performed. What is established is mechanical:
+    comparator compares each named statement against the challenge file
+    constant by constant, checks the axiom list, and replays the export
+    through the Lean kernel.
+
+limitations:
+  - >-
+    The compared theorems depend on propext, Classical.choice and Quot.sound
+    and nothing else. The library contains no sorry and no native_decide.
+    The sorries in the challenge file are the placeholders comparator
+    expects, and the configuration fixes no definition holes.
+  - >-
+    Every step through the Subspace Theorem is ineffective: no explicit K
+    in Theorem 1.1 is obtained (Problem 5.1).
+
+alignment:
+  namespace: "SteeringWord"
+  statements:
+    - source: "Theorem 1.1 (= Theorem 4.7), p_T(k)/k → ∞"
+      lean: "SteeringWord.tendsto_complexity_div"
+      module: "ChallengeStephan2026a (statement), SolutionStephan2026a / Stephan2026a.Kernel (proof)"
+      status: proved
+    - source: "Theorem 1.1, for every C there is K with p_T(k) > C k for all k ≥ K"
+      lean: "SteeringWord.exists_forall_lt_complexity"
+      module: "ChallengeStephan2026a (statement), SolutionStephan2026a / Stephan2026a.Kernel (proof)"
+      status: proved
