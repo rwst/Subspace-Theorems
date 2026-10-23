@@ -41,6 +41,7 @@ where they give `3.87·10⁹` lines, are the first consumer.
 ## Main definitions
 
 * `NumberField.ratThresholdCoeffTwo`: the coefficient of the threshold over `ℚ`.
+* `NumberField.ratThresholdCoeffTwoAt`: the same at a given margin, `η` and chain length.
 
 ## Main results
 
@@ -54,6 +55,8 @@ where they give `3.87·10⁹` lines, are the first consumer.
 * `NumberField.systemMiddleRatio_le`: the ratio of the middle interval is at most
   `max (1, δ X / (2 n log n))`.
 * `NumberField.systemThresholdTwo_rat_le`: the threshold over `ℚ` in closed form.
+* `NumberField.penultimateCoeff_evertse_rat_le_at`, `NumberField.systemThresholdTwoAt_rat_le`:
+  the same at the caller's parameters (`NumberField.systemThresholdTwoAt`).
 * `MvPolynomial.resultantHeight_botBound_one_le`: `h(ℙ¹) ≤ 6` for Rémond's heights, the `β` of
   Evertse's Roth lemma at them.
 
@@ -581,6 +584,199 @@ theorem systemThresholdTwo_rat_le {ι : Type u} [Fintype ι] (b : ℕ → ℝ) {
       have := rankCoeff_nonneg 1 2 t (η := δ / 4) (by positivity)
       have := penultimateCoeff_nonneg (RothParams.evertse b) 1 2 1 t R 1
         (by positivity : 0 < δ / 2) (by norm_num : (0 : ℝ) ≤ 6)
+      linarith
+    have hlogH := Real.log_nonneg hH
+    have hsum : 0 ≤ ∑ q ∈ S, Real.log (Ideal.absNorm q.asIdeal : ℝ) :=
+      sum_nonneg fun q _ ↦ Real.log_natCast_nonneg _
+    refine mul_le_mul hcoef (le_of_eq ?_) ?_ hP0
+    · simp only [Nat.cast_one, Nat.cast_ofNat, Int.cast_one, abs_one, Real.log_one, add_zero,
+        one_mul]
+      ring
+    · simp only [Nat.cast_one, Nat.cast_ofNat, Int.cast_one, abs_one, Real.log_one, add_zero,
+        one_mul]
+      positivity
+  · push_cast
+    ring
+
+/-! ### The threshold over `ℚ` at given parameters -/
+
+/-- **The penultimate coefficient over `ℚ` in two variables, at any margin and parameter**: with
+`t` places, margin `ε`, parameter `A`, `η = subspaceEta 1 ε A`, `m = subspaceChainLength 1 s ε A`
+and Evertse's Roth lemma with `b ≤ β`: at most `1` plus
+`(93 + 2320 T + 4 T² + 64 T³ + 96 B² + 8 T F (m + 1)² (m + β⁺ + 40 T + 5)) / ε`,
+`T = 1 + t`, `B = 2 / η + 2`, `F = max (1, 2 (m + 1) / η) ^ (m + 1)` Evertse's factor. -/
+theorem penultimateCoeff_evertse_rat_le_at (b : ℕ → ℝ) {β : ℝ} (hb : ∀ k, b k ≤ β) (t s : ℕ)
+    {ε A : ℝ} (hε : 0 < ε) (hA : 0 ≤ A) :
+    penultimateCoeff (RothParams.evertse b) 1 2 1 t s 1 ε A ≤
+      1 + (93 + 2320 * (1 + t) + 4 * (1 + (t : ℝ)) ^ 2 + 64 * (1 + (t : ℝ)) ^ 3 +
+        96 * (2 / subspaceEta 1 ε A + 2) ^ 2 + 8 * (1 + t) *
+          max 1 (2 * ((subspaceChainLength 1 s ε A : ℝ) + 1) / subspaceEta 1 ε A)
+            ^ (subspaceChainLength 1 s ε A + 1) *
+          ((subspaceChainLength 1 s ε A : ℝ) + 1) ^ 2 *
+          (subspaceChainLength 1 s ε A + max β 0 + 40 * (1 + t) + 5)) / ε := by
+  have hη : 0 < subspaceEta 1 ε A := subspaceEta_pos hε hA
+  have hshift : (RothParams.evertse b).shift 1 s ε A ≤
+      max β 0 + subspaceChainLength 1 s ε A + 2 := by
+    change max (b _) 0 + _ + 2 ≤ _
+    gcongr
+    exact hb _
+  have hfac : (RothParams.evertse b).factor 1 s ε A =
+      max 1 (2 * ((subspaceChainLength 1 s ε A : ℝ) + 1) / subspaceEta 1 ε A)
+        ^ (subspaceChainLength 1 s ε A + 1) * ((subspaceChainLength 1 s ε A : ℝ) + 1) := by
+    change ((1 : ℕ) : ℝ) * max 1 (2 * ((subspaceChainLength 1 s ε A : ℝ) + 1) /
+      subspaceEta 1 ε A) ^ (subspaceChainLength 1 s ε A + 1) *
+      ((subspaceChainLength 1 s ε A : ℝ) + 1) = _
+    push_cast
+    ring
+  -- the ceiling of the reference index
+  have hB : (⌈2 * ((1 : ℕ) : ℝ) / subspaceEta 1 ε A + 1⌉₊ : ℝ) ≤ 2 / subspaceEta 1 ε A + 2 := by
+    have h0 : 0 ≤ 2 * ((1 : ℕ) : ℝ) / subspaceEta 1 ε A + 1 := by positivity
+    have := Nat.ceil_lt_add_one h0
+    push_cast at this
+    linarith
+  have hB2 : (⌈2 * ((1 : ℕ) : ℝ) / subspaceEta 1 ε A + 1⌉₊ : ℝ) ^ 2 ≤
+      (2 / subspaceEta 1 ε A + 2) ^ 2 :=
+    pow_le_pow_left₀ (Nat.cast_nonneg _) hB 2
+  have hlog4 : ((1 : ℕ) : ℝ) * Real.log (2 * (((1 : ℕ) : ℝ) + 1) * (1 : ℕ)) =
+      2 * Real.log 2 := by
+    rw [show (2 : ℝ) * (((1 : ℕ) : ℝ) + 1) * (1 : ℕ) = 2 ^ 2 by norm_num, Real.log_pow]
+    norm_num
+  have hl2 := Real.log_two_lt_d9
+  have haux := auxCoeff_one_two_le t
+  have href := refCoeff_one_two_le t ⌈2 * ((1 : ℕ) : ℝ) / subspaceEta 1 ε A + 1⌉₊
+  rw [penultimateCoeff]
+  set B := ⌈2 * ((1 : ℕ) : ℝ) / subspaceEta 1 ε A + 1⌉₊ with hBdef
+  have hkap := kappaCoeff_one_two_le (1 + t)
+  have hpc := patternConstCoeff_one_two_le t
+  have hph := patternHeightCoeff_one_two_le t
+  have ht : (0 : ℝ) ≤ t := Nat.cast_nonneg t
+  set η := subspaceEta 1 ε A with hηdef
+  set m := subspaceChainLength 1 s ε A with hm
+  set F := max 1 (2 * ((m : ℝ) + 1) / η) ^ (m + 1) with hFdef
+  have hF1 : 1 ≤ F := one_le_pow₀ (le_max_left _ _)
+  have hm0 : (0 : ℝ) ≤ m := Nat.cast_nonneg m
+  have hshift0 : 0 ≤ (RothParams.evertse b).shift 1 s ε A :=
+    (RothParams.evertse b).shift_nonneg hε hA
+  have hβ : 0 ≤ max β 0 := le_max_right _ _
+  -- the three terms, each against its share of the bound
+  have hε1 : ∀ X Y : ℝ, X ≤ Y → X / ε ≤ Y / ε := fun X Y h ↦
+    div_le_div_of_nonneg_right h hε.le
+  have hAt : 8 * (((1 : ℕ) : ℝ) + 1) * ((1 : ℕ) * Real.log (2 * (((1 : ℕ) : ℝ) + 1) * (1 : ℕ)) +
+      auxCoeff 1 2 1 t + 2 * refCoeff 1 2 1 t B) / ε ≤
+      (80 + 1920 * (1 + t) + 96 * (2 / η + 2) ^ 2) / ε := by
+    refine hε1 _ _ ?_
+    rw [hlog4]
+    linarith
+  have hBterm : 8 * (((1 + t : ℕ) : ℝ)) * ((RothParams.evertse b).factor 1 s ε A *
+      ((m : ℝ) + 1) * (auxCoeff 1 2 1 t + (RothParams.evertse b).shift 1 s ε A * (1 : ℕ))
+      + kappaCoeff 1 (Nat.choose 2 1) 1 (1 + t)) / ε ≤
+      (64 * (1 + (t : ℝ)) ^ 3 + 8 * (1 + t) * F * ((m : ℝ) + 1) ^ 2 *
+        (m + max β 0 + 40 * (1 + t) + 5)) / ε := by
+    refine hε1 _ _ ?_
+    rw [hfac]
+    push_cast at hkap ⊢
+    have hsum : auxCoeff 1 2 1 t + (RothParams.evertse b).shift 1 s ε A * 1 ≤
+        m + max β 0 + 40 * (1 + t) + 5 := by linarith
+    have hprod : F * ((m : ℝ) + 1) * ((m : ℝ) + 1) *
+        (auxCoeff 1 2 1 t + (RothParams.evertse b).shift 1 s ε A * 1) ≤
+        F * ((m : ℝ) + 1) ^ 2 * (m + max β 0 + 40 * (1 + t) + 5) := by
+      rw [sq, ← mul_assoc]
+      gcongr
+    nlinarith
+  have hC : (4 * ((((1 : ℕ) : ℝ) + t) * patternConstCoeff 1 2 1 t + patternHeightCoeff 1 2 1 t)
+      + 1) / ε ≤ (13 + 400 * (1 + t) + 4 * (1 + (t : ℝ)) ^ 2) / ε := by
+    refine hε1 _ _ ?_
+    push_cast
+    have hpc0 := patternConstCoeff_nonneg 1 2 1 t
+    nlinarith
+  have hsplit : (93 + 2320 * (1 + t) + 4 * (1 + (t : ℝ)) ^ 2 + 64 * (1 + (t : ℝ)) ^ 3 +
+      96 * (2 / η + 2) ^ 2 + 8 * (1 + t) * F * ((m : ℝ) + 1) ^ 2 *
+        (m + max β 0 + 40 * (1 + t) + 5)) / ε =
+      (80 + 1920 * (1 + t) + 96 * (2 / η + 2) ^ 2) / ε +
+      (64 * (1 + (t : ℝ)) ^ 3 + 8 * (1 + t) * F * ((m : ℝ) + 1) ^ 2 *
+        (m + max β 0 + 40 * (1 + t) + 5)) / ε +
+      (13 + 400 * (1 + t) + 4 * (1 + (t : ℝ)) ^ 2) / ε := by ring
+  rw [hsplit]
+  push_cast at hAt hBterm hC ⊢
+  linarith
+
+/-- **The coefficient of the threshold over `ℚ` in two variables at given parameters**, with `t`
+primes, `b ≤ β`, the margin `ε`, `η` and the chain length `m` of the interval result:
+`(8 (1 + t) F (m + 1)² (m + β⁺ + 40 (1 + t) + 5) + 2600 (1 + t)³ + 96 (2 / η + 2)²) / (2 ε)`,
+`F = max (1, 2 (m + 1) / η) ^ (m + 1)` Evertse's factor. At `ε = δ / 4`, `η = δ / 448` it is
+`ratThresholdCoeffTwo`, up to the constant `2600` for `2550`. -/
+noncomputable def ratThresholdCoeffTwoAt (t : ℕ) (β ε η : ℝ) (m : ℕ) : ℝ :=
+  (8 * (1 + t) * max 1 (2 * ((m : ℝ) + 1) / η) ^ (m + 1) * ((m : ℝ) + 1) ^ 2 *
+      (m + max β 0 + 40 * (1 + t) + 5) + 2600 * (1 + (t : ℝ)) ^ 3 + 96 * (2 / η + 2) ^ 2) /
+    (2 * ε)
+
+open scoped Classical in
+/-- **The threshold over `ℚ` in two variables at given parameters, in closed form**: as
+`NumberField.systemThresholdTwo_rat_le`, for `systemThresholdTwoAt` at the margin `0 < ε ≤ 1/2`,
+the parameter `A ≥ 0`, the form count `s` and the fraction `τ`, with
+`η = subspaceEta 1 (2 ε) A` and `m = subspaceChainLength 1 s (2 ε) A`. -/
+theorem systemThresholdTwoAt_rat_le {ι : Type u} [Fintype ι] (b : ℕ → ℝ) {β : ℝ}
+    (hb : ∀ k, b k ≤ β) (hcard : Fintype.card ι = 2) {S : Finset (HeightOneSpectrum (𝓞 ℚ))}
+    {w : AbsoluteValue ℚ ℝ → AbsoluteValue ℚ ℝ}
+    (hwInf : ∀ v : InfinitePlace ℚ, (w v.1).LiesOver v.1)
+    (hwFin : ∀ v ∈ S, (w (FinitePlace.mk v).1).LiesOver (FinitePlace.mk v).1)
+    {L : AbsoluteValue ℚ ℝ → ι → Dual ℚ (ι → ℚ)} {C : InfinitePlace ℚ ⊕ S → ℝ}
+    {c : InfinitePlace ℚ ⊕ S → ι → ℝ} {H : ℝ} {D R : ℕ} {δ : ℝ}
+    (hN : IsNormalizedSystem S w L C c H D R δ) (s : ℕ) (τ : ℝ) {ε A : ℝ} (hε : 0 < ε)
+    (hε1 : ε ≤ 1 / 2) (hA : 0 ≤ A) :
+    systemThresholdTwoAt ℚ S w L (RothParams.evertse b) s H δ τ ε A ≤
+      max (ratThresholdCoeffTwoAt #S β ε (subspaceEta 1 (2 * ε) A)
+          (subspaceChainLength 1 s (2 * ε) A) *
+          (4 * (1 + #S) * Real.log H + ∑ q ∈ S, Real.log (Ideal.absNorm q.asIdeal : ℝ) + 1))
+        (max (4 / δ * Real.log 2)
+          (systemHeightThreshold 2 1 (1 + #S) δ H
+            (Real.log (2 * ∏ q ∈ S, (Ideal.absNorm q.asIdeal : ℝ))) / (2 * τ))) := by
+  have : Nonempty ι := Fintype.card_pos_iff.1 (by omega)
+  have hδ := hN.delta_pos
+  have hH := hN.one_le_height
+  have hT := systemThresholdTwoAt_le (RothParams.evertse b) hcard hwInf hwFin hN s τ hε hA
+  have he : finrank ℚ ℚ = 1 := finrank_self ℚ
+  have hr : Fintype.card (InfinitePlace ℚ) = 1 := Fintype.card_unique
+  rw [he, hr, card_systemPlacesOver_rat, sum_log_absNorm_systemPlacesOver_rat, hcard,
+    Rat.numberField_discr, scalarConst_rat] at hT
+  refine hT.trans (max_le_max ?_ (max_le_max (le_of_eq ?_) le_rfl))
+  · -- the coefficient
+    set t := #S with ht
+    have htR : (0 : ℝ) ≤ t := Nat.cast_nonneg t
+    have hrank := rankCoeff_one_two_le t hε
+    have hpen := penultimateCoeff_evertse_rat_le_at b hb t s (by positivity : 0 < 2 * ε) hA
+    set η := subspaceEta 1 (2 * ε) A with hη
+    set m := subspaceChainLength 1 s (2 * ε) A with hm
+    set F := max 1 (2 * ((m : ℝ) + 1) / η) ^ (m + 1) with hF
+    have hF1 : 1 ≤ F := one_le_pow₀ (le_max_left _ _)
+    have hcoef : 1 + rankCoeff 1 2 t ε +
+        penultimateCoeff (RothParams.evertse b) 1 2 1 t s 1 (2 * ε) A ≤
+        ratThresholdCoeffTwoAt t β ε η m := by
+      rw [ratThresholdCoeffTwoAt]
+      have h3 : (3 : ℝ) ≤ 3 / (2 * ε) := by rw [le_div_iff₀ (by positivity)]; linarith
+      have hr2 : (22 + 5 * (1 + (t : ℝ))) / ε = 2 * (22 + 5 * (1 + (t : ℝ))) / (2 * ε) := by
+        field_simp
+      rw [hr2] at hrank
+      have hT1 : (1 : ℝ) ≤ 1 + t := by linarith
+      have hsum : 3 / (2 * ε) + 2 * (22 + 5 * (1 + (t : ℝ))) / (2 * ε) +
+          (93 + 2320 * (1 + t) + 4 * (1 + (t : ℝ)) ^ 2 + 64 * (1 + (t : ℝ)) ^ 3 +
+            96 * (2 / η + 2) ^ 2 + 8 * (1 + t) * F * ((m : ℝ) + 1) ^ 2 *
+            (m + max β 0 + 40 * (1 + t) + 5)) / (2 * ε) ≤
+          (8 * (1 + t) * F * ((m : ℝ) + 1) ^ 2 * (m + max β 0 + 40 * (1 + t) + 5) +
+            2600 * (1 + (t : ℝ)) ^ 3 + 96 * (2 / η + 2) ^ 2) / (2 * ε) := by
+        rw [← add_div, ← add_div]
+        refine div_le_div_of_nonneg_right ?_ (by positivity)
+        have h2 : (1 + (t : ℝ)) ≤ (1 + (t : ℝ)) ^ 3 := by
+          nlinarith [pow_le_pow_right₀ hT1 (by norm_num : 1 ≤ 3)]
+        have h22 : (1 + (t : ℝ)) ^ 2 ≤ (1 + (t : ℝ)) ^ 3 :=
+          pow_le_pow_right₀ hT1 (by norm_num)
+        have h1 : (1 : ℝ) ≤ (1 + (t : ℝ)) ^ 3 := one_le_pow₀ hT1
+        nlinarith
+      linarith
+    have hP0 : 0 ≤ ratThresholdCoeffTwoAt t β ε η m := by
+      have := rankCoeff_nonneg 1 2 t hε.le
+      have := penultimateCoeff_nonneg (RothParams.evertse b) 1 2 1 t s 1
+        (by positivity : 0 < 2 * ε) hA
       linarith
     have hlogH := Real.log_nonneg hH
     have hsum : 0 ≤ ∑ q ∈ S, Real.log (Ideal.absNorm q.asIdeal : ℝ) :=

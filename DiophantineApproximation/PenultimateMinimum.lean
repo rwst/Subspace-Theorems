@@ -59,10 +59,16 @@ contradiction.
   `Qlow` such that no `m + 1` levels with `log (Q h) ≥ Qlow`, growing at the rate `2 σ⁻¹`, can all
   have rank `n` and height at least `ε log (Q h) / (4 |S|) - C₅`. Here `m` is the explicit
   `subspaceChainLength` at the form count `s` and `σ` is the ratio of the Roth lemma used.
+* `NumberField.exists_forall_not_chain_of_budget`: the same from the one inequality the final
+  comparison uses, weight over `n + 1` plus the deviation error `2 n η AW` at most
+  `-ε / (4 (n + 1))`; `A` is then only a parameter of the chain, the Roth lemma and the
+  threshold. `NumberField.budget_of_weight_le` derives it from Bombieri–Gubler's two bounds,
+  which leave half of the budget unused.
 * `NumberField.exists_forall_mem_interval_approxSpan`: **the interval result**. Above a level,
   the levels at which `V(Q)` has rank `n` and is not exceptional have `log Q` in at most `m`
   intervals `[t, 4 σ⁻¹ t)`, with the `m` and `σ` of Steps IV and VI, outside a set `𝒲` of at
-  most one exceptional subspace.
+  most one exceptional subspace. `NumberField.exists_forall_mem_interval_approxSpan_of_budget` is
+  the same from the budget.
 * `NumberField.exists_forall_approxSpan_mem`: beyond a level, `V(Q)` lies in the finite set of
   exceptional subspaces of Layer 5.4, read off the interval result.
 * `NumberField.finite_setOf_approxSpan`: **the milestone**, Theorem 7.5.13.
@@ -676,20 +682,24 @@ noncomputable def penultimateThreshold (R : RothParams) (n s : ℕ) (ε A : ℝ)
     ((4 * ((Height.totalWeight K + #Sfin : ℕ) * Real.log (patternConst Sfin L)
       + Real.log (2 * patternHeightBound Sfin L)) + 1) / ε))
 
-/-- **No chain of levels of rank `n` whose heights grow with the level**, which is the whole of
-Bombieri--Gubler's Steps IV and VI. For exponents whose absolute values have weight at most `A`
-and at most `(n + 1) s` distinct forms, no `m + 1` levels with `log Q ≥ Qlow`, growing at the
-rate `2 σ⁻¹`, can all have rank `n` and height at least `ε log Q / (4 |S|) - C₅`, where
-`m = subspaceChainLength n s ε A` and the ratio `σ = R.ratio n s ε A` of the generalized Roth
-lemma `R` depend on `n`, `s`, `ε` and `A` alone. Only `Qlow` depends on the forms and the
-exponents. With `s = |S|` the form count is automatic (`NumberField.formCount_le`). -/
-theorem exists_forall_not_chain (R : SubspaceRoth.{u} K) {n : ℕ} (hn : 1 ≤ n)
+/-- **No chain of levels of rank `n` whose heights grow with the level, from the weight budget
+alone.** `NumberField.exists_forall_not_chain` with its two hypotheses on the exponents, weight
+`≤ -ε/2` and absolute weight `≤ A`, replaced by the one inequality the proof uses (Bombieri–Gubler's
+final comparison): the weight over `n + 1` plus the deviation error `2 n η AW` of the auxiliary
+polynomial, `η = subspaceEta n ε A`, is at most `-ε / (4 (n + 1))`. Here `ε` and `A` are only
+parameters of the chain, the Roth lemma and the threshold, and `A` need not bound the absolute
+weight: a caller that knows the weight exactly can spend the whole budget on `η`
+(`A = 0`, `ε` as large as the budget allows), where the bounds `≤ -ε/2`, `≤ A` spend half of
+it and charge `A + 1` for `A`. -/
+theorem exists_forall_not_chain_of_budget (R : SubspaceRoth.{u} K) {n : ℕ} (hn : 1 ≤ n)
     (hcard : Fintype.card ι = n + 1) {Sfin : Finset (FinitePlace K)}
     {L : AbsoluteValue K ℝ → ι → Dual K (ι → K)} {cf : AbsoluteValue K ℝ → ι → ℝ}
     (hLinf : ∀ w : InfinitePlace K, LinearIndependent K (L w.1))
     (hLfin : ∀ w ∈ Sfin, LinearIndependent K (L w.1))
-    {ε : ℝ} (hε : 0 < ε) (hweight : approxWeight Sfin cf ≤ -ε / 2) {A : ℝ}
-    (hA : approxAbsWeight Sfin cf ≤ A) {s : ℕ} (hs : formCount Sfin L ≤ (n + 1) * s) (C₅ : ℝ) :
+    {ε : ℝ} (hε : 0 < ε) {A : ℝ} (hA0 : 0 ≤ A)
+    (hbudget : approxWeight Sfin cf / ((n : ℝ) + 1)
+      + 2 * (n : ℝ) * subspaceEta n ε A * approxAbsWeight Sfin cf ≤ -(ε / (4 * ((n : ℝ) + 1))))
+    {s : ℕ} (hs : formCount Sfin L ≤ (n + 1) * s) (C₅ : ℝ) :
     ∃ Qlow : ℝ, Qlow = chainThreshold Sfin L R.toRothParams n s ε A C₅ ∧
       ∀ Q : Fin (subspaceChainLength n s ε A + 1) → ℝ, (∀ h, 1 < Q h) →
         (∀ h, Qlow ≤ Real.log (Q h)) →
@@ -710,14 +720,9 @@ theorem exists_forall_not_chain (R : SubspaceRoth.{u} K) {n : ℕ} (hn : 1 ≤ n
     · exact isUnit_det_formMatrix (hLinf w)
     · exact isUnit_det_formMatrix (hLfin w w.2)
   -- the parameter `η`, chosen against the weight of the absolute values of the exponents
-  have hA0 : 0 ≤ A := hAW0.trans hA
   set η : ℝ := subspaceEta n ε A with hηdef
   have hη0 : 0 < η := subspaceEta_pos hε hA0
   have hη1 : η ≤ 1 := min_le_left _ _
-  have hηW : 2 * (n : ℝ) * η * AW ≤ ε / (4 * ((n : ℝ) + 1)) := by
-    refine two_mul_mul_le_div hε hAW0 (Nat.cast_nonneg n) hη0 ((min_le_right _ _).trans ?_)
-    refine div_le_div_of_nonneg_left hε.le (by positivity) ?_
-    exact mul_le_mul_of_nonneg_left (by linarith) (by positivity)
   -- the number of blocks, against the number of distinct forms
   set Scard : ℝ := ((Fintype.card (InfinitePlace K) + Sfin.card : ℕ) : ℝ) with hScard
   set Fset : Set (Dual K (ι → K)) :=
@@ -971,19 +976,13 @@ theorem exists_forall_not_chain (R : SubspaceRoth.{u} K) {n : ℕ} (hn : 1 ≤ n
   have hmix : ((m : ℝ) + 1) / ((n : ℝ) + 1) * approxWeight Sfin cf
       + 2 * (n : ℝ) * ((m : ℝ) + 1) * η * AW
       ≤ -(((m : ℝ) + 1) * ε / (4 * ((n : ℝ) + 1))) := by
-    have hn1 : (0 : ℝ) < (n : ℝ) + 1 := by positivity
-    have hne1 : ((n : ℝ) + 1) ≠ 0 := hn1.ne'
-    have h1 : ((m : ℝ) + 1) / ((n : ℝ) + 1) * approxWeight Sfin cf
-        ≤ ((m : ℝ) + 1) / ((n : ℝ) + 1) * (-ε / 2) :=
-      mul_le_mul_of_nonneg_left hweight (by positivity)
-    have h2 : ((m : ℝ) + 1) * (2 * (n : ℝ) * η * AW)
-        ≤ ((m : ℝ) + 1) * (ε / (4 * ((n : ℝ) + 1))) :=
-      mul_le_mul_of_nonneg_left hηW (by positivity)
-    have h3 : ((m : ℝ) + 1) / ((n : ℝ) + 1) * (-ε / 2)
-        = -(2 * (((m : ℝ) + 1) * ε / (4 * ((n : ℝ) + 1)))) := by field_simp; ring
-    have h4 : ((m : ℝ) + 1) * (ε / (4 * ((n : ℝ) + 1)))
-        = ((m : ℝ) + 1) * ε / (4 * ((n : ℝ) + 1)) := by ring
-    linarith only [h1, h2, h3, h4]
+    have h := mul_le_mul_of_nonneg_left hbudget (by positivity : (0 : ℝ) ≤ (m : ℝ) + 1)
+    have e1 : ((m : ℝ) + 1) * (approxWeight Sfin cf / ((n : ℝ) + 1) + 2 * (n : ℝ) * η * AW)
+        = ((m : ℝ) + 1) / ((n : ℝ) + 1) * approxWeight Sfin cf
+          + 2 * (n : ℝ) * ((m : ℝ) + 1) * η * AW := by ring
+    have e2 : ((m : ℝ) + 1) * -(ε / (4 * ((n : ℝ) + 1)))
+        = -(((m : ℝ) + 1) * ε / (4 * ((n : ℝ) + 1))) := by ring
+    linarith
   exact not_of_key_inequality (tw := tw) (n₁ := (n : ℝ) + 1) (m₁ := (m : ℝ) + 1) (Ca := Ca)
     (Cb := Cb) (C₂ := max C₂ 0) (Hb := Hβ)
     (bl := Real.log (2 * ((n : ℝ) + 1) * (n : ℝ)))
@@ -996,6 +995,109 @@ theorem exists_forall_not_chain (R : SubspaceRoth.{u} K) {n : ℕ} (hn : 1 ≤ n
     (le_max_left _ _) hLsle hDsumle hPle (le_trans (le_max_left _ _) (le_max_right _ _)) hmix
     (by linarith only [hkey]) hDlog
 
+omit [DecidableEq ι] [LinearOrder ι] [Nonempty ι] in
+/-- **The weight budget from Bombieri–Gubler's two bounds**: weight `≤ -ε/2` and absolute weight
+`≤ A` give the hypothesis of `NumberField.exists_forall_not_chain_of_budget`, with half of the
+budget left to the deviation error. -/
+theorem budget_of_weight_le {Sfin : Finset (FinitePlace K)} {cf : AbsoluteValue K ℝ → ι → ℝ}
+    {n : ℕ} {ε : ℝ} (hε : 0 < ε) (hweight : approxWeight Sfin cf ≤ -ε / 2) {A : ℝ}
+    (hA : approxAbsWeight Sfin cf ≤ A) :
+    approxWeight Sfin cf / ((n : ℝ) + 1)
+      + 2 * (n : ℝ) * subspaceEta n ε A * approxAbsWeight Sfin cf
+      ≤ -(ε / (4 * ((n : ℝ) + 1))) := by
+  have hAW0 : 0 ≤ approxAbsWeight Sfin cf := approxAbsWeight_nonneg Sfin cf
+  have hA0 : 0 ≤ A := hAW0.trans hA
+  have hη0 : 0 < subspaceEta n ε A := subspaceEta_pos hε hA0
+  have hηW : 2 * (n : ℝ) * subspaceEta n ε A * approxAbsWeight Sfin cf
+      ≤ ε / (4 * ((n : ℝ) + 1)) := by
+    refine two_mul_mul_le_div hε hAW0 (Nat.cast_nonneg n) hη0 ((min_le_right _ _).trans ?_)
+    refine div_le_div_of_nonneg_left hε.le (by positivity) ?_
+    exact mul_le_mul_of_nonneg_left (by linarith) (by positivity)
+  have hn1 : (0 : ℝ) < (n : ℝ) + 1 := by positivity
+  have h1 : approxWeight Sfin cf / ((n : ℝ) + 1) ≤ (-ε / 2) / ((n : ℝ) + 1) :=
+    div_le_div_of_nonneg_right hweight hn1.le
+  have e : (-ε / 2) / ((n : ℝ) + 1) + ε / (4 * ((n : ℝ) + 1)) = -(ε / (4 * ((n : ℝ) + 1))) := by
+    field_simp; ring
+  linarith
+
+/-- **No chain of levels of rank `n` whose heights grow with the level**, which is the whole of
+Bombieri--Gubler's Steps IV and VI. For exponents whose absolute values have weight at most `A`
+and at most `(n + 1) s` distinct forms, no `m + 1` levels with `log Q ≥ Qlow`, growing at the
+rate `2 σ⁻¹`, can all have rank `n` and height at least `ε log Q / (4 |S|) - C₅`, where
+`m = subspaceChainLength n s ε A` and the ratio `σ = R.ratio n s ε A` of the generalized Roth
+lemma `R` depend on `n`, `s`, `ε` and `A` alone. Only `Qlow` depends on the forms and the
+exponents. With `s = |S|` the form count is automatic (`NumberField.formCount_le`). -/
+theorem exists_forall_not_chain (R : SubspaceRoth.{u} K) {n : ℕ} (hn : 1 ≤ n)
+    (hcard : Fintype.card ι = n + 1) {Sfin : Finset (FinitePlace K)}
+    {L : AbsoluteValue K ℝ → ι → Dual K (ι → K)} {cf : AbsoluteValue K ℝ → ι → ℝ}
+    (hLinf : ∀ w : InfinitePlace K, LinearIndependent K (L w.1))
+    (hLfin : ∀ w ∈ Sfin, LinearIndependent K (L w.1))
+    {ε : ℝ} (hε : 0 < ε) (hweight : approxWeight Sfin cf ≤ -ε / 2) {A : ℝ}
+    (hA : approxAbsWeight Sfin cf ≤ A) {s : ℕ} (hs : formCount Sfin L ≤ (n + 1) * s) (C₅ : ℝ) :
+    ∃ Qlow : ℝ, Qlow = chainThreshold Sfin L R.toRothParams n s ε A C₅ ∧
+      ∀ Q : Fin (subspaceChainLength n s ε A + 1) → ℝ, (∀ h, 1 < Q h) →
+        (∀ h, Qlow ≤ Real.log (Q h)) →
+        (∀ h : Fin (subspaceChainLength n s ε A),
+          2 * (R.ratio n s ε A)⁻¹ * Real.log (Q h.castSucc) ≤ Real.log (Q h.succ)) →
+        (∀ h, Module.finrank K (approxSpan Sfin L cf (Q h)) = n) →
+        (∀ h, ε * Real.log (Q h)
+              / (4 * ((Fintype.card (InfinitePlace K) + Sfin.card : ℕ) : ℝ)) - C₅
+            ≤ (approxSpan Sfin L cf (Q h)).logHeight) → False := by
+  exact exists_forall_not_chain_of_budget R hn hcard hLinf hLfin hε
+    ((approxAbsWeight_nonneg Sfin cf).trans hA) (budget_of_weight_le hε hweight hA) hs C₅
+
+/-- **The penultimate-minimum theorem as an interval result, from the weight budget**:
+`NumberField.exists_forall_mem_interval_approxSpan` with the absolute-weight bound replaced by the
+budget of `NumberField.exists_forall_not_chain_of_budget`. The weight bound `≤ -ε/2` stays: Layer
+5.4's dichotomy uses it. -/
+theorem exists_forall_mem_interval_approxSpan_of_budget (R : SubspaceRoth.{u} K) {n : ℕ}
+    (hn : 1 ≤ n) (hcard : Fintype.card ι = n + 1) {Sfin : Finset (FinitePlace K)}
+    {L : AbsoluteValue K ℝ → ι → Dual K (ι → K)} {cf : AbsoluteValue K ℝ → ι → ℝ}
+    (hLinf : ∀ w : InfinitePlace K, LinearIndependent K (L w.1))
+    (hLfin : ∀ w ∈ Sfin, LinearIndependent K (L w.1))
+    {ε : ℝ} (hε : 0 < ε) (hweight : approxWeight Sfin cf ≤ -ε / 2) {A : ℝ} (hA0 : 0 ≤ A)
+    (hbudget : approxWeight Sfin cf / ((n : ℝ) + 1)
+      + 2 * (n : ℝ) * subspaceEta n ε A * approxAbsWeight Sfin cf ≤ -(ε / (4 * ((n : ℝ) + 1))))
+    {s : ℕ} (hs : formCount Sfin L ≤ (n + 1) * s) :
+    ∃ (𝒲 : Set (Submodule K (ι → K))) (Q₀ : ℝ), 𝒲.Finite ∧
+      𝒲.ncard ≤ 1 ∧ 0 < Q₀ ∧
+      Q₀ = penultimateThreshold Sfin L R.toRothParams n s ε A ∧ ∀ Q₀' : ℝ, Q₀ ≤ Q₀' →
+        ∃ k ≤ subspaceChainLength n s ε A,
+        ∃ t : Fin k → ℝ, (∀ i, Q₀' ≤ t i) ∧
+        ∀ Q : ℝ, 1 < Q → Q₀' ≤ Real.log Q →
+          Module.finrank K (approxSpan Sfin L cf Q) = n → approxSpan Sfin L cf Q ∉ 𝒲 →
+          ∃ i, t i ≤ Real.log Q ∧ Real.log Q < 4 * (R.ratio n s ε A)⁻¹ * t i := by
+  classical
+  have hlk : 1 + n = Fintype.card ι := by rw [hcard]; ring
+  obtain ⟨𝒲, C₄, C₅, C₆, h𝒲fin, h𝒲card, hC₄eq, hC₅eq, hdich⟩ :=
+    exists_finite_forall_logHeight_approxSpan hlk hLinf hLfin hε hweight
+  obtain ⟨Qlow, hQloweq, hchain⟩ :=
+    exists_forall_not_chain_of_budget R hn hcard hLinf hLfin hε hA0 hbudget hs C₅
+  set σ := R.ratio n s ε A with hσdef
+  set m := subspaceChainLength n s ε A with hmdef
+  set Q₀ : ℝ := max 1 (max Qlow (C₄ / ε)) with hQ₀def
+  have hQ₀1 : 1 ≤ Q₀ := le_max_left _ _
+  refine ⟨𝒲, Q₀, h𝒲fin, h𝒲card, by linarith,
+    by rw [hQ₀def, hQloweq, hC₄eq, hC₅eq, penultimateThreshold], fun Q₀' hQ₀' ↦ ?_⟩
+  set T : Set ℝ := {q : ℝ | Q₀' ≤ q ∧ Module.finrank K (approxSpan Sfin L cf (Real.exp q)) = n ∧
+    approxSpan Sfin L cf (Real.exp q) ∉ 𝒲} with hTdef
+  obtain ⟨k, hk, t, hta, ht⟩ := Set.exists_forall_mem_Ico_of_not_exists_chain
+    (T := T) (R := 2 * σ⁻¹) (by linarith) (fun q hq ↦ hq.1) m fun ⟨u, hsT, hu⟩ ↦ by
+      have hs1 : ∀ h, 1 ≤ u h := fun h ↦ hQ₀1.trans (hQ₀'.trans (hsT h).1)
+      refine hchain (fun h ↦ Real.exp (u h)) (fun h ↦ Real.one_lt_exp_iff.mpr (by linarith [hs1 h]))
+        (fun h ↦ ?_) (fun h ↦ ?_) (fun h ↦ (hsT h).2.1) fun h ↦ ?_
+      · rw [Real.log_exp]
+        exact ((le_max_left _ _).trans (le_max_right _ _)).trans (hQ₀'.trans (hsT h).1)
+      · rw [Real.log_exp, Real.log_exp]
+        exact hu h
+      · refine ((hdich _ (Real.one_le_exp (by linarith [hs1 h])) ?_ (hsT h).2.1).resolve_left
+          (hsT h).2.2).1
+        rw [Real.log_exp]
+        exact ((le_max_right _ _).trans (le_max_right _ _)).trans (hQ₀'.trans (hsT h).1)
+  refine ⟨k, hk, t, hta, fun Q hQ1 hQlog hrank hnot ↦ ?_⟩
+  have hQexp : Real.exp (Real.log Q) = Q := Real.exp_log (by linarith)
+  obtain ⟨i, hi⟩ := ht (Real.log Q) ⟨hQlog, by rwa [hQexp], by rwa [hQexp]⟩
+  exact ⟨i, hi.1, by linarith [hi.2]⟩
 
 /-- **The penultimate-minimum theorem as an interval result** (Bombieri–Gubler, Theorem 7.5.13,
 read as Schmidt's and Evertse's interval results are). Let `(n + 1) s` bound the number of
@@ -1026,37 +1128,8 @@ theorem exists_forall_mem_interval_approxSpan (R : SubspaceRoth.{u} K) {n : ℕ}
         ∀ Q : ℝ, 1 < Q → Q₀' ≤ Real.log Q →
           Module.finrank K (approxSpan Sfin L cf Q) = n → approxSpan Sfin L cf Q ∉ 𝒲 →
           ∃ i, t i ≤ Real.log Q ∧ Real.log Q < 4 * (R.ratio n s ε A)⁻¹ * t i := by
-  classical
-  have hlk : 1 + n = Fintype.card ι := by rw [hcard]; ring
-  obtain ⟨𝒲, C₄, C₅, C₆, h𝒲fin, h𝒲card, hC₄eq, hC₅eq, hdich⟩ :=
-    exists_finite_forall_logHeight_approxSpan hlk hLinf hLfin hε hweight
-  obtain ⟨Qlow, hQloweq, hchain⟩ :=
-    exists_forall_not_chain R hn hcard hLinf hLfin hε hweight hA hs C₅
-  set σ := R.ratio n s ε A with hσdef
-  set m := subspaceChainLength n s ε A with hmdef
-  set Q₀ : ℝ := max 1 (max Qlow (C₄ / ε)) with hQ₀def
-  have hQ₀1 : 1 ≤ Q₀ := le_max_left _ _
-  refine ⟨𝒲, Q₀, h𝒲fin, h𝒲card, by linarith,
-    by rw [hQ₀def, hQloweq, hC₄eq, hC₅eq, penultimateThreshold], fun Q₀' hQ₀' ↦ ?_⟩
-  set T : Set ℝ := {q : ℝ | Q₀' ≤ q ∧ Module.finrank K (approxSpan Sfin L cf (Real.exp q)) = n ∧
-    approxSpan Sfin L cf (Real.exp q) ∉ 𝒲} with hTdef
-  obtain ⟨k, hk, t, hta, ht⟩ := Set.exists_forall_mem_Ico_of_not_exists_chain
-    (T := T) (R := 2 * σ⁻¹) (by linarith) (fun q hq ↦ hq.1) m fun ⟨u, hsT, hu⟩ ↦ by
-      have hs1 : ∀ h, 1 ≤ u h := fun h ↦ hQ₀1.trans (hQ₀'.trans (hsT h).1)
-      refine hchain (fun h ↦ Real.exp (u h)) (fun h ↦ Real.one_lt_exp_iff.mpr (by linarith [hs1 h]))
-        (fun h ↦ ?_) (fun h ↦ ?_) (fun h ↦ (hsT h).2.1) fun h ↦ ?_
-      · rw [Real.log_exp]
-        exact ((le_max_left _ _).trans (le_max_right _ _)).trans (hQ₀'.trans (hsT h).1)
-      · rw [Real.log_exp, Real.log_exp]
-        exact hu h
-      · refine ((hdich _ (Real.one_le_exp (by linarith [hs1 h])) ?_ (hsT h).2.1).resolve_left
-          (hsT h).2.2).1
-        rw [Real.log_exp]
-        exact ((le_max_right _ _).trans (le_max_right _ _)).trans (hQ₀'.trans (hsT h).1)
-  refine ⟨k, hk, t, hta, fun Q hQ1 hQlog hrank hnot ↦ ?_⟩
-  have hQexp : Real.exp (Real.log Q) = Q := Real.exp_log (by linarith)
-  obtain ⟨i, hi⟩ := ht (Real.log Q) ⟨hQlog, by rwa [hQexp], by rwa [hQexp]⟩
-  exact ⟨i, hi.1, by linarith [hi.2]⟩
+  exact exists_forall_mem_interval_approxSpan_of_budget R hn hcard hLinf hLfin hε hweight
+    ((approxAbsWeight_nonneg Sfin cf).trans hA) (budget_of_weight_le hε hweight hA) hs
 
 omit [DecidableEq ι] in
 /-- **Beyond a level, the span of the approximation domain is one of finitely many subspaces**:
