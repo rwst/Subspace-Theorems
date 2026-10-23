@@ -738,6 +738,34 @@ Two consequences for the plan:
       from the absolute weight of Q0.3's clamped exponents and the grid factor `G`. Q1.8a removed
       both: now `2 + 2 ℓ Y² (1 + 5 log (32 ℓ Y³) / δ)` with `Y = 449 / δ`, i.e.
       `O(δ⁻³ log s · log (δ⁻¹ log s))`, Bugeaud–Evertse's shape with `s` for `r`.
+    - **with the caller's gap principle** (2026-10-23, from the consumer `lean-code` BB13, first
+      stated in R. Stephan, *Line counts and a census for the exceptions to
+      `‖(3/2)^n‖ ≥ (3/4)^n`, with an application to Waring's problem*, preprint 2026,
+      doi:10.13140/RG.2.2.15019.20008, Thm 7.2, Lemma 7.5, Thm 7.6): Q0.3's assembly is split
+      after its first step, `exists_forall_mem_interval_systemSet` (the solutions above `X₀` lie
+      in `NS` subspaces or in `NI` intervals of `log H`, the same for every solution;
+      `exists_finset_submodule_of_forall_interval` is now this plus 9.4), with the instance
+      `exists_forall_mem_interval_systemSet_two`. `exists_finset_submodule_of_gap_two` counts
+      the intervals with a gap supplied by the caller (solutions on distinct lines with
+      `Y ≤ log H(x) ≤ log H(y)` have `ρ log H(x) ≤ log H(y)`), and the range `[Y, X₀)` with the
+      same gap: `systemGapCountTwo = 2 + m (1 + log (4 σ⁻¹) / log ρ) + 1 + log (X₀ / Y) / log ρ`
+      (`Submodule.exists_finset_span_singleton_of_lacunary` for the windows). For the exceptions
+      to `‖(3/2)^n‖ ≥ (3/4)^n` the gap is `ρ₀ = 1.2618` against `1 + δ / 4 ≈ 1.065`, and the line
+      count drops from `3.87·10⁹` to `1.05·10⁹`.
+    - **numerical evaluation** (2026-10-23, `Numerics.lean`, again from the BB13 consumer): the
+      parts of a decimal evaluation that do not depend on the caller's system. Over `ℚ`: places
+      over `S` are `S`, absolute norms are the primes, `scalarConst = 2 ∏ p`. In two variables:
+      `η = e δ / (64 (6 e + 1))` (`δ / 448` over `ℚ`), `m ≤ M` from `(2/3) Λ / η² ≤ M`,
+      `systemLargeCountTwo ≤ 2 + M (1 + Λ / L)` and `systemGapCountTwo ≤ 3 + M (1 + Λ / L) +
+      Λ' / L` from rational `Λ ≥ log (16 (M + 1) / η)`, `L ≤ log (1 + δ / 4)` (or `log ρ`), the
+      middle ratio `≤ max (1, δ X / (2 n log n))`, and `systemThresholdTwo_rat_le`: over `ℚ`
+      with `t` primes the threshold is `ratThresholdCoeffTwo t β δ m · (4 (1 + t) log H +
+      ∑ log p + 1)`, a polynomial in `t`, `m`, `δ⁻¹` times Evertse's factor
+      `max (1, 896 (m + 1) / δ) ^ (m + 1)`, or one of the two terms of the system; `β = 6` for
+      Rémond's heights (`resultantHeight_botBound_one_le`). Lower bounds for logarithms come from
+      `STForMathlib/Analysis/SpecialFunctions/Log/SeriesBounds.lean` (partial sums of
+      `2 artanh`, e.g. `log (1 + x) ≥ 2 x / (2 + x)`). BB13's large term `≤ 2.0093·10⁹` at
+      `δ = 13/50` is then two `norm_num` calls.
   - The chain length needs no change. Ours is `⌈4 log (2 (n + 1) s) / ((n + 1) (n + 2) η²)⌉`
     with `η ≍ ε / ((n + 1)² (A + 1))` (5.2's Siegel lemma), BE's (A.26) is
     `1 + ⌊25600 δ⁻² log (2 r)⌋`: the same `δ⁻² log` shape, up to `s` for `r` and the factor `A`.
@@ -2167,8 +2195,11 @@ These use the counts above and are recorded in [`papers.md`](../papers.md):
   `η < 1/7`** in `BugeaudEvertse2008/Theorem21.lean` (`Real.frequently_lt_complexity`, std3,
   2026-10-13), and for **`η < 1/4`** in `BugeaudEvertse2008/Additions/Theorem21Quarter.lean`
   (`Real.frequently_lt_complexity_of_lt_quarter`, std3, 2026-10-21).
-- **BE08**, Cor. 5.2 (quantitative Ridout, a line count above `max (2 H(ξ), 2^{4/ε})`): used by
-  `lean-code`'s Problem 10.13 root, where it is still a cited axiom. Needs Q4.4 and Q4.5.
+- **BE08**, Cor. 5.2 (quantitative Ridout, a line count above `max (2 H(ξ), 2^{4/ε})`): was used
+  by `lean-code`'s Problem 10.13 root as a cited axiom. Since 2026-10-22 that root no longer needs
+  it: Q1.6's count in two variables, without threshold, gives `3.87·10⁹` lines, and with the
+  root's own gap (`exists_finset_submodule_of_gap_two`) `1.05·10⁹`, std3 (Stephan 2026,
+  doi:10.13140/RG.2.2.15019.20008, §7). Cor. 5.2 as stated still needs Q4.4 and Q4.5.
 - **ESS02**: the uniform bound for unit equations in a multiplicative group of finite rank.
 - **Sch90**: bounds for S-unit equations over number fields.
 - **AB10, AB11**: transcendence and irrationality measures from repetitive patterns.

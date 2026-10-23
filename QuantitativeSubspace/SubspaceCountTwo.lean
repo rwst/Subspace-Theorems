@@ -33,6 +33,8 @@ lemma (Q1.5) `4 σ⁻¹ = 16 (m + 1) / η` is polynomial, so the count is
   of Layer 4.3's rank threshold and Layer 5.6's `penultimateThreshold`.
 * `NumberField.systemThresholdTwo`, `NumberField.systemLargeCountTwo`: Q0.3's threshold and count
   of the large solutions for `n = 2`, with Layer 5.6 in place of 6.1.
+* `NumberField.systemGapCountTwo`: the same count with a gap principle of ratio `ρ` supplied by
+  the caller, plus the range `[Y, X₀)` below the threshold.
 
 ## Main results
 
@@ -50,6 +52,18 @@ lemma (Q1.5) `4 σ⁻¹ = 16 (m + 1) / η` is polynomial, so the count is
   distinct forms over `E` and `Y = 449 / δ`,
 
   `systemLargeCountTwo ≤ 2 + 2 ℓ Y² (1 + 5 log (32 ℓ Y³) / δ)`, `ℓ = 1 + log (4 s)`.
+* `NumberField.exists_forall_mem_interval_systemSet_two`: the large solutions of a system lie in
+  two subspaces or have `log H(x)` in `m` intervals of ratio `4 σ⁻¹`, the same for every
+  solution ([Ste26], Theorem 7.2).
+* `NumberField.exists_finset_submodule_of_gap_two`: **the count with the caller's gap
+  principle**. If solutions on distinct lines with `Y ≤ log H(x) ≤ log H(y)` have
+  `ρ log H(x) ≤ log H(y)`, each interval holds `1 + log (4 σ⁻¹) / log ρ` lines instead of
+  `1 + log (4 σ⁻¹) / log (1 + δ / 4)`, and the range `[Y, X₀)` holds `1 + log (X₀ / Y) / log ρ`
+  ([Ste26], Theorem 7.6, where `ρ = 1.2618` against `1 + δ / 4 ≈ 1.065` cuts the line count of the
+  exceptions to `‖(3/2)^n‖ ≥ (3/4)^n` from `3.87·10⁹` to `1.05·10⁹`).
+* `Real.finite_and_ncard_le_of_lacunary`, `Submodule.exists_finset_span_singleton_of_lacunary`:
+  a `ρ`-lacunary set in `[a, b)` has at most `1 + log (b / a) / log ρ` elements, and a lacunary
+  family meets at most that many lines ([Ste26], Lemma 7.5).
 
 ## Comparison with Bugeaud–Evertse
 
@@ -66,6 +80,11 @@ Bugeaud–Evertse's are normalized by (A.7), `∑ max c ≤ 1`, and one scalar a
 Y. Bugeaud and J.-H. Evertse, *On two notions of complexity of algebraic numbers*, Acta Arith.
 **133** (2008), 221–250 (arXiv:0709.1560), Appendix.
 
+[Ste26] R. Stephan, *Line counts and a census for the exceptions to `‖(3/2)^n‖ ≥ (3/4)^n`, with an
+application to Waring's problem*, preprint (2026), doi:10.13140/RG.2.2.15019.20008, §7: Theorem 7.2
+(the interval result for the solutions), Lemma 7.5 (lines in a range), Theorem 7.6 (the line
+count with the gap `ρ₀`). The results above marked [Ste26] appear there first.
+
 This is Layer Q1.6 of the `QuantitativeSubspace` roadmap.
 -/
 
@@ -74,6 +93,137 @@ This is Layer Q1.6 of the `QuantitativeSubspace` roadmap.
 open Finset Module MvPolynomial Height IsDedekindDomain
 
 universe u
+
+/-! ### Lacunary sets and the lines through them -/
+
+namespace Real
+
+/-- In a finite set of reals `≥ a` with gap ratio `ρ ≥ 1`, some element is at least
+`ρ ^ (#s - 1) a`. -/
+theorem exists_mem_pow_mul_le_of_lacunary {ρ a : ℝ} (hρ : 1 ≤ ρ) (s : Finset ℝ) :
+    (∀ u ∈ s, ∀ v ∈ s, u < v → ρ * u ≤ v) → (∀ u ∈ s, a ≤ u) → s.Nonempty →
+      ∃ v ∈ s, ρ ^ (#s - 1) * a ≤ v := by
+  induction s using Finset.induction_on_max with
+  | empty => intro _ _ h; exact absurd h Finset.not_nonempty_empty
+  | insert v s hv ih =>
+    intro hgap ha _
+    have hvs : v ∉ s := fun h ↦ lt_irrefl v (hv v h)
+    rw [Finset.card_insert_of_notMem hvs]
+    rcases s.eq_empty_or_nonempty with rfl | hs
+    · exact ⟨v, Finset.mem_insert_self _ _, by simpa using ha v (Finset.mem_insert_self _ _)⟩
+    obtain ⟨u, hu, hua⟩ := ih
+      (fun x hx y hy hxy ↦ hgap x (Finset.mem_insert_of_mem hx) y (Finset.mem_insert_of_mem hy) hxy)
+      (fun x hx ↦ ha x (Finset.mem_insert_of_mem hx)) hs
+    refine ⟨v, Finset.mem_insert_self _ _, ?_⟩
+    have huv := hgap u (Finset.mem_insert_of_mem hu) v (Finset.mem_insert_self _ _) (hv u hu)
+    have hcard : #s + 1 - 1 = (#s - 1) + 1 := by have := hs.card_pos; omega
+    rw [hcard, pow_succ]
+    calc ρ ^ (#s - 1) * ρ * a = ρ * (ρ ^ (#s - 1) * a) := by ring
+      _ ≤ ρ * u := mul_le_mul_of_nonneg_left hua (by linarith)
+      _ ≤ v := huv
+
+/-- **A lacunary set of reals in `[a, b)` is small**: a finite set of reals in `[a, b)`,
+`0 < a ≤ b`, in which any two elements `u < v` have `ρ u ≤ v`, `ρ > 1`, has at most
+`1 + log (b / a) / log ρ` elements. This is the count in the proof of Lemma 7.5 of [Ste26]. -/
+theorem card_le_one_add_log_div_log_of_lacunary {ρ a b : ℝ} (hρ : 1 < ρ) (ha : 0 < a)
+    (hab : a ≤ b) (s : Finset ℝ) (hgap : ∀ u ∈ s, ∀ v ∈ s, u < v → ρ * u ≤ v)
+    (hs : ∀ u ∈ s, a ≤ u ∧ u < b) :
+    (#s : ℝ) ≤ 1 + Real.log (b / a) / Real.log ρ := by
+  have hlρ : 0 < Real.log ρ := Real.log_pos hρ
+  have hba : 0 ≤ Real.log (b / a) / Real.log ρ :=
+    div_nonneg (Real.log_nonneg ((one_le_div ha).2 hab)) hlρ.le
+  rcases s.eq_empty_or_nonempty with rfl | hne
+  · simp only [Finset.card_empty, Nat.cast_zero]; linarith
+  obtain ⟨v, hv, hva⟩ := exists_mem_pow_mul_le_of_lacunary hρ.le s hgap (fun u hu ↦ (hs u hu).1) hne
+  have hpow : ρ ^ (#s - 1) < b / a := by
+    rw [lt_div_iff₀ ha]; exact hva.trans_lt (hs v hv).2
+  have hlog : ((#s - 1 : ℕ) : ℝ) * Real.log ρ < Real.log (b / a) := by
+    rw [← Real.log_pow]; exact Real.log_lt_log (by positivity) hpow
+  have hc : (#s : ℝ) = ((#s - 1 : ℕ) : ℝ) + 1 := by
+    have := hne.card_pos
+    rw [Nat.cast_sub (by omega), Nat.cast_one]; ring
+  have : ((#s - 1 : ℕ) : ℝ) ≤ Real.log (b / a) / Real.log ρ := by
+    rw [le_div_iff₀ hlρ]; exact hlog.le
+  linarith
+
+/-- **A lacunary set of reals in `[a, b)` is finite and small**: the set form of
+`Real.card_le_one_add_log_div_log_of_lacunary`. -/
+theorem finite_and_ncard_le_of_lacunary {ρ a b : ℝ} (hρ : 1 < ρ) (ha : 0 < a) (hab : a ≤ b)
+    {s : Set ℝ} (hgap : ∀ u ∈ s, ∀ v ∈ s, u < v → ρ * u ≤ v) (hs : ∀ u ∈ s, a ≤ u ∧ u < b) :
+    s.Finite ∧ (s.ncard : ℝ) ≤ 1 + Real.log (b / a) / Real.log ρ := by
+  have key : ∀ t : Finset ℝ, ↑t ⊆ s → (#t : ℝ) ≤ 1 + Real.log (b / a) / Real.log ρ :=
+    fun t hts ↦ card_le_one_add_log_div_log_of_lacunary hρ ha hab t
+      (fun u hu v hv ↦ hgap u (hts hu) v (hts hv)) fun u hu ↦ hs u (hts hu)
+  have hfin : s.Finite := by
+    by_contra hinf
+    obtain ⟨t, hts, ht⟩ := Set.Infinite.exists_subset_card_eq hinf
+      (⌊1 + Real.log (b / a) / Real.log ρ⌋₊ + 1)
+    have h := key t hts
+    rw [ht] at h
+    push_cast at h
+    linarith [Nat.lt_floor_add_one (1 + Real.log (b / a) / Real.log ρ)]
+  refine ⟨hfin, ?_⟩
+  rw [Set.ncard_eq_toFinset_card s hfin]
+  exact key _ (by simp)
+
+end Real
+
+namespace Submodule
+
+/-- **Few lines through a lacunary family meet a window.** Let `h` be a real function on a
+space `V` of finite dimension at least `2`, and `X` a set of vectors such that any two
+`x, y ∈ X` on distinct lines with `a ≤ h x ≤ h y` have `ρ h x ≤ h y`, `ρ > 1`, `0 < a ≤ b`. Then
+the `x ∈ X` with `h x ∈ [a, b)` lie on at most `1 + log (b / a) / log ρ` lines. This is Lemma 7.5
+of [Ste26], with `h` the logarithmic height in place of the index. -/
+theorem exists_finset_span_singleton_of_lacunary {K V : Type*} [Field K] [AddCommGroup V]
+    [Module K V] (hV : 1 < finrank K V) (h : V → ℝ) {X : Set V}
+    {ρ a b : ℝ} (hρ : 1 < ρ) (ha : 0 < a) (hab : a ≤ b)
+    (hgap : ∀ x ∈ X, ∀ y ∈ X, a ≤ h x → h x ≤ h y → K ∙ x ≠ K ∙ y → ρ * h x ≤ h y) :
+    ∃ T : Finset (Submodule K V), (#T : ℝ) ≤ 1 + Real.log (b / a) / Real.log ρ ∧
+      (∀ U ∈ T, U ≠ ⊤) ∧ ∀ x ∈ X, a ≤ h x → h x < b → ∃ U ∈ T, x ∈ U := by
+  classical
+  set Xw : Set V := {x | x ∈ X ∧ a ≤ h x ∧ h x < b} with hXw
+  set P : Set (Submodule K V) := (fun x ↦ K ∙ x) '' Xw with hP
+  set g := Function.invFunOn (fun x ↦ K ∙ x) Xw with hg
+  have hgP : ∀ U ∈ P, g U ∈ Xw ∧ K ∙ g U = U := fun U hU ↦
+    ⟨Function.invFunOn_mem hU, Function.invFunOn_eq hU⟩
+  -- representatives of distinct lines
+  have hne : ∀ U ∈ P, ∀ W ∈ P, U ≠ W → h (g U) ≤ h (g W) → ρ * h (g U) ≤ h (g W) := by
+    intro U hU W hW hUW hle
+    obtain ⟨⟨hxU, haU, -⟩, hfU⟩ := hgP U hU
+    obtain ⟨⟨hxW, -, -⟩, hfW⟩ := hgP W hW
+    exact hgap _ hxU _ hxW haU hle fun heq ↦ hUW (hfU.symm.trans (heq.trans hfW))
+  have hinj : Set.InjOn (h ∘ g) P := by
+    intro U hU W hW hUW
+    by_contra hne'
+    have hUW' : h (g U) = h (g W) := hUW
+    have hpos : 0 < h (g U) := ha.trans_le (hgP U hU).1.2.1
+    have := hne U hU W hW hne' hUW'.le
+    nlinarith [mul_lt_mul_of_pos_right hρ hpos]
+  obtain ⟨hfin, hcard⟩ := Real.finite_and_ncard_le_of_lacunary hρ ha hab (s := (h ∘ g) '' P)
+    (by
+      rintro _ ⟨U, hU, rfl⟩ _ ⟨W, hW, rfl⟩ hlt
+      refine hne U hU W hW (fun hUW ↦ ?_) hlt.le
+      subst hUW
+      exact lt_irrefl _ hlt)
+    (by
+      rintro _ ⟨U, hU, rfl⟩
+      exact ⟨(hgP U hU).1.2.1, (hgP U hU).1.2.2⟩)
+  have hPfin : P.Finite := Set.Finite.of_finite_image hfin hinj
+  refine ⟨hPfin.toFinset, ?_, fun U hU ↦ ?_, fun x hx hax hxb ↦ ?_⟩
+  · rw [← Set.ncard_eq_toFinset_card P hPfin, ← hinj.ncard_image]
+    exact hcard
+  · obtain ⟨x, -, rfl⟩ := hPfin.mem_toFinset.1 hU
+    intro htop
+    have h1 := finrank_span_le_card (R := K) ({x} : Set V)
+    have htop' : K ∙ x = ⊤ := htop
+    rw [htop', finrank_top] at h1
+    simp only [Set.toFinset_singleton, Finset.card_singleton] at h1
+    omega
+  · exact ⟨K ∙ x, hPfin.mem_toFinset.2 ⟨x, ⟨hx, hax, hxb⟩, rfl⟩,
+      Submodule.mem_span_singleton_self x⟩
+
+end Submodule
 
 namespace NumberField
 
@@ -469,6 +619,174 @@ theorem exists_finset_submodule_of_isNormalizedSystem_two_evertse
       (∀ U ∈ T, U ≠ ⊤) ∧ ∀ x ∈ systemSet S w L C c, ∃ U ∈ T, x ∈ U :=
   exists_finset_submodule_of_isNormalizedSystem_two (SubspaceRoth.evertse.{u} Hm) hcard S w
     hwInf hwFin hN
+
+/-! ### A gap principle of the caller's -/
+
+open scoped Classical in
+/-- **The large solutions of a system in two variables lie in two subspaces or in `m` height
+intervals**: for every `X₀ ≥ systemThresholdTwo`, at most two proper subspaces and at most
+`m = subspaceChainLength 1 s (2 ε) A` intervals `[s, 4 σ⁻¹ s)`, `s ≥ X₀`, of `log H(x)`, with
+`s = R [E : K]`, `ε = systemEps [E : K] δ`, `A = systemAbsBound [E : K] 2` and `σ` the ratio of
+the Roth lemma. `NumberField.exists_forall_mem_interval_systemSet` fed with the interval result
+in two variables; over `ℚ`, Theorem 7.2 of [Ste26]. -/
+theorem exists_forall_mem_interval_systemSet_two (RL : SubspaceRoth.{u} E)
+    (hcard : Fintype.card ι = 2)
+    (S : Finset (HeightOneSpectrum (𝓞 K))) (w : AbsoluteValue K ℝ → AbsoluteValue E ℝ)
+    (hwInf : ∀ v : InfinitePlace K, (w v.1).LiesOver v.1)
+    (hwFin : ∀ v ∈ S, (w (FinitePlace.mk v).1).LiesOver (FinitePlace.mk v).1)
+    {L : AbsoluteValue K ℝ → ι → Dual E (ι → E)} {C : InfinitePlace K ⊕ S → ℝ}
+    {c : InfinitePlace K ⊕ S → ι → ℝ} {H : ℝ} {D R : ℕ} {δ : ℝ}
+    (hN : IsNormalizedSystem S w L C c H D R δ) {X₀ : ℝ}
+    (hX₀ : systemThresholdTwo E S w L RL.toRothParams R H δ ≤ X₀) :
+    ∃ T : Finset (Submodule K (ι → K)), #T ≤ 2 ∧ (∀ U ∈ T, U ≠ ⊤) ∧
+      ∃ 𝒯 : Finset ℝ,
+        #𝒯 ≤ subspaceChainLength 1 (R * finrank K E) (2 * systemEps (finrank K E) δ)
+          (systemAbsBound (finrank K E) 2) ∧ (∀ s ∈ 𝒯, X₀ ≤ s) ∧
+        ∀ x ∈ systemSet S w L C c, X₀ ≤ Real.log (mulHeightAff x) →
+          (∃ U ∈ T, x ∈ U) ∨
+            ∃ s ∈ 𝒯, s ≤ Real.log (mulHeightAff x) ∧ Real.log (mulHeightAff x) <
+              4 * (RL.ratio 1 (R * finrank K E) (2 * systemEps (finrank K E) δ)
+                (systemAbsBound (finrank K E) 2))⁻¹ * s := by
+  have : Nonempty ι := Fintype.card_pos_iff.1 (by omega)
+  have hLI : ∀ v : InfinitePlace K, LinearIndependent E (L v.1) := fun v ↦
+    hN.linearIndependent (.inl v)
+  have hLF : ∀ p ∈ S, LinearIndependent E (L (FinitePlace.mk p).1) := fun p hp ↦
+    hN.linearIndependent (.inr ⟨p, hp⟩)
+  have hε0 : 0 < systemEps (finrank K E) δ := by
+    have := hN.delta_pos
+    have he0 : (0 : ℝ) < finrank K E := by exact_mod_cast (finrank_pos : 0 < finrank K E)
+    rw [systemEps]; positivity
+  have hsE : formCount (systemPlacesOver E S) (conjSystem univ (S.image FinitePlace.mk) w L) ≤
+      2 * (R * finrank K E) :=
+    (formCount_conjSystem_le hwInf hwFin hN.ncard_le).trans (Nat.le_mul_of_pos_left _ two_pos)
+  have hX₀T := (le_max_right _ _).trans hX₀
+  have hX₀P : twoThreshold (systemPlacesOver E S) (conjSystem univ (S.image FinitePlace.mk) w L)
+      RL.toRothParams (R * finrank K E) (systemEps (finrank K E) δ)
+      (systemAbsBound (finrank K E) (Fintype.card ι)) ≤ X₀ := (le_max_left _ _).trans hX₀
+  rw [hcard] at hX₀P
+  have h := exists_forall_mem_interval_systemSet S w hwInf hwFin hN (X₀ := X₀)
+    (ρ := 4 * (RL.ratio 1 (R * finrank K E) (2 * systemEps (finrank K E) δ)
+      (systemAbsBound (finrank K E) 2))⁻¹) (NS := 2)
+    (NI := subspaceChainLength 1 (R * finrank K E) (2 * systemEps (finrank K E) δ)
+      (systemAbsBound (finrank K E) 2))
+    ((le_max_right _ _).trans hX₀T) ((le_max_left _ _).trans hX₀T) fun c' hcw hcA _ _ ↦ by
+      rw [hcard] at hcA
+      obtain ⟨T, hTcard, hTtop, hint⟩ :=
+        exists_forall_mem_interval_approxDomain_two (K := E) RL hcard
+          (linearIndependent_conjSystem_infinitePlace hwInf hLI)
+          (fun V hV ↦ linearIndependent_conjSystem_systemPlacesOver hwFin hLF hV) hε0 hcw hcA hsE
+      obtain ⟨𝒯, h𝒯card, h𝒯ge, hQint⟩ := hint X₀ hX₀P
+      exact ⟨T, hTcard, hTtop, 𝒯, h𝒯card, h𝒯ge, hQint⟩
+  exact h
+
+/-- **The number of subspaces in two variables with a gap principle of the caller's**: `⊥` and
+Layer 5.6's exceptional subspace; for each of the `m` intervals of ratio `4 σ⁻¹`, at most
+`1 + log (4 σ⁻¹) / log ρ` lines; and `1 + log (X₀ / Y) / log ρ` lines with `log H(x)` in
+`[Y, X₀)`. It is `systemLargeCountTwo` with `ρ` in place of `1 + δ / 4`, plus the range below
+`X₀`; the count `N(δ)` of Theorem 7.6 of [Ste26] has this shape. -/
+noncomputable def systemGapCountTwo (R : RothParams) (e s : ℕ) (δ ρ X₀ Y : ℝ) : ℝ :=
+  2 + (subspaceChainLength 1 s (2 * systemEps e δ) (systemAbsBound e 2) : ℝ) *
+      (1 + Real.log (4 * (R.ratio 1 s (2 * systemEps e δ) (systemAbsBound e 2))⁻¹) /
+        Real.log ρ) +
+    (1 + Real.log (X₀ / Y) / Real.log ρ)
+
+open scoped Classical in
+/-- **The quantitative Subspace Theorem in two variables with a gap principle of the caller's.**
+Let `X` be a set of solutions of a normalized system in two variables such that any two `x, y ∈ X`
+on distinct lines with `Y ≤ log H(x) ≤ log H(y)` have `ρ log H(x) ≤ log H(y)`, for some
+`ρ > 1` and `Y > 0`. Then for every `X₀ ≥ max (Y, systemThresholdTwo)` the `x ∈ X` with
+`log H(x) ≥ Y` lie in at most `systemGapCountTwo` proper subspaces: the interval result
+(`NumberField.exists_forall_mem_interval_systemSet_two`) above `X₀`, each of its intervals and the
+range `[Y, X₀)` counted with the caller's gap (`Submodule.exists_finset_span_singleton_of_lacunary`)
+in place of Layer 9.4's ratio `1 + δ / 4`. No count for the solutions below `Y` is included.
+
+This is the count of Theorem 7.6 of [Ste26], where the exceptions to `‖(3/2)^n‖ ≥ (3/4)^n` have
+the gap `ρ₀ = 1.2618` from `n > 10⁵` on, against `1 + δ / 4 ≈ 1.065`. -/
+theorem exists_finset_submodule_of_gap_two (RL : SubspaceRoth.{u} E)
+    (hcard : Fintype.card ι = 2)
+    (S : Finset (HeightOneSpectrum (𝓞 K))) (w : AbsoluteValue K ℝ → AbsoluteValue E ℝ)
+    (hwInf : ∀ v : InfinitePlace K, (w v.1).LiesOver v.1)
+    (hwFin : ∀ v ∈ S, (w (FinitePlace.mk v).1).LiesOver (FinitePlace.mk v).1)
+    {L : AbsoluteValue K ℝ → ι → Dual E (ι → E)} {C : InfinitePlace K ⊕ S → ℝ}
+    {c : InfinitePlace K ⊕ S → ι → ℝ} {H : ℝ} {D R : ℕ} {δ : ℝ}
+    (hN : IsNormalizedSystem S w L C c H D R δ) {X₀ : ℝ}
+    (hX₀ : systemThresholdTwo E S w L RL.toRothParams R H δ ≤ X₀) {X : Set (ι → K)}
+    (hX : X ⊆ systemSet S w L C c) {ρ Y : ℝ} (hρ : 1 < ρ) (hY : 0 < Y) (hYX₀ : Y ≤ X₀)
+    (hgap : ∀ x ∈ X, ∀ y ∈ X, Y ≤ Real.log (mulHeightAff x) →
+      Real.log (mulHeightAff x) ≤ Real.log (mulHeightAff y) → K ∙ x ≠ K ∙ y →
+        ρ * Real.log (mulHeightAff x) ≤ Real.log (mulHeightAff y)) :
+    ∃ T : Finset (Submodule K (ι → K)),
+      (#T : ℝ) ≤ systemGapCountTwo RL.toRothParams (finrank K E) (R * finrank K E) δ ρ X₀ Y ∧
+      (∀ U ∈ T, U ≠ ⊤) ∧ ∀ x ∈ X, Y ≤ Real.log (mulHeightAff x) → ∃ U ∈ T, x ∈ U := by
+  obtain ⟨T₁, hT₁, hT₁top, 𝒯, h𝒯, h𝒯ge, hint⟩ :=
+    exists_forall_mem_interval_systemSet_two RL hcard S w hwInf hwFin hN hX₀
+  have hδ := hN.delta_pos
+  have he0 : (0 : ℝ) < finrank K E := by exact_mod_cast (finrank_pos : 0 < finrank K E)
+  have hε2 : 0 < 2 * systemEps (finrank K E) δ := by rw [systemEps]; positivity
+  have hA0 : (0 : ℝ) ≤ systemAbsBound (finrank K E) 2 := by rw [systemAbsBound]; positivity
+  set m := subspaceChainLength 1 (R * finrank K E) (2 * systemEps (finrank K E) δ)
+    (systemAbsBound (finrank K E) 2) with hm
+  set σ := RL.ratio 1 (R * finrank K E) (2 * systemEps (finrank K E) δ)
+    (systemAbsBound (finrank K E) 2) with hσ
+  have hσ0 : 0 < σ := RL.ratio_pos hε2 hA0
+  have hσ1 : σ ≤ 1 := RL.ratio_le_one hε2 hA0
+  have hρ'1 : 1 ≤ 4 * σ⁻¹ := by
+    have : 1 ≤ σ⁻¹ := (one_le_inv₀ hσ0).2 hσ1
+    linarith
+  have hV : 1 < finrank K (ι → K) := by
+    rw [Module.finrank_fintype_fun_eq_card, hcard]; norm_num
+  -- one window of `log H`
+  have hwin : ∀ a b, Y ≤ a → a ≤ b → ∃ T : Finset (Submodule K (ι → K)),
+      (#T : ℝ) ≤ 1 + Real.log (b / a) / Real.log ρ ∧ (∀ U ∈ T, U ≠ ⊤) ∧
+        ∀ x ∈ X, a ≤ Real.log (mulHeightAff x) → Real.log (mulHeightAff x) < b →
+          ∃ U ∈ T, x ∈ U := fun a b hYa hab ↦
+    Submodule.exists_finset_span_singleton_of_lacunary hV (fun x ↦ Real.log (mulHeightAff x)) hρ
+      (hY.trans_le hYa) hab fun x hx y hy hax hxy hne ↦ hgap x hx y hy (hYa.trans hax) hxy hne
+  have hw𝒯 : ∀ s ∈ 𝒯, ∃ T : Finset (Submodule K (ι → K)),
+      (#T : ℝ) ≤ 1 + Real.log (4 * σ⁻¹) / Real.log ρ ∧ (∀ U ∈ T, U ≠ ⊤) ∧
+        ∀ x ∈ X, s ≤ Real.log (mulHeightAff x) → Real.log (mulHeightAff x) < 4 * σ⁻¹ * s →
+          ∃ U ∈ T, x ∈ U := by
+    intro s hs
+    have hYs := hYX₀.trans (h𝒯ge s hs)
+    have hs0 : 0 < s := hY.trans_le hYs
+    obtain ⟨T, hT, hTtop, hTmem⟩ := hwin s (4 * σ⁻¹ * s) hYs (le_mul_of_one_le_left hs0.le hρ'1)
+    refine ⟨T, ?_, hTtop, hTmem⟩
+    rwa [mul_div_assoc, div_self hs0.ne', mul_one] at hT
+  choose! Tw hTw using hw𝒯
+  obtain ⟨T₀, hT₀, hT₀top, hT₀mem⟩ := hwin Y X₀ le_rfl hYX₀
+  refine ⟨T₁ ∪ 𝒯.biUnion Tw ∪ T₀, ?_, fun U hU ↦ ?_, fun x hx hYx ↦ ?_⟩
+  · have hper : 0 ≤ 1 + Real.log (4 * σ⁻¹) / Real.log ρ :=
+      add_nonneg zero_le_one (div_nonneg (Real.log_nonneg hρ'1) (Real.log_pos hρ).le)
+    have h1 : (#(T₁ ∪ 𝒯.biUnion Tw ∪ T₀) : ℝ) ≤ #T₁ + #(𝒯.biUnion Tw) + #T₀ := by
+      exact_mod_cast (Finset.card_union_le _ _).trans
+        (Nat.add_le_add_right (Finset.card_union_le _ _) _)
+    have h2 : (#(𝒯.biUnion Tw) : ℝ) ≤ m * (1 + Real.log (4 * σ⁻¹) / Real.log ρ) :=
+      calc (#(𝒯.biUnion Tw) : ℝ) ≤ ∑ s ∈ 𝒯, (#(Tw s) : ℝ) := by
+            exact_mod_cast Finset.card_biUnion_le
+        _ ≤ ∑ _s ∈ 𝒯, (1 + Real.log (4 * σ⁻¹) / Real.log ρ) :=
+            Finset.sum_le_sum fun s hs ↦ (hTw s hs).1
+        _ = #𝒯 * (1 + Real.log (4 * σ⁻¹) / Real.log ρ) := by
+            rw [Finset.sum_const, nsmul_eq_mul]
+        _ ≤ m * (1 + Real.log (4 * σ⁻¹) / Real.log ρ) :=
+            mul_le_mul_of_nonneg_right (by exact_mod_cast h𝒯) hper
+    have h3 : (#T₁ : ℝ) ≤ 2 := by exact_mod_cast hT₁
+    rw [systemGapCountTwo, ← hm, ← hσ]
+    linarith
+  · rcases Finset.mem_union.1 hU with hU | hU
+    · rcases Finset.mem_union.1 hU with hU | hU
+      · exact hT₁top U hU
+      · obtain ⟨s, hs, hU⟩ := Finset.mem_biUnion.1 hU
+        exact (hTw s hs).2.1 U hU
+    · exact hT₀top U hU
+  · by_cases hlt : Real.log (mulHeightAff x) < X₀
+    · obtain ⟨U, hU, hxU⟩ := hT₀mem x hx hYx hlt
+      exact ⟨U, Finset.mem_union_right _ hU, hxU⟩
+    push Not at hlt
+    rcases hint x (hX hx) hlt with ⟨U, hU, hxU⟩ | ⟨s, hs, h1, h2⟩
+    · exact ⟨U, Finset.mem_union_left _ (Finset.mem_union_left _ hU), hxU⟩
+    · obtain ⟨U, hU, hxU⟩ := (hTw s hs).2.2 x hx h1 h2
+      exact ⟨U, Finset.mem_union_left _ (Finset.mem_union_right _
+        (Finset.mem_biUnion.2 ⟨s, hs, hU⟩)), hxU⟩
 
 end System
 

@@ -62,6 +62,10 @@ of the conjugated forms are those of the coefficients (`logHeight₁_algEquiv`,
 
 ## Main results
 
+* `NumberField.exists_forall_mem_interval_systemSet`: steps 1–3 for **any** interval result
+  above `X₀`: the large solutions lie in `NS` subspaces or have `log H(x)` in `NI` intervals,
+  the same for every solution. It serves a caller with a gap principle of its own, better than
+  Layer 9.4's (`NumberField.exists_finset_submodule_of_gap_two` for `n = 2`).
 * `NumberField.exists_finset_submodule_of_forall_interval`: steps 1–4 for **any** interval
   result above `X₀` for the conjugated forms, with counts `NS`, `NI` and ratio `ρ`. Layer 6.1 is
   one; for `n = 2` Layer 5.6 is one (`QuantitativeSubspace/SubspaceCountTwo.lean`).
@@ -98,7 +102,10 @@ systems and put `A ≍ t² n²` into Layer 6.1 (Q1.8a removed both).
 
 J.-H. Evertse, *On the Quantitative Subspace Theorem*, Zap. Nauchn. Sem. POMI **377** (2010),
 217–240 (arXiv:1008.2268), proof of Theorem 2.1. H. P. Schlickewei, "The quantitative Subspace
-Theorem for number fields", *Compositio Math.* **82** (1992), 245–273.
+Theorem for number fields", *Compositio Math.* **82** (1992), 245–273. R. Stephan, *Line counts
+and a census for the exceptions to `‖(3/2)^n‖ ≥ (3/4)^n`, with an application to Waring's
+problem*, preprint (2026), doi:10.13140/RG.2.2.15019.20008, Theorem 7.2: the interval result for
+the solutions (`NumberField.exists_forall_mem_interval_systemSet`), first stated there.
 
 This is milestone Q0.3 of the `QuantitativeSubspace` roadmap.
 -/
@@ -760,25 +767,16 @@ theorem IsNormalizedSystem.exists_raise {S : Finset (HeightOneSpectrum (𝓞 K))
 /-! ### The large solutions -/
 
 open scoped Classical in
-/-- **The large solutions of a system, from any interval result** (the assembly of Q0.3). Under
-the normalization (2.4), with forms over a Galois extension `E / K`, suppose that every system of
-exponents over `E` of weight at most `-systemEps [E : K] δ` and absolute weight at most
-`systemAbsBound [E : K] n` (and, which the interval result may also use, of weight exactly
-`-[E : K] δ / 2` and largest exponents of weight `approxSupWeight ≤ [E : K] (1 + δ / 2n)`) has an
-interval result above `X₀` for the conjugated forms: its
-domains at levels `log Q ≥ X₀` lie in one of at most `NS` proper subspaces of `Eⁿ`, or `log Q`
-lies in one of at most `NI` intervals `[s, ρ s)` with `s ≥ X₀`. If `X₀` is at least
-`systemHeightThreshold` and `[K : ℚ] (2 n / δ) log n`, the solutions with `log H(x) ≥ X₀` lie in
-at most `NS + NI (1 + log ρ / log (1 + δ / (2 n)))` proper subspaces of `Kⁿ`.
-
-The interval result is used **once**: the exponents are raised to absolute weight at most
-`2 n + δ` (`IsNormalizedSystem.exists_raise`), and the constants are absorbed by one nonzero
-`S`-integer `β` with `|β|_p ^ mult p ≤ κ / C p` (`exists_ne_zero_systemAbs_le`), `κ` depending on
-`H`, `K` and `S` only; `β x` lies in the domain at level `H(x)` of the raised exponents shifted by
-`δ / (2 n t)`, and `x` lies in every subspace that `β x` lies in. Layer 6.1 supplies such an
-interval result for every `n` (`NumberField.exists_finset_submodule_of_systemThreshold_le`); for
-`n = 2` Layer 5.6 does. -/
-theorem exists_finset_submodule_of_forall_interval [IsGalois K E]
+/-- **The large solutions of a system lie in `NS` subspaces or in `NI` height intervals**: the
+first three steps of the assembly of Q0.3, from any interval result above `X₀` for the
+conjugated forms (the hypothesis of `NumberField.exists_finset_submodule_of_forall_interval`).
+The raised exponents are chosen once for the system, so the intervals `[s, ρ s)` of `log H(x)`
+are the same for every solution. `NumberField.exists_finset_submodule_of_forall_interval` counts
+each interval with Layer 9.4's gap principle; a system with a better gap principle of its own can
+count them itself (`NumberField.exists_finset_submodule_of_gap_two`). For two variables over `ℚ`
+it is first stated as Theorem 7.2 of Stephan's *Line counts … `‖(3/2)^n‖ ≥ (3/4)^n` …* (2026,
+doi:10.13140/RG.2.2.15019.20008). -/
+theorem exists_forall_mem_interval_systemSet [IsGalois K E]
     (S : Finset (HeightOneSpectrum (𝓞 K))) (w : AbsoluteValue K ℝ → AbsoluteValue E ℝ)
     (hwInf : ∀ v : InfinitePlace K, (w v.1).LiesOver v.1)
     (hwFin : ∀ v ∈ S, (w (FinitePlace.mk v).1).LiesOver (FinitePlace.mk v).1)
@@ -788,7 +786,6 @@ theorem exists_finset_submodule_of_forall_interval [IsGalois K E]
     (hX₀H : systemHeightThreshold (Fintype.card ι) (finrank ℚ E)
       (Fintype.card (InfinitePlace K) + #S) δ H (Real.log (scalarConst K S)) ≤ X₀)
     (hX₀n : finrank ℚ K * (2 * Fintype.card ι / δ) * Real.log (Fintype.card ι) ≤ X₀)
-    (hρ1 : 1 ≤ ρ)
     (hint : ∀ c' : AbsoluteValue E ℝ → ι → ℝ,
       approxWeight (systemPlacesOver E S) c' ≤ -systemEps (finrank K E) δ →
       approxAbsWeight (systemPlacesOver E S) c' ≤ systemAbsBound (finrank K E) (Fintype.card ι) →
@@ -801,10 +798,11 @@ theorem exists_finset_submodule_of_forall_interval [IsGalois K E]
             (∃ W ∈ T, approxDomain (systemPlacesOver E S)
               (conjSystem univ (S.image FinitePlace.mk) w L) c' Q ⊆ W) ∨
               ∃ s ∈ 𝒯, s ≤ Real.log Q ∧ Real.log Q < ρ * s) :
-    ∃ T : Finset (Submodule K (ι → K)),
-      (#T : ℝ) ≤ NS + NI * (1 + Real.log ρ / Real.log (1 + δ / (2 * Fintype.card ι))) ∧
-      (∀ U ∈ T, U ≠ ⊤) ∧
-      ∀ x ∈ systemSet S w L C c, X₀ ≤ Real.log (mulHeightAff x) → ∃ U ∈ T, x ∈ U := by
+    ∃ T : Finset (Submodule K (ι → K)), #T ≤ NS ∧ (∀ U ∈ T, U ≠ ⊤) ∧
+      ∃ 𝒯 : Finset ℝ, #𝒯 ≤ NI ∧ (∀ s ∈ 𝒯, X₀ ≤ s) ∧
+        ∀ x ∈ systemSet S w L C c, X₀ ≤ Real.log (mulHeightAff x) →
+          (∃ U ∈ T, x ∈ U) ∨
+            ∃ s ∈ 𝒯, s ≤ Real.log (mulHeightAff x) ∧ Real.log (mulHeightAff x) < ρ * s := by
   set n := Fintype.card ι with hn
   have hn2 : 2 ≤ n := hN.two_le_card
   have : Nonempty ι := Fintype.card_pos_iff.1 (by omega)
@@ -864,13 +862,12 @@ theorem exists_finset_submodule_of_forall_interval [IsGalois K E]
   have hγ0 : 0 ≤ γ := by positivity
   have htnγ : (t : ℝ) * n * γ = δ / 2 := by rw [hγ]; field_simp
   set e' : InfinitePlace K ⊕ S → ι → ℝ := fun p i ↦ c' p i + γ with he'
+  have hsw : systemWeight e' = systemWeight c' + t * n * γ := by
+    simp only [he', systemWeight, Finset.sum_add_distrib, Finset.sum_const, Finset.card_univ,
+      hcardS, nsmul_eq_mul]
+    ring
   have hw' : approxWeight Sfin' (conjExponent S e') ≤ -systemEps e δ := by
-    rw [approxWeight_conjExponent, systemEps]
-    have : systemWeight e' = systemWeight c' + t * n * γ := by
-      simp only [he', systemWeight, Finset.sum_add_distrib, Finset.sum_const, Finset.card_univ,
-        hcardS, nsmul_eq_mul]
-      ring
-    rw [this, htnγ]
+    rw [approxWeight_conjExponent, systemEps, hsw, htnγ]
     nlinarith
   have hA' : approxAbsWeight Sfin' (conjExponent S e') ≤ systemAbsBound e n := by
     rw [approxAbsWeight_conjExponent, systemAbsBound]
@@ -885,12 +882,7 @@ theorem exists_finset_submodule_of_forall_interval [IsGalois K E]
           ring
       _ ≤ 2 * n + 2 := by rw [htnγ]; linarith
   have hwe : approxWeight Sfin' (conjExponent S e') = -(e * δ / 2) := by
-    rw [approxWeight_conjExponent]
-    have : systemWeight e' = systemWeight c' + t * n * γ := by
-      simp only [he', systemWeight, Finset.sum_add_distrib, Finset.sum_const, Finset.card_univ,
-        hcardS, nsmul_eq_mul]
-      ring
-    rw [this, htnγ, hc'w]
+    rw [approxWeight_conjExponent, hsw, htnγ, hc'w]
     ring
   have hsup : approxSupWeight Sfin' (conjExponent S e') ≤ e * (1 + δ / (2 * n)) := by
     rw [approxSupWeight_conjExponent]
@@ -904,7 +896,6 @@ theorem exists_finset_submodule_of_forall_interval [IsGalois K E]
             hcardS, nsmul_eq_mul, hγ]
           field_simp
   obtain ⟨T, hTcard, hTtop, 𝒯, h𝒯card, h𝒯ge, hQint⟩ := hint _ hw' hA' hwe hsup
-  set T₁ := T.image fun W ↦ (W.restrictScalars K).comap (algebraMapPi K E ι) with hT₁
   -- `β x` lies in the domain
   have hdom : ∀ x ∈ systemSet S w L C c, X₀ ≤ Real.log (mulHeightAff x) →
       (fun j ↦ algebraMap K E (β * x j)) ∈ approxDomain Sfin' L' (conjExponent S e')
@@ -936,6 +927,79 @@ theorem exists_finset_submodule_of_forall_interval [IsGalois K E]
           mul_le_mul hκx (Real.rpow_le_rpow_of_exponent_le hHx1 (hcc' p i))
             (Real.rpow_nonneg hHx0.le _) (Real.rpow_nonneg hHx0.le _)
       _ = mulHeightAff x ^ e' p i := by rw [he', Real.rpow_add hHx0, mul_comm]
+  refine ⟨T.image fun W ↦ (W.restrictScalars K).comap (algebraMapPi K E ι),
+    Finset.card_image_le.trans hTcard, fun U hU ↦ ?_, 𝒯, h𝒯card, h𝒯ge, fun x hx hlogH ↦ ?_⟩
+  · obtain ⟨W, hW, rfl⟩ := Finset.mem_image.1 hU
+    exact comap_algebraMapPi_ne_top (hTtop W hW)
+  have hy := hdom x hx hlogH
+  have hH1 : 1 < mulHeightAff x := by
+    rw [← Real.log_pos_iff (mulHeightAff_pos x).le]
+    linarith
+  rcases hQint (mulHeightAff x) hH1 hlogH with ⟨W, hW, hsub⟩ | hs
+  · refine Or.inl ⟨_, Finset.mem_image_of_mem _ hW, ?_⟩
+    have hβE : algebraMap K E β ≠ 0 := (map_ne_zero _).2 hβ0
+    have hxW : (fun j ↦ algebraMap K E (x j)) ∈ W := by
+      have h := W.smul_mem (algebraMap K E β)⁻¹ (hsub hy)
+      convert h using 1
+      funext j
+      simp [map_mul, inv_mul_cancel_left₀ hβE]
+    exact hxW
+  · exact Or.inr hs
+
+open scoped Classical in
+/-- **The large solutions of a system, from any interval result** (the assembly of Q0.3). Under
+the normalization (2.4), with forms over a Galois extension `E / K`, suppose that every system of
+exponents over `E` of weight at most `-systemEps [E : K] δ` and absolute weight at most
+`systemAbsBound [E : K] n` (and, which the interval result may also use, of weight exactly
+`-[E : K] δ / 2` and largest exponents of weight `approxSupWeight ≤ [E : K] (1 + δ / 2n)`) has an
+interval result above `X₀` for the conjugated forms: its
+domains at levels `log Q ≥ X₀` lie in one of at most `NS` proper subspaces of `Eⁿ`, or `log Q`
+lies in one of at most `NI` intervals `[s, ρ s)` with `s ≥ X₀`. If `X₀` is at least
+`systemHeightThreshold` and `[K : ℚ] (2 n / δ) log n`, the solutions with `log H(x) ≥ X₀` lie in
+at most `NS + NI (1 + log ρ / log (1 + δ / (2 n)))` proper subspaces of `Kⁿ`.
+
+The interval result is used **once**: the exponents are raised to absolute weight at most
+`2 n + δ` (`IsNormalizedSystem.exists_raise`), and the constants are absorbed by one nonzero
+`S`-integer `β` with `|β|_p ^ mult p ≤ κ / C p` (`exists_ne_zero_systemAbs_le`), `κ` depending on
+`H`, `K` and `S` only; `β x` lies in the domain at level `H(x)` of the raised exponents shifted by
+`δ / (2 n t)`, and `x` lies in every subspace that `β x` lies in
+(`NumberField.exists_forall_mem_interval_systemSet`); Layer 9.4 then counts each interval.
+Layer 6.1 supplies such an interval result for every `n`
+(`NumberField.exists_finset_submodule_of_systemThreshold_le`); for `n = 2` Layer 5.6 does. -/
+theorem exists_finset_submodule_of_forall_interval [IsGalois K E]
+    (S : Finset (HeightOneSpectrum (𝓞 K))) (w : AbsoluteValue K ℝ → AbsoluteValue E ℝ)
+    (hwInf : ∀ v : InfinitePlace K, (w v.1).LiesOver v.1)
+    (hwFin : ∀ v ∈ S, (w (FinitePlace.mk v).1).LiesOver (FinitePlace.mk v).1)
+    {L : AbsoluteValue K ℝ → ι → Dual E (ι → E)} {C : InfinitePlace K ⊕ S → ℝ}
+    {c : InfinitePlace K ⊕ S → ι → ℝ} {H : ℝ} {D R : ℕ} {δ : ℝ}
+    (hN : IsNormalizedSystem S w L C c H D R δ) {X₀ ρ : ℝ} {NS NI : ℕ}
+    (hX₀H : systemHeightThreshold (Fintype.card ι) (finrank ℚ E)
+      (Fintype.card (InfinitePlace K) + #S) δ H (Real.log (scalarConst K S)) ≤ X₀)
+    (hX₀n : finrank ℚ K * (2 * Fintype.card ι / δ) * Real.log (Fintype.card ι) ≤ X₀)
+    (hρ1 : 1 ≤ ρ)
+    (hint : ∀ c' : AbsoluteValue E ℝ → ι → ℝ,
+      approxWeight (systemPlacesOver E S) c' ≤ -systemEps (finrank K E) δ →
+      approxAbsWeight (systemPlacesOver E S) c' ≤ systemAbsBound (finrank K E) (Fintype.card ι) →
+      approxWeight (systemPlacesOver E S) c' = -(finrank K E * δ / 2) →
+      approxSupWeight (systemPlacesOver E S) c' ≤
+        finrank K E * (1 + δ / (2 * Fintype.card ι)) →
+      ∃ T : Finset (Submodule E (ι → E)), #T ≤ NS ∧ (∀ W ∈ T, W ≠ ⊤) ∧
+        ∃ 𝒯 : Finset ℝ, #𝒯 ≤ NI ∧ (∀ s ∈ 𝒯, X₀ ≤ s) ∧
+          ∀ Q : ℝ, 1 < Q → X₀ ≤ Real.log Q →
+            (∃ W ∈ T, approxDomain (systemPlacesOver E S)
+              (conjSystem univ (S.image FinitePlace.mk) w L) c' Q ⊆ W) ∨
+              ∃ s ∈ 𝒯, s ≤ Real.log Q ∧ Real.log Q < ρ * s) :
+    ∃ T : Finset (Submodule K (ι → K)),
+      (#T : ℝ) ≤ NS + NI * (1 + Real.log ρ / Real.log (1 + δ / (2 * Fintype.card ι))) ∧
+      (∀ U ∈ T, U ≠ ⊤) ∧
+      ∀ x ∈ systemSet S w L C c, X₀ ≤ Real.log (mulHeightAff x) → ∃ U ∈ T, x ∈ U := by
+  set n := Fintype.card ι with hn
+  have hn2 : 2 ≤ n := hN.two_le_card
+  have : Nonempty ι := Fintype.card_pos_iff.1 (by omega)
+  have hn0 : (0 : ℝ) < n := by exact_mod_cast (by omega : 0 < n)
+  have hδ := hN.delta_pos
+  obtain ⟨T₁, hT₁card, hT₁top, 𝒯, h𝒯card, h𝒯ge, hT₁⟩ :=
+    exists_forall_mem_interval_systemSet S w hwInf hwFin hN hX₀H hX₀n hint
   -- the intervals, as intervals of the absolute affine height
   set d := finrank ℚ K with hd
   have hd0 : (0 : ℝ) < d := by exact_mod_cast (finrank_pos : 0 < finrank ℚ K)
@@ -950,19 +1014,8 @@ theorem exists_finset_submodule_of_forall_interval [IsGalois K E]
     (fun x hx hxX ↦ by
       have hH := mulHeightAff_pos x
       obtain ⟨hlogH, hxT⟩ := hxX
-      have hy := hdom x hx hlogH
-      have hH1 : 1 < mulHeightAff x := by
-        rw [← Real.log_pos_iff hH.le]
-        linarith
-      rcases hQint (mulHeightAff x) hH1 hlogH with ⟨W, hW, hsub⟩ | ⟨s, hs, h1, h2⟩
-      · refine absurd (hsub hy) fun hyW ↦ hxT _ (Finset.mem_image_of_mem _ hW) ?_
-        have hβE : algebraMap K E β ≠ 0 := (map_ne_zero _).2 hβ0
-        have hxW : (fun j ↦ algebraMap K E (x j)) ∈ W := by
-          have h := W.smul_mem (algebraMap K E β)⁻¹ hyW
-          convert h using 1
-          funext j
-          simp [map_mul, inv_mul_cancel_left₀ hβE]
-        exact hxW
+      rcases hT₁ x hx hlogH with ⟨U, hU, hxU⟩ | ⟨s, hs, h1, h2⟩
+      · exact absurd hxU (hxT U hU)
       · refine ⟨𝒯.equivFin ⟨s, hs⟩, ?_, ?_⟩
         · simp only [hQ, Equiv.symm_apply_apply]
           rw [Real.rpow_def_of_pos hH]
@@ -980,15 +1033,12 @@ theorem exists_finset_submodule_of_forall_interval [IsGalois K E]
       linarith)
     have hfac : 0 ≤ 1 + Real.log ρ / Real.log (1 + δ / (2 * n)) :=
       add_nonneg zero_le_one (div_nonneg (Real.log_nonneg hρ1) hl.le)
-    calc (#(T₁ ∪ T₂) : ℝ) ≤ #T + #T₂ := by
-          exact_mod_cast (Finset.card_union_le _ _).trans
-            (Nat.add_le_add_right Finset.card_image_le _)
+    calc (#(T₁ ∪ T₂) : ℝ) ≤ #T₁ + #T₂ := by exact_mod_cast Finset.card_union_le _ _
       _ ≤ NS + (NI : ℕ) * (1 + Real.log ρ / Real.log (1 + δ / (2 * n))) := by
-          refine add_le_add (by exact_mod_cast hTcard) (hT₂card.trans ?_)
+          refine add_le_add (by exact_mod_cast hT₁card) (hT₂card.trans ?_)
           exact mul_le_mul_of_nonneg_right (by exact_mod_cast h𝒯card) hfac
   · rcases Finset.mem_union.1 hU with hU | hU
-    · obtain ⟨W, hW, rfl⟩ := Finset.mem_image.1 hU
-      exact comap_algebraMapPi_ne_top (hTtop W hW)
+    · exact hT₁top U hU
     · exact hT₂top U hU
   · by_cases hxT : ∃ U ∈ T₁, x ∈ U
     · obtain ⟨U, hU, hxU⟩ := hxT
