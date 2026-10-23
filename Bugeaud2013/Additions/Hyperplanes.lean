@@ -24,6 +24,11 @@ Finally, a proper subspace of `ℚ⁴` holds `O(log ε⁻¹)` points outside `T�
 (`Real.card_mem_le_of_ne_top`): the first three independent ones span it, their cross product
 `z` has `Λ ≠ 0` (they are not in `T₀`) and `|z| ≤ 6 H_c³`, so all but `O(1)` later points are
 large enough for the first application.
+
+## References
+
+R. Stephan, *The exponent `1/4` in three complexity bounds: integer bases, continued fractions, and
+the `(3/2)^n` steering word*, arXiv:2610.30937 (2026), Proposition 4.3, step (iv).
 -/
 
 @[expose] public section
@@ -451,7 +456,9 @@ theorem t0Proj_ptQ (v : Fin 4 → ℤ) : t0Proj (ptQ v) = ptQ (t0Pt v) := by
   fin_cases k <;> rfl
 
 /-- **The application on `T₀`**: the points of `T₀` above `K ε^{-K}` lie in at most
-`K ε^{-a} (1 + log ε⁻¹)²` planes. -/
+`K ε^{-a} (1 + log ε⁻¹)²` planes.
+Step (iv) of Proposition 4.3 of Stephan's *The exponent `1/4` in three complexity bounds* (2026,
+arXiv:2610.30937). -/
 theorem exists_planes_t0 {a : ℝ} (hSB : SubspaceBound α a) (hA : 1 ≤ A) :
     ∃ K : ℝ, 0 < K ∧ ∀ ε : ℝ, 0 < ε → ε ≤ 1 →
       ∃ T : Finset (Submodule ℚ (Fin 4 → ℚ)), (#T : ℝ) ≤ K * ε⁻¹ ^ a * (1 + log ε⁻¹) ^ 2 ∧

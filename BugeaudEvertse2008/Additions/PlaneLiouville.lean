@@ -38,7 +38,9 @@ No approximation property beyond `|b^t ξ - b^r ξ - p| ≤ 1` is used, and no S
 ## References
 
 Y. Bugeaud, J.-H. Evertse, *On two notions of complexity of algebraic numbers*, Acta Arith.
-**133** (2008), 221–250, §7.
+**133** (2008), 221–250, §7;
+R. Stephan, *The exponent `1/4` in three complexity bounds: integer bases, continued fractions, and
+the `(3/2)^n` steering word*, arXiv:2610.30937 (2026), Lemmas 3.4–3.5.
 -/
 
 @[expose] public section
@@ -108,7 +110,9 @@ private theorem log_bound_arith {d la lx lz lβ lW l2 L : ℝ} (hd : 0 ≤ d) (h
 
 /-- **A point on a plane with `z₃ ≠ 0` is small.** For `ξ` real algebraic irrational and `b ≥ 2`
 there is `D ≥ 1` such that if `z₁ b^t + z₂ b^r + z₃ p = 0` with `|zᵢ| ≤ Z`, `z₃ ≠ 0`, `r < t` and
-`|b^t ξ - b^r ξ - p| ≤ 1`, then `t log b ≤ D (1 + log Z)`. -/
+`|b^t ξ - b^r ξ - p| ≤ 1`, then `t log b ≤ D (1 + log Z)`.
+First proved as Lemma 3.4 of Stephan's *The exponent `1/4` in three complexity bounds* (2026,
+arXiv:2610.30937). -/
 theorem exists_mul_log_le_of_plane (hb : 2 ≤ b) {ξ : ℝ} (hξ : IsAlgebraic ℚ ξ)
     (hirr : Irrational ξ) :
     ∃ D : ℝ, 1 ≤ D ∧ ∀ (z : Fin 3 → ℤ) (Z : ℝ), 1 ≤ Z → (∀ i, |(z i : ℝ)| ≤ Z) → z 2 ≠ 0 →
@@ -215,7 +219,9 @@ theorem exists_mul_log_le_of_plane (hb : 2 ≤ b) {ξ : ℝ} (hξ : IsAlgebraic 
 `K ≥ 1` such that for `0 < ε ≤ 1`: if `t` at least doubles and the points
 `x_n = (b^{t_n}, b^{r_n}, p_n)`, `n ∈ I`, with `r_n < t_n`, `b ∤ p_n` when `r_n ≥ 1`,
 `|p_n| ≤ b^{t_n}`, `|b^{t_n} ξ - b^{r_n} ξ - p_n| ≤ 1` and a large gap `ε t_n < 4 (t_n - r_n)` lie
-in a proper subspace `U` of `ℚ³`, then there are at most `K (1 + log ε⁻¹)` of them. -/
+in a proper subspace `U` of `ℚ³`, then there are at most `K (1 + log ε⁻¹)` of them.
+First proved as Lemma 3.5 of Stephan's *The exponent `1/4` in three complexity bounds* (2026,
+arXiv:2610.30937). -/
 theorem card_mem_plane_le_log (hb : 2 ≤ b) {ξ : ℝ} (hξ : IsAlgebraic ℚ ξ) (hirr : Irrational ξ) :
     ∃ K : ℝ, 1 ≤ K ∧ ∀ ε : ℝ, 0 < ε → ε ≤ 1 → ∀ (r t : ℕ → ℕ) (p : ℕ → ℤ),
       (∀ n, 2 * t n < t (n + 1)) → ∀ U : Submodule ℚ (Fin 3 → ℚ), U ≠ ⊤ → ∀ I : Finset ℕ,

@@ -23,6 +23,11 @@ inequalities of `Real.CFPoint` (`Nat.cfPoint_spadeVec`):
   `e_ℓ = q_ℓ α - p_ℓ` of alternating signs, and `q_{ℓ+1} |e_ℓ| ≥ 1/2`;
 * the upper bounds are (3.2)–(3.4) of the paper (`Nat.abs_spadeL1_le` and its neighbours), and
   the Claim is `Nat.abs_claim_le` for `w ≥ 3` and trivial for `w ≤ 2`.
+
+## References
+
+R. Stephan, *The exponent `1/4` in three complexity bounds: integer bases, continued fractions, and
+the `(3/2)^n` steering word*, arXiv:2610.30937 (2026), Lemma 4.1.
 -/
 
 @[expose] public section
@@ -310,7 +315,8 @@ end Positive
 
 /-! ### The point -/
 
-/-- **The points of §3 satisfy the inequalities of `Real.CFPoint`.** -/
+/-- **The points of §3 satisfy the inequalities of `Real.CFPoint`.**
+Lemma 4.1 of Stephan's *The exponent `1/4` in three complexity bounds* (2026, arXiv:2610.30937). -/
 theorem cfPoint_spadeVec (ha : ∀ n, 1 ≤ a (n + 1)) (hA : ∀ n, a (n + 1) ≤ A) {j r u : ℕ}
     (hu : 1 ≤ u) (hur : u ≤ r) (hr : 2 ≤ r)
     (hrep : ∀ m, j + 1 < m → m ≤ j + 1 + u → a (m + r) = a m)

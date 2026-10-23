@@ -34,7 +34,9 @@ of a doubling sequence with `b ∤ p_n`.
 Y. Bugeaud, J.-H. Evertse, *On two notions of complexity of algebraic numbers*, Acta Arith.
 **133** (2008), 221–250, §7;
 J.-H. Evertse, R. G. Ferretti, *A further improvement of the quantitative Subspace Theorem*, Ann.
-of Math. **177** (2013), 513–590.
+of Math. **177** (2013), 513–590;
+R. Stephan, *The exponent `1/4` in three complexity bounds: integer bases, continued fractions, and
+the `(3/2)^n` steering word*, arXiv:2610.30937 (2026), Lemmas 3.6–3.7.
 -/
 
 @[expose] public section
@@ -43,7 +45,8 @@ open Finset
 
 /-- **One point per line.** If `(b^{t₁} - b^{r₁}) p₂ = (b^{t₂} - b^{r₂}) p₁` with `r₁ < t₁`,
 `r₁ < r₂ ≤ t₂` and `b ≠ 0`, then `b ∣ p₂`: cancelling `b^{r₁}` leaves `(b^{s₁} - 1) p₂` divisible
-by `b`, and `b^{s₁} - 1` is prime to `b`. -/
+by `b`, and `b^{s₁} - 1` is prime to `b`.
+Lemma 3.7 of Stephan's *The exponent `1/4` in three complexity bounds* (2026, arXiv:2610.30937). -/
 theorem Int.dvd_of_pow_sub_pow_mul_eq {b p₁ p₂ : ℤ} {r₁ t₁ r₂ t₂ : ℕ} (hb : b ≠ 0) (h₁ : r₁ < t₁)
     (hr : r₁ < r₂) (h₂ : r₂ ≤ t₂) (h : (b ^ t₁ - b ^ r₁) * p₂ = (b ^ t₂ - b ^ r₂) * p₁) :
     b ∣ p₂ := by
@@ -62,7 +65,9 @@ variable {b : ℕ}
 /-- **The two-variable step for small gaps.** For `ξ` real algebraic and `b ≥ 2` there is `K > 0`
 such that for `0 < ε ≤ 1` the points `(b^t - b^r, p)` with `r < t`, `|p| ≤ b^t`,
 `|b^t ξ - b^r ξ - p| ≤ (b^t)^{-ε}`, a small gap `4 (t - r) ≤ ε t` and `K ε⁻¹ ≤ t log b` lie on at
-most `K ε⁻³ (1 + log ε⁻¹)²` lines. -/
+most `K ε⁻³ (1 + log ε⁻¹)²` lines.
+First proved as Lemma 3.6 of Stephan's *The exponent `1/4` in three complexity bounds* (2026,
+arXiv:2610.30937). -/
 theorem exists_lines_of_small_gap (hb : 2 ≤ b) {ξ : ℝ} (hξ : IsAlgebraic ℚ ξ) :
     ∃ K : ℝ, 0 < K ∧ ∀ ε : ℝ, 0 < ε → ε ≤ 1 → ∃ T : Finset (Submodule ℚ (Fin 2 → ℚ)),
       (#T : ℝ) ≤ K * ε⁻¹ ^ 3 * (1 + log ε⁻¹) ^ 2 ∧ (∀ U ∈ T, U ≠ ⊤) ∧

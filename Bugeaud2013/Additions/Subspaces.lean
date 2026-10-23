@@ -17,6 +17,11 @@ of `v_a, v_b`. The cross product `z` of `v_c, v_a, v_b` is orthogonal to `S`, of
 `Z = 6 H_c³`, and `Λ(z) ≠ 0` since `v_a ∉ T₀`. The later points are either early,
 `log H < K (1 + log Z) ≤ 9 K log H_c`, which the doubling bounds by `O(1)`, or lie in one of the
 `NT` planes of `Real.exists_planes_of_lamCoef_ne_zero`.
+
+## References
+
+R. Stephan, *The exponent `1/4` in three complexity bounds: integer bases, continued fractions, and
+the `(3/2)^n` steering word*, arXiv:2610.30937 (2026), Proposition 4.3, step (iii).
 -/
 
 @[expose] public section
@@ -74,7 +79,9 @@ theorem sum_mul_eq_zero_of_mem {z v : Fin 4 → ℤ} {S : Submodule ℚ (Fin 4 �
 variable {Hs Qs : ℕ → ℝ} {vs : ℕ → Fin 4 → ℤ}
 
 open scoped Classical in
-/-- **A proper subspace holds `O(log ε⁻¹)` points outside `T₀`.** -/
+/-- **A proper subspace holds `O(log ε⁻¹)` points outside `T₀`.**
+Step (iii) of Proposition 4.3 of Stephan's *The exponent `1/4` in three complexity bounds*
+(2026, arXiv:2610.30937). -/
 theorem card_mem_le_of_ne_top (hc : 0 < c) (hL : LiouvilleQuad α c D) (hα : |α| ≤ 1)
     (hε : 0 < ε) (hε1 : ε ≤ 1) (hdbl : Doubling Hs) (I : Finset ℕ)
     (hpt : ∀ k ∈ I, CFPoint α A ε (vs k) (Hs k) (Qs k)) {K NT : ℝ} (hNT : 0 ≤ NT)

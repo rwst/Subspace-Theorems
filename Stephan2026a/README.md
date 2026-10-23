@@ -8,7 +8,9 @@ application of the Subspace Theorem.
 (`SteeringWord.tendsto_complexity_div`, `SteeringWord.exists_forall_lt_complexity`).
 **(2026-10-21): Problem 5.2 is solved**: `p_T(k) > C k (log k)^η` for infinitely many `k`, for
 every `η < 1/4` and every `C` (`SteeringWord.frequently_lt_complexity`,
-`SteeringWord.quantitativeSuperlinear`), within the same three axioms. The
+`SteeringWord.quantitativeSuperlinear`), within the same three axioms; published as Theorem 1.3
+of R. Stephan, *The exponent `1/4` in three complexity bounds: integer bases, continued fractions,
+and the `(3/2)^n` steering word*, arXiv:2610.30937 (2026), §5. The
 directory is its own `lean_lib` (`Stephan2026a`), held to the same rules as the other paper
 directories (no `sorry`, no `set_option`, std3 axioms, fine-grained imports, module system,
 Mathlib-style namespaces), and is in the gates' library lists. Its comparator lane certifies
@@ -93,7 +95,9 @@ Cor. 4.3), Proposition A.1 and the numerics of Appendix A.
 
 `SteeringWord.frequently_lt_complexity`: for every `η < 1/4` and every `C`,
 `p_T(k) > C k (log k)^η` for infinitely many `k`. The route is Bugeaud–Evertse 2008, Theorem 2.1
-(`BugeaudEvertse2008/`), with the kernel points of §4 in place of their approximations:
+(`BugeaudEvertse2008/`), with the kernel points of §4 in place of their approximations. It is
+§5 of arXiv:2610.30937: step 1 is its Lemma 5.1, step 2 Proposition 5.2, step 3 Lemmas 5.3–5.6,
+step 4 Lemma 5.7, step 5 the proof of Theorem 1.3.
 
 1. A bound `p_T(k) ≤ c k (log k)^u`, `u < v`, gives repetitions of length `τ_n (log τ_n)^{-v}` at
    pairs `(r_n + 2, τ_n + 2)` with `2 τ_n < τ_{n+1}` (DA's

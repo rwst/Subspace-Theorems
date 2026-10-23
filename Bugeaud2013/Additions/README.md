@@ -45,6 +45,15 @@ The count `card_le_of_cfPoints` covers the `N` points with `N ≤ k < 2N` in thr
 This bounds the `N` points by `O(N^{(b+1)δ(1+η)+3η})`. That is `o(N)` when `(b + 1)δ < 1`, a
 contradiction.
 
+## Reference
+
+R. Stephan, *The exponent `1/4` in three complexity bounds: integer bases, continued fractions, and
+the `(3/2)^n` steering word*, arXiv:2610.30937 (2026), §4: Theorem 1.2 is
+`Nat.frequently_lt_encard_factors_of_lt_quarter`, Remark 4.4 the `1/9` instance, Lemmas 4.1–4.2
+`Nat.cfPoint_spadeVec` and `Nat.exists_config`, and Proposition 4.3 with its steps (i)–(iv) is
+`Real.card_le_of_cfPoints` (`Count.lean`, `Points.lean`, `Subspaces.lean`, `Hyperplanes.lean`). Its
+Appendix A maps every numbered statement to its Lean declaration.
+
 ## Checks (2026-10-10)
 
 * Each module builds without errors or warnings, and no `set_option` is used.

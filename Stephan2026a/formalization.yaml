@@ -102,6 +102,16 @@ sources:
     author_endorsement: participated
     note: >-
       The main theorem and the numbered results on its proof path.
+  - title: "The exponent 1/4 in three complexity bounds: integer bases, continued fractions, and the (3/2)^n steering word"
+    authors: ["Ralf Stephan"]
+    type: paper
+    location: "arXiv:2610.30937 (2026). Theorem 1.3, §5"
+    relationship: formalizes
+    author_endorsement: participated
+    note: >-
+      The solution of Problem 5.2 of arXiv:2607.11648, for every exponent
+      η < 1/4 (QuantitativeViolators, QuantitativePlanes,
+      QuantitativePlaneStep, QuantitativeLines, QuantitativeTheorem).
   - title: "Heights in Diophantine Geometry"
     authors: ["Enrico Bombieri", "Walter Gubler"]
     type: book

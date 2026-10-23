@@ -8,7 +8,9 @@ the arXiv v1, 30 pages).
 (`Real.frequently_lt_complexity`, `Theorem21.lean`). BE.0–BE.5 done. Improved to `η < 1/4` in
 `Additions/` (2026-10-21, std3, `Real.frequently_lt_complexity_of_lt_quarter`; see
 `Additions/README.md`): the plane step costs `O(1 + log ε⁻¹)` by Liouville's inequality once the
-small gaps are counted apart on lines.** Optional later work:
+small gaps are counted apart on lines. Both exponents are published in Stephan, *The exponent
+`1/4` in three complexity bounds* (arXiv:2610.30937, 2026), Theorem 1.1 and Remark 6.1.**
+Optional later work:
 Thm 3.1, Cor. 3.2, Thm 9.1, 9.2. The directory is its own `lean_lib`
 (`BugeaudEvertse2008`), held to the same rules as the other paper directories (no `sorry`, no
 `set_option`, std3 axioms, fine-grained imports, module system, Mathlib root namespaces). Read

@@ -53,7 +53,9 @@ of `(b^t, b^r, p)`; the third coordinate is not `S`-integral, and its `2`-adic s
 R. Stephan, *Superlinear complexity of the `(3/2)^n` steering word*, arXiv:2607.11648, §4.3 and
 Problem 5.2; Y. Bugeaud, J.-H. Evertse, *On two notions of complexity of algebraic numbers*, Acta
 Arith. **133** (2008), 221–250, §7; J.-H. Evertse, R. G. Ferretti, *A further improvement of the
-quantitative Subspace Theorem*, Ann. of Math. **177** (2013), 513–590.
+quantitative Subspace Theorem*, Ann. of Math. **177** (2013), 513–590;
+R. Stephan, *The exponent `1/4` in three complexity bounds: integer bases, continued fractions, and
+the `(3/2)^n` steering word*, arXiv:2610.30937 (2026), Proposition 5.2.
 -/
 
 @[expose] public section
@@ -196,7 +198,9 @@ theorem padicNorm_intCast_le_of_dvd {p : ℕ} [Fact p.Prime] {n : ℕ} {z : ℤ}
 /-- **The three-variable step** (Bugeaud–Evertse 2008, (7.3)–(7.11), for the kernel points, with
 Evertse–Ferretti's count). There is `K > 0` such that for `0 < ε ≤ 1` the kernel points of the
 pairs `2 ≤ a < c` with `|ε_c - ε_a| ≤ (3^c)^{-ε}` and `K ε⁻¹ ≤ c log 3` lie in at most
-`K ε⁻⁴ (1 + log ε⁻¹)²` proper subspaces of `ℚ³`. -/
+`K ε⁻⁴ (1 + log ε⁻¹)²` proper subspaces of `ℚ³`.
+Proposition 5.2 of Stephan's *The exponent `1/4` in three complexity bounds* (2026,
+arXiv:2610.30937). -/
 theorem exists_planes_of_violators :
     ∃ K : ℝ, 0 < K ∧ ∀ ε : ℝ, 0 < ε → ε ≤ 1 → ∃ T : Finset (Submodule ℚ (Fin 3 → ℚ)),
       (#T : ℝ) ≤ K * ε⁻¹ ^ 4 * (1 + log ε⁻¹) ^ 2 ∧ (∀ U ∈ T, U ≠ ⊤) ∧

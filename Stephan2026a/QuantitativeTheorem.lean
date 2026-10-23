@@ -51,7 +51,9 @@ inequality in place of the integer identities used here.
 
 R. Stephan, *Superlinear complexity of the `(3/2)^n` steering word*, arXiv:2607.11648, Problem 5.2;
 Y. Bugeaud, J.-H. Evertse, *On two notions of complexity of algebraic numbers*, Acta Arith.
-**133** (2008), 221–250, Theorem 2.1 and §7.
+**133** (2008), 221–250, Theorem 2.1 and §7;
+R. Stephan, *The exponent `1/4` in three complexity bounds: integer bases, continued fractions, and
+the `(3/2)^n` steering word*, arXiv:2610.30937 (2026), Theorem 1.3 and §5.
 -/
 
 @[expose] public section
@@ -61,7 +63,9 @@ open Filter Finset Real Function
 namespace SteeringWord
 
 /-- **Problem 5.2, for every `η < 1/4`.** For every `η < 1/4` and every `C`, the complexity of
-the steering word exceeds `C k (log k)^η` for infinitely many `k`. -/
+the steering word exceeds `C k (log k)^η` for infinitely many `k`.
+First proved as Theorem 1.3 of Stephan's *The exponent `1/4` in three complexity bounds* (2026,
+arXiv:2610.30937). -/
 theorem frequently_lt_complexity {η : ℝ} (hη : η < 1 / 4) (C : ℝ) :
     ∃ᶠ k : ℕ in atTop, C * k * log k ^ η < complexity t k := by
   classical
@@ -244,7 +248,9 @@ theorem frequently_lt_complexity {η : ℝ} (hη : η < 1 / 4) (C : ℝ) :
   linarith
 
 /-- **Problem 5.2 is solved**: `p_T(k) ≥ k (log k)^{1/8}` for infinitely many `k`. Every exponent
-`η < 1/4` works (`SteeringWord.frequently_lt_complexity`). -/
+`η < 1/4` works (`SteeringWord.frequently_lt_complexity`).
+First proved in Theorem 1.3 of Stephan's *The exponent `1/4` in three complexity bounds* (2026,
+arXiv:2610.30937). -/
 theorem quantitativeSuperlinear : QuantitativeSuperlinear :=
   ⟨1 / 8, by norm_num, (frequently_lt_complexity (by norm_num : (1 / 8 : ℝ) < 1 / 4) 1).mono
     fun k hk ↦ by rw [one_mul] at hk; exact hk.le⟩

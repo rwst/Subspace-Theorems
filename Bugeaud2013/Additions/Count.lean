@@ -21,6 +21,11 @@ the Subspace Theorem holds with `δ^{-a}` subspaces (`Real.SubspaceBound α a`).
 * each proper subspace holds `O(log ε⁻¹)` points outside `T₀` (`Real.card_mem_le_of_ne_top`), and
   the points of `T₀` lie in `O(ε^{-a} log² ε⁻¹)` planes (`Real.exists_planes_t0`), each holding
   `O(log ε⁻¹)` points (`Real.card_mem_le_of_finrank_le_two`).
+
+## References
+
+R. Stephan, *The exponent `1/4` in three complexity bounds: integer bases, continued fractions, and
+the `(3/2)^n` steering word*, arXiv:2610.30937 (2026), Proposition 4.3.
 -/
 
 @[expose] public section
@@ -215,7 +220,9 @@ theorem sum_cellExp_le {ε : ℝ} (hε : 0 < ε) (j : ℕ) : ∑ i, cellExp ε j
   rw [e1]; linarith
 
 /-- **The first application**: the points with `log H ≥ K ε^{-K}` lie in at most
-`cells ε · K (ε/2)^{-a} (1 + log (2/ε))²` proper subspaces of `ℚ⁴`. -/
+`cells ε · K (ε/2)^{-a} (1 + log (2/ε))²` proper subspaces of `ℚ⁴`.
+Step (i) of Proposition 4.3 of Stephan's *The exponent `1/4` in three complexity bounds* (2026,
+arXiv:2610.30937). -/
 theorem exists_cover_four {a : ℝ} (hSB : SubspaceBound α a) (hA : 1 ≤ A) :
     ∃ K : ℝ, 0 < K ∧ ∀ ε : ℝ, 0 < ε → ε ≤ 1 →
       ∃ T : Finset (Submodule ℚ (Fin 4 → ℚ)),
@@ -319,7 +326,9 @@ theorem planeBound_le {c : ℝ} (hc : 0 < c) (D : ℕ) {ε : ℝ} (hε : 0 < ε)
 
 variable {a : ℝ}
 
-/-- **The count of the points.** -/
+/-- **The count of the points.**
+First proved as Proposition 4.3 of Stephan's *The exponent `1/4` in three complexity bounds*
+(2026, arXiv:2610.30937). -/
 theorem card_le_of_cfPoints (hSB : SubspaceBound α a) (hA : 1 ≤ A) (hc : 0 < c)
     (hL : LiouvilleQuad α c D) (hα : |α| ≤ 1) :
     ∃ K : ℝ, 0 < K ∧ ∀ ε : ℝ, 0 < ε → ε ≤ 1 → ∀ (Hs Qs : ℕ → ℝ) (vs : ℕ → Fin 4 → ℤ)

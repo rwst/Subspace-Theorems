@@ -44,7 +44,9 @@ only `|N| < 2^c` and that `N` is odd.
 
 R. Stephan, *Superlinear complexity of the `(3/2)^n` steering word*, arXiv:2607.11648, Problem 5.2;
 Y. Bugeaud, J.-H. Evertse, *On two notions of complexity of algebraic numbers*, Acta Arith.
-**133** (2008), 221–250, §7.
+**133** (2008), 221–250, §7;
+R. Stephan, *The exponent `1/4` in three complexity bounds: integer bases, continued fractions, and
+the `(3/2)^n` steering word*, arXiv:2610.30937 (2026), Lemmas 5.3–5.6.
 -/
 
 @[expose] public section
@@ -75,7 +77,8 @@ theorem two_pow_mul_ne_of_ne {i j : ℕ} {u v : ℤ} (hu : Odd u) (hv : Odd v) (
 
 /-- **The same-gap principle.** Two kernel points with the same gap `s` on the plane
 `N = β₁ 3^c + β₂ 2^s 3^a` have `7 c₂ < 19 c₁`: they satisfy `N₂ 3^{a₁} = N₁ 3^{a₂}`, so
-`3^{c₂ - c₁} ≤ |N₂| < 2^{c₂}`, against `2^19 < 3^12` when `7 c₂ ≥ 19 c₁`. -/
+`3^{c₂ - c₁} ≤ |N₂| < 2^{c₂}`, against `2^19 < 3^12` when `7 c₂ ≥ 19 c₁`.
+Lemma 5.3 of Stephan's *The exponent `1/4` in three complexity bounds* (2026, arXiv:2610.30937). -/
 theorem seven_mul_lt_of_same_gap {β₁ β₂ : ℚ} {a₁ c₁ a₂ c₂ : ℕ} (h₁ : a₁ < c₁) (h₂ : a₂ < c₂)
     (hs : c₁ - a₁ = c₂ - a₂)
     (hp₁ : (kernelNum a₁ c₁ : ℚ) = β₁ * 3 ^ c₁ + β₂ * (2 ^ (c₁ - a₁) * 3 ^ a₁))
@@ -116,7 +119,8 @@ theorem seven_mul_lt_of_same_gap {β₁ β₂ : ℚ} {a₁ c₁ a₂ c₂ : ℕ}
 
 /-- **A three-term `S`-unit estimate.** If `n₁ ≠ 0`, `|n₂| ≤ m` and `z = 3^s n₁ - 2^s n₂ ≠ 0`,
 then `3^s ≤ 2 (2m + 1)^3 |z|`: either `2^{s+1} m ≤ 3^s` and `|z| ≥ 3^s / 2`, or
-`(3/2)^s < 2m + 1`, and then `3^s ≤ (27/8)^s < (2m + 1)^3`. -/
+`(3/2)^s < 2m + 1`, and then `3^s ≤ (27/8)^s < (2m + 1)^3`.
+Lemma 5.4 of Stephan's *The exponent `1/4` in three complexity bounds* (2026, arXiv:2610.30937). -/
 theorem three_pow_le_of_ne_zero {s : ℕ} {n₁ n₂ m : ℤ} (hn₁ : n₁ ≠ 0)
     (hz : 3 ^ s * n₁ - 2 ^ s * n₂ ≠ 0) (hm : |n₂| ≤ m) :
     (3 : ℤ) ^ s ≤ 2 * (2 * m + 1) ^ 3 * |3 ^ s * n₁ - 2 ^ s * n₂| := by
@@ -151,7 +155,8 @@ theorem three_pow_le_of_ne_zero {s : ℕ} {n₁ n₂ m : ℤ} (hn₁ : n₁ ≠ 
 determine `β₁, β₂`, and a third point satisfies `N D = 3^a (3^s n₁ - 2^s n₂)` with
 `D = X₁ Y₂ - X₂ Y₁`, `n₁ = N₁ Y₂ - N₂ Y₁`, `n₂ = N₁ X₂ - N₂ X₁` (`X = 3^c`, `Y = 2^s 3^a`);
 `D` and `n₁` are nonzero by parity at `2`, and the three-term estimate gives
-`3^c ≤ 250 · 648^{c₁ + c₂} 2^c`. -/
+`3^c ≤ 250 · 648^{c₁ + c₂} 2^c`.
+Lemma 5.5 of Stephan's *The exponent `1/4` in three complexity bounds* (2026, arXiv:2610.30937). -/
 theorem lt_of_ne_gap {β₁ β₂ : ℚ} {a₁ c₁ a₂ c₂ a c : ℕ} (h₁ : a₁ < c₁) (h₂ : a₂ < c₂)
     (h : a < c) (hs : c₁ - a₁ ≠ c₂ - a₂)
     (hp₁ : (kernelNum a₁ c₁ : ℚ) = β₁ * 3 ^ c₁ + β₂ * (2 ^ (c₁ - a₁) * 3 ^ a₁))
@@ -284,7 +289,9 @@ theorem lt_of_ne_gap {β₁ β₂ : ℚ} {a₁ c₁ a₂ c₂ a c : ℕ} (h₁ :
 
 /-- **Few kernel points on one plane.** Let `2 τ_n < τ_{n+1}` and `ρ_n < τ_n`. The indices `n`
 whose kernel point at `(ρ_n + 2, τ_n + 2)` lies on a proper subspace `U` of `ℚ³` and whose gap is
-large, `ε (τ_n + 2) / 4 < τ_n - ρ_n`, number at most `12 (1 + log ε⁻¹)`. -/
+large, `ε (τ_n + 2) / 4 < τ_n - ρ_n`, number at most `12 (1 + log ε⁻¹)`.
+First proved as Lemma 5.6 of Stephan's *The exponent `1/4` in three complexity bounds* (2026,
+arXiv:2610.30937). -/
 theorem card_mem_plane_le {U : Submodule ℚ (Fin 3 → ℚ)} (hU : U ≠ ⊤) {ρ τ : ℕ → ℕ}
     (hτ : ∀ n, 2 * τ n < τ (n + 1)) (hρτ : ∀ n, ρ n < τ n) {ε : ℝ} (hε : 0 < ε) (hε1 : ε ≤ 1)
     (J : Finset ℕ)

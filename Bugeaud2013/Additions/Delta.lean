@@ -29,6 +29,11 @@ for every `ε ≤ ε_N` with `ε_N⁻¹ ≍ (log ℓ_{2N})^δ ≍ (N log N)^δ`.
 (`Real.Doubling`), so by `Real.card_le_of_cfPoints` the `N` points `N ≤ k < 2N` number at
 most `K ε_N^{-(b+1)} (1 + log ε_N⁻¹)³ = O(N^γ)` with `γ < 1`, which fails for large `N`
 (`Real.eventually_lt_half`).
+
+## References
+
+R. Stephan, *The exponent `1/4` in three complexity bounds: integer bases, continued fractions, and
+the `(3/2)^n` steering word*, arXiv:2610.30937 (2026), Theorem 1.2, §4 and Remark 4.4.
 -/
 
 @[expose] public section
@@ -324,7 +329,9 @@ theorem isAlgebraic_of_three_le_natDegree {α : ℝ} (hdeg : 3 ≤ (minpoly ℚ 
   rw [h0] at hdeg
   simp at hdeg
 
-/-- **(6.1) with `δ < 1/4`** (Evertse–Ferretti 2013). -/
+/-- **(6.1) with `δ < 1/4`** (Evertse–Ferretti 2013).
+First proved as Theorem 1.2 of Stephan's *The exponent `1/4` in three complexity bounds* (2026,
+arXiv:2610.30937). -/
 theorem frequently_lt_encard_factors_of_lt_quarter (ha : ∀ n, 1 ≤ a (n + 1))
     (hdeg : 3 ≤ (minpoly ℚ (contFrac a)).natDegree) {δ : ℝ} (hδ : 0 ≤ δ) (hδ4 : δ < 1 / 4)
     (C : ℝ) :
@@ -334,7 +341,9 @@ theorem frequently_lt_encard_factors_of_lt_quarter (ha : ∀ n, 1 ≤ a (n + 1))
     (subspaceBound_three (isAlgebraic_of_three_le_natDegree hdeg)) (by norm_num) hδ
     (by linarith) C
 
-/-- **(6.1) with `δ < 1/9`**, the exponent of Evertse–Schlickewei 2002. -/
+/-- **(6.1) with `δ < 1/9`**, the exponent of Evertse–Schlickewei 2002.
+First proved as Remark 4.4 of Stephan's *The exponent `1/4` in three complexity bounds* (2026,
+arXiv:2610.30937). -/
 theorem frequently_lt_encard_factors_of_lt_ninth (ha : ∀ n, 1 ≤ a (n + 1))
     (hdeg : 3 ≤ (minpoly ℚ (contFrac a)).natDegree) {δ : ℝ} (hδ : 0 ≤ δ) (hδ9 : δ < 1 / 9)
     (C : ℝ) :

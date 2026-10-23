@@ -48,7 +48,9 @@ satisfy `y₀ y₁' = y₀' y₁`; since `y₀'` is odd, `2^{c'} ∣ y₁ < 3^c`
 
 R. Stephan, *Superlinear complexity of the `(3/2)^n` steering word*, arXiv:2607.11648, Problem 5.2;
 J.-H. Evertse, R. G. Ferretti, *A further improvement of the quantitative Subspace Theorem*, Ann.
-of Math. **177** (2013), 513–590.
+of Math. **177** (2013), 513–590;
+R. Stephan, *The exponent `1/4` in three complexity bounds: integer bases, continued fractions, and
+the `(3/2)^n` steering word*, arXiv:2610.30937 (2026), Lemma 5.7.
 -/
 
 @[expose] public section
@@ -116,7 +118,9 @@ theorem five_mul_lt_of_mul_eq {a' c' : ℕ} (ha : 2 ≤ a) (hac : a < c) (hac' :
 
 /-- **The two-variable step.** There is `K > 0` such that for `0 < ε ≤ 1` the line points of the
 pairs `2 ≤ a < c` with `|ε_c - ε_a| ≤ (3^c)^{-ε}`, a small gap `c - a ≤ ε c / 4` and
-`K ε⁻¹ ≤ c log 3` lie in at most `K ε⁻³ (1 + log ε⁻¹)²` proper subspaces of `ℚ²`. -/
+`K ε⁻¹ ≤ c log 3` lie in at most `K ε⁻³ (1 + log ε⁻¹)²` proper subspaces of `ℚ²`.
+First proved as Lemma 5.7 of Stephan's *The exponent `1/4` in three complexity bounds* (2026,
+arXiv:2610.30937). -/
 theorem exists_lines_of_violators :
     ∃ K : ℝ, 0 < K ∧ ∀ ε : ℝ, 0 < ε → ε ≤ 1 → ∃ T : Finset (Submodule ℚ (Fin 2 → ℚ)),
       (#T : ℝ) ≤ K * ε⁻¹ ^ 3 * (1 + log ε⁻¹) ^ 2 ∧ (∀ U ∈ T, U ≠ ⊤) ∧
@@ -321,7 +325,8 @@ theorem exists_lines_of_violators :
 
 /-- **At most three points on a line.** Let `2 τ_n < τ_{n+1}` and `ρ_n < τ_n`. The indices `n`
 whose line point at `(ρ_n + 2, τ_n + 2)` lies on a proper subspace of `ℚ²` number at most
-three: they lie in the window `τ_n ≤ 4 τ_{n₁}` of the first of them. -/
+three: they lie in the window `τ_n ≤ 4 τ_{n₁}` of the first of them.
+Lemma 5.7 of Stephan's *The exponent `1/4` in three complexity bounds* (2026, arXiv:2610.30937). -/
 theorem card_mem_line_le {U : Submodule ℚ (Fin 2 → ℚ)} (hU : U ≠ ⊤) {ρ τ : ℕ → ℕ}
     (hτ : ∀ n, 2 * τ n < τ (n + 1)) (hρτ : ∀ n, ρ n < τ n) (J : Finset ℕ)
     (hJ : ∀ n ∈ J, (fun i ↦ (linePoint (ρ n + 2) (τ n + 2) i : ℚ)) ∈ U) :

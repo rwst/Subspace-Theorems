@@ -44,7 +44,9 @@ second Subspace count `ε⁻³`. The split of the gap is the one of the `(3/2)^n
 ## References
 
 Y. Bugeaud, J.-H. Evertse, *On two notions of complexity of algebraic numbers*, Acta Arith.
-**133** (2008), 221–250, Theorem 2.1 and §7.
+**133** (2008), 221–250, Theorem 2.1 and §7;
+R. Stephan, *The exponent `1/4` in three complexity bounds: integer bases, continued fractions, and
+the `(3/2)^n` steering word*, arXiv:2610.30937 (2026), Theorem 1.1 and §3.
 -/
 
 @[expose] public section
@@ -57,7 +59,9 @@ variable {b : ℕ}
 
 /-- **Bugeaud–Evertse 2008, Theorem 2.1, with `1/4` in place of `1/11`.** If the base-`b` digits
 `a` of a real algebraic irrational number are given, then for every `η < 1/4` and every `C` the
-complexity exceeds `C n (log n)^η` for infinitely many `n`. -/
+complexity exceeds `C n (log n)^η` for infinitely many `n`.
+First proved as Theorem 1.1 of Stephan's *The exponent `1/4` in three complexity bounds* (2026,
+arXiv:2610.30937). -/
 theorem frequently_lt_complexity_of_lt_quarter (hb : 2 ≤ b) {a : ℕ → Fin b}
     (hirr : Irrational (ofDigits a)) (halg : IsAlgebraic ℚ (ofDigits a)) {η : ℝ} (hη : η < 1 / 4)
     (C : ℝ) : ∃ᶠ n : ℕ in atTop, C * n * log n ^ η < Function.complexity a n := by

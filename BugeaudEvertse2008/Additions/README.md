@@ -55,7 +55,11 @@ contradiction. The split by the size of the gap is the one of the steering word'
 
 ## Literature
 
-Not checked whether `η < 1/4` for `b`-ary expansions is in the literature after BE08.
+The results of this directory first appear in R. Stephan, *The exponent `1/4` in three complexity
+bounds: integer bases, continued fractions, and the `(3/2)^n` steering word*, arXiv:2610.30937
+(2026), §3: Theorem 1.1 is `Real.frequently_lt_complexity_of_lt_quarter`, Lemmas 3.4–3.7 are the
+lemmas of `PlaneLiouville.lean` and `SmallGap.lean`, and Remark 6.1 is the `1/7` of
+`Theorem21.lean`. Its Appendix A maps every numbered statement to its Lean declaration.
 
 ## Checks (2026-10-21)
 

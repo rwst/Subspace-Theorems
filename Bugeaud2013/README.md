@@ -8,7 +8,8 @@ It is its own `lean_lib` (`Bugeaud2013`), held to the same rules (no `sorry`, no
 std3 axioms, fine-grained imports, module system, Mathlib root namespaces).
 
 `Additions/` goes beyond the paper: it proves (6.1), which Bugeaud announced without proof, with
-an explicit exponent `δ < 1/4` (see `Additions/README.md`).
+an explicit exponent `δ < 1/4` (see `Additions/README.md`), published as Theorem 1.2 of Stephan,
+*The exponent `1/4` in three complexity bounds* (arXiv:2610.30937, 2026).
 
 ## The library
 

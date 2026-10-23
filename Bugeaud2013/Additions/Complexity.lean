@@ -17,6 +17,11 @@ distance `r ≥ u₀`, which is then slid as far to the left as it goes
 (`Function.exists_rep_min`). In the indexing of the continued fraction `[0; a₁, a₂, …]` this is
 `Nat.exists_config`: a repetition `a_{m + r} = a_m` for `j + 1 < m ≤ j + 1 + u` with
 `a_{j+1} ≠ a_{j+1+r}` when `j ≥ 1`, the hypotheses of `Nat.cfPoint_spadeVec`.
+
+## References
+
+R. Stephan, *The exponent `1/4` in three complexity bounds: integer bases, continued fractions, and
+the `(3/2)^n` steering word*, arXiv:2610.30937 (2026), Lemma 4.2.
 -/
 
 @[expose] public section
@@ -105,7 +110,8 @@ namespace Nat
 /-- **The configurations of `Nat.cfPoint_spadeVec` from a complexity bound.** If
 `a₁ a₂ …` has at most `p` factors of length `ℓ ≥ 12`, there is a repetition
 `a_{m + r} = a_m` for `j + 1 < m ≤ j + 1 + u`, with `1 ≤ u ≤ r`, `2 ≤ r`, `ℓ ≤ 4 u`,
-`j + 1 + r ≤ 2 p + ℓ + 1` and `a_{j+1} ≠ a_{j+1+r}` when `j ≥ 1`. -/
+`j + 1 + r ≤ 2 p + ℓ + 1` and `a_{j+1} ≠ a_{j+1+r}` when `j ≥ 1`.
+Lemma 4.2 of Stephan's *The exponent `1/4` in three complexity bounds* (2026, arXiv:2610.30937). -/
 theorem exists_config {a : ℕ → ℕ} {ℓ p : ℕ} (hℓ : 12 ≤ ℓ)
     (hp : (Function.factors (fun k ↦ a (k + 1)) ℓ).encard ≤ p) :
     ∃ j r u, 1 ≤ u ∧ u ≤ r ∧ 2 ≤ r ∧ ℓ ≤ 4 * u ∧ j + 1 + r ≤ 2 * p + ℓ + 1 ∧

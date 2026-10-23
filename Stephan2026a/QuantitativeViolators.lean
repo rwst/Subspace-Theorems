@@ -34,7 +34,9 @@ exponent `ε ≈ (log τ_n)^{-v} / 6`.
 
 R. Stephan, *Superlinear complexity of the `(3/2)^n` steering word*, arXiv:2607.11648, Problem 5.2;
 Y. Bugeaud, J.-H. Evertse, *On two notions of complexity of algebraic numbers*, Acta Arith.
-**133** (2008), 221–250, Lemma 6.1.
+**133** (2008), 221–250, Lemma 6.1;
+R. Stephan, *The exponent `1/4` in three complexity bounds: integer bases, continued fractions, and
+the `(3/2)^n` steering word*, arXiv:2610.30937 (2026), Lemma 5.1.
 -/
 
 @[expose] public section
@@ -59,7 +61,9 @@ theorem complexity_shift_le (k : ℕ) : complexity (fun n ↦ t (n + 2)) k ≤ c
 /-- **Problem 5.2, the doubling sequence of repetitions.** If `p_T(k) ≤ c k (log k)^u` for
 `k ≥ n₀`, `0 ≤ u < v`, there are `r n < τ n` with `2 τ n < τ (n + 1)` and
 `τ n ≤ (2 n + 2)^{C (n + 1)}` such that the `τ n (log τ n)^{-v}` letters after `τ n + 2` repeat
-those after `r n + 2`. -/
+those after `r n + 2`.
+First proved as Lemma 5.1 of Stephan's *The exponent `1/4` in three complexity bounds* (2026,
+arXiv:2610.30937). -/
 theorem exists_violators_of_complexity_le {c u v : ℝ} (hu : 0 ≤ u) (huv : u < v) (n₀ : ℕ)
     (hp : ∀ k ≥ n₀, (complexity t k : ℝ) ≤ c * k * Real.log k ^ u) :
     ∃ (C : ℕ) (r τ : ℕ → ℕ), (∀ n, r n < τ n) ∧ (∀ n, 2 * τ n < τ (n + 1)) ∧

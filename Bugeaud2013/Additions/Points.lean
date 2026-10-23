@@ -36,6 +36,11 @@ at most a power `ε⁻¹ O(1)` of theirs (`Real.rpow_le_of_mem_span_pair`).
   `twoConst c D · H_b^{4D+4}` to the power `1 / ε`.
 * `Real.Doubling.card_le`: the doubling count.
 * `Real.card_mem_le_of_finrank_le_two`: **the planes**.
+
+## References
+
+R. Stephan, *The exponent `1/4` in three complexity bounds: integer bases, continued fractions, and
+the `(3/2)^n` steering word*, arXiv:2610.30937 (2026), Proposition 4.3, step (ii).
 -/
 
 @[expose] public section
@@ -451,7 +456,9 @@ theorem exists_real_of_mem_span_pair {x y z : Fin 4 → ℤ}
   exact_mod_cast this.symm
 
 open scoped Classical in
-/-- **A subspace of dimension at most `2` holds at most `planeBound c D ε` points.** -/
+/-- **A subspace of dimension at most `2` holds at most `planeBound c D ε` points.**
+Step (ii) of Proposition 4.3 of Stephan's *The exponent `1/4` in three complexity bounds* (2026,
+arXiv:2610.30937). -/
 theorem card_mem_le_of_finrank_le_two (hc : 0 < c) (hL : LiouvilleQuad α c D) (hα : |α| ≤ 1)
     (hε : 0 < ε) (hε1 : ε ≤ 1) (hdbl : Doubling Hs) (I : Finset ℕ)
     (hpt : ∀ k ∈ I, CFPoint α A ε (vs k) (Hs k) (Qs k)) (P : Submodule ℚ (Fin 4 → ℚ))
