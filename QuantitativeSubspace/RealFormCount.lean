@@ -55,8 +55,9 @@ gives any constant `C ≥ 1` at `∞` and a lower bound `γ` for `|det|`; the fo
 within `τ = δ / 2n` of `1` keep their exponent, the others are multiplied by a power of `2` and
 their exponent is raised by `τ`. That costs half of `δ` and a threshold linear in `log C` and
 `log γ⁻¹`, and it needs one exponent at `∞` that is not within `τ` of `1`: the caller gives one
-`≤ 0`. At the primes nothing is rescaled; the constant is `1`, the forms are the coordinates
-(determinant `1`), and the caller's exponents must already be `≤ 0` with one `= 0`.
+`≤ 1 - τ` (for instance one `≤ 0`, `Real.exists_le_one_sub_div_of_exists_nonpos`). At the
+primes nothing is rescaled; the constant is `1`, the forms are the coordinates (determinant `1`),
+and the caller's exponents must already be `≤ 0` with one `= 0`.
 
 ⚠ **The absolute values of the number field above the primes are chosen once**
 (`NumberField.exists_liesOver_finitePlace`), and only their values on `ℚ` are ever used, because
@@ -275,17 +276,17 @@ open NumberField
 `δ^{-a}` subspaces.** For `2 ≤ n ≤ 4` there is `K` such that: for forms
 `∑_k quadVal α (P i k) X_k` at `∞` with integer data `|P i k m| ≤ B` and determinant at least `γ`
 in absolute value, a constant `C ≥ 1`, exponents `e i ≤ 1` at `∞`, one of them `1` and one of them
-`≤ 0`, and exponents `f l i ≤ 0` at the primes `l ∈ S`, one of them `0` at each `l`, of total sum
-at most `-δ`, the nonzero integer points `x` with `|∑_k quadVal α (P i k) x_k| ≤ C |x|^{e i}` and
-`|x i|_l ≤ |x|^{f l i}` for all `i` and `l ∈ S`, and
-`log |x| ≥ K δ⁻¹ (1 + log B + log C + log γ⁻¹)`, lie in at most `K δ^{-a} (1 + log δ⁻¹)²`
+`≤ 1 - δ / 2n`, and exponents `f l i ≤ 0` at the primes `l ∈ S`, one of them `0` at each `l`, of
+total sum at most `-δ`, the nonzero integer points `x` with
+`|∑_k quadVal α (P i k) x_k| ≤ C |x|^{e i}` and `|x i|_l ≤ |x|^{f l i}` for all `i` and `l ∈ S`,
+and `log |x| ≥ K δ⁻¹ (1 + log B + log C + log γ⁻¹)`, lie in at most `K δ^{-a} (1 + log δ⁻¹)²`
 proper subspaces of `ℚⁿ`. The constant `K` depends on `α`, `S` and `n` only. -/
 def SubspaceBoundAt (α : ℝ) (S : Finset Nat.Primes) (a : ℝ) : Prop :=
   ∀ n : ℕ, 2 ≤ n → n ≤ 4 → ∃ K : ℝ, 0 < K ∧
     ∀ (P : Fin n → Fin n → Fin 3 → ℤ) (B : ℝ), 1 ≤ B → (∀ i k m, |(P i k m : ℝ)| ≤ B) →
     ∀ γ : ℝ, 0 < γ → γ ≤ 1 → γ ≤ |(Matrix.of fun i k ↦ quadVal α (P i k)).det| →
     ∀ C : ℝ, 1 ≤ C → ∀ (e : Fin n → ℝ) (f : Nat.Primes → Fin n → ℝ) (δ : ℝ), 0 < δ → δ ≤ 1 →
-      (∀ i, e i ≤ 1) → (∃ i, e i = 1) → (∃ i, e i ≤ 0) →
+      (∀ i, e i ≤ 1) → (∃ i, e i = 1) → (∃ i, e i ≤ 1 - δ / (2 * n)) →
       (∀ l ∈ S, ∀ i, f l i ≤ 0) → (∀ l ∈ S, ∃ i, f l i = 0) →
       ∑ i, e i + ∑ l ∈ S, ∑ i, f l i ≤ -δ →
     ∃ T : Finset (Submodule ℚ (Fin n → ℚ)), (#T : ℝ) ≤ K * δ⁻¹ ^ a * (1 + log δ⁻¹) ^ 2 ∧
@@ -493,16 +494,21 @@ theorem normExp_le {n : ℕ} (e : Fin n → ℝ) {δ : ℝ} (hδ : 0 ≤ δ) (i 
   unfold normExp
   split_ifs <;> linarith
 
-theorem two_pow_le_prod_normLam {n : ℕ} (hn : 2 ≤ n) {e : Fin n → ℝ} {δ : ℝ} (hδ1 : δ ≤ 1)
-    (he0 : ∃ i, e i ≤ 0) (k : ℕ) : 2 ^ k ≤ ∏ i, normLam e δ k i := by
+/-- **One exponent `≤ 0` is one exponent `≤ 1 - δ / 2n`.** -/
+theorem exists_le_one_sub_div_of_exists_nonpos {n : ℕ} (hn : 2 ≤ n) {e : Fin n → ℝ} {δ : ℝ}
+    (hδ1 : δ ≤ 1) (he0 : ∃ i, e i ≤ 0) : ∃ i, e i ≤ 1 - δ / (2 * n) := by
   obtain ⟨i, hi⟩ := he0
-  have hn0 : (0 : ℝ) < n := by exact_mod_cast (by omega : 0 < n)
-  have hcut : ¬ 1 - δ / (2 * n) < e i := by
-    have : δ / (2 * n) ≤ 1 := by
-      rw [div_le_one (by positivity)]
-      have : (2 : ℝ) ≤ n := by exact_mod_cast hn
-      linarith
+  refine ⟨i, ?_⟩
+  have hn2 : (2 : ℝ) ≤ n := by exact_mod_cast hn
+  have : δ / (2 * n) ≤ 1 := by
+    rw [div_le_one (by positivity)]
     linarith
+  linarith
+
+theorem two_pow_le_prod_normLam {n : ℕ} {e : Fin n → ℝ} {δ : ℝ}
+    (he0 : ∃ i, e i ≤ 1 - δ / (2 * n)) (k : ℕ) : 2 ^ k ≤ ∏ i, normLam e δ k i := by
+  obtain ⟨i, hi⟩ := he0
+  have hcut : ¬ 1 - δ / (2 * n) < e i := not_lt.mpr hi
   calc 2 ^ k = normLam e δ k i := by simp [normLam, hcut]
     _ ≤ ∏ j, normLam e δ k j :=
         Finset.single_le_prod (fun j _ ↦ normLam_pos e δ k j) (mem_univ i)
@@ -514,14 +520,14 @@ theorem det_scaled {n : ℕ} (lam : Fin n → ℕ) (α : ℝ) (P : Fin n → Fin
   simpa only [Matrix.of_apply] using h
 
 /-- **The scaled determinant is at least `C ^ n`.** -/
-theorem pow_le_det_normLam {n : ℕ} (hn : 2 ≤ n) {α : ℝ} {P : Fin n → Fin n → Fin 3 → ℤ}
+theorem pow_le_det_normLam {n : ℕ} {α : ℝ} {P : Fin n → Fin n → Fin 3 → ℤ}
     {γ : ℝ} (hγ : 0 < γ) (hdet : γ ≤ |(Matrix.of fun i j ↦ quadVal α (P i j)).det|) {C : ℝ}
-    {k : ℕ} (hk : C ^ n / γ ≤ 2 ^ k) {e : Fin n → ℝ} {δ : ℝ} (hδ1 : δ ≤ 1)
-    (he0 : ∃ i, e i ≤ 0) :
+    {k : ℕ} (hk : C ^ n / γ ≤ 2 ^ k) {e : Fin n → ℝ} {δ : ℝ}
+    (he0 : ∃ i, e i ≤ 1 - δ / (2 * n)) :
     C ^ n ≤ |(Matrix.of fun i j ↦ (normLam e δ k i : ℝ) * quadVal α (P i j)).det| := by
   rw [det_scaled, abs_mul, abs_of_nonneg (by positivity)]
   have hp : (2 : ℝ) ^ k ≤ ∏ i, (normLam e δ k i : ℝ) := by
-    exact_mod_cast two_pow_le_prod_normLam hn hδ1 he0 k
+    exact_mod_cast two_pow_le_prod_normLam he0 k
   rw [div_le_iff₀ hγ] at hk
   exact hk.trans (mul_le_mul hp hdet hγ.le (by positivity))
 
@@ -927,7 +933,7 @@ theorem exists_subspaceBound_places {α : ℝ} (hα : IsAlgebraic ℚ α) {n : �
       ∀ (P : Fin n → Fin n → Fin 3 → ℤ) (B : ℝ), 1 ≤ B → (∀ i k m, |(P i k m : ℝ)| ≤ B) →
       ∀ γ : ℝ, 0 < γ → γ ≤ 1 → γ ≤ |(Matrix.of fun i k ↦ quadVal α (P i k)).det| →
       ∀ C : ℝ, 1 ≤ C → ∀ (e : Fin n → ℝ) (f : HeightOneSpectrum (𝓞 ℚ) → Fin n → ℝ) (δ : ℝ),
-        0 < δ → δ ≤ 1 → (∀ i, e i ≤ 1) → (∃ i, e i = 1) → (∃ i, e i ≤ 0) →
+        0 < δ → δ ≤ 1 → (∀ i, e i ≤ 1) → (∃ i, e i = 1) → (∃ i, e i ≤ 1 - δ / (2 * n)) →
         (∀ v ∈ S, ∀ i, f v i ≤ 0) → (∀ v ∈ S, ∃ i, f v i = 0) →
         ∑ i, e i + ∑ v ∈ S, ∑ i, f v i ≤ -δ →
       ∃ T : Finset (Submodule ℚ (Fin n → ℚ)),
@@ -1010,7 +1016,7 @@ theorem exists_subspaceBound_places {α : ℝ} (hα : IsAlgebraic ℚ α) {n : �
   -- the constant
   have hCc : C ≤ |(Matrix.of fun i j ↦ (normLam e δ k i : ℝ) * quadVal α (P i j)).det| ^
       (n : ℝ)⁻¹ :=
-    le_rpow_inv_of_pow_le (by omega) (by linarith) (pow_le_det_normLam hn hγ hdet hk hδ1 he0)
+    le_rpow_inv_of_pow_le (by omega) (by linarith) (pow_le_det_normLam hγ hdet hk he0)
   -- the height of the coefficients
   set Hc : ℝ := 3 ^ d * (2 ^ k * B) ^ (3 * d) * Mβ ^ 3 with hHc
   have hkB : (1 : ℝ) ≤ 2 ^ k * B := one_le_mul_of_one_le_of_one_le (one_le_pow₀ (by norm_num)) hB

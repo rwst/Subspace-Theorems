@@ -5,16 +5,20 @@ Its Section 4 proves the kernel (K) by a two-variable (Ridout-type) and a three-
 application of the Subspace Theorem.
 
 **Status (2026-10-18): Theorem 1.1 is proved, within Lean's three standard axioms**
-(`SteeringWord.tendsto_complexity_div`, `SteeringWord.exists_forall_lt_complexity`). The
+(`SteeringWord.tendsto_complexity_div`, `SteeringWord.exists_forall_lt_complexity`).
+**(2026-10-21): Problem 5.2 is solved**: `p_T(k) > C k (log k)^η` for infinitely many `k`, for
+every `η < 1/4` and every `C` (`SteeringWord.frequently_lt_complexity`,
+`SteeringWord.quantitativeSuperlinear`), within the same three axioms. The
 directory is its own `lean_lib` (`Stephan2026a`), held to the same rules as the other paper
 directories (no `sorry`, no `set_option`, std3 axioms, fine-grained imports, module system,
 Mathlib-style namespaces), and is in the gates' library lists. Its comparator lane certifies
-Theorem 1.1: `comparator/stephan-2026a.txt`, `ChallengeStephan2026a.lean`,
+Theorem 1.1 and Problem 5.2: `comparator/stephan-2026a.txt`, `ChallengeStephan2026a.lean`,
 `SolutionStephan2026a.lean`, `comparator/stephan-2026a.json`, and `formalization.yaml` here.
 
 This is the **minimal** formalization: the main theorem and the numbered results on its proof
-path, nothing else. The Subspace Theorem and Ridout's theorem are theorems of
-`DiophantineApproximation`, so nothing is assumed.
+path, nothing else, plus the solution of Problem 5.2 (below). The Subspace Theorem, Ridout's
+theorem and Evertse–Ferretti's quantitative Subspace Theorem are theorems of
+`DiophantineApproximation` and `QuantitativeSubspace`, so nothing is assumed.
 
 ## The results of the paper, and where they are
 
@@ -39,7 +43,8 @@ path, nothing else. The Subspace Theorem and Ridout's theorem are theorems of
 | Lemma 4.2 | `0 < ‖ξ (3/2)^a‖ ≤ θ^a` finitely often | `SteeringWord.finite_setOf_distToNearestInt_mul_le` (`ConstantGap.lean`) |
 | Cor. 4.3 | the gap-bounded slice | `SteeringWord.finite_kernelViolators_gap_le` |
 | **Thm 4.5** | (K) holds | `SteeringWord.finite_kernelViolators` (`Kernel.lean`) |
-| Problems 5.1–5.4, Conj. A.2 | open | stated in `Problems.lean` |
+| **Problem 5.2** | `p_T(k) ≥ k (log k)^δ` infinitely often | **solved**, every `η < 1/4`: `SteeringWord.frequently_lt_complexity`, `quantitativeSuperlinear` (`QuantitativeTheorem.lean`) |
+| Problems 5.1, 5.3, 5.4, Conj. A.2 | open | stated in `Problems.lean` |
 
 `Function.complexity` (DA Layer 7.5, `FactorComplexity.lean`) is the subword complexity; the
 steering word has finitely many factors of each length (`SteeringWord.finite_factors`), so its
@@ -78,3 +83,37 @@ Cor. 4.3), Proposition A.1 and the numerics of Appendix A.
 | `ConstantGap.lean` | Lemma 4.2, Cor. 4.3 |
 | `Kernel.lean` | Thm 4.5, Thm 1.1 |
 | `Problems.lean` | Problems 5.1–5.4, Conjecture A.2 |
+| `QuantitativeViolators.lean` | Problem 5.2, step 1: a doubling sequence of repetitions from `p_T(k) ≤ c k (log k)^u` |
+| `QuantitativePlanes.lean` | step 2: the kernel point, `N = 2^c (ε_c - ε_a)`; the three-variable Evertse–Ferretti count |
+| `QuantitativePlaneStep.lean` | step 3: the same-gap and distinct-gap principles; `12 (1 + log ε⁻¹)` points per plane |
+| `QuantitativeLines.lean` | step 4: small gaps, two variables; three points per line |
+| `QuantitativeTheorem.lean` | step 5: Problem 5.2 for every `η < 1/4` |
+
+## Problem 5.2
+
+`SteeringWord.frequently_lt_complexity`: for every `η < 1/4` and every `C`,
+`p_T(k) > C k (log k)^η` for infinitely many `k`. The route is Bugeaud–Evertse 2008, Theorem 2.1
+(`BugeaudEvertse2008/`), with the kernel points of §4 in place of their approximations:
+
+1. A bound `p_T(k) ≤ c k (log k)^u`, `u < v`, gives repetitions of length `τ_n (log τ_n)^{-v}` at
+   pairs `(r_n + 2, τ_n + 2)` with `2 τ_n < τ_{n+1}` (DA's
+   `Function.exists_repetitions_of_complexity_le`, the combinatorial half of Bugeaud–Evertse's
+   Lemma 6.1, moved to `DiophantineApproximation/ComplexityRepetitions.lean` so that both papers
+   share it), and Lemma 2.7 turns each into `|ε_c - ε_a| ≤ (3^c)^{-ε}`.
+2. Pairs with a large gap `s > ε c / 4`: the kernel point `(3^c, 2^s 3^a, 2^c M)` solves a
+   three-variable system at `∞`, `2`, `3` in the class `⌊k s / c⌋` of its gap; Evertse–Ferretti
+   (`Real.subspaceBoundAt_three`) gives `K ε⁻⁴ (1 + log ε⁻¹)²` planes. One exponent at `∞` is
+   `λ - ε` with `λ = log 2 / log 3 ≈ 0.63`, not `≤ 0`; the hypothesis of `Real.SubspaceBoundAt` was
+   weakened to "one exponent `≤ 1 - δ / 2n`", which is all its proof uses.
+3. On one plane the points are few by integer identities alone: the same gap gives `7 c₂ < 19 c₁`
+   (`2^19 < 3^12`), two different gaps bound every further point by `c < 18 (c₁ + c₂) + 18`; a
+   doubling sequence then has `O(1 + log ε⁻¹)` points on a plane.
+4. Pairs with a small gap: the point `(3^c - 2^s 3^a, 2^c M)` solves a two-variable system;
+   `K ε⁻³ (1 + log ε⁻¹)²` lines, at most three points on each (`3^5 < 2^8`).
+5. With `ε ≈ (log τ_{2N})^{-v}` the `N` points `N ≤ n < 2N` number at most
+   `K ε⁻⁴ (1 + log ε⁻¹)³ = o(N)` when `4 v < 1` (DA's `Real.eventually_doubling_thresholds`).
+
+The exponent `1/4` is the count `ε⁻⁴` of planes; Bugeaud–Evertse's per-plane step costs
+`ε⁻³` more for algebraic numbers (their `1/7` here, `1/11` in the paper). The same split of the
+gap, with Liouville's inequality on the planes, brings algebraic numbers to `1/4` too
+(`BugeaudEvertse2008/Additions/`, 2026-10-21).

@@ -16,8 +16,11 @@ project:
     corollaries (§2), the reduction to the Diophantine kernel (K) (§3), and
     the kernel itself, by Ridout-type and three-variable applications of the
     Subspace Theorem (§4). The open problems of §5 and Conjecture A.2 are
-    stated in Stephan2026a/Problems.lean. Two statements are compared, both
-    forms of Theorem 1.1.
+    stated in Stephan2026a/Problems.lean; Problem 5.2 is solved there, for
+    every exponent η < 1/4, along the route of Bugeaud–Evertse 2008 with
+    Evertse–Ferretti's quantitative Subspace Theorem (QuantitativeSubspace).
+    Four statements are compared: both forms of Theorem 1.1 and two forms of
+    the solution of Problem 5.2.
   authors:
     - "Ralf Stephan"
   license: "Apache-2.0"
@@ -30,9 +33,12 @@ classification:
 
 status:
   scope: >-
-    The two declarations named in comparator/stephan-2026a.json, listed
+    The four declarations named in comparator/stephan-2026a.json, listed
     under main_results: Theorem 1.1 as the limit p_T(k)/k → ∞ and in the
-    printed form "for every C there is K with p_T(k) > C k for all k ≥ K".
+    printed form "for every C there is K with p_T(k) > C k for all k ≥ K";
+    Problem 5.2 as the Prop QuantitativeSuperlinear of Problems.lean and in
+    the stronger form "p_T(k) > C k (log k)^η infinitely often, for every
+    η < 1/4 and every C".
     Lemma 2.1, Theorem 2.3, Corollary 2.4, Proposition 2.5, Lemmas 2.7 and
     2.8, Theorems 2.9 and 2.10, Proposition 2.12, Theorem 3.2, Theorem 4.1
     (for S = {2, 3}), Lemma 4.2, Corollary 4.3 and Theorem 4.5 are proved in
@@ -54,6 +60,18 @@ status:
       axioms: ["propext", "Classical.choice", "Quot.sound"]
       comparator_config: "comparator/stephan-2026a.json"
       literature_dependencies: []
+    - declaration: "SteeringWord.quantitativeSuperlinear"
+      file: "Stephan2026a/QuantitativeTheorem.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/stephan-2026a.json"
+      literature_dependencies: []
+    - declaration: "SteeringWord.frequently_lt_complexity"
+      file: "Stephan2026a/QuantitativeTheorem.lean"
+      sorry_count: 0
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
+      comparator_config: "comparator/stephan-2026a.json"
+      literature_dependencies: []
 
 fidelity:
   divergences: >-
@@ -68,7 +86,10 @@ fidelity:
     forms with coefficients in a number field at ∞, coordinate forms at the
     primes, sup norm of the point; here the field is ℚ. The paper orders
     the coordinates of the point of Theorem 4.5 as (3^c, 2^s 3^a, 2^c M);
-    the formalization puts 2^c M first. The single-file challenge differs
+    the formalization puts 2^c M first; the files of Problem 5.2 keep the
+    paper's order. Problem 5.2 asks for some δ > 0 with p_T(k) ≥ k (log k)^δ
+    infinitely often; the formalization gives δ = 1/8 and every η < 1/4 with
+    any constant C. The single-file challenge differs
     from the development in presentation only (see COMPARATOR.md at the
     repository root).
 
@@ -111,8 +132,8 @@ automation:
     The library is held to the repository's rules by scripts/check.sh (a
     build with Mathlib's linter set as errors, the axiom audit against the
     three standard axioms, the module-system check, the textual guards).
-    It has 9 files and uses the repository's libraries ArithmeticHeights
-    and DiophantineApproximation. lake test runs leanprover/comparator over
+    It has 14 files and uses the repository's libraries ArithmeticHeights,
+    DiophantineApproximation and QuantitativeSubspace. lake test runs leanprover/comparator over
     comparator/stephan-2026a.json against the single Mathlib-only file
     ChallengeStephan2026a.lean, generated from comparator/stephan-2026a.txt
     by scripts/make-challenge.py --paper Stephan2026a, with the proofs
@@ -138,7 +159,8 @@ limitations:
     expects, and the configuration fixes no definition holes.
   - >-
     Every step through the Subspace Theorem is ineffective: no explicit K
-    in Theorem 1.1 is obtained (Problem 5.1).
+    in Theorem 1.1 is obtained (Problem 5.1). The solution of Problem 5.2
+    is ineffective too: the infinitely many k are not located.
 
 alignment:
   namespace: "SteeringWord"
@@ -150,4 +172,12 @@ alignment:
     - source: "Theorem 1.1, for every C there is K with p_T(k) > C k for all k ≥ K"
       lean: "SteeringWord.exists_forall_lt_complexity"
       module: "ChallengeStephan2026a (statement), SolutionStephan2026a / Stephan2026a.Kernel (proof)"
+      status: proved
+    - source: "Problem 5.2, p_T(k) ≥ k (log k)^δ infinitely often for some δ > 0"
+      lean: "SteeringWord.quantitativeSuperlinear"
+      module: "ChallengeStephan2026a (statement), SolutionStephan2026a / Stephan2026a.QuantitativeTheorem (proof)"
+      status: proved
+    - source: "Problem 5.2, p_T(k) > C k (log k)^η infinitely often, every η < 1/4"
+      lean: "SteeringWord.frequently_lt_complexity"
+      module: "ChallengeStephan2026a (statement), SolutionStephan2026a / Stephan2026a.QuantitativeTheorem (proof)"
       status: proved

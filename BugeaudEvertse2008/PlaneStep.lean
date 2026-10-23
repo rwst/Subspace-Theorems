@@ -9,7 +9,7 @@ public import BugeaudEvertse2008.ThreeVariable
 public import DiophantineApproximation.LiouvilleInequality
 
 -- Used only inside proofs.
-import BugeaudEvertse2008.Repetitions
+import DiophantineApproximation.DoublingSequences
 import Mathlib.LinearAlgebra.FiniteDimensional.Lemmas
 
 /-!
@@ -41,7 +41,11 @@ Corollary 5.2 here, whose threshold `(3 d t_{i₂})^{2/ε}` costs nothing either
   determinant `0`.
 * `Real.exists_inv_le_abs_add_mul`: Liouville's inequality `|c₀ + c₁ ξ| ≥ (A Z^d)⁻¹`.
 * `Real.exists_lines_of_approx`: the two-variable step.
+* `Real.exists_plane_eq`: the plane through two points, `z = x₁ × x₂` ((7.12)).
 * `Real.card_mem_plane_le`: **the plane step**.
+
+`Additions/PlaneLiouville.lean` replaces the two-variable count by Liouville's inequality for the
+planes with `z₃ ≠ 0` (`Real.card_mem_plane_le_log`).
 
 ## References
 
@@ -167,7 +171,7 @@ theorem exists_lines_of_approx (hb : 2 ≤ b) {ξ : ℝ} (hξ : IsAlgebraic ℚ 
   set f : Nat.Primes → Fin 2 → ℝ := fun l ↦ ![g l, 0] with hf
   obtain ⟨T, hTcard, hTtop, hTmem⟩ := hBE P Z hZ hPB γ hγ0 hγ1 hdet Z hZ e f ε hε hε1
     (fun i ↦ by fin_cases i <;> simp [e]; linarith) ⟨0, by simp [e]⟩
-    ⟨1, by simp [e]; linarith⟩
+    (exists_le_one_sub_div_of_exists_nonpos le_rfl hε1 ⟨1, by simp [e]; linarith⟩)
     (fun l _ i ↦ by fin_cases i <;> simp [f, hg0 l]) (fun l _ ↦ ⟨1, by simp [f]⟩)
     (by simp [e, f, Fin.sum_univ_two, hgsum])
   have hK₀ : K₀ ≤ K₀ * (d + 3) * (1 + log A) := by
@@ -354,6 +358,68 @@ theorem card_le_of_plane (hb : 2 ≤ b) {ξ : ℝ} (hξ : IsAlgebraic ℚ ξ) (h
   have : (#J : ℝ) ≤ #T₁ + #T₂ := by rw [← hcard]; push_cast; exact_mod_cast add_le_add hJ₁ hJ₂
   linarith
 
+/-- **The plane through two points** (Bugeaud–Evertse 2008, (7.12)). If `x₁ = (b^{t₁}, b^{r₁}, p₁)`
+and `x₂ = (b^{t₂}, b^{r₂}, p₂)`, `t₁ < t₂`, lie in a proper subspace `U` of `ℚ³`, then
+`z = x₁ × x₂` has `|zᵢ| ≤ 2 b^{2 t₂}` and `(z₂, z₃) ≠ 0`, and every `(b^t, b^r, p) ∈ U` satisfies
+`z₁ b^t + z₂ b^r + z₃ p = 0`. -/
+theorem exists_plane_eq (hb : 2 ≤ b) {U : Submodule ℚ (Fin 3 → ℚ)} (hU : U ≠ ⊤)
+    {r₁ t₁ r₂ t₂ : ℕ} {p₁ p₂ : ℤ} (ht : t₁ < t₂) (hr₁ : r₁ < t₁) (hr₂ : r₂ < t₂)
+    (hp₁ : |(p₁ : ℝ)| ≤ (b : ℝ) ^ t₁) (hp₂ : |(p₂ : ℝ)| ≤ (b : ℝ) ^ t₂)
+    (hdvd : 1 ≤ r₂ → ¬ (b : ℤ) ∣ p₂) (h₁ : ![(b : ℚ) ^ t₁, (b : ℚ) ^ r₁, (p₁ : ℚ)] ∈ U)
+    (h₂ : ![(b : ℚ) ^ t₂, (b : ℚ) ^ r₂, (p₂ : ℚ)] ∈ U) :
+    ∃ z : Fin 3 → ℤ, (∀ i, |(z i : ℝ)| ≤ 2 * ((b : ℝ) ^ t₂) ^ 2) ∧ (z 1 ≠ 0 ∨ z 2 ≠ 0) ∧
+      ∀ (r t : ℕ) (p : ℤ), ![(b : ℚ) ^ t, (b : ℚ) ^ r, (p : ℚ)] ∈ U →
+        z 0 * (b : ℤ) ^ t + z 1 * (b : ℤ) ^ r + z 2 * p = 0 := by
+  have hbR : (1 : ℝ) < b := by exact_mod_cast (by omega : 1 < b)
+  set z : Fin 3 → ℤ := ![(b : ℤ) ^ r₁ * p₂ - p₁ * (b : ℤ) ^ r₂,
+    p₁ * (b : ℤ) ^ t₂ - (b : ℤ) ^ t₁ * p₂,
+    (b : ℤ) ^ t₁ * (b : ℤ) ^ r₂ - (b : ℤ) ^ r₁ * (b : ℤ) ^ t₂] with hz
+  refine ⟨z, ?_, ?_, fun r t p hn ↦ ?_⟩
+  · -- `|zᵢ| ≤ 2 b^{2 t₂}`
+    set M : ℝ := (b : ℝ) ^ t₂ with hM
+    have hB₁ : |(b : ℝ) ^ t₁| ≤ M := by
+      rw [abs_of_pos (by positivity)]; exact pow_le_pow_right₀ hbR.le ht.le
+    have hB₂ : |(b : ℝ) ^ t₂| ≤ M := by rw [abs_of_pos (by positivity)]
+    have hR₁ : |(b : ℝ) ^ r₁| ≤ M := by
+      rw [abs_of_pos (by positivity)]; exact pow_le_pow_right₀ hbR.le (by omega)
+    have hR₂ : |(b : ℝ) ^ r₂| ≤ M := by
+      rw [abs_of_pos (by positivity)]; exact pow_le_pow_right₀ hbR.le hr₂.le
+    have hp₁' : |(p₁ : ℝ)| ≤ M := hp₁.trans (pow_le_pow_right₀ hbR.le ht.le)
+    intro i
+    fin_cases i <;> simp only [z, Fin.zero_eta, Fin.mk_one, Fin.reduceFinMk, Matrix.cons_val_zero,
+      Matrix.cons_val_one, Matrix.cons_val_two, Matrix.head_cons, Matrix.tail_cons] <;> push_cast
+    · exact abs_mul_sub_mul_le hR₁ hp₂ hp₁' hR₂
+    · exact abs_mul_sub_mul_le hp₁' hB₂ hB₁ hp₂
+    · exact abs_mul_sub_mul_le hB₁ hR₂ hR₁ hB₂
+  · -- `(z₂, z₃) ≠ 0`, since `x₁` and `x₂` are not proportional
+    by_contra hcon
+    simp only [not_or, not_not] at hcon
+    obtain ⟨h1, h2⟩ := hcon
+    rw [hz] at h1 h2
+    simp only [Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.cons_val_two,
+      Matrix.head_cons, Matrix.tail_cons] at h1 h2
+    have h2' : b ^ (t₁ + r₂) = b ^ (r₁ + t₂) := by
+      rw [pow_add, pow_add]
+      exact_mod_cast sub_eq_zero.mp h2
+    have hr2 : 1 ≤ r₂ := by have := Nat.pow_right_injective hb h2'; omega
+    exact hdvd hr2 (dvd_of_pow_mul_eq (p₁ := p₁) hb ht (by linear_combination -h1))
+  · -- `det (x₁, x₂, x) = 0`
+    have h := Submodule.det_eq_zero_of_forall_mem hU
+      ![![(b : ℚ) ^ t₁, (b : ℚ) ^ r₁, (p₁ : ℚ)],
+        ![(b : ℚ) ^ t₂, (b : ℚ) ^ r₂, (p₂ : ℚ)], ![(b : ℚ) ^ t, (b : ℚ) ^ r, (p : ℚ)]]
+      (fun i ↦ by fin_cases i; exacts [h₁, h₂, hn])
+    rw [Matrix.det_fin_three] at h
+    simp only [Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_zero, Matrix.cons_val_one,
+      Matrix.cons_val_two, Matrix.cons_val_fin_one, Matrix.head_cons, Matrix.tail_cons,
+      Matrix.head_fin_const] at h
+    have : ((z 0 * (b : ℤ) ^ t + z 1 * (b : ℤ) ^ r + z 2 * p : ℤ) : ℚ) = 0 := by
+      rw [hz]
+      simp only [Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.cons_val_two,
+        Matrix.head_cons, Matrix.tail_cons]
+      push_cast
+      linear_combination h
+    exact_mod_cast this
+
 /-- **The plane step** (Bugeaud–Evertse 2008, (7.12)–(7.19)). For `ξ` real algebraic irrational
 and `b ≥ 2` there is `K > 0` such that for `0 < ε ≤ 1`: if `t` at least doubles
 (`2 t_n < t_{n+1}`) and the points `x_n = (b^{t_n}, b^{r_n}, p_n)`, `n ∈ I`, with `r_n < t_n`,
@@ -406,61 +472,15 @@ theorem card_mem_plane_le (hb : 2 ≤ b) {ξ : ℝ} (hξ : IsAlgebraic ℚ ξ) (
     have := ht (i₂ - 1)
     rw [Nat.sub_add_cancel (by omega)] at this
     omega
-  -- the plane through `x_{i₁}` and `x_{i₂}`: `z = x_{i₁} × x_{i₂}`
-  set z : Fin 3 → ℤ := ![(b : ℤ) ^ r i₁ * p i₂ - p i₁ * (b : ℤ) ^ r i₂,
-    p i₁ * (b : ℤ) ^ t i₂ - (b : ℤ) ^ t i₁ * p i₂,
-    (b : ℤ) ^ t i₁ * (b : ℤ) ^ r i₂ - (b : ℤ) ^ r i₁ * (b : ℤ) ^ t i₂] with hz
-  have hplane : ∀ n ∈ I, z 0 * (b : ℤ) ^ t n + z 1 * (b : ℤ) ^ r n + z 2 * p n = 0 := by
-    intro n hn
-    have h := Submodule.det_eq_zero_of_forall_mem hU
-      ![![(b : ℚ) ^ t i₁, (b : ℚ) ^ r i₁, (p i₁ : ℚ)],
-        ![(b : ℚ) ^ t i₂, (b : ℚ) ^ r i₂, (p i₂ : ℚ)], ![(b : ℚ) ^ t n, (b : ℚ) ^ r n, (p n : ℚ)]]
-      (fun i ↦ by fin_cases i; exacts [hmem _ hi₁, hmem _ hi₂, hmem _ hn])
-    rw [Matrix.det_fin_three] at h
-    simp only [Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_zero, Matrix.cons_val_one,
-      Matrix.cons_val_two, Matrix.cons_val_fin_one, Matrix.head_cons, Matrix.tail_cons,
-      Matrix.head_fin_const] at h
-    have : ((z 0 * (b : ℤ) ^ t n + z 1 * (b : ℤ) ^ r n + z 2 * p n : ℤ) : ℚ) = 0 := by
-      rw [hz]
-      simp only [Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.cons_val_two,
-        Matrix.head_cons, Matrix.tail_cons]
-      push_cast
-      linear_combination h
-    exact_mod_cast this
-  -- `|zᵢ| ≤ 2 b^{2 t_{i₂}}`
+  -- the plane through `x_{i₁}` and `x_{i₂}`, with `|zᵢ| ≤ Z = 2 b^{2 t_{i₂}}`
   set M : ℝ := (b : ℝ) ^ t i₂ with hM
-  have hent : ∀ n ∈ I, t n ≤ t i₂ →
-      |(b : ℝ) ^ t n| ≤ M ∧ |(b : ℝ) ^ r n| ≤ M ∧ |(p n : ℝ)| ≤ M := by
-    intro n hn htn
-    have h1 : (b : ℝ) ^ t n ≤ M := pow_le_pow_right₀ hbR.le htn
-    refine ⟨by rwa [abs_of_pos (by positivity)], ?_, (hp n hn).trans h1⟩
-    rw [abs_of_pos (by positivity)]
-    exact (pow_le_pow_right₀ hbR.le (hrt n hn).le).trans h1
-  obtain ⟨hB₁, hR₁, hp₁⟩ := hent i₁ hi₁ ht12.le
-  obtain ⟨hB₂, hR₂, hp₂⟩ := hent i₂ hi₂ le_rfl
   set Z : ℝ := 2 * M ^ 2 with hZdef
-  have hzZ : ∀ i, |(z i : ℝ)| ≤ Z := by
-    intro i
-    fin_cases i <;> simp only [z, Fin.zero_eta, Fin.mk_one, Fin.reduceFinMk, Matrix.cons_val_zero,
-      Matrix.cons_val_one, Matrix.cons_val_two, Matrix.head_cons, Matrix.tail_cons] <;> push_cast
-    · exact abs_mul_sub_mul_le hR₁ hp₂ hp₁ hR₂
-    · exact abs_mul_sub_mul_le hp₁ hB₂ hB₁ hp₂
-    · exact abs_mul_sub_mul_le hB₁ hR₂ hR₁ hB₂
+  obtain ⟨z, hzZ, hz12, hpl⟩ := exists_plane_eq hb hU ht12 (hrt i₁ hi₁) (hrt i₂ hi₂) (hp i₁ hi₁)
+    (hp i₂ hi₂) (hdvd i₂ hi₂) (hmem i₁ hi₁) (hmem i₂ hi₂)
+  have hplane : ∀ n ∈ I, z 0 * (b : ℤ) ^ t n + z 1 * (b : ℤ) ^ r n + z 2 * p n = 0 :=
+    fun n hn ↦ hpl (r n) (t n) (p n) (hmem n hn)
   have hM1 : 1 ≤ M := one_le_pow₀ hbR.le
   have hZ1 : 1 ≤ Z := by nlinarith
-  -- `(z₂, z₃) ≠ 0`, since `x_{i₁}` and `x_{i₂}` are not proportional
-  have hz12 : z 1 ≠ 0 ∨ z 2 ≠ 0 := by
-    by_contra hcon
-    simp only [not_or, not_not] at hcon
-    obtain ⟨h1, h2⟩ := hcon
-    rw [hz] at h1 h2
-    simp only [Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.cons_val_two,
-      Matrix.head_cons, Matrix.tail_cons] at h1 h2
-    have h2' : b ^ (t i₁ + r i₂) = b ^ (r i₁ + t i₂) := by
-      rw [pow_add, pow_add]
-      exact_mod_cast sub_eq_zero.mp h2
-    have hr2 : 1 ≤ r i₂ := by have := Nat.pow_right_injective hb h2'; omega
-    exact hdvd i₂ hi₂ hr2 (dvd_of_pow_mul_eq (p₁ := p i₁) hb ht12 (by linear_combination -h1))
   -- the points above the threshold
   set θ : ℝ := K₂ * ε⁻¹ * (1 + log Z) with hθ
   have hJ := hP ε hε hε1 r t p htm z Z hZ1 hzZ hz12 (I.filter fun n ↦ θ ≤ t n * log b)

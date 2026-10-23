@@ -135,7 +135,8 @@ theorem exists_planes_of_approx (hb : 2 ≤ b) {ξ : ℝ} (hξ : IsAlgebraic ℚ
       have : ((ℓ : ℝ) + 1) / k ≤ 1 := by
         rw [div_le_one hkpos]; exact_mod_cast hℓ
       fin_cases i <;> simp [e] <;> linarith)
-    ⟨0, by simp [e]⟩ ⟨2, by simp [e]; linarith⟩
+    ⟨0, by simp [e]⟩
+    (exists_le_one_sub_div_of_exists_nonpos (by norm_num) hδ1 ⟨2, by simp [e]; linarith⟩)
     (fun l _ i ↦ by
       have hgl := hg0 l
       have hgl2 : g l * ℓ / k ≤ 0 :=

@@ -2165,7 +2165,8 @@ These use the counts above and are recorded in [`papers.md`](../papers.md):
 - **BE08**, Bugeaud–Evertse 2008, Thm 2.1: `p(n) > n (log n)^η` infinitely often for the digits of
   an algebraic irrational, for every `η < 1/11`. It uses ES02. With EF13 (Q4.6) **proved for
   `η < 1/7`** in `BugeaudEvertse2008/Theorem21.lean` (`Real.frequently_lt_complexity`, std3,
-  2026-10-13).
+  2026-10-13), and for **`η < 1/4`** in `BugeaudEvertse2008/Additions/Theorem21Quarter.lean`
+  (`Real.frequently_lt_complexity_of_lt_quarter`, std3, 2026-10-21).
 - **BE08**, Cor. 5.2 (quantitative Ridout, a line count above `max (2 H(ξ), 2^{4/ε})`): used by
   `lean-code`'s Problem 10.13 root, where it is still a cited axiom. Needs Q4.4 and Q4.5.
 - **ESS02**: the uniform bound for unit equations in a multiplicative group of finite rank.

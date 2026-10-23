@@ -5,7 +5,10 @@ Y. Bugeaud and J.-H. Evertse, *On two notions of complexity of algebraic numbers
 the arXiv v1, 30 pages).
 
 **Status: Theorem 2.1 PROVED with `η < 1/7` (paper: `1/11`), std3, 2026-10-13
-(`Real.frequently_lt_complexity`, `Theorem21.lean`). BE.0–BE.5 done.** Optional later work:
+(`Real.frequently_lt_complexity`, `Theorem21.lean`). BE.0–BE.5 done. Improved to `η < 1/4` in
+`Additions/` (2026-10-21, std3, `Real.frequently_lt_complexity_of_lt_quarter`; see
+`Additions/README.md`): the plane step costs `O(1 + log ε⁻¹)` by Liouville's inequality once the
+small gaps are counted apart on lines.** Optional later work:
 Thm 3.1, Cor. 3.2, Thm 9.1, 9.2. The directory is its own `lean_lib`
 (`BugeaudEvertse2008`), held to the same rules as the other paper directories (no `sorry`, no
 `set_option`, std3 axioms, fine-grained imports, module system, Mathlib root namespaces). Read
@@ -156,15 +159,23 @@ The corpus axiom has the same shape with `∀ N, ∃ n ≥ N` and the corpus `pC
 | file | milestone | content |
 | --- | --- | --- |
 | `QuantitativeSubspace/RealFormCount.lean` | BE.0 ✅ | EF13 for forms in `1, ξ, ξ²` at `∞` and the coordinates at the primes of `S`, integer points (Q4.6) |
-| `Repetitions.lean` | BE.1 ✅ | Lemma 6.1 (with `v > u`), combinatorial and for the digits |
+| `Repetitions.lean` | BE.1 ✅ | Lemma 6.1 (with `v > u`) for the digits; the combinatorial form moved to DA's `ComplexityRepetitions.lean` (2026-10-21) |
 | `ThreeVariable.lean` | BE.2 ✅ | §7 (7.3)–(7.11): the classes, the system, the planes |
 | `PlaneStep.lean` | BE.3 ✅ | §7 (7.12)–(7.19): the points on one plane |
-| `Thresholds.lean` | BE.4 ✅ | the thresholds and the final count, for `N ≥ N₀` |
+| `Thresholds.lean` | BE.4 ✅ | the thresholds and the final count, for `N ≥ N₀`: the case `(7, 4)` of DA's `Real.eventually_doubling_thresholds` (`DoublingSequences.lean`, moved 2026-10-21) |
 | `Theorem21.lean` | BE.5 ✅ | the counting contradiction; **Thm 2.1** with `1/7` |
+| `Additions/` | ✅ | **Thm 2.1** with `1/4`: Liouville per plane, small gaps on lines (`Additions/README.md`) |
 
 ### Milestones
 
-BE.0–BE.5 are done (2026-10-13).
+BE.0–BE.5 are done (2026-10-13). On 2026-10-21 the parts that know no number — the
+combinatorial form of Lemma 6.1, the doubling lemma and the thresholds, generalized to a count
+`K ε^{-p} (1 + log ε⁻¹)^q` — moved to `DiophantineApproximation/ComplexityRepetitions.lean` and
+`DiophantineApproximation/DoublingSequences.lean`, because `Stephan2026a/` (Problem 5.2) needs
+them and paper libraries do not import each other; the files here keep their statements. BE.0's
+hypothesis "one exponent at `∞` is `≤ 0`" was weakened at the same time to "one is
+`≤ 1 - δ / 2n`", all its proof uses (`Real.exists_le_one_sub_div_of_exists_nonpos` recovers the
+old form).
 
 - **BE.0 ✅ (2026-10-13) — the quantitative Subspace Theorem for these forms, with finite
   places.** `Real.subspaceBoundAt_three (hα : IsAlgebraic ℚ α) (S : Finset Nat.Primes) :
@@ -275,7 +286,7 @@ BE.0–BE.5 are done (2026-10-13).
     above it.
   * The points below it are `i₁` and the `n` with `i₂ ≤ n ≤ i₂ + m`, where
     `2^m ≥ K' ε⁻¹`: by doubling, `t_n ≥ 2^{n−i₂} t_{i₂}`
-    (`Nat.two_pow_mul_le_of_doubling`, in `Repetitions.lean`). There are `O(1 + log ε⁻¹)` of them.
+    (`Nat.two_pow_mul_le_of_doubling`, now in DA's `DoublingSequences.lean`). There are `O(1 + log ε⁻¹)` of them.
 
   This is the paper's `k₀ + 2B(d, ε)` with `B ≍ ε⁻³`. The paper's threshold `(3 d t_{i₂})^{2/ε}`
   for Cor. 5.2 gives `k₀ ≍ log ε⁻¹` too.

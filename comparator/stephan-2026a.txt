@@ -5,3 +5,5 @@
 
 SteeringWord.tendsto_complexity_div                     # Theorem 1.1: p_T(k) / k → ∞
 SteeringWord.exists_forall_lt_complexity                # Theorem 1.1, as printed
+SteeringWord.quantitativeSuperlinear                    # Problem 5.2: p_T(k) ≥ k (log k)^(1/8) i.o.
+SteeringWord.frequently_lt_complexity                   # Problem 5.2, every η < 1/4

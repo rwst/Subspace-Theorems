@@ -44,8 +44,11 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PAPER = sys.argv[sys.argv.index("--paper") + 1] if "--paper" in sys.argv else None
 SLUG = re.sub(r"(?<=[a-z])(?=[A-Z0-9])", "-", PAPER).lower() if PAPER else None
+# The roadmap libraries beyond the three below that a paper library builds on: their modules are
+# development, copied and resolved to their Mathlib imports, never imported by the challenge.
+BUILDS_ON = {"Stephan2026a": ("QuantitativeSubspace",)}
 DEV_ROOTS = (("STForMathlib", "ArithmeticHeights", "DiophantineApproximation")
-             + ((PAPER,) if PAPER else ()))
+             + BUILDS_ON.get(PAPER, ()) + ((PAPER,) if PAPER else ()))
 DATA = os.path.join(ROOT, ".lake", "challenge-data" + (f"-{PAPER}" if PAPER else ""))
 THEOREMS = os.path.join(ROOT, "comparator", f"{SLUG}.txt" if PAPER else "theorems.txt")
 AXIOMS = ["propext", "Quot.sound", "Classical.choice"]

@@ -132,11 +132,17 @@ The lanes so far:
 | Adamczewski–Bugeaud 2007 | `comparator/adamczewski-bugeaud-2007.json` | 32 | 483 lines, 22 KiB |
 | Evertse 1984 | `comparator/evertse-1984.json` | 14 | 317 lines, 16 KiB |
 | Evertse–Ferretti 2013 (`QuantitativeSubspace/`) | `comparator/quantitative-subspace.json` | 9 | 831 lines, 41 KiB |
-| Stephan 2026 (`Stephan2026a/`, arXiv:2607.11648) | `comparator/stephan-2026a.json` | 2 | 113 lines, 5 KiB |
+| Stephan 2026 (`Stephan2026a/`, arXiv:2607.11648) | `comparator/stephan-2026a.json` | 4 | 177 lines, 8 KiB |
 
 `QuantitativeSubspace/` is a roadmap library, not a paper directory, but its summit is one paper
 (Evertse–Ferretti, Ann. of Math. 2013), so it gets a lane of the same shape:
 `python3 scripts/make-challenge.py --paper QuantitativeSubspace`.
+
+A paper library that builds on `QuantitativeSubspace/` (Stephan 2026, for Problem 5.2) lists it in
+`BUILDS_ON` of `scripts/make-challenge.py`: its modules are then development, resolved to their
+Mathlib imports like those of `DiophantineApproximation/`, and the challenge imports Mathlib only.
+Without the entry the challenge imported `QuantitativeSubspace.RealFormCount` itself, and the
+instance pin for `IsRegularLocalRing.toIsLocalRing` named a constant it could not see.
 
 Two traps surfaced on the Adamczewski–Bugeaud lane, both fixed in the development, not the
 challenge:

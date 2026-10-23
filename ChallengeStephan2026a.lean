@@ -70,6 +70,37 @@ import Mathlib.LinearAlgebra.LinearIndependent.BaseChange
 public import Mathlib.Algebra.MvPolynomial.Coeff
 import Mathlib.RingTheory.MvPolynomial.Ideal
 public import Mathlib.Algebra.MvPolynomial.Funext
+import Mathlib.Analysis.CStarAlgebra.Matrix
+import Mathlib.Analysis.Matrix.Order
+import Mathlib.Data.Sym.Card
+import Mathlib.Probability.Moments.SubGaussian
+import Mathlib.Algebra.Order.Hom.Lattice
+import Mathlib.Algebra.Order.Sub.Prod
+import Mathlib.Combinatorics.Nullstellensatz
+import Mathlib.Data.Finsupp.PWO
+import Mathlib.RingTheory.Nullstellensatz
+import Mathlib.RingTheory.GradedAlgebra.Radical
+import Mathlib.RingTheory.Ideal.AssociatedPrime.Basic
+import Mathlib.RingTheory.Ideal.Height
+import Mathlib.GroupTheory.CosetCover
+import Mathlib.RingTheory.Ideal.AssociatedPrime.Finiteness
+import Mathlib.RingTheory.Ideal.AssociatedPrime.Localization
+import Mathlib.RingTheory.Ideal.KrullsHeightTheorem
+import Mathlib.RingTheory.RegularLocalRing.Polynomial
+import Mathlib.RingTheory.Depth.Rees
+import Mathlib.RingTheory.KrullDimension.Regular
+import Mathlib.RingTheory.LocalRing.MaximalIdeal.Square
+import Mathlib.LinearAlgebra.TensorProduct.Submodule
+import Mathlib.Probability.Distributions.Gaussian.Multivariate
+import Mathlib.Probability.Distributions.Gaussian.Fernique
+import Mathlib.Topology.Algebra.MvPolynomial
+import Mathlib.RingTheory.TensorProduct.IsBaseChangeRightExact
+import Mathlib.RingTheory.TensorProduct.IsBaseChangeFree
+import Mathlib.Algebra.Module.LocalizedModule.Exact
+import Mathlib.Algebra.MvPolynomial.Nilpotent
+import Mathlib.RingTheory.MvPolynomial.IrreducibleQuadratic
+import Mathlib.RingTheory.Valuation.LocalSubring
+import Mathlib.LinearAlgebra.Matrix.Permutation
 
 /-!
 # Stephan2026a: the statements of record
@@ -83,6 +114,8 @@ and some lower instances locally to restore their module's tie-break. See `COMPA
 
 -- DiophantineApproximation.FactorComplexity
 run_cmd Lean.modifyEnv (Lean.Meta.auxLemmasExt.setState · {})
+section
+attribute [local instance 0] IsRegularLocalRing.toIsLocalRing
 @[expose] public section
 open Filter
 namespace Function
@@ -92,22 +125,53 @@ def factors (a : ℕ → α) (n : ℕ) : Set (List α) := Set.range fun i ↦ fa
 noncomputable def complexity (a : ℕ → α) (n : ℕ) : ℕ := (factors a n).ncard
 end Function
 end
+end
 -- Stephan2026a.SteeringWord
 run_cmd Lean.modifyEnv (Lean.Meta.auxLemmasExt.setState · {})
+section
+attribute [local instance 0] IsRegularLocalRing.toIsLocalRing
 @[expose] public section
 namespace SteeringWord
 def m (n : ℕ) : ℤ := round ((3 / 2 : ℚ) ^ n)
 def t (n : ℕ) : ℤ := 2 * m (n + 1) - 3 * m n
 end SteeringWord
 end
+end
 -- Stephan2026a.Kernel
 run_cmd Lean.modifyEnv (Lean.Meta.auxLemmasExt.setState · {})
+section
+attribute [local instance 0] IsRegularLocalRing.toIsLocalRing
 public section
 namespace SteeringWord
 open Function Filter
 theorem exists_forall_lt_complexity (C : ℕ) : ∃ K : ℕ, ∀ k, K ≤ k → C * k < complexity t k := by
   sorry
 theorem tendsto_complexity_div : Tendsto (fun k : ℕ ↦ (complexity t k : ℝ) / k) atTop atTop := by
+  sorry
+end SteeringWord
+end
+end
+-- Stephan2026a.Problems
+run_cmd Lean.modifyEnv (Lean.Meta.auxLemmasExt.setState · {})
+section
+attribute [local instance 0] IsRegularLocalRing.toIsLocalRing
+@[expose] public section
+namespace SteeringWord
+open Function Filter
+def QuantitativeSuperlinear : Prop :=
+  ∃ δ : ℝ, 0 < δ ∧ ∃ᶠ k : ℕ in atTop, (k : ℝ) * Real.log k ^ δ ≤ complexity t k
+end SteeringWord
+end
+end
+-- Stephan2026a.QuantitativeTheorem
+run_cmd Lean.modifyEnv (Lean.Meta.auxLemmasExt.setState · {})
+@[expose] public section
+open Filter Finset Real Function
+namespace SteeringWord
+theorem frequently_lt_complexity {η : ℝ} (hη : η < 1 / 4) (C : ℝ) :
+    ∃ᶠ k : ℕ in atTop, C * k * log k ^ η < complexity t k := by
+  sorry
+theorem quantitativeSuperlinear : QuantitativeSuperlinear := by
   sorry
 end SteeringWord
 end

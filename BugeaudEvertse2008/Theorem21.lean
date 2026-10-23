@@ -33,7 +33,8 @@ Suppose instead `p(n) ≤ c n (log n)^u` for large `n`, `0 ≤ u < 1/7`, and pic
 
 The exponent is `1/7` rather than BE08's `1/11` because Evertse–Ferretti 2013's count `δ⁻³` (BE.0)
 replaces Evertse–Schlickewei 2002's `δ⁻⁷` in the three-variable step: `7 = 1 + 3 + 3` (classes,
-planes per class, points per plane) instead of `11 = 1 + 7 + 3`.
+planes per class, points per plane) instead of `11 = 1 + 7 + 3`. `Additions/Theorem21Quarter.lean`
+removes the last `3`: `η < 1/4` (`Real.frequently_lt_complexity_of_lt_quarter`).
 
 ## Main results
 

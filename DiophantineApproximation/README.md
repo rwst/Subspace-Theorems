@@ -284,10 +284,12 @@ irrationality of a non-periodic expansion — and knows no subspace; `…/Repeti
 is the third appeal to 6.3, the first with finite places in it; and
 `…/TranscendenceCriterion.lean` is the two cases of one subspace, plus Ridout's route, which
 knows no Layer above 3.
-⚠ **7.5 took two, and neither knows the Subspace Theorem**: `…/FactorComplexity.lean` is words
+⚠ **7.5 took four, and none knows the Subspace Theorem**: `…/FactorComplexity.lean` is words
 again — the complexity, Morse–Hedlund and the pigeonhole — over any finite alphabet, and
 `…/ComplexityTranscendence.lean` hands the pigeonhole's repetitions to 7.4's working form and is
-thirty lines of proof.
+thirty lines of proof. The quantitative half came later, from two papers that both need it:
+`…/ComplexityRepetitions.lean` is the pigeonhole under `p n ≤ c n (log n)^u`, and
+`…/DoublingSequences.lean` the counting along the doubling sequence it yields.
 ⚠ **8.1 took one**: `…/UnitEquation.lean` is the first file of Layer 8, a single appeal to 6.5 with
 three forms at every place.
 ⚠ **8.2 took one**: `…/UnitEquationSeveral.lean` is the same appeal with `n + 1` forms, and an
@@ -323,7 +325,7 @@ set of places and knows no form; `…/SumForms.lean` is the sum forms of Evertse
 file with them, `…/SystemGrid.lean`, the product inequality as finitely many normalized systems.
 ⚠ **8.9 took one**: `…/LocalNullstellensatz.lean`, for `CorvajaZannier2004Thue/`.
 Layers 0, 1.1, 1.2, 1.3, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 3.1–3.8, 4.1–4.5, 5.1–5.6, 6.1–6.7,
-7.1–7.5, 8.1–8.9 and 9.1–9.4 together stand at **one hundred and fifty** files,
+7.1–7.5, 8.1–8.9 and 9.1–9.4 together stand at **one hundred and fifty-two** files,
 and nothing suggests the pattern stops. Six more files in this directory belong to milestones of
 [`QuantitativeSubspace`](../QuantitativeSubspace/README.md), not of this roadmap:
 `…/ReducedIntegralBasis.lean`, `…/ThresholdHeights.lean` and `…/ThresholdBound.lean` (Q0.2e),
@@ -3932,6 +3934,25 @@ factors make `a` periodic from the first of them on.
 ⚠ **The alphabet must be finite, and `Set.ncard` says so silently.** Over `ℕ` the identity has
 infinitely many factors of length `1`, which `Set.ncard` counts as `0`: `p 1 = 0 < 1 = p 0`
 (`Function.complexity_id_one`).
+
+**The quantitative form** (Bugeaud–Evertse 2008, Lemma 6.1 and §7) — **landed**, in
+`DiophantineApproximation/ComplexityRepetitions.lean` and
+`DiophantineApproximation/DoublingSequences.lean`, first written for `BugeaudEvertse2008/` and
+moved here when `Stephan2026a/` needed them too (paper libraries do not import each other):
+
+```text
+p n ≤ c n (log n)^u (n ≥ n₀), 0 ≤ u < v  ⟹  r_n < t_n, 2 t_n < t_{n+1}, t_n ≤ (2n+2)^{C(n+1)},
+                                             a (i + t_n) = a (i + r_n) for i < t_n (log t_n)^{-v}
+2 t_n < t_{n+1}, t_n ≤ R t_{n₀} (n ≥ n₀)  ⟹  at most log R / log 2 + 1 such n
+ε = (log t_{2N})^{-v}, p v < 1  ⟹  eventually K ε^{-p} (1 + log ε⁻¹)^q < N, and the thresholds
+```
+
+(`Function.exists_repetitions_of_complexity_le`, `Nat.card_le_of_doubling_window`,
+`Real.eventually_doubling_thresholds`). ⚠ **Only the factors need be finite in number**, not the
+alphabet: the hypothesis is `∀ m, (factors a m).Finite`, which `Function.finite_factors` gives
+over a finite alphabet and which the steering word of `(3/2)^n`, a sequence of integers in
+`[-2, 2]`, satisfies directly. ⚠ **Bugeaud–Evertse state the lemma for `v < u`; it holds for
+`v > u`** (see the module docstring).
 
 Acceptance criteria: the binary digits of `∑ k, 2 ^ (−2 ^ k)` — `1` at the positions `2 ^ k − 1`
 — have complexity at most `3 n + 1`, so the number is transcendental by 7.5, and read the other

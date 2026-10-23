@@ -84,7 +84,8 @@ theorem SubspaceBoundAt.subspaceBound {α a : ℝ} (h : SubspaceBoundAt α ∅ a
       Finset.sum_pos (fun i _ ↦ hpos i) ⟨⟨0, by omega⟩, Finset.mem_univ _⟩
     linarith
   obtain ⟨T, hcard, htop, hmem⟩ := hT P B hB hP γ hγ hγ1 hdet C hC e (fun _ _ ↦ 0) δ hδ hδ1
-    he1 he he0 (by simp) (by simp) (by simpa using hsum)
+    he1 he (exists_le_one_sub_div_of_exists_nonpos hn2 hδ1 he0)
+    (by simp) (by simp) (by simpa using hsum)
   refine ⟨T, hcard.trans (by gcongr), htop, fun x hx hsol hlarge ↦
     hmem x hx hsol (by simp) (le_trans ?_ hlarge)⟩
   -- `δ⁻¹ ≤ δ⁻¹ ^ max K 1`

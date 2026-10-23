@@ -27,7 +27,10 @@ says what it should.
   slope `41/24` of Theorem 2.10 one needs `θ > (2/3)^(24/89) ≈ 0.896`.
 * **Problem 5.2, quantitative form.** Make the analysis of the exceptional subspaces in
   Theorem 4.5 quantitative, and deduce `p_T(k) ≥ k (log k)^δ` for infinitely many `k`, for some
-  `δ > 0`. The target is `SteeringWord.QuantitativeSuperlinear`.
+  `δ > 0`. The target is `SteeringWord.QuantitativeSuperlinear`. **Solved**, with every
+  exponent `η < 1/4`, in `Stephan2026a/QuantitativeTheorem.lean`
+  (`SteeringWord.quantitativeSuperlinear`, `SteeringWord.frequently_lt_complexity`), which
+  imports this file.
 * **Problem 5.3, generality.** Prove superlinearity of the steering word of `ξ (p/q)^n` for every
   `ξ ∈ ℚ^×` and all coprime `p > q ≥ 2`: `SteeringWord.SuperlinearGeneral`. The case `ξ = 1`,
   `p = 3`, `q = 2` is Theorem 1.1 (`SteeringWord.tendsto_complexity_div_steering_one_three_two`).
