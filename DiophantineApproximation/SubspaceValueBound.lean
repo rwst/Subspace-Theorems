@@ -26,12 +26,16 @@ T(X) = ∑ J, (blockSubst M T).coeff J * ∏ (h, j), L_j (x h) ^ J (h, j),
 
 and each factor `L_j (x h)` is bounded by the inequalities defining the approximation domain,
 `|L_j (x h)|_v ≤ Z * Q h ^ c j`. What makes the product small is the vanishing pattern of Layer
-5.2: a surviving `J` has `∑ h, J (h, j) / d h` within `Δ` of a common value `mean` for every `j`.
-With `d h * log (Q h)` pinned to `D` up to `log (Q h)`, the exponent of the product is
+5.2, which the estimate sees as one linear bound `∑ j, c j * ρ j ≤ G` on the ratios
+`ρ j = ∑ h, J (h, j) / d h` of every surviving `J`. With `d h * log (Q h)` pinned to `D` up to
+`log (Q h)`, the exponent of the product is
 
 ```text
-D * (mean * ∑ j, c j + Δ * ∑ j, |c j|) + (∑ h, log (Q h)) * ∑ j, |c j|,
+D * G + (∑ h, log (Q h)) * ∑ j, |c j|.
 ```
+
+Bombieri–Gubler read the pattern as "every `ρ j` lies within `Δ` of a common value `mean`", which
+gives `G = mean * ∑ j, c j + Δ * ∑ j, |c j|` (`MvPolynomial.sum_mul_le_of_abs_sub_le`),
 
 and summing that over the places of `S` with their weights turns `∑ j, c j` into the weight of
 the system of exponents, which is negative. That is the whole of the book's chain of estimates in
@@ -46,6 +50,7 @@ the system of exponents, which is negative. That is the whole of the book's chai
   the coordinates of the forms.
 * `MvPolynomial.abs_sum_mul_sub_le`: `∑ h, J h * q h` is `D` times `∑ h, J h / d h` up to
   `∑ h, q h`, in both directions, which is what lets an exponent of either sign be estimated.
+* `MvPolynomial.sum_mul_le_of_abs_sub_le`: the two-sided pattern of the book as a linear bound.
 * `MvPolynomial.prod_pow_apply_le`: **the monomial of the expansion**, bounded by
   `Z ^ (∑ h, d h)` times the exponential of the displayed expression.
 * `MvPolynomial.apply_eval_le_expansion` and
@@ -59,10 +64,11 @@ the system of exponents, which is negative. That is the whole of the book's chai
 
 ## Implementation notes
 
-⚠ **The pattern is used as a two-sided bound on one number per coordinate.** Layer 5.2 states
-its conclusion as "the coefficient vanishes unless every `∑ h, J (h, i) / d h` lies in an
-interval around `m / (n + 1)`". Only the width of that interval enters here, through
-`|ρ j - mean| ≤ Δ`; which of the two ends is the wider one is the caller's business.
+⚠ **The pattern is used as one linear bound per place.** Layer 5.2 states its conclusion as
+"the coefficient vanishes unless every `∑ h, J (h, i) / d h` lies in an interval around
+`m / (n + 1)`". Only `∑ j, c j * ρ j ≤ G` enters here. The book bounds it through the width of
+the interval alone; the caller may also use that `∑ j, ρ j` is pinned by the multidegree, which
+is worth a constant factor in `η` (`NumberField.PenultimateMinimum.sum_mul_le_of_pattern`).
 
 ⚠ **The multidegree is what bounds `∑ p, J p`.** The grid constant `Z` is raised to the total
 degree of the surviving monomial, and that is at most `∑ h, d h` because the polynomial is
@@ -77,6 +83,10 @@ caller has to arrange.
 
 E. Bombieri and W. Gubler, *Heights in Diophantine Geometry*, Cambridge University Press (2006),
 7.5.26.
+
+[Ste26] R. Stephan, *Line counts and a census for the exceptions to `‖(3/2)^n‖ ≥ (3/4)^n`, with an
+application to Waring's problem*, preprint (2026), doi:10.13140/RG.2.2.15019.20008,
+§7.3, item (c): the pattern as one linear bound per place.
 
 This is part of Layer 5.6 of the `DiophantineApproximation` roadmap.
 -/
@@ -212,6 +222,22 @@ theorem abs_sum_mul_sub_le {q : κ → ℝ} (hq : ∀ h, 0 < q h) {d : κ → �
   · rw [abs_of_neg ha]
     nlinarith [mul_le_mul_of_nonpos_left hlow ha.le]
 
+/-- **The two-sided pattern as a linear bound**: if every `ρ j` lies within `Δ` of `mean`, then
+`∑ j, c j * ρ j ≤ mean * ∑ j, c j + Δ * ∑ j, |c j|`. This is how Bombieri–Gubler read Layer 5.2's
+pattern; a caller who knows more about the `ρ j` (their sum, say) can do better. -/
+theorem sum_mul_le_of_abs_sub_le {c ρ : ι → ℝ} {Δ mean : ℝ} (h : ∀ j, |ρ j - mean| ≤ Δ) :
+    ∑ j, c j * ρ j ≤ mean * ∑ j, c j + Δ * ∑ j, |c j| := by
+  have hj : ∀ j, c j * ρ j ≤ c j * mean + |c j| * Δ := by
+    intro j
+    have hd1 : c j * (ρ j - mean) ≤ |c j| * Δ := by
+      calc c j * (ρ j - mean) ≤ |c j * (ρ j - mean)| := le_abs_self _
+        _ = |c j| * |ρ j - mean| := abs_mul _ _
+        _ ≤ |c j| * Δ := mul_le_mul_of_nonneg_left (h j) (abs_nonneg _)
+    nlinarith [hd1]
+  calc ∑ j, c j * ρ j ≤ ∑ j, (c j * mean + |c j| * Δ) := Finset.sum_le_sum fun j _ ↦ hj j
+    _ = mean * ∑ j, c j + Δ * ∑ j, |c j| := by
+        rw [Finset.sum_add_distrib, ← Finset.sum_mul, ← Finset.sum_mul]
+        ring
 
 /-- **The monomial of the expansion at a point of the domains.** -/
 theorem prod_pow_apply_le (v : AbsoluteValue K ℝ) {Z : ℝ} (hZ : 1 ≤ Z)
@@ -220,10 +246,9 @@ theorem prod_pow_apply_le (v : AbsoluteValue K ℝ) {Z : ℝ} (hZ : 1 ≤ Z)
     (hdq' : ∀ h, ((d h : ℝ)) * q h ≤ D + q h)
     {w : κ × ι → K} (hw : ∀ p : κ × ι, v (w p) ≤ Z * Real.exp (c p.2 * q p.1))
     {J : κ × ι →₀ ℕ} (hJ : ∀ h, ∑ j, J (h, j) ≤ d h)
-    {Δ mean : ℝ} (hJc : ∀ j, |(∑ h, (J (h, j) : ℝ) / (d h : ℝ)) - mean| ≤ Δ) :
+    {G : ℝ} (hJc : ∑ j, c j * ∑ h, (J (h, j) : ℝ) / (d h : ℝ) ≤ G) :
     ∏ p, v (w p) ^ J p
-      ≤ Z ^ (∑ h, d h) * Real.exp (D * (mean * ∑ j, c j + Δ * ∑ j, |c j|)
-          + (∑ h, q h) * ∑ j, |c j|) := by
+      ≤ Z ^ (∑ h, d h) * Real.exp (D * G + (∑ h, q h) * ∑ j, |c j|) := by
   have hZ0 : (0 : ℝ) < Z := lt_of_lt_of_le zero_lt_one hZ
   have h1 : ∏ p, v (w p) ^ J p ≤ ∏ p : κ × ι, (Z * Real.exp (c p.2 * q p.1)) ^ J p :=
     Finset.prod_le_prod₀ (fun p _ ↦ pow_nonneg (v.nonneg _) _)
@@ -249,16 +274,8 @@ theorem prod_pow_apply_le (v : AbsoluteValue K ℝ) {Z : ℝ} (hZ : 1 ≤ Z)
     abs_sum_mul_sub_le hq hd hdq hdq' (J := fun h ↦ J (h, j))
       (fun h ↦ le_trans (Finset.single_le_sum (f := fun j' ↦ J (h, j'))
         (fun _ _ ↦ Nat.zero_le _) (Finset.mem_univ j)) (hJ h)) (c j)
-  have hmean : ∀ j, c j * (∑ h, (J (h, j) : ℝ) / (d h : ℝ)) ≤ c j * mean + |c j| * Δ := by
-    intro j
-    have hd1 : c j * ((∑ h, (J (h, j) : ℝ) / (d h : ℝ)) - mean) ≤ |c j| * Δ := by
-      calc c j * ((∑ h, (J (h, j) : ℝ) / (d h : ℝ)) - mean)
-          ≤ |c j * ((∑ h, (J (h, j) : ℝ) / (d h : ℝ)) - mean)| := le_abs_self _
-        _ = |c j| * |(∑ h, (J (h, j) : ℝ) / (d h : ℝ)) - mean| := abs_mul _ _
-        _ ≤ |c j| * Δ := mul_le_mul_of_nonneg_left (hJc j) (abs_nonneg _)
-    nlinarith [hd1]
   have h6 : ∑ j, c j * ∑ h, (J (h, j) : ℝ) * q h
-      ≤ D * (mean * ∑ j, c j + Δ * ∑ j, |c j|) + (∑ h, q h) * ∑ j, |c j| := by
+      ≤ D * G + (∑ h, q h) * ∑ j, |c j| := by
     calc ∑ j, c j * ∑ h, (J (h, j) : ℝ) * q h
         ≤ ∑ j, (c j * (D * ∑ h, (J (h, j) : ℝ) / (d h : ℝ)) + |c j| * ∑ h, q h) :=
           Finset.sum_le_sum fun j _ ↦ hterm j
@@ -267,13 +284,9 @@ theorem prod_pow_apply_le (v : AbsoluteValue K ℝ) {Z : ℝ} (hZ : 1 ≤ Z)
           congr 1
           · exact Finset.sum_congr rfl fun j _ ↦ by ring
           · exact Finset.sum_congr rfl fun j _ ↦ by ring
-      _ ≤ D * ∑ j, (c j * mean + |c j| * Δ) + (∑ h, q h) * ∑ j, |c j| := by
-          have hsum := mul_le_mul_of_nonneg_left
-            (Finset.sum_le_sum fun j (_ : j ∈ (univ : Finset ι)) ↦ hmean j) hD
+      _ ≤ D * G + (∑ h, q h) * ∑ j, |c j| := by
+          have hsum := mul_le_mul_of_nonneg_left hJc hD
           linarith
-      _ = D * (mean * ∑ j, c j + Δ * ∑ j, |c j|) + (∑ h, q h) * ∑ j, |c j| := by
-          rw [Finset.sum_add_distrib, ← Finset.sum_mul, ← Finset.sum_mul]
-          ring
   refine le_trans h1 (le_trans (le_of_eq h2) ?_)
   refine mul_le_mul (pow_le_pow_right₀ hZ h3) ?_ (Real.exp_nonneg _)
     (pow_nonneg hZ0.le _)
@@ -298,25 +311,23 @@ theorem apply_eval_le_expansion (v : AbsoluteValue K ℝ) {A M : Matrix ι ι K}
     {d : κ → ℕ} (hd : ∀ h, 0 < d h) {D : ℝ} (hD : 0 ≤ D)
     (hdq : ∀ h, D ≤ (d h : ℝ) * q h) (hdq' : ∀ h, ((d h : ℝ)) * q h ≤ D + q h)
     (hX : ∀ (h : κ) (j : ι), v (∑ i, A j i * X (h, i)) ≤ Z * Real.exp (c j * q h))
-    {Δ mean : ℝ}
+    {G : ℝ}
     (hJdeg : ∀ J ∈ (blockSubst M T).support, ∀ h, ∑ j, J (h, j) ≤ d h)
-    (hJc : ∀ J ∈ (blockSubst M T).support, ∀ j,
-      |(∑ h, (J (h, j) : ℝ) / (d h : ℝ)) - mean| ≤ Δ)
+    (hJc : ∀ J ∈ (blockSubst M T).support,
+      ∑ j, c j * ∑ h, (J (h, j) : ℝ) / (d h : ℝ) ≤ G)
     (hTsupp : ∀ ν ∈ T.support, ∑ t, ν t ≤ ∑ h, d h)
     {N : ℝ} (hN : (#(blockSubst M T).support : ℝ) ≤ N) :
     v (eval X T)
       ≤ N * ((#T.support : ℝ) * ((⨆ ν, v (T.coeff ν))
           * ((Fintype.card ι : ℝ) * ((⨆ p : ι × ι, v (M p.1 p.2)) ⊔ 1)) ^ (∑ h, d h)))
-        * (Z ^ (∑ h, d h) * Real.exp (D * (mean * ∑ j, c j + Δ * ∑ j, |c j|)
-            + (∑ h, q h) * ∑ j, |c j|)) := by
+        * (Z ^ (∑ h, d h) * Real.exp (D * G + (∑ h, q h) * ∑ j, |c j|)) := by
   have hZ0 : (0 : ℝ) < Z := lt_of_lt_of_le zero_lt_one hZ
   set w : κ × ι → K := fun p ↦ ∑ i, A p.2 i * X (p.1, i) with hwdef
-  set G : ℝ := Z ^ (∑ h, d h) * Real.exp (D * (mean * ∑ j, c j + Δ * ∑ j, |c j|)
-      + (∑ h, q h) * ∑ j, |c j|) with hGdef
-  have hG0 : 0 ≤ G := by
+  set Gb : ℝ := Z ^ (∑ h, d h) * Real.exp (D * G + (∑ h, q h) * ∑ j, |c j|) with hGdef
+  have hG0 : 0 ≤ Gb := by
     rw [hGdef]
     positivity
-  have hsupp : ∀ J ∈ (blockSubst M T).support, ∏ p, v (w p) ^ J p ≤ G := by
+  have hsupp : ∀ J ∈ (blockSubst M T).support, ∏ p, v (w p) ^ J p ≤ Gb := by
     intro J hJ
     exact prod_pow_apply_le v hZ hq hd hD hdq hdq' (fun p ↦ hX p.1 p.2) (hJdeg J hJ) (hJc J hJ)
   have hmain := apply_eval_le_of_forall_support v (P := blockSubst M T) w hG0 hsupp hN
@@ -335,23 +346,21 @@ theorem apply_eval_le_expansion_of_isNonarchimedean {v : AbsoluteValue K ℝ}
     {d : κ → ℕ} (hd : ∀ h, 0 < d h) {D : ℝ} (hD : 0 ≤ D)
     (hdq : ∀ h, D ≤ (d h : ℝ) * q h) (hdq' : ∀ h, ((d h : ℝ)) * q h ≤ D + q h)
     (hX : ∀ (h : κ) (j : ι), v (∑ i, A j i * X (h, i)) ≤ Z * Real.exp (c j * q h))
-    {Δ mean : ℝ}
+    {G : ℝ}
     (hJdeg : ∀ J ∈ (blockSubst M T).support, ∀ h, ∑ j, J (h, j) ≤ d h)
-    (hJc : ∀ J ∈ (blockSubst M T).support, ∀ j,
-      |(∑ h, (J (h, j) : ℝ) / (d h : ℝ)) - mean| ≤ Δ)
+    (hJc : ∀ J ∈ (blockSubst M T).support,
+      ∑ j, c j * ∑ h, (J (h, j) : ℝ) / (d h : ℝ) ≤ G)
     (hTsupp : ∀ ν ∈ T.support, ∑ t, ν t ≤ ∑ h, d h) :
     v (eval X T)
       ≤ (⨆ ν, v (T.coeff ν)) * ((⨆ p : ι × ι, v (M p.1 p.2)) ⊔ 1) ^ (∑ h, d h)
-        * (Z ^ (∑ h, d h) * Real.exp (D * (mean * ∑ j, c j + Δ * ∑ j, |c j|)
-            + (∑ h, q h) * ∑ j, |c j|)) := by
+        * (Z ^ (∑ h, d h) * Real.exp (D * G + (∑ h, q h) * ∑ j, |c j|)) := by
   have hZ0 : (0 : ℝ) < Z := lt_of_lt_of_le zero_lt_one hZ
   set w : κ × ι → K := fun p ↦ ∑ i, A p.2 i * X (p.1, i) with hwdef
-  set G : ℝ := Z ^ (∑ h, d h) * Real.exp (D * (mean * ∑ j, c j + Δ * ∑ j, |c j|)
-      + (∑ h, q h) * ∑ j, |c j|) with hGdef
-  have hG0 : 0 ≤ G := by
+  set Gb : ℝ := Z ^ (∑ h, d h) * Real.exp (D * G + (∑ h, q h) * ∑ j, |c j|) with hGdef
+  have hG0 : 0 ≤ Gb := by
     rw [hGdef]
     positivity
-  have hsupp : ∀ J ∈ (blockSubst M T).support, ∏ p, v (w p) ^ J p ≤ G := by
+  have hsupp : ∀ J ∈ (blockSubst M T).support, ∏ p, v (w p) ^ J p ≤ Gb := by
     intro J hJ
     exact prod_pow_apply_le v hZ hq hd hD hdq hdq' (fun p ↦ hX p.1 p.2) (hJdeg J hJ) (hJc J hJ)
   have hmain :=
@@ -395,15 +404,15 @@ theorem apply_eval_hasseDeriv_le_place (v : AbsoluteValue K ℝ) {A M : Matrix �
     (hdq : ∀ h, D ≤ (d h : ℝ) * q h) (hdq' : ∀ h, ((d h : ℝ)) * q h ≤ D + q h)
     (hX : ∀ (h : κ) (j : ι), v (∑ i, A j i * X (h, i))
       ≤ (Fintype.card ρ : ℝ) * Pb * Real.exp (cc j * q h))
-    {Δ mean : ℝ}
-    (hJc : ∀ J ∈ (blockSubst M (hasseDeriv I P)).support, ∀ j,
-      |(∑ h, (J (h, j) : ℝ) / (d h : ℝ)) - mean| ≤ Δ) :
+    {G : ℝ}
+    (hJc : ∀ J ∈ (blockSubst M (hasseDeriv I P)).support,
+      ∑ j, cc j * ∑ h, (J (h, j) : ℝ) / (d h : ℝ) ≤ G) :
     v (eval X (hasseDeriv I P))
       ≤ ((∏ p : κ × ι, ((d p.1 : ℝ) + 1)) ^ 2
           * (2 * Fintype.card ι * Fintype.card ρ : ℝ) ^ (∑ h, d h))
         * (⨆ ν, v (P.coeff ν))
         * (Pb ^ (2 * ∑ h, d h)
-          * Real.exp (D * (mean * ∑ j, cc j + Δ * ∑ j, |cc j|) + (∑ h, q h) * ∑ j, |cc j|)) := by
+          * Real.exp (D * G + (∑ h, q h) * ∑ j, |cc j|)) := by
   classical
   set Dsum := ∑ h, d h with hDsum
   set T := hasseDeriv I P with hTdef
@@ -442,7 +451,7 @@ theorem apply_eval_hasseDeriv_le_place (v : AbsoluteValue K ℝ) {A M : Matrix �
   refine le_trans hmain ?_
   set S : ℝ := ⨆ ν, v (P.coeff ν) with hS
   have hS0 : 0 ≤ S := Real.iSup_nonneg fun _ ↦ v.nonneg _
-  set gain : ℝ := Real.exp (D * (mean * ∑ j, cc j + Δ * ∑ j, |cc j|) + (∑ h, q h) * ∑ j, |cc j|)
+  set gain : ℝ := Real.exp (D * G + (∑ h, q h) * ∑ j, |cc j|)
     with hgain
   have hgain0 : 0 ≤ gain := Real.exp_nonneg _
   have hW0 : (0 : ℝ) ≤ (⨆ p : ι × ι, v (M p.1 p.2)) ⊔ 1 := le_trans zero_le_one le_sup_right
@@ -491,13 +500,13 @@ theorem apply_eval_hasseDeriv_le_place_of_isNonarchimedean {v : AbsoluteValue K 
     {cc : ι → ℝ} {q : κ → ℝ} (hq : ∀ h, 0 < q h) {D : ℝ} (hD : 0 ≤ D)
     (hdq : ∀ h, D ≤ (d h : ℝ) * q h) (hdq' : ∀ h, ((d h : ℝ)) * q h ≤ D + q h)
     (hX : ∀ (h : κ) (j : ι), v (∑ i, A j i * X (h, i)) ≤ Pb * Real.exp (cc j * q h))
-    {Δ mean : ℝ}
-    (hJc : ∀ J ∈ (blockSubst M (hasseDeriv I P)).support, ∀ j,
-      |(∑ h, (J (h, j) : ℝ) / (d h : ℝ)) - mean| ≤ Δ) :
+    {G : ℝ}
+    (hJc : ∀ J ∈ (blockSubst M (hasseDeriv I P)).support,
+      ∑ j, cc j * ∑ h, (J (h, j) : ℝ) / (d h : ℝ) ≤ G) :
     v (eval X (hasseDeriv I P))
       ≤ (⨆ ν, v (P.coeff ν))
         * (Pb ^ (2 * ∑ h, d h)
-          * Real.exp (D * (mean * ∑ j, cc j + Δ * ∑ j, |cc j|) + (∑ h, q h) * ∑ j, |cc j|)) := by
+          * Real.exp (D * G + (∑ h, q h) * ∑ j, |cc j|)) := by
   classical
   set Dsum := ∑ h, d h with hDsum
   set T := hasseDeriv I P with hTdef
@@ -517,7 +526,7 @@ theorem apply_eval_hasseDeriv_le_place_of_isNonarchimedean {v : AbsoluteValue K 
   refine le_trans hmain ?_
   set S : ℝ := ⨆ ν, v (P.coeff ν) with hS
   have hS0 : 0 ≤ S := Real.iSup_nonneg fun _ ↦ v.nonneg _
-  set gain : ℝ := Real.exp (D * (mean * ∑ j, cc j + Δ * ∑ j, |cc j|) + (∑ h, q h) * ∑ j, |cc j|)
+  set gain : ℝ := Real.exp (D * G + (∑ h, q h) * ∑ j, |cc j|)
     with hgain
   have hgain0 : 0 ≤ gain := Real.exp_nonneg _
   have hW0 : (0 : ℝ) ≤ (⨆ p : ι × ι, v (M p.1 p.2)) ⊔ 1 := le_trans zero_le_one le_sup_right

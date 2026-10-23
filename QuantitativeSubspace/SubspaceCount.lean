@@ -35,6 +35,8 @@ as one, and so re-runs Q0 with it.
   logarithm of the coefficient is polynomial in `(A + 1) / ε`, not exponential.
 * `NumberField.RothParams.evertse`: the parameters, with height cost
   `n max(1, 2 (m + 1) / η) ^ (m + 1) (m + 1) (h(P) + (h(ℙ¹) + m + 2) (m + 1) d₀ [K : ℚ])`.
+* `NumberField.rothLemmaAt_evertse`: Evertse's Lemma 24 at any number `m + 1` of blocks and any
+  `η ≤ 1`, a `NumberField.RothLemmaAt` for the explicit-parameter form of Steps IV and VI.
 * `NumberField.SubspaceRoth.evertse`: Evertse's Lemma 24 as an input of Steps IV and VI.
 * `NumberField.exists_forall_mem_interval_approxSpan_evertse`: Layer 5.6 as an interval result
   with intervals of ratio `16 (m + 1) / η`.
@@ -127,93 +129,106 @@ theorem evertse_height_lt {tw b m₁ D d₀ lg₂ lgD h : ℝ} (htw : 0 < tw) (h
 
 variable {K : Type*} [Field K] [NumberField K]
 
+/-- **Evertse's generalized Roth lemma at any number of blocks and any `η ≤ 1`** (Evertse 1996,
+Lemma 24; `MvPolynomial.formIndex_le_of_sq_lt_ratio`): a `NumberField.RothLemmaAt` for `m + 1`
+blocks with the ratio `σ = η / (4 (m + 1))` and the height cost
+`n max(1, 2 (m + 1) / η) ^ (m + 1) (m + 1) (h(P) + (h(ℙ¹)⁺ + m + 2) (m + 1) d₀ [K : ℚ])`, where
+`h(ℙ¹)` is the bound of the multiprojective height `H (m + 1)`. This is the Roth lemma of
+R. Stephan, *Line counts and a census for the exceptions to `‖(3/2)^n‖ ≥ (3/4)^n`, with an
+application to Waring's problem*, preprint (2026), doi:10.13140/RG.2.2.15019.20008, Theorem 7.2.
+-/
+theorem rothLemmaAt_evertse
+    (H : ∀ m : ℕ, MultiprojectiveHeight (K := K) (Prod.fst : Fin m × Fin 2 → Fin m))
+    {n m : ℕ} (hn : 1 ≤ n) {η : ℝ} (hη0 : 0 < η) (hη1 : η ≤ 1) :
+    RothLemmaAt.{u} K n m η (η / (4 * ((m : ℝ) + 1)))
+      (n * max 1 (2 * ((m : ℝ) + 1) / η) ^ (m + 1) * ((m : ℝ) + 1))
+      (max ((H (m + 1)).botBound 1) 0 + (m : ℝ) + 2) := by
+  intro ι _ _ hcard d hd hratio P hP0 hP M hM hheight
+  have hm1 : (0 : ℝ) < (m : ℝ) + 1 := by positivity
+  have hd0 : ∀ h, (0 : ℝ) < d h := fun h ↦ by exact_mod_cast hd h
+  set θ : ℝ := ((m : ℝ) + 1) * η / 2 with hθdef
+  have hθ : 0 < θ := by positivity
+  have hσ1 : η / (4 * ((m : ℝ) + 1)) ≤ 1 :=
+    div_le_one_of_le₀ (by linarith) (by positivity)
+  -- the ratio condition of Evertse's lemma
+  have hratio' : ∀ i j : Fin (m + 1), (i : ℕ) + 1 = j →
+      ((m + 1 : ℕ) : ℝ) ^ 2 < θ * (d i / d j) := by
+    intro i j hij
+    have hi : (i : ℕ) < m := by omega
+    have h1 := hratio ⟨i, hi⟩
+    have hs : (⟨i, hi⟩ : Fin m).succ = j := Fin.ext (by simp [hij])
+    have hc : (⟨i, hi⟩ : Fin m).castSucc = i := Fin.ext rfl
+    rw [hs, hc] at h1
+    rw [mul_div_assoc', lt_div_iff₀ (hd0 j)]
+    push_cast
+    have h2 : ((m : ℝ) + 1) ^ 2 * d j ≤ ((m : ℝ) + 1) ^ 2 * (η / (4 * ((m : ℝ) + 1)) * d i) :=
+      mul_le_mul_of_nonneg_left h1 (by positivity)
+    have h3 : ((m : ℝ) + 1) ^ 2 * (η / (4 * ((m : ℝ) + 1)) * d i) = θ * d i / 2 := by
+      rw [hθdef]
+      field_simp
+      ring
+    have h4 := mul_pos hθ (hd0 i)
+    linarith
+  have hanti : Antitone d := Fin.antitone_iff_succ_le.2 fun i ↦ by
+    have h1 := hratio i
+    have h2 : η / (4 * ((m : ℝ) + 1)) * d i.castSucc ≤ d i.castSucc :=
+      mul_le_of_le_one_left (Nat.cast_nonneg _) hσ1
+    exact_mod_cast h1.trans h2
+  -- the height condition of Evertse's lemma
+  have hheight' : ∀ h, (n : ℝ) * (max 1 (((m + 1 : ℕ) : ℝ) ^ 2 / θ) ^ (m + 1) *
+      (totalWeight K * max ((H (m + 1)).botBound 1) 0 * (∑ i, d i : ℕ) + (m + 1 : ℕ) *
+        (P.logHeight + totalWeight K * ((∑ i, d i : ℕ) * Real.log 2 +
+          (m + 1 : ℕ) * Real.log (∑ i, d i : ℕ) + (m + 1 : ℕ))))) <
+      d h * Height.logHeight (M h) := by
+    intro h
+    refine lt_of_lt_of_le ?_ (hheight h)
+    have hsq : ((m + 1 : ℕ) : ℝ) ^ 2 / θ = 2 * ((m : ℝ) + 1) / η := by
+      rw [hθdef]
+      push_cast
+      field_simp
+    rw [hsq]
+    set X := max 1 (2 * ((m : ℝ) + 1) / η) ^ (m + 1) with hX
+    have hX0 : 0 < X := pow_pos (lt_of_lt_of_le one_pos (le_max_left _ _)) _
+    have hn0 : (0 : ℝ) < n := by exact_mod_cast hn
+    have htw : (0 : ℝ) < totalWeight K := by exact_mod_cast totalWeight_pos K
+    have hsum : (∑ i, d i : ℕ) ≤ (m + 1) * d 0 := by
+      calc ∑ i, d i ≤ ∑ _i : Fin (m + 1), d 0 :=
+            Finset.sum_le_sum fun i _ ↦ hanti (Fin.zero_le i)
+        _ = (m + 1) * d 0 := by rw [Finset.sum_const, Finset.card_univ, Fintype.card_fin,
+              smul_eq_mul]
+    have hsum1 : 1 ≤ (∑ i, d i : ℕ) :=
+      (hd 0).trans (Finset.single_le_sum (f := d) (fun _ _ ↦ Nat.zero_le _)
+        (Finset.mem_univ 0))
+    have hDd : ((∑ i, d i : ℕ) : ℝ) ≤ ((m : ℝ) + 1) * d 0 := by exact_mod_cast hsum
+    have hD1 : (1 : ℝ) ≤ ((∑ i, d i : ℕ) : ℝ) := by exact_mod_cast hsum1
+    have hlt := evertse_height_lt (h := P.logHeight) htw
+      (le_max_right ((H (m + 1)).botBound 1) 0) (by linarith : (1 : ℝ) ≤ (m : ℝ) + 1) hD1
+      hDd (lt_trans Real.log_two_lt_d9 (by norm_num))
+      (Real.log_le_sub_one_of_pos (by linarith))
+    have hmul := mul_lt_mul_of_pos_left hlt (mul_pos hn0 hX0)
+    simp only [Nat.cast_add, Nat.cast_one]
+    refine lt_of_lt_of_le (b := (n : ℝ) * X * (((m : ℝ) + 1) * (P.logHeight
+      + (max ((H (m + 1)).botBound 1) 0 + ((m : ℝ) + 1) + 1) * ((m : ℝ) + 1) * d 0
+        * totalWeight K))) ?_ (le_of_eq ?_)
+    · refine lt_of_le_of_lt (le_of_eq ?_) hmul
+      ring
+    · ring
+  have h := formIndex_le_of_sq_lt_ratio (H (m + 1)) hn hcard hd hanti hθ hratio'
+    hP0 hP (fun _ ↦ le_rfl) hM hheight'
+  exact h
+
 /-- **Evertse's generalized Roth lemma** (Evertse 1996, Lemma 24;
 `MvPolynomial.formIndex_le_of_sq_lt_ratio`) as an input of Steps IV and VI, with the parameters
 `NumberField.RothParams.evertse` at `b m = h(ℙ¹)` for `m` blocks. It takes a multiprojective
-height `H m` on `(ℙ¹)^m` for every `m`. -/
+height `H m` on `(ℙ¹)^m` for every `m`; it is `NumberField.rothLemmaAt_evertse` at the chain
+length and `η` of Steps IV and VI. -/
 noncomputable def SubspaceRoth.evertse
     (H : ∀ m : ℕ, MultiprojectiveHeight (K := K) (Prod.fst : Fin m × Fin 2 → Fin m)) :
     SubspaceRoth.{u} K where
   toRothParams := RothParams.evertse fun m ↦ (H m).botBound 1
-  formIndex_le := by
-    intro ι _ _ n s ε A hn hcard hε hA d hd hratio P hP0 hP M hM hheight
-    dsimp only [RothParams.evertse, evertseRatio] at hratio hheight
-    have hη0 : 0 < subspaceEta n ε A := subspaceEta_pos hε hA
-    have hη1 : subspaceEta n ε A ≤ 1 := min_le_left _ _
-    generalize subspaceEta n ε A = η at *
-    generalize subspaceChainLength n s ε A = m at *
-    have hm1 : (0 : ℝ) < (m : ℝ) + 1 := by positivity
-    have hd0 : ∀ h, (0 : ℝ) < d h := fun h ↦ by exact_mod_cast hd h
-    set θ : ℝ := ((m : ℝ) + 1) * η / 2 with hθdef
-    have hθ : 0 < θ := by positivity
-    have hσ1 : η / (4 * ((m : ℝ) + 1)) ≤ 1 :=
-      div_le_one_of_le₀ (by linarith) (by positivity)
-    -- the ratio condition of Evertse's lemma
-    have hratio' : ∀ i j : Fin (m + 1), (i : ℕ) + 1 = j →
-        ((m + 1 : ℕ) : ℝ) ^ 2 < θ * (d i / d j) := by
-      intro i j hij
-      have hi : (i : ℕ) < m := by omega
-      have h1 := hratio ⟨i, hi⟩
-      have hs : (⟨i, hi⟩ : Fin m).succ = j := Fin.ext (by simp [hij])
-      have hc : (⟨i, hi⟩ : Fin m).castSucc = i := Fin.ext rfl
-      rw [hs, hc] at h1
-      rw [mul_div_assoc', lt_div_iff₀ (hd0 j)]
-      push_cast
-      have h2 : ((m : ℝ) + 1) ^ 2 * d j ≤ ((m : ℝ) + 1) ^ 2 * (η / (4 * ((m : ℝ) + 1)) * d i) :=
-        mul_le_mul_of_nonneg_left h1 (by positivity)
-      have h3 : ((m : ℝ) + 1) ^ 2 * (η / (4 * ((m : ℝ) + 1)) * d i) = θ * d i / 2 := by
-        rw [hθdef]
-        field_simp
-        ring
-      have h4 := mul_pos hθ (hd0 i)
-      linarith
-    have hanti : Antitone d := Fin.antitone_iff_succ_le.2 fun i ↦ by
-      have h1 := hratio i
-      have h2 : η / (4 * ((m : ℝ) + 1)) * d i.castSucc ≤ d i.castSucc :=
-        mul_le_of_le_one_left (Nat.cast_nonneg _) hσ1
-      exact_mod_cast h1.trans h2
-    -- the height condition of Evertse's lemma
-    have hheight' : ∀ h, (n : ℝ) * (max 1 (((m + 1 : ℕ) : ℝ) ^ 2 / θ) ^ (m + 1) *
-        (totalWeight K * max ((H (m + 1)).botBound 1) 0 * (∑ i, d i : ℕ) + (m + 1 : ℕ) *
-          (P.logHeight + totalWeight K * ((∑ i, d i : ℕ) * Real.log 2 +
-            (m + 1 : ℕ) * Real.log (∑ i, d i : ℕ) + (m + 1 : ℕ))))) <
-        d h * Height.logHeight (M h) := by
-      intro h
-      refine lt_of_lt_of_le ?_ (hheight h)
-      have hsq : ((m + 1 : ℕ) : ℝ) ^ 2 / θ = 2 * ((m : ℝ) + 1) / η := by
-        rw [hθdef]
-        push_cast
-        field_simp
-      rw [hsq]
-      set X := max 1 (2 * ((m : ℝ) + 1) / η) ^ (m + 1) with hX
-      have hX0 : 0 < X := pow_pos (lt_of_lt_of_le one_pos (le_max_left _ _)) _
-      have hn0 : (0 : ℝ) < n := by exact_mod_cast hn
-      have htw : (0 : ℝ) < totalWeight K := by exact_mod_cast totalWeight_pos K
-      have hsum : (∑ i, d i : ℕ) ≤ (m + 1) * d 0 := by
-        calc ∑ i, d i ≤ ∑ _i : Fin (m + 1), d 0 :=
-              Finset.sum_le_sum fun i _ ↦ hanti (Fin.zero_le i)
-          _ = (m + 1) * d 0 := by rw [Finset.sum_const, Finset.card_univ, Fintype.card_fin,
-                smul_eq_mul]
-      have hsum1 : 1 ≤ (∑ i, d i : ℕ) :=
-        (hd 0).trans (Finset.single_le_sum (f := d) (fun _ _ ↦ Nat.zero_le _)
-          (Finset.mem_univ 0))
-      have hDd : ((∑ i, d i : ℕ) : ℝ) ≤ ((m : ℝ) + 1) * d 0 := by exact_mod_cast hsum
-      have hD1 : (1 : ℝ) ≤ ((∑ i, d i : ℕ) : ℝ) := by exact_mod_cast hsum1
-      have hlt := evertse_height_lt (h := P.logHeight) htw
-        (le_max_right ((H (m + 1)).botBound 1) 0) (by linarith : (1 : ℝ) ≤ (m : ℝ) + 1) hD1
-        hDd (lt_trans Real.log_two_lt_d9 (by norm_num))
-        (Real.log_le_sub_one_of_pos (by linarith))
-      have hmul := mul_lt_mul_of_pos_left hlt (mul_pos hn0 hX0)
-      simp only [Nat.cast_add, Nat.cast_one]
-      refine lt_of_lt_of_le (b := (n : ℝ) * X * (((m : ℝ) + 1) * (P.logHeight
-        + (max ((H (m + 1)).botBound 1) 0 + ((m : ℝ) + 1) + 1) * ((m : ℝ) + 1) * d 0
-          * totalWeight K))) ?_ (le_of_eq ?_)
-      · refine lt_of_le_of_lt (le_of_eq ?_) hmul
-        ring
-      · ring
-    have h := formIndex_le_of_sq_lt_ratio (H (m + 1)) hn hcard hd hanti hθ hratio'
-      hP0 hP (fun _ ↦ le_rfl) hM hheight'
-    exact h
+  formIndex_le hn hcard hε hA _ hd hratio _ hP0 hP _ hM hheight :=
+    rothLemmaAt_evertse H hn (subspaceEta_pos hε hA) (min_le_left _ _) _ hcard hd hratio hP0 hP
+      hM hheight
 
 /-! ### Closed forms -/
 

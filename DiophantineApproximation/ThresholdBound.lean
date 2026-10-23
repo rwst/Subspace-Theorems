@@ -913,6 +913,18 @@ theorem abs_log_normalKappa_le (hLInf : ∀ w : InfinitePlace K, LinearIndepende
   rw [kappaCoeff, ← hMch]
   nlinarith
 
+/-- **The coefficient of the threshold of Layer 5.6 at given parameters**: `penultimateCoeff` for
+the chain length `m`, `η`, Siegel's exponent `q` (a factor on `auxCoeff`; R. Stephan, *Line counts
+and a census for the exceptions to `‖(3/2)^n‖ ≥ (3/4)^n`, with an application to Waring's
+problem*, preprint (2026), doi:10.13140/RG.2.2.15019.20008, §7.3, item (f)) and the height cost
+`F`, `g` of the Roth lemma given directly. -/
+noncomputable def penultimateCoeffAt (d N r t n m : ℕ) (η q ε F g : ℝ) : ℝ :=
+  1 + 8 * ((n : ℝ) + 1) * (d * Real.log (2 * ((n : ℝ) + 1) * n) + q * auxCoeff d N r t
+      + 2 * refCoeff d N r t ⌈2 * (n : ℝ) / η + 1⌉₊) / ε
+    + 8 * ((r + t : ℕ) : ℝ) * (F * ((m : ℝ) + 1) * (q * auxCoeff d N r t + g * d)
+      + kappaCoeff d (N.choose n) n (r + t)) / ε
+    + (4 * ((d + t) * patternConstCoeff d N r t + patternHeightCoeff d N r t) + 1) / ε
+
 /-- **The coefficient of the threshold of Layer 5.6** for forms in `N` variables, `d = [K : ℚ]`,
 `r` infinite places, `t` finite places of `S`, the form count `s`, the dimension `n`, the margin
 `ε` and the weight bound `A`: `1 + c₁ + c₂ + c₃`, one term for each argument of
@@ -925,6 +937,13 @@ noncomputable def penultimateCoeff (R : RothParams) (d N r t s n : ℕ) (ε A : 
         * (auxCoeff d N r t + R.shift n s ε A * d)
       + kappaCoeff d (N.choose n) n (r + t)) / ε
     + (4 * ((d + t) * patternConstCoeff d N r t + patternHeightCoeff d N r t) + 1) / ε
+
+/-- `penultimateCoeff` is `penultimateCoeffAt` at the parameters of Steps IV and VI. -/
+theorem penultimateCoeff_eq_at (R : RothParams) (d N r t s n : ℕ) (ε A : ℝ) :
+    penultimateCoeff R d N r t s n ε A = penultimateCoeffAt d N r t n
+      (subspaceChainLength n s ε A) (subspaceEta n ε A) 1 ε (R.factor n s ε A)
+      (R.shift n s ε A) := by
+  simp only [penultimateCoeff, penultimateCoeffAt, one_mul]
 
 theorem log_two_mul_add_one_mul_nonneg (n : ℕ) : 0 ≤ Real.log (2 * ((n : ℝ) + 1) * n) := by
   have : (2 * ((n : ℝ) + 1) * n) = ((2 * (n + 1) * n : ℕ) : ℝ) := by push_cast; ring
@@ -942,6 +961,16 @@ theorem penultimateCoeff_nonneg (R : RothParams) (d N r t s n : ℕ) {ε A : ℝ
   have := R.shift_nonneg (n := n) (s := s) hε hA
   rw [penultimateCoeff]; positivity
 
+theorem penultimateCoeffAt_nonneg (d N r t n m : ℕ) {η q ε F g : ℝ} (hq : 0 ≤ q) (hε : 0 < ε)
+    (hF : 0 ≤ F) (hg : 0 ≤ g) : 0 ≤ penultimateCoeffAt d N r t n m η q ε F g := by
+  have := auxCoeff_nonneg d N r t
+  have := refCoeff_nonneg d N r t ⌈2 * (n : ℝ) / η + 1⌉₊
+  have := kappaCoeff_nonneg d (N.choose n) n (r + t)
+  have := patternConstCoeff_nonneg d N r t
+  have := patternHeightCoeff_nonneg d N r t
+  have := log_two_mul_add_one_mul_nonneg n
+  rw [penultimateCoeffAt]; positivity
+
 /-- `penultimateCoeff` is monotone in the height cost of the Roth lemma. -/
 theorem penultimateCoeff_mono {R R' : RothParams} (d N r t s n : ℕ) {ε A : ℝ} (hε : 0 < ε)
     (hA : 0 ≤ A) (hF : R.factor n s ε A ≤ R'.factor n s ε A)
@@ -954,13 +983,14 @@ theorem penultimateCoeff_mono {R R' : RothParams} (d N r t s n : ℕ) {ε A : �
   unfold penultimateCoeff
   gcongr
 
-/-- **The threshold of Layer 5.6 is at most `penultimateCoeff Λ`.** -/
-theorem penultimateThreshold_le [DecidableEq ι] [Nonempty ι] (R : RothParams)
+/-- **The threshold of Layer 5.6 at given parameters is at most `penultimateCoeffAt Λ`.** -/
+theorem penultimateThresholdAt_le [DecidableEq ι] [Nonempty ι]
     (hLInf : ∀ w : InfinitePlace K, LinearIndependent K (L w.1))
     (hLFin : ∀ v ∈ Sfin, LinearIndependent K (L v.1)) {n : ℕ} (hn : n ≤ Fintype.card ι)
-    (s : ℕ) {ε : ℝ} (hε : 0 < ε) {A : ℝ} (hA : 0 ≤ A) :
-    penultimateThreshold Sfin L R n s ε A ≤ penultimateCoeff R (finrank ℚ K) (Fintype.card ι)
-      (Fintype.card (InfinitePlace K)) #Sfin s n ε A * thresholdScale Sfin L := by
+    (m : ℕ) {η q ε F g : ℝ} (hq : 0 ≤ q) (hε : 0 < ε) (hF : 0 ≤ F) (hg : 0 ≤ g) :
+    penultimateThresholdAt Sfin L n m η q ε F g ≤ penultimateCoeffAt (finrank ℚ K)
+      (Fintype.card ι) (Fintype.card (InfinitePlace K)) #Sfin n m η q ε F g
+        * thresholdScale Sfin L := by
   obtain rfl : ‹DecidableEq ι› = fun a b ↦ LinearOrder.toDecidableEq a b := Subsingleton.elim _ _
   set Λ := thresholdScale Sfin L
   have hΛ : 1 ≤ Λ := one_le_thresholdScale Sfin L
@@ -968,14 +998,13 @@ theorem penultimateThreshold_le [DecidableEq ι] [Nonempty ι] (R : RothParams)
   set d := finrank ℚ K
   set r := Fintype.card (InfinitePlace K)
   set t := #Sfin
-  set B := ⌈2 * (n : ℝ) / subspaceEta n ε A + 1⌉₊
-  set F := R.factor n s ε A
-  set g := R.shift n s ε A
-  set m := subspaceChainLength n s ε A
-  have hF : 0 ≤ F := R.factor_nonneg hε hA
-  have hg : 0 ≤ g := R.shift_nonneg hε hA
-  have haux := max_auxHeightConst_le (Sfin := Sfin) (L := L)
+  set B := ⌈2 * (n : ℝ) / η + 1⌉₊
+  have haux₁ := max_auxHeightConst_le (Sfin := Sfin) (L := L)
   have hauxc := auxCoeff_nonneg d N r t
+  have haux : max (q * auxHeightConst Sfin L) 0 ≤ q * auxCoeff d N r t * Λ := by
+    refine max_le ?_ (by positivity)
+    have h := mul_le_mul_of_nonneg_left ((le_max_left _ 0).trans haux₁) hq
+    linarith
   have href := sum_log_mulHeight₁_refFamily_le_mul (Sfin := Sfin) (L := L) B
   have hrefc := refCoeff_nonneg d N r t B
   have hkap := abs_log_normalKappa_le hLInf hLFin hn
@@ -985,22 +1014,22 @@ theorem penultimateThreshold_le [DecidableEq ι] [Nonempty ι] (R : RothParams)
   have hph := log_two_mul_patternHeightBound_le hLInf hLFin
   have hphc := patternHeightCoeff_nonneg d N r t
   have hlg := log_two_mul_add_one_mul_nonneg n
-  set a₁ := (d : ℝ) * Real.log (2 * ((n : ℝ) + 1) * n) + auxCoeff d N r t + 2 * refCoeff d N r t B
-    with ha₁
-  set a₂ := F * ((m : ℝ) + 1) * (auxCoeff d N r t + g * d)
+  set a₁ := (d : ℝ) * Real.log (2 * ((n : ℝ) + 1) * n) + q * auxCoeff d N r t
+    + 2 * refCoeff d N r t B with ha₁
+  set a₂ := F * ((m : ℝ) + 1) * (q * auxCoeff d N r t + g * d)
       + kappaCoeff d (N.choose n) n (r + t) with ha₂
   set a₃ := 4 * ((d + t) * patternConstCoeff d N r t + patternHeightCoeff d N r t) + 1 with ha₃
   have ha₁0 : 0 ≤ a₁ := by positivity
   have ha₂0 : 0 ≤ a₂ := by positivity
   have ha₃0 : 0 ≤ a₃ := by positivity
-  have hsplit : penultimateCoeff R d N r t s n ε A * Λ
+  have hsplit : penultimateCoeffAt d N r t n m η q ε F g * Λ
       = Λ + 8 * ((n : ℝ) + 1) * (a₁ * Λ) / ε + 8 * ((r + t : ℕ) : ℝ) * (a₂ * Λ) / ε
         + a₃ * Λ / ε := by
-    rw [penultimateCoeff]; ring
+    rw [penultimateCoeffAt]; ring
   have hT1 : 0 ≤ 8 * ((n : ℝ) + 1) * (a₁ * Λ) / ε := by positivity
   have hT2 : 0 ≤ 8 * ((r + t : ℕ) : ℝ) * (a₂ * Λ) / ε := by positivity
   have hT3 : 0 ≤ a₃ * Λ / ε := by positivity
-  rw [hsplit, penultimateThreshold, chainThreshold]
+  rw [hsplit, penultimateThresholdAt, chainThresholdAt]
   refine max_le (by linarith) (max_le (max_le (by linarith) (max_le ?_ ?_)) ?_)
   · refine le_trans ?_ (by linarith : 8 * ((n : ℝ) + 1) * (a₁ * Λ) / ε ≤ _)
     gcongr
@@ -1012,8 +1041,8 @@ theorem penultimateThreshold_le [DecidableEq ι] [Nonempty ι] (R : RothParams)
     nlinarith
   · refine le_trans ?_ (by linarith : 8 * ((r + t : ℕ) : ℝ) * (a₂ * Λ) / ε ≤ _)
     gcongr
-    have h1 : max (auxHeightConst Sfin L) 0 + g * (totalWeight K : ℝ)
-        ≤ (auxCoeff d N r t + g * d) * Λ := by
+    have h1 : max (q * auxHeightConst Sfin L) 0 + g * (totalWeight K : ℝ)
+        ≤ (q * auxCoeff d N r t + g * d) * Λ := by
       have : g * d ≤ g * d * Λ := le_mul_of_one_le_right (by positivity) hΛ
       rw [totalWeight_eq_finrank]; nlinarith
     have h2 := mul_le_mul_of_nonneg_left h1
@@ -1032,6 +1061,17 @@ theorem penultimateThreshold_le [DecidableEq ι] [Nonempty ι] (R : RothParams)
         + patternHeightCoeff d N r t * Λ) + Λ := by rw [ha₃]; ring
     rw [e]
     linarith
+
+/-- **The threshold of Layer 5.6 is at most `penultimateCoeff Λ`.** -/
+theorem penultimateThreshold_le [DecidableEq ι] [Nonempty ι] (R : RothParams)
+    (hLInf : ∀ w : InfinitePlace K, LinearIndependent K (L w.1))
+    (hLFin : ∀ v ∈ Sfin, LinearIndependent K (L v.1)) {n : ℕ} (hn : n ≤ Fintype.card ι)
+    (s : ℕ) {ε : ℝ} (hε : 0 < ε) {A : ℝ} (hA : 0 ≤ A) :
+    penultimateThreshold Sfin L R n s ε A ≤ penultimateCoeff R (finrank ℚ K) (Fintype.card ι)
+      (Fintype.card (InfinitePlace K)) #Sfin s n ε A * thresholdScale Sfin L := by
+  rw [penultimateThreshold_eq_at, penultimateCoeff_eq_at]
+  exact penultimateThresholdAt_le hLInf hLFin hn _ zero_le_one hε (R.factor_nonneg hε hA)
+    (R.shift_nonneg hε hA)
 
 end Penultimate
 

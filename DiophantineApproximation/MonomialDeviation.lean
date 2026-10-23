@@ -32,8 +32,13 @@ file, and it is what makes Siegel's lemma applicable in Layer 5.2.
 * `Finset.sum_exp_le`: **the exponential moment** — `E[exp (−λ j i₀ / N)]` is at most
   `exp (−λ/(n+1) + λ²/((n+1)(n+2)) + λ²/(2 N (n+1)))`.
 * `Finset.card_le_of_subset_deviation`: the Chernoff bound over the `m` blocks.
-* `Finset.card_le_of_subset_eta`: the same at the book's choice `λ = η (n+1)(n+2)/2`, which is
-  the form Layer 5.2 consumes.
+* `Finset.card_le_of_subset_eta`: the same at the book's choice `λ = η (n+1)(n+2)/2`.
+* `Finset.sum_exp_le_variance`, `Finset.card_le_of_subset_chernoffRate`: **the variance form** —
+  the exponential moment charged with the variance `n / ((n+1)² (n+2))` of `j i₀ / N` instead of
+  its raw second moment `2 / ((n+1)(n+2))`, at a Bennett factor `1 + 4λ/(9(n+1))`.
+* `Finset.card_le_of_subset_layerRate`: the better of the two at the rate `Finset.layerRate n η`,
+  which is the form Layer 5.2 consumes; `Finset.layerRate_one_ge`: `layerRate 1 η ≥ 6η² - 16η³`,
+  four times the book's `3η²/2` for small `η`.
 
 ## Implementation notes
 
@@ -63,6 +68,10 @@ has together with the two facts about it.
 
 E. Bombieri and W. Gubler, *Heights in Diophantine Geometry*, Cambridge University Press (2006),
 Lemma 7.5.15, (7.23)–(7.25).
+
+[Ste26] R. Stephan, *Line counts and a census for the exceptions to `‖(3/2)^n‖ ≥ (3/4)^n`, with an
+application to Waring's problem*, preprint (2026), doi:10.13140/RG.2.2.15019.20008,
+§7.3, item (g) and (12): the variance form of the Chernoff bound and its rate `Λ = layerRate 1`.
 
 This is part of Layer 5.2 of the `DiophantineApproximation` roadmap.
 -/
@@ -329,16 +338,20 @@ theorem sum_exp_le (hn : 1 ≤ n) (hcard : Fintype.card ι = n + 1) (i₀ : ι)
 
 variable {κ : Type*} [Fintype κ] [DecidableEq κ]
 
-theorem card_le_of_subset_deviation (hn : 1 ≤ n) (hcard : Fintype.card ι = n + 1) (i₀ : ι)
-    (d : κ → ℕ) (hd : ∀ h, 1 ≤ d h) {θ lam : ℝ} (hlam : 0 ≤ lam)
+/-- **The Chernoff bound over the blocks, from any bound on one block.** If the exponential moment
+of each block is at most `#A · exp (a + b / d h)`, then the monomials whose weighted exponent of
+`i₀` is at most `θ` number at most `#P · exp (λ θ + |κ| a + b ∑ h, 1 / d h)`. -/
+theorem card_le_of_subset_of_sum_exp_le (i₀ : ι) (d : κ → ℕ) {θ lam a b : ℝ} (hlam : 0 ≤ lam)
+    (hblock : ∀ h, ∑ j ∈ Finset.finsuppAntidiag (Finset.univ : Finset ι) (d h),
+        Real.exp (-(lam * (j i₀ : ℝ) / d h))
+      ≤ #(Finset.finsuppAntidiag (Finset.univ : Finset ι) (d h))
+        * Real.exp (a + b * ((d h : ℝ))⁻¹))
     (E : Finset (κ → ι →₀ ℕ))
     (hE : E ⊆ Fintype.piFinset fun h ↦ Finset.finsuppAntidiag (Finset.univ : Finset ι) (d h))
     (hEθ : ∀ J ∈ E, ∑ h, (J h i₀ : ℝ) / d h ≤ θ) :
     (#E : ℝ)
       ≤ #(Fintype.piFinset fun h ↦ Finset.finsuppAntidiag (Finset.univ : Finset ι) (d h)) *
-        Real.exp (lam * θ - Fintype.card κ * (lam / ((n : ℝ) + 1))
-          + Fintype.card κ * (lam ^ 2 / (((n : ℝ) + 1) * ((n : ℝ) + 2)))
-          + lam ^ 2 / (2 * ((n : ℝ) + 1)) * ∑ h, ((d h : ℝ))⁻¹) := by
+        Real.exp (lam * θ + Fintype.card κ * a + b * ∑ h, ((d h : ℝ))⁻¹) := by
   set A : κ → Finset (ι →₀ ℕ) :=
     fun h ↦ Finset.finsuppAntidiag (Finset.univ : Finset ι) (d h) with hAdef
   set P := Fintype.piFinset A with hPdef
@@ -365,49 +378,41 @@ theorem card_le_of_subset_deviation (hn : 1 ≤ n) (hcard : Fintype.card ι = n 
     rw [Finset.prod_univ_sum A (fun h j ↦ Real.exp (-(lam * (j i₀ : ℝ) / d h))), Finset.mul_sum]
     exact Finset.sum_congr rfl fun J _ ↦ hsplit J
   have step3 : ∏ h, ∑ j ∈ A h, Real.exp (-(lam * (j i₀ : ℝ) / d h))
-      ≤ ∏ h : κ, ((#(A h) : ℝ) * Real.exp (-(lam / ((n : ℝ) + 1))
-          + lam ^ 2 / (((n : ℝ) + 1) * ((n : ℝ) + 2))
-          + lam ^ 2 / (2 * (d h) * ((n : ℝ) + 1)))) := by
-    refine Finset.prod_le_prod₀ (fun h _ ↦ Finset.sum_nonneg fun j _ ↦ (Real.exp_pos _).le)
-      (fun h _ ↦ ?_)
-    exact sum_exp_le hn hcard i₀ (hd h) hlam
-  have hinv : ∀ h : κ, lam ^ 2 / (2 * (d h : ℝ) * ((n : ℝ) + 1))
-      = lam ^ 2 / (2 * ((n : ℝ) + 1)) * ((d h : ℝ))⁻¹ := by
-    intro h
-    rw [show (2 * (d h : ℝ) * ((n : ℝ) + 1)) = 2 * ((n : ℝ) + 1) * (d h : ℝ) from by ring,
-      ← div_div, div_eq_mul_inv]
-  have hexp : ∑ _h : κ, (-(lam / ((n : ℝ) + 1))
-        + lam ^ 2 / (((n : ℝ) + 1) * ((n : ℝ) + 2)))
-      + ∑ h : κ, lam ^ 2 / (2 * (d h) * ((n : ℝ) + 1))
-      = -(Fintype.card κ * (lam / ((n : ℝ) + 1)))
-        + Fintype.card κ * (lam ^ 2 / (((n : ℝ) + 1) * ((n : ℝ) + 2)))
-        + lam ^ 2 / (2 * ((n : ℝ) + 1)) * ∑ h, ((d h : ℝ))⁻¹ := by
-    rw [Finset.sum_const, Finset.card_univ, nsmul_eq_mul, Finset.sum_congr rfl
-      (fun h _ ↦ hinv h), ← Finset.mul_sum]
-    ring
-  have step4 : ∏ h : κ, ((#(A h) : ℝ) * Real.exp (-(lam / ((n : ℝ) + 1))
-        + lam ^ 2 / (((n : ℝ) + 1) * ((n : ℝ) + 2)) + lam ^ 2 / (2 * (d h) * ((n : ℝ) + 1))))
-      = (#P : ℝ) * Real.exp (-(Fintype.card κ * (lam / ((n : ℝ) + 1)))
-        + Fintype.card κ * (lam ^ 2 / (((n : ℝ) + 1) * ((n : ℝ) + 2)))
-        + lam ^ 2 / (2 * ((n : ℝ) + 1)) * ∑ h, ((d h : ℝ))⁻¹) := by
-    rw [Finset.prod_mul_distrib, ← Real.exp_sum, hPdef, Fintype.card_piFinset]
+      ≤ ∏ h : κ, ((#(A h) : ℝ) * Real.exp (a + b * ((d h : ℝ))⁻¹)) :=
+    Finset.prod_le_prod₀ (fun h _ ↦ Finset.sum_nonneg fun j _ ↦ (Real.exp_pos _).le)
+      fun h _ ↦ hblock h
+  have step4 : ∏ h : κ, ((#(A h) : ℝ) * Real.exp (a + b * ((d h : ℝ))⁻¹))
+      = (#P : ℝ) * Real.exp (Fintype.card κ * a + b * ∑ h, ((d h : ℝ))⁻¹) := by
+    rw [Finset.prod_mul_distrib, ← Real.exp_sum, hPdef, Fintype.card_piFinset,
+      Finset.sum_add_distrib, Finset.sum_const, Finset.card_univ, nsmul_eq_mul, ← Finset.mul_sum]
     push_cast
-    rw [← hexp, Finset.sum_add_distrib]
+    rfl
   calc (#E : ℝ) ≤ ∑ J ∈ P, g J := step1
     _ = Real.exp (lam * θ) * ∏ h, ∑ j ∈ A h, Real.exp (-(lam * (j i₀ : ℝ) / d h)) := step2
-    _ ≤ Real.exp (lam * θ) * ∏ h : κ, ((#(A h) : ℝ) * Real.exp (-(lam / ((n : ℝ) + 1))
-          + lam ^ 2 / (((n : ℝ) + 1) * ((n : ℝ) + 2))
-          + lam ^ 2 / (2 * (d h) * ((n : ℝ) + 1)))) := by
-        exact mul_le_mul_of_nonneg_left step3 (Real.exp_pos _).le
-    _ = Real.exp (lam * θ) * ((#P : ℝ) * Real.exp (-(Fintype.card κ * (lam / ((n : ℝ) + 1)))
-          + Fintype.card κ * (lam ^ 2 / (((n : ℝ) + 1) * ((n : ℝ) + 2)))
-          + lam ^ 2 / (2 * ((n : ℝ) + 1)) * ∑ h, ((d h : ℝ))⁻¹)) := by rw [step4]
-    _ = (#P : ℝ) * Real.exp (lam * θ - Fintype.card κ * (lam / ((n : ℝ) + 1))
+    _ ≤ Real.exp (lam * θ) * ∏ h : κ, ((#(A h) : ℝ) * Real.exp (a + b * ((d h : ℝ))⁻¹)) :=
+        mul_le_mul_of_nonneg_left step3 (Real.exp_pos _).le
+    _ = (#P : ℝ) * Real.exp (lam * θ + Fintype.card κ * a + b * ∑ h, ((d h : ℝ))⁻¹) := by
+        rw [step4, ← mul_assoc, mul_comm (Real.exp (lam * θ)) ((#P : ℝ)), mul_assoc,
+          ← Real.exp_add, add_assoc]
+
+theorem card_le_of_subset_deviation (hn : 1 ≤ n) (hcard : Fintype.card ι = n + 1) (i₀ : ι)
+    (d : κ → ℕ) (hd : ∀ h, 1 ≤ d h) {θ lam : ℝ} (hlam : 0 ≤ lam)
+    (E : Finset (κ → ι →₀ ℕ))
+    (hE : E ⊆ Fintype.piFinset fun h ↦ Finset.finsuppAntidiag (Finset.univ : Finset ι) (d h))
+    (hEθ : ∀ J ∈ E, ∑ h, (J h i₀ : ℝ) / d h ≤ θ) :
+    (#E : ℝ)
+      ≤ #(Fintype.piFinset fun h ↦ Finset.finsuppAntidiag (Finset.univ : Finset ι) (d h)) *
+        Real.exp (lam * θ - Fintype.card κ * (lam / ((n : ℝ) + 1))
           + Fintype.card κ * (lam ^ 2 / (((n : ℝ) + 1) * ((n : ℝ) + 2)))
           + lam ^ 2 / (2 * ((n : ℝ) + 1)) * ∑ h, ((d h : ℝ))⁻¹) := by
-        rw [← mul_assoc, mul_comm (Real.exp (lam * θ)) ((#P : ℝ)), mul_assoc, ← Real.exp_add]
-        congr 2
-        ring
+  refine (card_le_of_subset_of_sum_exp_le i₀ d hlam (a := -(lam / ((n : ℝ) + 1))
+      + lam ^ 2 / (((n : ℝ) + 1) * ((n : ℝ) + 2))) (b := lam ^ 2 / (2 * ((n : ℝ) + 1)))
+    (fun h ↦ ?_) E hE hEθ).trans_eq ?_
+  · refine (sum_exp_le hn hcard i₀ (hd h) hlam).trans_eq ?_
+    congr 2
+    field_simp
+  · congr 2
+    ring
 
 theorem card_le_of_subset_eta (hn : 1 ≤ n) (hcard : Fintype.card ι = n + 1) (i₀ : ι)
     (d : κ → ℕ) (hd : ∀ h, 1 ≤ d h) {η : ℝ} (hη : 0 ≤ η)
@@ -433,5 +438,258 @@ theorem card_le_of_subset_eta (hn : 1 ≤ n) (hcard : Fintype.card ι = n + 1) (
   refine (card_le_of_subset_deviation hn hcard i₀ d hd
     (show (0:ℝ) ≤ η * ((n : ℝ) + 1) * ((n : ℝ) + 2) / 2 by positivity) E hE hEθ).trans_eq ?_
   rw [hθ]
+
+/-! ### The variance form
+
+`sum_exp_le` charges the raw second moment `2 / ((n + 1)(n + 2))` of `j i₀ / N`; the Chernoff
+bound only needs its variance `n / ((n + 1)² (n + 2))`, which is four times smaller at `n = 1`.
+Centring at the mean costs a Bennett factor: the centred exponent `u = -λ (j i₀ / N - 1/(n+1))`
+is at most `λ / (n + 1)`, and `exp u ≤ 1 + u + (u²/2)(1 + 4c/9)` for `u ≤ c ≤ 1`. -/
+
+/-- **The variance of the exponent of one variable**, `n / ((n + 1)² (n + 2))`: the limit, as the
+degree grows, of the variance of `j i₀ / N` over the monomials of degree `N` in `n + 1`
+variables. -/
+noncomputable def monomialVariance (n : ℕ) : ℝ := n / (((n : ℝ) + 1) ^ 2 * ((n : ℝ) + 2))
+
+/-- **The rate of the variance form of the Chernoff bound** at the parameter `λ`:
+`λ η - (λ²/2) (1 + 4λ/(9(n+1))) V` with `V = monomialVariance n`. -/
+noncomputable def chernoffRate (n : ℕ) (η lam : ℝ) : ℝ :=
+  lam * η - lam ^ 2 / 2 * (1 + 4 * lam / (9 * ((n : ℝ) + 1))) * monomialVariance n
+
+/-- The parameter `λ = min (n + 1) (η / V)` at which `layerRate` evaluates `chernoffRate`. -/
+noncomputable def chernoffParam (n : ℕ) (η : ℝ) : ℝ := min ((n : ℝ) + 1) (η / monomialVariance n)
+
+/-- **The rate of Layer 5.2's count**: the larger of the book's `(n + 1)(n + 2) η² / 4` and the
+variance rate `chernoffRate n η (chernoffParam n η)`. For small `η` the second is about
+`2 (n + 1) / n` times the first. At `n = 1` this is the `Λ` of [Ste26], (12) and item (g). -/
+noncomputable def layerRate (n : ℕ) (η : ℝ) : ℝ :=
+  max (((n : ℝ) + 1) * ((n : ℝ) + 2) * η ^ 2 / 4) (chernoffRate n η (chernoffParam n η))
+
+/-- The coefficient of `∑ h, 1 / d h` in the Chernoff bound at `layerRate`. -/
+noncomputable def layerError (n : ℕ) (η : ℝ) : ℝ :=
+  max ((η * ((n : ℝ) + 1) * ((n : ℝ) + 2) / 2) ^ 2 / (2 * ((n : ℝ) + 1)))
+    (chernoffParam n η ^ 2 / 2 * (1 + 4 * chernoffParam n η / (9 * ((n : ℝ) + 1)))
+      * ((n : ℝ) / (((n : ℝ) + 1) * ((n : ℝ) + 2))))
+
+theorem monomialVariance_nonneg (n : ℕ) : 0 ≤ monomialVariance n := by
+  unfold monomialVariance
+  positivity
+
+theorem chernoffParam_nonneg {η : ℝ} (hη : 0 ≤ η) : 0 ≤ chernoffParam n η :=
+  le_min (by positivity) (div_nonneg hη (monomialVariance_nonneg n))
+
+theorem chernoffParam_le (η : ℝ) : chernoffParam n η ≤ n + 1 := min_le_left _ _
+
+/-- The book's rate is at most `layerRate`. -/
+theorem le_layerRate (n : ℕ) (η : ℝ) :
+    ((n : ℝ) + 1) * ((n : ℝ) + 2) * η ^ 2 / 4 ≤ layerRate n η :=
+  le_max_left _ _
+
+/-- The book's condition `4 x < (n + 1)(n + 2) η² k` implies `x < k · layerRate n η`. -/
+theorem lt_mul_layerRate {x k η : ℝ} (h : 4 * x < ((n : ℝ) + 1) * ((n : ℝ) + 2) * η ^ 2 * k)
+    (hk : 0 ≤ k) : x < k * layerRate n η := by
+  have := mul_le_mul_of_nonneg_left (le_layerRate n η) hk
+  linarith
+
+/-- **`layerRate` at small `η`**: for `η (n + 1)(n + 2) ≤ n` it is at least
+`η² (n + 1)² (n + 2) / (2n) · (1 - 4 η (n + 1)(n + 2) / (9n))`. -/
+theorem layerRate_ge (hn : 1 ≤ n) {η : ℝ}
+    (hη : η * (((n : ℝ) + 1) * ((n : ℝ) + 2)) ≤ n) :
+    η ^ 2 * (((n : ℝ) + 1) ^ 2 * ((n : ℝ) + 2)) / (2 * n)
+        * (1 - 4 * η * (((n : ℝ) + 1) * ((n : ℝ) + 2)) / (9 * n)) ≤ layerRate n η := by
+  refine le_trans (le_of_eq ?_) (le_max_right _ _)
+  have hn0 : (0 : ℝ) < n := by exact_mod_cast hn
+  have hp : chernoffParam n η = η / monomialVariance n := by
+    refine min_eq_right ?_
+    unfold monomialVariance
+    rw [div_div_eq_mul_div, div_le_iff₀ hn0]
+    nlinarith
+  rw [chernoffRate, hp, monomialVariance]
+  field_simp
+  ring
+
+/-- **`layerRate` at `n = 1`**: `6 η² - 16 η³ ≤ layerRate 1 η` for `η ≤ 1/6` ([Ste26], (12)). -/
+theorem layerRate_one_ge {η : ℝ} (hη : η ≤ 1 / 6) :
+    6 * η ^ 2 - 16 * η ^ 3 ≤ layerRate 1 η := by
+  refine le_trans (le_of_eq ?_) (layerRate_ge le_rfl (by norm_num; linarith))
+  norm_num
+  ring
+
+/-- **The Bennett-type quadratic majorant**: `exp u ≤ 1 + u + (u²/2)(1 + 4c/9)` for `u ≤ c ≤ 1`. -/
+theorem exp_le_quadratic_of_le {c u : ℝ} (hc0 : 0 ≤ c) (hc1 : c ≤ 1) (hu : u ≤ c) :
+    Real.exp u ≤ 1 + u + u ^ 2 / 2 * (1 + 4 * c / 9) := by
+  rcases le_or_gt u 0 with h | h
+  · have h' := exp_neg_le_quadratic (t := -u) (by linarith)
+    rw [neg_neg] at h'
+    nlinarith [mul_nonneg (sq_nonneg u) hc0]
+  · have hb := Real.exp_bound' h.le (hu.trans hc1) (n := 3) (by norm_num)
+    norm_num [Finset.sum_range_succ, Nat.factorial] at hb
+    nlinarith [mul_le_mul_of_nonneg_left hu (sq_nonneg u)]
+
+/-- **The first two moments**, in the form the variance computation consumes:
+`∑ j i₀ · (n + 1) = #A · N` and `∑ (j i₀)² · (n + 1)(n + 2) = #A · N (2N + n)`. -/
+theorem sum_apply_finsuppAntidiag_moments (hn : 1 ≤ n) (hcard : Fintype.card ι = n + 1)
+    (i₀ : ι) {N : ℕ} (hN : 1 ≤ N) :
+    (∑ f ∈ Finset.finsuppAntidiag (Finset.univ : Finset ι) N, (f i₀ : ℝ)) * ((n : ℝ) + 1)
+        = #(Finset.finsuppAntidiag (Finset.univ : Finset ι) N) * N ∧
+      (∑ f ∈ Finset.finsuppAntidiag (Finset.univ : Finset ι) N, (f i₀ : ℝ) ^ 2)
+          * (((n : ℝ) + 1) * ((n : ℝ) + 2))
+        = #(Finset.finsuppAntidiag (Finset.univ : Finset ι) N) * N * (2 * N + n) := by
+  set A := Finset.finsuppAntidiag (Finset.univ : Finset ι) N with hA
+  have hC : (#A : ℕ) = (N + n).choose n := by
+    simpa using sum_choose_apply_finsuppAntidiag hn hcard i₀ N 0
+  have h1 : ∑ f ∈ A, (f i₀) = (N + n).choose (n + 1) := by
+    simpa using sum_choose_apply_finsuppAntidiag hn hcard i₀ N 1
+  have h2 : ∑ f ∈ A, (f i₀).choose 2 = (N + n).choose (n + 2) :=
+    sum_choose_apply_finsuppAntidiag hn hcard i₀ N 2
+  have e1 : ((N + n).choose (n + 1) : ℝ) * ((n : ℝ) + 1)
+      = ((N + n).choose n : ℝ) * N := by
+    have := Nat.choose_succ_right_eq (N + n) n
+    have h : N + n - n = N := by omega
+    rw [h] at this
+    exact_mod_cast congrArg (Nat.cast : ℕ → ℝ) this
+  have e2 : ((N + n).choose (n + 2) : ℝ) * ((n : ℝ) + 2)
+      = ((N + n).choose (n + 1) : ℝ) * ((N : ℝ) - 1) := by
+    have := Nat.choose_succ_right_eq (N + n) (n + 1)
+    have h : N + n - (n + 1) = N - 1 := by omega
+    rw [h] at this
+    have hc : (((N - 1 : ℕ)) : ℝ) = (N : ℝ) - 1 := by
+      have : (1 : ℕ) ≤ N := hN
+      push_cast [Nat.cast_sub this]
+      ring
+    calc ((N + n).choose (n + 2) : ℝ) * ((n : ℝ) + 2)
+        = (((N + n).choose (n + 1 + 1) * (n + 1 + 1) : ℕ) : ℝ) := by push_cast; ring
+      _ = (((N + n).choose (n + 1) * (N - 1) : ℕ) : ℝ) := by rw [this]
+      _ = ((N + n).choose (n + 1) : ℝ) * ((N : ℝ) - 1) := by push_cast [hc]; ring
+  have hs1 : ∑ f ∈ A, (f i₀ : ℝ) = ((N + n).choose (n + 1) : ℝ) := by
+    rw [← Nat.cast_sum, h1]
+  have hs2 : ∑ f ∈ A, (f i₀ : ℝ) ^ 2
+      = 2 * ((N + n).choose (n + 2) : ℝ) + ((N + n).choose (n + 1) : ℝ) := by
+    have : ∑ f ∈ A, (f i₀) ^ 2 = 2 * ((N + n).choose (n + 2)) + (N + n).choose (n + 1) := by
+      rw [Finset.sum_congr rfl fun f _ ↦ sq_eq_two_mul_choose_add (f i₀),
+        Finset.sum_add_distrib, ← Finset.mul_sum, h1, h2]
+    exact_mod_cast this
+  have hcardC : (#A : ℝ) = ((N + n).choose n : ℝ) := by rw [hC]
+  rw [hs1, hs2, hcardC]
+  refine ⟨e1, ?_⟩
+  linear_combination (2 * ((n : ℝ) + 1)) * e2 + (2 * (N : ℝ) + n) * e1
+
+/-- **The exponential moment, variance form**: for `0 ≤ λ ≤ n + 1`,
+`∑ exp (-λ j i₀ / N) ≤ #A · exp (-λ/(n+1) + (λ²/2) K (V + n / (N (n+1)(n+2))))`, where
+`K = 1 + 4λ/(9(n+1))` and `V = monomialVariance n` ([Ste26], item (g)). -/
+theorem sum_exp_le_variance (hn : 1 ≤ n) (hcard : Fintype.card ι = n + 1) (i₀ : ι)
+    {N : ℕ} (hN : 1 ≤ N) {lam : ℝ} (hlam : 0 ≤ lam) (hlam1 : lam ≤ n + 1) :
+    ∑ f ∈ Finset.finsuppAntidiag (Finset.univ : Finset ι) N,
+        Real.exp (-(lam * (f i₀ : ℝ) / N))
+      ≤ #(Finset.finsuppAntidiag (Finset.univ : Finset ι) N) *
+        Real.exp ((-(lam / ((n : ℝ) + 1)) + lam ^ 2 / 2 * (1 + 4 * lam / (9 * ((n : ℝ) + 1)))
+            * monomialVariance n)
+          + lam ^ 2 / 2 * (1 + 4 * lam / (9 * ((n : ℝ) + 1)))
+            * ((n : ℝ) / (((n : ℝ) + 1) * ((n : ℝ) + 2))) * ((N : ℝ))⁻¹) := by
+  set A := Finset.finsuppAntidiag (Finset.univ : Finset ι) N with hA
+  obtain ⟨m1, m2⟩ := sum_apply_finsuppAntidiag_moments hn hcard i₀ hN
+  rw [← hA] at m1 m2
+  have hNR : (0 : ℝ) < N := by exact_mod_cast hN
+  have hn1 : (0 : ℝ) < (n : ℝ) + 1 := by positivity
+  have hn2 : (0 : ℝ) < (n : ℝ) + 2 := by positivity
+  set K : ℝ := 1 + 4 * lam / (9 * ((n : ℝ) + 1)) with hK
+  set c : ℝ := lam / ((n : ℝ) + 1) with hc
+  have hc0 : 0 ≤ c := by positivity
+  have hc1 : c ≤ 1 := by rw [hc, div_le_one hn1]; exact hlam1
+  have hKc : K = 1 + 4 * c / 9 := by rw [hK, hc]; field_simp
+  set X : ℝ := lam ^ 2 / 2 * K * (monomialVariance n
+    + (n : ℝ) / (((n : ℝ) + 1) * ((n : ℝ) + 2)) * ((N : ℝ))⁻¹) with hX
+  -- each term, by the quadratic majorant of the centred exponent
+  have hterm : ∀ f ∈ A, Real.exp (-(lam * (f i₀ : ℝ) / N))
+      ≤ Real.exp (-c) * ((1 + c + c ^ 2 / 2 * K)
+        + (-(lam / N) - lam * c * K / N) * (f i₀ : ℝ)
+        + lam ^ 2 * K / (2 * (N : ℝ) ^ 2) * (f i₀ : ℝ) ^ 2) := by
+    intro f _
+    have hx : (0 : ℝ) ≤ lam * (f i₀ : ℝ) / N := by positivity
+    have hu : -(lam * (f i₀ : ℝ) / N) + c ≤ c := by linarith
+    have h := exp_le_quadratic_of_le hc0 hc1 hu
+    rw [← hKc] at h
+    calc Real.exp (-(lam * (f i₀ : ℝ) / N))
+        = Real.exp (-c) * Real.exp (-(lam * (f i₀ : ℝ) / N) + c) := by
+          rw [← Real.exp_add]; ring_nf
+      _ ≤ Real.exp (-c) * (1 + (-(lam * (f i₀ : ℝ) / N) + c)
+          + (-(lam * (f i₀ : ℝ) / N) + c) ^ 2 / 2 * K) :=
+          mul_le_mul_of_nonneg_left h (Real.exp_pos _).le
+      _ = _ := by
+          congr 1
+          field_simp
+          ring
+  -- the sum of the majorants, by the two moments
+  have hS1 : ∑ f ∈ A, (f i₀ : ℝ) = #A * N / ((n : ℝ) + 1) := by
+    rw [eq_div_iff hn1.ne']; exact m1
+  have hS2 : ∑ f ∈ A, (f i₀ : ℝ) ^ 2 = #A * N * (2 * N + n) / (((n : ℝ) + 1) * ((n : ℝ) + 2)) := by
+    rw [eq_div_iff (by positivity)]; exact m2
+  have hsum : ∑ f ∈ A, ((1 + c + c ^ 2 / 2 * K)
+        + (-(lam / N) - lam * c * K / N) * (f i₀ : ℝ)
+        + lam ^ 2 * K / (2 * (N : ℝ) ^ 2) * (f i₀ : ℝ) ^ 2) = #A * (1 + X) := by
+    rw [Finset.sum_add_distrib, Finset.sum_add_distrib, Finset.sum_const, nsmul_eq_mul,
+      ← Finset.mul_sum, ← Finset.mul_sum, hS1, hS2, hX, hc, monomialVariance]
+    field_simp
+    ring
+  calc ∑ f ∈ A, Real.exp (-(lam * (f i₀ : ℝ) / N))
+      ≤ ∑ f ∈ A, Real.exp (-c) * ((1 + c + c ^ 2 / 2 * K)
+        + (-(lam / N) - lam * c * K / N) * (f i₀ : ℝ)
+        + lam ^ 2 * K / (2 * (N : ℝ) ^ 2) * (f i₀ : ℝ) ^ 2) := Finset.sum_le_sum hterm
+    _ = Real.exp (-c) * (#A * (1 + X)) := by rw [← Finset.mul_sum, hsum]
+    _ ≤ Real.exp (-c) * (#A * Real.exp X) := by
+        gcongr
+        linarith [Real.add_one_le_exp X]
+    _ = _ := by
+        rw [mul_left_comm, ← Real.exp_add, hX, hc]
+        congr 2
+        ring
+
+/-- **The Chernoff bound over the blocks, variance form**, at the deviation `η` of
+`card_le_of_subset_eta` and any `0 ≤ λ ≤ n + 1`. -/
+theorem card_le_of_subset_chernoffRate (hn : 1 ≤ n) (hcard : Fintype.card ι = n + 1) (i₀ : ι)
+    (d : κ → ℕ) (hd : ∀ h, 1 ≤ d h) {η lam : ℝ} (hlam : 0 ≤ lam) (hlam1 : lam ≤ n + 1)
+    (E : Finset (κ → ι →₀ ℕ))
+    (hE : E ⊆ Fintype.piFinset fun h ↦ Finset.finsuppAntidiag (Finset.univ : Finset ι) (d h))
+    (hEθ : ∀ J ∈ E, ∑ h, (J h i₀ : ℝ) / d h
+      ≤ Fintype.card κ / ((n : ℝ) + 1) - Fintype.card κ * η) :
+    (#E : ℝ)
+      ≤ #(Fintype.piFinset fun h ↦ Finset.finsuppAntidiag (Finset.univ : Finset ι) (d h)) *
+        Real.exp (-(Fintype.card κ * chernoffRate n η lam)
+          + lam ^ 2 / 2 * (1 + 4 * lam / (9 * ((n : ℝ) + 1)))
+            * ((n : ℝ) / (((n : ℝ) + 1) * ((n : ℝ) + 2))) * ∑ h, ((d h : ℝ))⁻¹) := by
+  refine (card_le_of_subset_of_sum_exp_le i₀ d hlam
+    (fun h ↦ sum_exp_le_variance hn hcard i₀ (hd h) hlam hlam1) E hE hEθ).trans_eq ?_
+  have hn1 : (0 : ℝ) < (n : ℝ) + 1 := by positivity
+  congr 2
+  rw [chernoffRate]
+  field_simp
+  ring
+
+/-- **The Chernoff bound at `layerRate`**: the monomials whose weighted exponent of `i₀` falls
+`|κ| η` below its mean number at most `#P · exp (-|κ| layerRate n η + layerError n η ∑ 1 / d h)`.
+This is the form Layer 5.2 consumes. -/
+theorem card_le_of_subset_layerRate (hn : 1 ≤ n) (hcard : Fintype.card ι = n + 1) (i₀ : ι)
+    (d : κ → ℕ) (hd : ∀ h, 1 ≤ d h) {η : ℝ} (hη : 0 ≤ η)
+    (E : Finset (κ → ι →₀ ℕ))
+    (hE : E ⊆ Fintype.piFinset fun h ↦ Finset.finsuppAntidiag (Finset.univ : Finset ι) (d h))
+    (hEθ : ∀ J ∈ E, ∑ h, (J h i₀ : ℝ) / d h
+      ≤ Fintype.card κ / ((n : ℝ) + 1) - Fintype.card κ * η) :
+    (#E : ℝ)
+      ≤ #(Fintype.piFinset fun h ↦ Finset.finsuppAntidiag (Finset.univ : Finset ι) (d h)) *
+        Real.exp (-(Fintype.card κ * layerRate n η) + layerError n η * ∑ h, ((d h : ℝ))⁻¹) := by
+  have hS : 0 ≤ ∑ h, ((d h : ℝ))⁻¹ := Finset.sum_nonneg fun h _ ↦ by positivity
+  have hκ : (0 : ℝ) ≤ Fintype.card κ := Nat.cast_nonneg _
+  rcases le_total (((n : ℝ) + 1) * ((n : ℝ) + 2) * η ^ 2 / 4)
+    (chernoffRate n η (chernoffParam n η)) with h | h
+  · refine (card_le_of_subset_chernoffRate hn hcard i₀ d hd (chernoffParam_nonneg hη)
+      (chernoffParam_le η) E hE hEθ).trans ?_
+    rw [layerRate, max_eq_right h]
+    gcongr
+    exact le_max_right _ _
+  · refine (card_le_of_subset_eta hn hcard i₀ d hd hη E hE hEθ).trans ?_
+    rw [layerRate, max_eq_left h]
+    gcongr
+    · linarith
+    · exact le_max_left _ _
 
 end Finset

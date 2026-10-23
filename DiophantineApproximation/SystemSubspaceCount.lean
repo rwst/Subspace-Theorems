@@ -108,8 +108,10 @@ J.-H. Evertse, *On the Quantitative Subspace Theorem*, Zap. Nauchn. Sem. POMI **
 217–240 (arXiv:1008.2268), proof of Theorem 2.1. H. P. Schlickewei, "The quantitative Subspace
 Theorem for number fields", *Compositio Math.* **82** (1992), 245–273. R. Stephan, *Line counts
 and a census for the exceptions to `‖(3/2)^n‖ ≥ (3/4)^n`, with an application to Waring's
-problem*, preprint (2026), doi:10.13140/RG.2.2.15019.20008, Theorem 7.2: the interval result for
-the solutions (`NumberField.exists_forall_mem_interval_systemSet`), first stated there.
+problem*, preprint (2026), doi:10.13140/RG.2.2.15019.20008 [Ste26], §7.3: the interval result
+for the solutions (`NumberField.exists_forall_mem_interval_systemSet`; in two variables,
+Theorem 7.2 there), first stated there, and items (a)–(c) (the scalar at the fraction `τ`, the
+absolute weight `2 P + (1 + τ) δ` and the deviation weight with `N⁻ = systemNegWeight`).
 
 This is milestone Q0.3 of the `QuantitativeSubspace` roadmap.
 -/
@@ -710,10 +712,18 @@ theorem systemValue_mul (S : Finset (HeightOneSpectrum (𝓞 K)))
 
 /-- **The positive weight of a system of exponents**, `∑ max (c p i) 0` over the places and the
 forms. The raised exponents have absolute weight `2 P + δ` (`IsNormalizedSystem.exists_raise_le`),
-and `P ≤ n` (`IsNormalizedSystem.systemPosWeight_le`). -/
+and `P ≤ n` (`IsNormalizedSystem.systemPosWeight_le`). It is the `P` of [Ste26], §7.3. -/
 noncomputable def systemPosWeight {S : Finset (HeightOneSpectrum (𝓞 K))}
     (c : InfinitePlace K ⊕ S → ι → ℝ) : ℝ :=
   ∑ p, ∑ i, max (c p i) 0
+
+/-- **The negative weight of the largest exponents**, `∑_p max (-max_i c p i) 0`: the places at
+which every exponent is negative, with how negative the largest one is. It is what the derivative
+of the auxiliary polynomial costs in the deviation weight (`NumberField.rowDev`), and it is `0` as
+soon as every place has a nonnegative exponent. It is the `N⁻` of [Ste26], §7.3. -/
+noncomputable def systemNegWeight {S : Finset (HeightOneSpectrum (𝓞 K))}
+    (c : InfinitePlace K ⊕ S → ι → ℝ) : ℝ :=
+  ∑ p, max (-⨆ i, c p i) 0
 
 theorem systemPosWeight_nonneg {S : Finset (HeightOneSpectrum (𝓞 K))}
     (c : InfinitePlace K ⊕ S → ι → ℝ) : 0 ≤ systemPosWeight c :=
@@ -737,7 +747,7 @@ theorem IsNormalizedSystem.systemPosWeight_le {S : Finset (HeightOneSpectrum (�
 /-- **The exponents can be raised to absolute weight `2 P + δ`**, `P = systemPosWeight c`: scaling
 the negative ones by `λ = (P + δ) / N ≤ 1`, `N` the sum of the negative parts, leaves the weight
 at exactly `-δ`, and no exponent above the normalized local degree. Raising the exponents only
-enlarges the set of solutions. -/
+enlarges the set of solutions ([Ste26], item (b)). -/
 theorem IsNormalizedSystem.exists_raise_le {S : Finset (HeightOneSpectrum (𝓞 K))}
     {w : AbsoluteValue K ℝ → AbsoluteValue E ℝ} {L : AbsoluteValue K ℝ → ι → Dual E (ι → E)}
     {C : InfinitePlace K ⊕ S → ℝ} {c : InfinitePlace K ⊕ S → ι → ℝ} {H : ℝ} {D R : ℕ} {δ : ℝ}
@@ -806,9 +816,10 @@ open scoped Classical in
 scalar costing a fraction `τ` of `δ`**: `NumberField.exists_forall_mem_interval_systemSet` with
 the shift `γ = τ δ / (n t)` in place of `δ / (2 n t)`. The interval result is asked for exponents
 of weight exactly `-[E : K] (1 - τ) δ` and absolute weight at most `[E : K] (2 P + (1 + τ) δ)`,
-`P = systemPosWeight c` the positive weight of the system's own exponents (at most `n`); the
-price is the threshold `systemHeightThreshold / (2 τ)` of the scalar, which is small next to the
-thresholds of the interval results. -/
+`P = systemPosWeight c` the positive weight of the system's own exponents (at most `n`), and with
+deviation weight (`NumberField.approxDevWeight`) at most `[E : K] (2 (n + δ) + N)`,
+`N = systemNegWeight c`; the price is the threshold `systemHeightThreshold / (2 τ)` of the scalar,
+which is small next to the thresholds of the interval results ([Ste26], items (a)–(c)). -/
 theorem exists_forall_mem_interval_systemSet_of_shift [IsGalois K E]
     (S : Finset (HeightOneSpectrum (𝓞 K))) (w : AbsoluteValue K ℝ → AbsoluteValue E ℝ)
     (hwInf : ∀ v : InfinitePlace K, (w v.1).LiesOver v.1)
@@ -825,6 +836,8 @@ theorem exists_forall_mem_interval_systemSet_of_shift [IsGalois K E]
         finrank K E * (2 * systemPosWeight c + (1 + τ) * δ) →
       approxSupWeight (systemPlacesOver E S) c' ≤
         finrank K E * (1 + τ * δ / Fintype.card ι) →
+      approxDevWeight (systemPlacesOver E S) c' ≤
+        finrank K E * (2 * (Fintype.card ι + δ) + systemNegWeight c) →
       ∃ T : Finset (Submodule E (ι → E)), #T ≤ NS ∧ (∀ W ∈ T, W ≠ ⊤) ∧
         ∃ 𝒯 : Finset ℝ, #𝒯 ≤ NI ∧ (∀ s ∈ 𝒯, X₀ ≤ s) ∧
           ∀ Q : ℝ, 1 < Q → X₀ ≤ Real.log Q →
@@ -926,7 +939,38 @@ theorem exists_forall_mem_interval_systemSet_of_shift [IsGalois K E]
           rw [Finset.sum_add_distrib, sum_systemExponent, Finset.sum_const, Finset.card_univ,
             hcardS, nsmul_eq_mul, hγ]
           field_simp
-  obtain ⟨T, hTcard, hTtop, 𝒯, h𝒯card, h𝒯ge, hQint⟩ := hint _ hwe hA' hsup
+  have hdev : approxDevWeight Sfin' (conjExponent S e')
+      ≤ e * (2 * (n + δ) + systemNegWeight c) := by
+    rw [approxDevWeight_conjExponent]
+    refine mul_le_mul_of_nonneg_left ?_ he0.le
+    have hrow : ∀ p, rowDev (e' p) ≤ 2 * n * systemExponent S p + 2 * n * γ
+        - 2 * ∑ i, e' p i + max (-⨆ i, c p i) 0 := by
+      intro p
+      have hs1 : (⨆ i, e' p i) ≤ systemExponent S p + γ := ciSup_le fun i ↦ by
+        simp only [he']
+        linarith [hc's p i]
+      have hs2 : (⨆ i, c p i) ≤ ⨆ i, e' p i := ciSup_le fun i ↦
+        le_ciSup_of_le (Finite.bddAbove_range _) i (by simp only [he']; linarith [hcc' p i])
+      have h1 := mul_le_mul_of_nonneg_left hs1 hn0.le
+      have h2 := max_le_max (neg_le_neg hs2) (le_refl (0 : ℝ))
+      rw [rowDev, ← hn]
+      linarith
+    have hsumw : ∑ p, ∑ i, e' p i = -δ + τ * δ := by
+      have h := hsw
+      rw [hc'w, htnγ, systemWeight] at h
+      linarith
+    calc ∑ p, rowDev (e' p)
+        ≤ ∑ p, (2 * n * systemExponent S p + 2 * n * γ - 2 * ∑ i, e' p i
+          + max (-⨆ i, c p i) 0) := Finset.sum_le_sum fun p _ ↦ hrow p
+      _ = 2 * n * (∑ p, systemExponent S p) + t * n * γ * 2 - 2 * ∑ p, ∑ i, e' p i
+          + systemNegWeight c := by
+          simp only [Finset.sum_add_distrib, Finset.sum_sub_distrib, ← Finset.mul_sum,
+            Finset.sum_const, Finset.card_univ, hcardS, nsmul_eq_mul, systemNegWeight]
+          ring
+      _ = 2 * (n + δ) + systemNegWeight c := by
+          rw [sum_systemExponent, htnγ, hsumw]
+          ring
+  obtain ⟨T, hTcard, hTtop, 𝒯, h𝒯card, h𝒯ge, hQint⟩ := hint _ hwe hA' hsup hdev
   -- `β x` lies in the domain
   have hdom : ∀ x ∈ systemSet S w L C c, X₀ ≤ Real.log (mulHeightAff x) →
       (fun j ↦ algebraMap K E (β * x j)) ∈ approxDomain Sfin' L' (conjExponent S e')
@@ -1020,7 +1064,7 @@ theorem exists_forall_mem_interval_systemSet [IsGalois K E]
   have hn0 : (0 : ℝ) < Fintype.card ι := by exact_mod_cast (by have := hN.two_le_card; omega)
   have hP := hN.systemPosWeight_le
   refine exists_forall_mem_interval_systemSet_of_shift S w hwInf hwFin hN (τ := 1 / 2)
-    (by norm_num) (by linarith) hX₀n fun c' hw hA hsup ↦ hint c' ?_ ?_ ?_ ?_
+    (by norm_num) (by linarith) hX₀n fun c' hw hA hsup _ ↦ hint c' ?_ ?_ ?_ ?_
   · rw [hw, systemEps]; nlinarith
   · refine hA.trans ?_
     rw [systemAbsBound]

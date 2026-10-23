@@ -87,6 +87,10 @@ J.-H. Evertse, *On the Quantitative Subspace Theorem*, Zap. Nauchn. Sem. POMI **
 217–240 (arXiv:1008.2268), §2. E. Bombieri and W. Gubler, *Heights in Diophantine Geometry*,
 Cambridge University Press (2006), Remark 7.2.3.
 
+[Ste26] R. Stephan, *Line counts and a census for the exceptions to `‖(3/2)^n‖ ≥ (3/4)^n`, with an
+application to Waring's problem*, preprint (2026), doi:10.13140/RG.2.2.15019.20008,
+§7.3, item (c): the deviation weight of the conjugate exponents.
+
 This is milestone Q0.2c of the `QuantitativeSubspace` roadmap.
 -/
 
@@ -406,6 +410,52 @@ theorem approxSupWeight_conjExponent (S : Finset (HeightOneSpectrum (𝓞 K)))
       exact_mod_cast FinitePlace.sum_localDegree (FinitePlace.mk p)
     rw [hsum]
   rw [approxSupWeight, hinf, hfin, Fintype.sum_sum_type, mul_add]
+
+/-- **The weight of the deviations over `E`** is `[E : K]` times `∑_p rowDev (e p)`
+([Ste26], item (c)). -/
+theorem approxDevWeight_conjExponent (S : Finset (HeightOneSpectrum (𝓞 K)))
+    (e : InfinitePlace K ⊕ S → ι → ℝ) :
+    approxDevWeight (systemPlacesOver E S) (conjExponent S e) =
+      finrank K E * ∑ p, rowDev (e p) := by
+  classical
+  have hinf : ∑ V : InfinitePlace E, (V.mult : ℝ) * rowDev (conjExponent S e V.1)
+      = finrank K E * ∑ v : InfinitePlace K, rowDev (e (.inl v)) := by
+    rw [univ_eq_biUnion_placesOverFinset_inf (K := K),
+      Finset.sum_biUnion (pairwiseDisjoint_placesOverFinset_inf univ), Finset.mul_sum]
+    refine Finset.sum_congr rfl fun v _ ↦ ?_
+    have hv0 : (0 : ℝ) ≤ (v.mult : ℝ)⁻¹ := by positivity
+    have hterm : ∀ V ∈ InfinitePlace.placesOverFinset E v,
+        (V.mult : ℝ) * rowDev (conjExponent S e V.1)
+          = (V.mult : ℝ) * ((v.mult : ℝ)⁻¹ * rowDev (e (.inl v))) := fun V hV ↦ by
+      rw [conjExponent_inf S e (InfinitePlace.mem_placesOverFinset.mp hV),
+        ← rowDev_const_mul _ hv0]
+      congr 2
+      funext i
+      rw [div_eq_mul_inv, mul_comm]
+    rw [Finset.sum_congr rfl hterm, ← Finset.sum_mul]
+    have hsum : ∑ V ∈ InfinitePlace.placesOverFinset E v, (V.mult : ℝ)
+        = v.mult * finrank K E := by
+      exact_mod_cast InfinitePlace.sum_mult v
+    have hv : (v.mult : ℝ) ≠ 0 := by exact_mod_cast v.mult_pos.ne'
+    rw [hsum]
+    field_simp
+  have hfin : ∑ V ∈ systemPlacesOver E S, rowDev (conjExponent S e V.1)
+      = finrank K E * ∑ p : S, rowDev (e (.inr p)) := by
+    unfold systemPlacesOver
+    rw [Finset.sum_biUnion (pairwiseDisjoint_placesOverFinset_mk S),
+      Finset.mul_sum, ← Finset.univ_eq_attach]
+    refine Finset.sum_congr rfl fun ⟨p, hp⟩ _ ↦ ?_
+    have hterm : ∀ V ∈ FinitePlace.placesOverFinset E (FinitePlace.mk p),
+        rowDev (conjExponent S e V.1) = (V.localDegree K : ℝ) * rowDev (e (.inr ⟨p, hp⟩)) :=
+      fun V hV ↦ by
+        rw [conjExponent_fin S e hp (FinitePlace.mem_placesOverFinset.mp hV),
+          rowDev_const_mul _ (Nat.cast_nonneg _)]
+    rw [Finset.sum_congr rfl hterm, ← Finset.sum_mul]
+    have hsum : ∑ V ∈ FinitePlace.placesOverFinset E (FinitePlace.mk p), (V.localDegree K : ℝ)
+        = finrank K E := by
+      exact_mod_cast FinitePlace.sum_localDegree (FinitePlace.mk p)
+    rw [hsum]
+  rw [approxDevWeight, hinf, hfin, Fintype.sum_sum_type, mul_add]
 
 /-! ### Independence over `E` -/
 

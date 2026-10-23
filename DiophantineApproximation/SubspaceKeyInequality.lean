@@ -42,6 +42,10 @@ negative weight, which is what produces the contradiction once `D` is large.
 * `NumberField.refFamily`: **the reference family charged by the product formula**: the entries of
   the inverse matrices of the systems of forms at the places of `S`, and the integers of the grid.
 * `NumberField.approxAbsWeight`: the weight of the *absolute values* of a system of exponents.
+* `NumberField.rowDev`, `NumberField.approxDevWeight`: **the deviation of a row of exponents**,
+  `2 (#ι · max c - ∑ c) + max (-max c) 0`, and its weight over the places of `S`: what Layer 5.2's
+  pattern costs once the sum of the ratios is pinned by the multidegree. It is at most
+  Bombieri–Gubler's `2 (#ι - 1) ∑ |c|` (`NumberField.rowDev_le`, `NumberField.approxDevWeight_le`).
 
 ## Main results
 
@@ -50,6 +54,8 @@ negative weight, which is what produces the contradiction once `D` is large.
 * `AbsoluteValue.apply_dual_sum_smul_le` and its nonarchimedean companion: the value of a form at
   a small integral combination.
 * `NumberField.sum_formMatrix_mul`: the matrix of a system of forms computes the forms.
+* `NumberField.subspace_key_inequality_of_sum_le`: **Step VI** with the pattern as one linear
+  bound `∑ j, c v j * ρ j ≤ G v` per place, `D · w(G)` in place of `D · (mean · w(c) + Δ · w(|c|))`.
 * `NumberField.subspace_key_inequality`: **Step VI**, the displayed inequality.
 
 ## Implementation notes
@@ -75,6 +81,10 @@ the *size* of the exponents — as opposed to their sum — enters the proof.
 
 E. Bombieri and W. Gubler, *Heights in Diophantine Geometry*, Cambridge University Press (2006),
 7.5.26.
+
+[Ste26] R. Stephan, *Line counts and a census for the exceptions to `‖(3/2)^n‖ ≥ (3/4)^n`, with an
+application to Waring's problem*, preprint (2026), doi:10.13140/RG.2.2.15019.20008,
+§7.3, item (c): the pattern read per place, with the deviation weight `approxDevWeight`.
 
 This is part of Layer 5.6 of the `DiophantineApproximation` roadmap.
 -/
@@ -210,6 +220,66 @@ theorem approxAbsWeight_nonneg (Sfin : Finset (FinitePlace K))
   · exact mul_nonneg (Nat.cast_nonneg _) (Finset.sum_nonneg fun i _ ↦ abs_nonneg _)
   · exact Finset.sum_nonneg fun i _ ↦ abs_nonneg _
 
+/-- **The deviation of a row of exponents**, `2 (#ι · max c - ∑ c) + max (-max c) 0`. At a place
+with exponents `c` it is what Layer 5.2's pattern costs against the mean `(m + 1) / #ι · ∑ c`, per
+unit of `(m + 1) η`, once the sum of the ratios is pinned by the multidegree
+(`NumberField.PenultimateMinimum.sum_mul_le_of_pattern`). It is at most Bombieri–Gubler's charge
+`2 (#ι - 1) ∑ |c|` (`NumberField.rowDev_le`). See [Ste26], item (c). -/
+def rowDev (c : ι → ℝ) : ℝ :=
+  2 * (Fintype.card ι * (⨆ i, c i) - ∑ i, c i) + max (-⨆ i, c i) 0
+
+omit [DecidableEq ι] in
+/-- **The deviation is at most Bombieri–Gubler's charge** `2 n ∑ |c|`, `#ι = n + 1`. -/
+theorem rowDev_le [Nonempty ι] {n : ℕ} (hn : 1 ≤ n) (hcard : Fintype.card ι = n + 1)
+    (c : ι → ℝ) : rowDev c ≤ 2 * n * ∑ i, |c i| := by
+  classical
+  obtain ⟨k, hk⟩ := exists_eq_ciSup_of_finite (f := c)
+  have hsum := Finset.add_sum_erase Finset.univ c (Finset.mem_univ k)
+  have habs := Finset.add_sum_erase Finset.univ (fun i ↦ |c i|) (Finset.mem_univ k)
+  have hneg : ∑ i ∈ Finset.univ.erase k, -c i ≤ ∑ i ∈ Finset.univ.erase k, |c i| :=
+    Finset.sum_le_sum fun i _ ↦ neg_le_abs _
+  have h0 : 0 ≤ ∑ i ∈ Finset.univ.erase k, |c i| :=
+    Finset.sum_nonneg fun i _ ↦ abs_nonneg _
+  rw [Finset.sum_neg_distrib] at hneg
+  have hnR : (1 : ℝ) ≤ n := by exact_mod_cast hn
+  have hn0 : 0 ≤ ((n : ℝ) - 1) * ∑ i ∈ Finset.univ.erase k, |c i| :=
+    mul_nonneg (by linarith) h0
+  rw [rowDev, ← hk, hcard, ← hsum, ← habs]
+  push_cast
+  rcases le_total 0 (c k) with h | h
+  · rw [max_eq_right (by linarith), abs_of_nonneg h]
+    nlinarith
+  · rw [max_eq_left (by linarith), abs_of_nonpos h]
+    nlinarith
+
+omit [DecidableEq ι] in
+/-- The deviation is positively homogeneous. -/
+theorem rowDev_const_mul (c : ι → ℝ) {k : ℝ} (hk : 0 ≤ k) :
+    rowDev (fun i ↦ k * c i) = k * rowDev c := by
+  rw [rowDev, rowDev, ← Real.mul_iSup_of_nonneg hk, ← Finset.mul_sum]
+  have h : max (-(k * ⨆ i, c i)) 0 = k * max (-⨆ i, c i) 0 := by
+    rw [mul_max_of_nonneg _ _ hk, mul_zero, mul_neg]
+  rw [h]
+  ring
+
+/-- **The weight of the deviations of a system of exponents**, `∑_v mult v · rowDev (c v)` over
+the places of `S`: the deviation weight of [Ste26], item (c), the second argument of the minimum
+in (11) there. -/
+def approxDevWeight (Sfin : Finset (FinitePlace K)) (c : AbsoluteValue K ℝ → ι → ℝ) : ℝ :=
+  ∑ v : InfinitePlace K, (v.mult : ℝ) * rowDev (c v.1) + ∑ v ∈ Sfin, rowDev (c v.1)
+
+omit [DecidableEq ι] in
+/-- **The weight of the deviations is at most Bombieri–Gubler's** `2 n w(|c|)`. -/
+theorem approxDevWeight_le [Nonempty ι] {n : ℕ} (hn : 1 ≤ n) (hcard : Fintype.card ι = n + 1)
+    (Sfin : Finset (FinitePlace K)) (c : AbsoluteValue K ℝ → ι → ℝ) :
+    approxDevWeight Sfin c ≤ 2 * n * approxAbsWeight Sfin c := by
+  rw [approxDevWeight, approxAbsWeight, mul_add, Finset.mul_sum, Finset.mul_sum]
+  refine add_le_add (Finset.sum_le_sum fun v _ ↦ ?_)
+    (Finset.sum_le_sum fun v _ ↦ rowDev_le hn hcard _)
+  calc (v.mult : ℝ) * rowDev (c v.1) ≤ (v.mult : ℝ) * (2 * n * ∑ i, |c v.1 i|) :=
+        mul_le_mul_of_nonneg_left (rowDev_le hn hcard _) (Nat.cast_nonneg _)
+    _ = 2 * n * ((v.mult : ℝ) * ∑ i, |c v.1 i|) := by ring
+
 
 /-- The places of `S`: every infinite place and the chosen finite ones. -/
 def sPlace (Sfin : Finset (FinitePlace K)) :
@@ -297,8 +367,13 @@ open MvPolynomial Height
 
 variable {κ ρ : Type*} [Fintype κ] [Fintype ρ] [Nonempty ρ] [Nonempty ι]
 
-/-- **Step VI of the proof of Theorem 7.5.13: the product formula against the local bounds.** -/
-theorem subspace_key_inequality
+/-- **Step VI of the proof of Theorem 7.5.13, with the pattern as a linear bound per place**: if
+every surviving coefficient `J` of `∂_I P` in the coordinates of the forms at a place `v` of `S`
+has `∑ j, c v j * ∑ h, J (h, j) / d h ≤ G v`, the product formula against the local bounds gives
+`0 ≤ tw · log C + h(P) + 2 |d| · H(β) + D · w(G) + (∑ h, log (Q h)) · w(|c|)`, where `w(G)` is the
+weight of `G` over the places of `S`. Bombieri–Gubler's two-sided reading of the pattern is
+`NumberField.subspace_key_inequality`; the per-place reading is [Ste26], item (c). -/
+theorem subspace_key_inequality_of_sum_le
     {Sfin : Finset (FinitePlace K)} {L : AbsoluteValue K ℝ → ι → Dual K (ι → K)}
     {cf : AbsoluteValue K ℝ → ι → ℝ}
     (hLinf : ∀ w : InfinitePlace K, LinearIndependent K (L w.1))
@@ -312,16 +387,16 @@ theorem subspace_key_inequality
     {P : MvPolynomial (κ × ι) K} (hP0 : P ≠ 0) (hP : IsMultiHomogeneous d P)
     {I : κ × ι →₀ ℕ}
     (hne : eval (fun p : κ × ι ↦ ∑ l, (z p.1 l : K) * y p.1 l p.2) (hasseDeriv I P) ≠ 0)
-    {Δ mean : ℝ}
+    (G : AbsoluteValue K ℝ → ℝ)
     (hpat : ∀ (a : InfinitePlace K ⊕ ↥Sfin) (J : κ × ι →₀ ℕ),
       (blockSubst (formMatrix L (sPlace Sfin a))⁻¹ (hasseDeriv I P)).coeff J ≠ 0 →
-      ∀ j, |(∑ h, (J (h, j) : ℝ) / (d h : ℝ)) - mean| ≤ Δ) :
+      ∑ j, cf (sPlace Sfin a) j * ∑ h, (J (h, j) : ℝ) / (d h : ℝ) ≤ G (sPlace Sfin a)) :
     0 ≤ (Height.totalWeight K : ℝ)
         * Real.log ((∏ p : κ × ι, ((d p.1 : ℝ) + 1)) ^ 2
           * (2 * Fintype.card ι * Fintype.card ρ : ℝ) ^ (∑ h, d h))
       + P.logHeight
       + 2 * ((∑ h, d h : ℕ) : ℝ) * ∑ θ, Real.log (Height.mulHeight₁ (refFamily L Sfin B θ))
-      + D * (mean * approxWeight Sfin cf + Δ * approxAbsWeight Sfin cf)
+      + D * (∑ v : InfinitePlace K, (v.mult : ℝ) * G v.1 + ∑ v ∈ Sfin, G v.1)
       + (∑ h, Real.log (Q h)) * approxAbsWeight Sfin cf := by
   classical
   set Dsum := ∑ h, d h with hDsum
@@ -333,7 +408,7 @@ theorem subspace_key_inequality
   set Pb : AbsoluteValue K ℝ → ℝ := fun v ↦ ∏ θ, max (v (β θ)) 1 with hPbdef
   set q : κ → ℝ := fun h ↦ Real.log (Q h) with hqdef
   set gain : AbsoluteValue K ℝ → ℝ := fun v ↦
-    Real.exp (D * (mean * ∑ j, cf v j + Δ * ∑ j, |cf v j|) + (∑ h, q h) * ∑ j, |cf v j|)
+    Real.exp (D * G v + (∑ h, q h) * ∑ j, |cf v j|)
     with hgaindef
   set C : ℝ := (∏ p : κ × ι, ((d p.1 : ℝ) + 1)) ^ 2
       * (2 * Fintype.card ι * Fintype.card ρ : ℝ) ^ Dsum with hCdef
@@ -376,7 +451,7 @@ theorem subspace_key_inequality
   -- the pattern at a place of `S`
   have hJc : ∀ (a : InfinitePlace K ⊕ ↥Sfin),
       ∀ J ∈ (blockSubst (formMatrix L (sPlace Sfin a))⁻¹ (hasseDeriv I P)).support,
-        ∀ j, |(∑ h, (J (h, j) : ℝ) / (d h : ℝ)) - mean| ≤ Δ :=
+        ∑ j, cf (sPlace Sfin a) j * ∑ h, (J (h, j) : ℝ) / (d h : ℝ) ≤ G (sPlace Sfin a) :=
     fun a J hJ ↦ hpat a J (mem_support_iff.mp hJ)
   set t : FinitePlace K → ℝ := fun v ↦ if v ∈ Sfin then gain v.1 else 1 with htdef
   have hprodpow : ∀ v : AbsoluteValue K ℝ,
@@ -462,35 +537,75 @@ theorem subspace_key_inequality
       ring
     rw [Finset.sum_congr rfl fun θ _ ↦ hterm θ, ← Finset.mul_sum]
   have e1 : ∀ v : AbsoluteValue K ℝ, Real.log (gain v)
-      = D * mean * (∑ j, cf v j) + (D * Δ + ∑ h, q h) * ∑ j, |cf v j| := by
+      = D * G v + (∑ h, q h) * ∑ j, |cf v j| := by
     intro v
     simp only [hgaindef, Real.log_exp]
-    ring
   have hL4 : Real.log ((∏ w : InfinitePlace K, gain w.1 ^ w.mult) * ∏ v ∈ Sfin, t v)
-      = D * (mean * approxWeight Sfin cf + Δ * approxAbsWeight Sfin cf)
+      = D * (∑ v : InfinitePlace K, (v.mult : ℝ) * G v.1 + ∑ v ∈ Sfin, G v.1)
         + (∑ h, q h) * approxAbsWeight Sfin cf := by
     rw [Real.log_mul (Finset.prod_pos fun w _ ↦ pow_pos (hgpos w.1) _).ne'
         (Finset.prod_pos fun v hv ↦ htpos v hv).ne',
       Real.log_prod fun w _ ↦ (pow_pos (hgpos w.1) _).ne',
       Real.log_prod fun v hv ↦ (htpos v hv).ne']
     have e2 : ∑ w : InfinitePlace K, Real.log (gain w.1 ^ w.mult)
-        = D * mean * (∑ w : InfinitePlace K, (w.mult : ℝ) * ∑ j, cf w.1 j)
-          + (D * Δ + ∑ h, q h) * ∑ w : InfinitePlace K, (w.mult : ℝ) * ∑ j, |cf w.1 j| := by
+        = D * (∑ w : InfinitePlace K, (w.mult : ℝ) * G w.1)
+          + (∑ h, q h) * ∑ w : InfinitePlace K, (w.mult : ℝ) * ∑ j, |cf w.1 j| := by
       rw [Finset.mul_sum, Finset.mul_sum, ← Finset.sum_add_distrib]
       refine Finset.sum_congr rfl fun w _ ↦ ?_
       rw [Real.log_pow, e1]
       ring
     have e3 : ∑ v ∈ Sfin, Real.log (t v)
-        = D * mean * (∑ v ∈ Sfin, ∑ j, cf v.1 j)
-          + (D * Δ + ∑ h, q h) * ∑ v ∈ Sfin, ∑ j, |cf v.1 j| := by
+        = D * (∑ v ∈ Sfin, G v.1) + (∑ h, q h) * ∑ v ∈ Sfin, ∑ j, |cf v.1 j| := by
       rw [Finset.mul_sum, Finset.mul_sum, ← Finset.sum_add_distrib]
       refine Finset.sum_congr rfl fun v hv ↦ ?_
       have htv : t v = gain v.1 := by rw [htdef]; simp only [hv, ite_true]
       rw [htv, e1]
-    rw [e2, e3, approxWeight, approxAbsWeight]
+    rw [e2, e3, approxAbsWeight]
     ring
   rw [hL1, hL2, hL3, hL4] at hlog
   linarith
+
+/-- **Step VI of the proof of Theorem 7.5.13: the product formula against the local bounds.**
+Bombieri–Gubler's reading of the pattern: every surviving `J` has `∑ h, J (h, j) / d h` within
+`Δ` of `mean` for every `j`. -/
+theorem subspace_key_inequality
+    {Sfin : Finset (FinitePlace K)} {L : AbsoluteValue K ℝ → ι → Dual K (ι → K)}
+    {cf : AbsoluteValue K ℝ → ι → ℝ}
+    (hLinf : ∀ w : InfinitePlace K, LinearIndependent K (L w.1))
+    (hLfin : ∀ w ∈ Sfin, LinearIndependent K (L w.1))
+    {Q : κ → ℝ} (hQ : ∀ h, 1 < Q h)
+    {y : κ → ρ → ι → K} (hy : ∀ h l, y h l ∈ approxDomain Sfin L cf (Q h))
+    {B : ℕ} {z : κ → ρ → ℤ} (hz : ∀ h l, (z h l).natAbs ≤ B)
+    {d : κ → ℕ} (hd : ∀ h, 0 < d h) {D : ℝ} (hD : 0 ≤ D)
+    (hdq : ∀ h, D ≤ (d h : ℝ) * Real.log (Q h))
+    (hdq' : ∀ h, (d h : ℝ) * Real.log (Q h) ≤ D + Real.log (Q h))
+    {P : MvPolynomial (κ × ι) K} (hP0 : P ≠ 0) (hP : IsMultiHomogeneous d P)
+    {I : κ × ι →₀ ℕ}
+    (hne : eval (fun p : κ × ι ↦ ∑ l, (z p.1 l : K) * y p.1 l p.2) (hasseDeriv I P) ≠ 0)
+    {Δ mean : ℝ}
+    (hpat : ∀ (a : InfinitePlace K ⊕ ↥Sfin) (J : κ × ι →₀ ℕ),
+      (blockSubst (formMatrix L (sPlace Sfin a))⁻¹ (hasseDeriv I P)).coeff J ≠ 0 →
+      ∀ j, |(∑ h, (J (h, j) : ℝ) / (d h : ℝ)) - mean| ≤ Δ) :
+    0 ≤ (Height.totalWeight K : ℝ)
+        * Real.log ((∏ p : κ × ι, ((d p.1 : ℝ) + 1)) ^ 2
+          * (2 * Fintype.card ι * Fintype.card ρ : ℝ) ^ (∑ h, d h))
+      + P.logHeight
+      + 2 * ((∑ h, d h : ℕ) : ℝ) * ∑ θ, Real.log (Height.mulHeight₁ (refFamily L Sfin B θ))
+      + D * (mean * approxWeight Sfin cf + Δ * approxAbsWeight Sfin cf)
+      + (∑ h, Real.log (Q h)) * approxAbsWeight Sfin cf := by
+  have h := subspace_key_inequality_of_sum_le hLinf hLfin hQ hy hz hd hD hdq hdq' hP0 hP hne
+    (fun v ↦ mean * ∑ j, cf v j + Δ * ∑ j, |cf v j|)
+    fun a J hJ ↦ MvPolynomial.sum_mul_le_of_abs_sub_le (hpat a J hJ)
+  have e : ∑ v : InfinitePlace K, (v.mult : ℝ) * (mean * ∑ j, cf v.1 j + Δ * ∑ j, |cf v.1 j|)
+      + ∑ v ∈ Sfin, (mean * ∑ j, cf v.1 j + Δ * ∑ j, |cf v.1 j|)
+      = mean * approxWeight Sfin cf + Δ * approxAbsWeight Sfin cf := by
+    have h1 : ∀ v : InfinitePlace K,
+        (v.mult : ℝ) * (mean * ∑ j, cf v.1 j + Δ * ∑ j, |cf v.1 j|)
+          = mean * ((v.mult : ℝ) * ∑ j, cf v.1 j) + Δ * ((v.mult : ℝ) * ∑ j, |cf v.1 j|) :=
+      fun v ↦ by ring
+    simp only [approxWeight, approxAbsWeight, h1, Finset.sum_add_distrib, ← Finset.mul_sum]
+    ring
+  rwa [e] at h
 
 
 

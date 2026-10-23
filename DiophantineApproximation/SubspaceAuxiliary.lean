@@ -57,9 +57,15 @@ is `MvPolynomial.coeff_blockSubst_hasseDeriv_eq_zero`.
   produces and the polynomial the milestone is about.
 * `MvPolynomial.exists_ne_zero_isMultiHomogeneous_coeff_blockSubst_eq_zero`: **Siegel's lemma in
   the multihomogeneous setting** — at most half as many linear conditions as monomials give a
-  nonzero multihomogeneous solution of logarithmic height `O (∑ h, d h)`.
+  nonzero multihomogeneous solution of logarithmic height `O (∑ h, d h)`;
+  `…_of_exponent`: at most `q / (q + 1)` as many conditions, at `q` times the degree part of the
+  height.
 * `MvPolynomial.exists_ne_zero_isMultiHomogeneous_forall_coeff_blockSubst_hasseDeriv_eq_zero`:
   **the milestone**, Lemma 7.5.15.
+* `exists_ne_zero_isMultiHomogeneous_hasseDeriv_eq_zero_of_layerRate`:
+  the same under the weaker condition `log ((q + 1) / q · |F|) < |κ| · layerRate n η`, the
+  variance form of the Chernoff bound (four times the book's rate at `n = 1` for small `η`) with
+  Siegel's lemma at the exponent `q` (the book's `q = 1` gives `log (2 |F|)`).
 
 ## Implementation notes
 
@@ -120,6 +126,11 @@ therefore compared separately here (`finprod_le_finprod₀`, `finprod_pow`, `fin
 
 E. Bombieri and W. Gubler, *Heights in Diophantine Geometry*, Cambridge University Press (2006),
 (7.5.14), Lemma 7.5.15 and (7.20)–(7.25).
+
+[Ste26] R. Stephan, *Line counts and a census for the exceptions to `‖(3/2)^n‖ ≥ (3/4)^n`, with an
+application to Waring's problem*, preprint (2026), doi:10.13140/RG.2.2.15019.20008,
+§7.3, items (e)–(g) and (12): the form count, Siegel's lemma at the exponent `q` (`ν` there) and the
+variance form of the Chernoff bound.
 
 This is Layer 5.2 of the `DiophantineApproximation` roadmap.
 -/
@@ -782,21 +793,24 @@ section Siegel
 
 variable [NumberField K] {ρ : Type*} [Finite ρ] {d : κ → ℕ}
 
-/-- **Siegel's lemma in the multihomogeneous setting.** Given finitely many conditions, each of
-them the vanishing of one coefficient of the polynomial read in one system of coordinates, and
-at most half as many conditions as monomials of multidegree `d`, there is a nonzero
-multihomogeneous polynomial of multidegree `d` satisfying all of them, of logarithmic height a
-constant times `∑ h, d h`. -/
-theorem exists_ne_zero_isMultiHomogeneous_coeff_blockSubst_eq_zero [Nonempty ι]
+/-- **Siegel's lemma in the multihomogeneous setting, at the exponent `q`.** Given finitely many
+conditions, each of them the vanishing of one coefficient of the polynomial read in one system of
+coordinates, and at most the fraction `q / (q + 1)` as many conditions as monomials of
+multidegree `d`, there is a nonzero multihomogeneous polynomial of multidegree `d` satisfying all
+of them, of logarithmic height `log |D_K| / 2` plus `q` times a constant times `∑ h, d h`. The
+exponent `q = 1` is the usual "at most half as many conditions as unknowns" ([Ste26], item (f)).
+-/
+theorem exists_ne_zero_isMultiHomogeneous_coeff_blockSubst_eq_zero_of_exponent [Nonempty ι]
     {Row : Type*} [Fintype Row] (Mat : Row → Matrix ι ι K) (Nrow : Row → (κ × ι →₀ ℕ))
     {y : ρ → K} (hy : y ≠ 0)
     (hMy : ∀ (r : Row) (w : AbsoluteValue K ℝ),
       (⨆ p : ι × ι, w (Mat r p.1 p.2)) ⊔ 1 ≤ ⨆ s, w (y s))
-    (hrow : 2 * (Fintype.card Row : ℝ) ≤ #(multiMons (ι := ι) d)) :
+    {q : ℝ} (hq : 0 < q)
+    (hrow : (q + 1) * (Fintype.card Row : ℝ) ≤ q * #(multiMons (ι := ι) d)) :
     ∃ P : MvPolynomial (κ × ι) K, P ≠ 0 ∧ IsMultiHomogeneous d P ∧
       (∀ r : Row, (blockSubst (Mat r) P).coeff (Nrow r) = 0) ∧
       P.logHeight ≤ 2⁻¹ * Real.log |(NumberField.discr K : ℝ)|
-        + ((Module.finrank ℚ K : ℝ) / 2 * Fintype.card ι
+        + q * ((Module.finrank ℚ K : ℝ) / 2 * Fintype.card ι
             + Height.totalWeight K * Real.log (Fintype.card ι)
             + Real.log (Height.mulHeight y)) * ∑ h, (d h : ℝ) := by
   classical
@@ -820,10 +834,10 @@ theorem exists_ne_zero_isMultiHomogeneous_coeff_blockSubst_eq_zero [Nonempty ι]
   have hrankR : (Acond.rank : ℝ) ≤ (Fintype.card Row : ℝ) := by
     rw [← hNr]; exact_mod_cast hrankNr
   have hMM0 : (0 : ℝ) < (MM : ℝ) := by exact_mod_cast hMMpos
-  have hMM2 : 2 * (Acond.rank : ℝ) ≤ (MM : ℝ) := by
-    rw [hMMcard]; linarith
+  have hMM2 : (q + 1) * (Acond.rank : ℝ) ≤ q * (MM : ℝ) := by
+    rw [hMMcard]; nlinarith
   have hfeas : Acond.rank < Fintype.card (multiMons (ι := ι) d) := by
-    have h : (Acond.rank : ℝ) < (MM : ℝ) := by linarith
+    have h : (Acond.rank : ℝ) < (MM : ℝ) := by nlinarith
     exact_mod_cast h
   obtain ⟨x, hx0, hxker, -, hxle⟩ :=
     NumberField.exists_ne_zero_mem_ker_absMulHeight_le Acond hfeas
@@ -884,17 +898,17 @@ theorem exists_ne_zero_isMultiHomogeneous_coeff_blockSubst_eq_zero [Nonempty ι]
           (show (0 : ℝ) ≤ (dK)⁻¹ by positivity)
         rwa [Real.rpow_zero] at h
       nlinarith
-    have hexp : (Acond.rank : ℝ) / ((MM : ℝ) - Acond.rank) ≤ 1 := by
-      rw [div_le_one (by linarith)]
+    have hrankMM : (Acond.rank : ℝ) < (MM : ℝ) := by nlinarith
+    have hexp : (Acond.rank : ℝ) / ((MM : ℝ) - Acond.rank) ≤ q := by
+      rw [div_le_iff₀ (by linarith)]
       linarith
     have hpow : (Real.sqrt (MM : ℝ) * Acond.mulHeight ^ (dK)⁻¹)
           ^ ((Acond.rank : ℝ) / ((MM : ℝ) - Acond.rank))
-        ≤ Real.sqrt (MM : ℝ) * Acond.mulHeight ^ (dK)⁻¹ := by
-      have h := Real.rpow_le_rpow_of_exponent_le hB1 hexp
-      rwa [Real.rpow_one] at h
+        ≤ (Real.sqrt (MM : ℝ) * Acond.mulHeight ^ (dK)⁻¹) ^ q :=
+      Real.rpow_le_rpow_of_exponent_le hB1 hexp
     have hfinal : P.mulHeight ^ (dK)⁻¹
         ≤ |(NumberField.discr K : ℝ)| ^ (2 * dK : ℝ)⁻¹
-          * (Real.sqrt (MM : ℝ) * Acond.mulHeight ^ (dK)⁻¹) := by
+          * (Real.sqrt (MM : ℝ) * Acond.mulHeight ^ (dK)⁻¹) ^ q := by
       rw [← habs]
       refine hxle.trans ?_
       rw [hMMdef]
@@ -903,7 +917,8 @@ theorem exists_ne_zero_isMultiHomogeneous_coeff_blockSubst_eq_zero [Nonempty ι]
     have hlog := Real.log_le_log (Real.rpow_pos_of_pos (MvPolynomial.mulHeight_pos P) _) hfinal
     rw [Real.log_rpow (MvPolynomial.mulHeight_pos P),
       Real.log_mul (Real.rpow_pos_of_pos hdisc0 _).ne' (by positivity),
-      Real.log_rpow hdisc0, Real.log_mul (by positivity) (by positivity),
+      Real.log_rpow hdisc0, Real.log_rpow (by positivity),
+      Real.log_mul (by positivity) (by positivity),
       Real.log_sqrt (le_of_lt hMM0), Real.log_rpow (by linarith)] at hlog
     have hlogMM : Real.log (MM : ℝ) ≤ (Fintype.card ι : ℝ) * (D : ℝ) := by
       have h : Real.log ((#(multiMons (ι := ι) d) : ℕ) : ℝ)
@@ -917,14 +932,42 @@ theorem exists_ne_zero_isMultiHomogeneous_coeff_blockSubst_eq_zero [Nonempty ι]
     have hmul := mul_le_mul_of_nonneg_left hlog (le_of_lt hdK0)
     rw [← mul_assoc, mul_inv_cancel₀ hdK0.ne', one_mul] at hmul
     have hexpand : dK * ((2 * dK : ℝ)⁻¹ * Real.log |(NumberField.discr K : ℝ)|
-          + (Real.log (MM : ℝ) / 2 + (dK)⁻¹ * Real.log Acond.mulHeight))
+          + q * (Real.log (MM : ℝ) / 2 + (dK)⁻¹ * Real.log Acond.mulHeight))
         = 2⁻¹ * Real.log |(NumberField.discr K : ℝ)|
-          + (dK / 2 * Real.log (MM : ℝ) + Real.log Acond.mulHeight) := by
+          + q * (dK / 2 * Real.log (MM : ℝ) + Real.log Acond.mulHeight) := by
       field_simp
     rw [hexpand] at hmul
     have h1 : dK / 2 * Real.log (MM : ℝ) ≤ dK / 2 * ((Fintype.card ι : ℝ) * (D : ℝ)) :=
       mul_le_mul_of_nonneg_left hlogMM (by positivity)
-    nlinarith [hmul, hlogA, h1]
+    have h2 : q * (dK / 2 * Real.log (MM : ℝ) + Real.log Acond.mulHeight)
+        ≤ q * (dK / 2 * ((Fintype.card ι : ℝ) * (D : ℝ))
+          + (Height.totalWeight K * ((D : ℝ) * Real.log (Fintype.card ι))
+            + (D : ℝ) * Real.log (Height.mulHeight y))) :=
+      mul_le_mul_of_nonneg_left (by linarith) hq.le
+    nlinarith [hmul, h2]
+
+/-- **Siegel's lemma in the multihomogeneous setting.** Given finitely many conditions, each of
+them the vanishing of one coefficient of the polynomial read in one system of coordinates, and
+at most half as many conditions as monomials of multidegree `d`, there is a nonzero
+multihomogeneous polynomial of multidegree `d` satisfying all of them, of logarithmic height a
+constant times `∑ h, d h`. This is
+`exists_ne_zero_isMultiHomogeneous_coeff_blockSubst_eq_zero_of_exponent` at `q = 1`. -/
+theorem exists_ne_zero_isMultiHomogeneous_coeff_blockSubst_eq_zero [Nonempty ι]
+    {Row : Type*} [Fintype Row] (Mat : Row → Matrix ι ι K) (Nrow : Row → (κ × ι →₀ ℕ))
+    {y : ρ → K} (hy : y ≠ 0)
+    (hMy : ∀ (r : Row) (w : AbsoluteValue K ℝ),
+      (⨆ p : ι × ι, w (Mat r p.1 p.2)) ⊔ 1 ≤ ⨆ s, w (y s))
+    (hrow : 2 * (Fintype.card Row : ℝ) ≤ #(multiMons (ι := ι) d)) :
+    ∃ P : MvPolynomial (κ × ι) K, P ≠ 0 ∧ IsMultiHomogeneous d P ∧
+      (∀ r : Row, (blockSubst (Mat r) P).coeff (Nrow r) = 0) ∧
+      P.logHeight ≤ 2⁻¹ * Real.log |(NumberField.discr K : ℝ)|
+        + ((Module.finrank ℚ K : ℝ) / 2 * Fintype.card ι
+            + Height.totalWeight K * Real.log (Fintype.card ι)
+            + Real.log (Height.mulHeight y)) * ∑ h, (d h : ℝ) := by
+  obtain ⟨P, hP0, hP, hc, hh⟩ :=
+    exists_ne_zero_isMultiHomogeneous_coeff_blockSubst_eq_zero_of_exponent Mat Nrow hy hMy
+      one_pos (by linarith)
+  exact ⟨P, hP0, hP, hc, by linarith⟩
 
 end Siegel
 
@@ -949,6 +992,30 @@ theorem card_le_of_subset_multiMons {n : ℕ} (hn : 1 ≤ n) (hcard : Fintype.ca
   rw [show #E = #(E.map (blockSplit (κ := κ) (ι := ι)).toEmbedding) from (Finset.card_map _).symm,
     card_multiMons]
   refine Finset.card_le_of_subset_eta hn hcard i₀ d hd hη _ (fun J hJ ↦ ?_) fun J hJ ↦ ?_
+  · rw [Finset.mem_map_equiv] at hJ
+    have h := mem_multiMons_iff_blockSplit_mem.mp (hE hJ)
+    rwa [Equiv.apply_symm_apply] at h
+  · rw [Finset.mem_map_equiv] at hJ
+    have h := hEθ _ hJ
+    rwa [Finset.sum_congr rfl fun t _ ↦ by rw [hval J t]] at h
+
+/-- **The Chernoff bound of `Finset.card_le_of_subset_layerRate`, read on `multiMons`.** -/
+theorem card_le_of_subset_multiMons_layerRate {n : ℕ} (hn : 1 ≤ n)
+    (hcard : Fintype.card ι = n + 1)
+    (i₀ : ι) {d : κ → ℕ} (hd : ∀ h, 1 ≤ d h) {η : ℝ} (hη : 0 ≤ η)
+    (E : Finset (κ × ι →₀ ℕ)) (hE : E ⊆ multiMons d)
+    (hEθ : ∀ N ∈ E, ∑ h, (N (h, i₀) : ℝ) / (d h : ℝ)
+      ≤ Fintype.card κ / ((n : ℝ) + 1) - Fintype.card κ * η) :
+    (#E : ℝ) ≤ #(multiMons (ι := ι) d) *
+      Real.exp (-(Fintype.card κ * Finset.layerRate n η)
+        + Finset.layerError n η * ∑ h, ((d h : ℝ))⁻¹) := by
+  have hval : ∀ (J : κ → ι →₀ ℕ) (h : κ),
+      (blockSplit.symm J : κ × ι →₀ ℕ) (h, i₀) = J h i₀ := by
+    intro J h
+    rw [← blockSplit_apply, Equiv.apply_symm_apply]
+  rw [show #E = #(E.map (blockSplit (κ := κ) (ι := ι)).toEmbedding) from (Finset.card_map _).symm,
+    card_multiMons]
+  refine Finset.card_le_of_subset_layerRate hn hcard i₀ d hd hη _ (fun J hJ ↦ ?_) fun J hJ ↦ ?_
   · rw [Finset.mem_map_equiv] at hJ
     have h := mem_multiMons_iff_blockSplit_mem.mp (hE hJ)
     rwa [Equiv.apply_symm_apply] at h
@@ -999,16 +1066,20 @@ Hasse derivative of `P` read in any of the coordinate systems `A v` again has lo
 at most `C₃ ∑ h, d h`, and such that the coefficient of the monomial `J` in that derivative
 vanishes whenever the order `I` is small and one of the exponents of `J` is far from its mean
 `∑ h, d h / (n + 1)`. The number of blocks is measured against the number of distinct forms: `F`
-indexes rows `rep f` of the matrices, every row of every `A v` being one of them. -/
-theorem exists_ne_zero_isMultiHomogeneous_forall_coeff_blockSubst_hasseDeriv_eq_zero
+indexes rows `rep f` of the matrices, every row of every `A v` being one of them, and the
+condition is `log ((q + 1) / q · |F|) < |κ| · layerRate n η`, the rate of
+`Finset.card_le_of_subset_layerRate` (the variance form of the book's Chernoff bound). The
+exponent `q > 0` is Siegel's: the conditions are at most `q / (q + 1)` of the unknowns, and the
+height constant `C₂` carries `q` on its degree part. The book's choice is `q = 1`. At `n = 1`
+the condition is (12) of [Ste26], items (e)–(g). -/
+theorem exists_ne_zero_isMultiHomogeneous_hasseDeriv_eq_zero_of_layerRate
     [Nonempty ι] [Nonempty κ] {n : ℕ} (hn : 1 ≤ n) (hcard : Fintype.card ι = n + 1)
     {S : Type*} [Finite S] [Nonempty S] (A : S → Matrix ι ι K) (hA : ∀ v, IsUnit (A v).det)
     {F : Type*} [Fintype F] (rep : F → S × ι) (hrep : ∀ v i, ∃ f, A (rep f).1 (rep f).2 = A v i)
-    {η : ℝ} (hη : 0 < η)
-    (hm : 4 * Real.log (2 * Fintype.card F)
-      < ((n : ℝ) + 1) * ((n : ℝ) + 2) * η ^ 2 * Fintype.card κ) :
+    {η q : ℝ} (hη : 0 < η) (hq : 0 < q)
+    (hm : Real.log ((q + 1) / q * Fintype.card F) < Fintype.card κ * Finset.layerRate n η) :
     ∃ C₂ C₃ : ℝ, C₂ = 2⁻¹ * Real.log |(NumberField.discr K : ℝ)|
-        + ((Module.finrank ℚ K : ℝ) / 2 * Fintype.card ι
+        + q * ((Module.finrank ℚ K : ℝ) / 2 * Fintype.card ι
           + Height.totalWeight K * Real.log (Fintype.card ι)
           + Real.log (Height.mulHeight
               (Sum.elim (fun p : S × ι × ι ↦ ((A p.1)⁻¹) p.2.1 p.2.2) (fun _ : Unit ↦ (1 : K))))) ∧
@@ -1059,17 +1130,16 @@ theorem exists_ne_zero_isMultiHomogeneous_forall_coeff_blockSubst_hasseDeriv_eq_
       _ = |(NumberField.discr K : ℝ)| := by push_cast; rfl
   -- the degree threshold
   obtain ⟨D₀, hD₀1, hD₀⟩ := exists_forall_sum_inv_le (κ := κ)
-    (c := (η * ((n : ℝ) + 1) * ((n : ℝ) + 2) / 2) ^ 2 / (2 * ((n : ℝ) + 1)))
-    (θ := ((n : ℝ) + 1) * ((n : ℝ) + 2) * η ^ 2 * Fintype.card κ / 4
-      - Real.log (2 * Fintype.card F))
-    (by positivity) (by linarith)
+    (c := Finset.layerError n η)
+    (θ := Fintype.card κ * Finset.layerRate n η - Real.log ((q + 1) / q * Fintype.card F))
+    (le_max_of_le_left (by positivity)) (by linarith)
   refine ⟨2⁻¹ * Real.log |(NumberField.discr K : ℝ)|
-      + ((Module.finrank ℚ K : ℝ) / 2 * Fintype.card ι
+      + q * ((Module.finrank ℚ K : ℝ) / 2 * Fintype.card ι
           + Height.totalWeight K * Real.log (Fintype.card ι)
           + Real.log (Height.mulHeight y)),
     Height.totalWeight K * ((Fintype.card ι : ℝ) + Real.log 2 + Real.log (Fintype.card ι))
       + (2⁻¹ * Real.log |(NumberField.discr K : ℝ)|
-        + ((Module.finrank ℚ K : ℝ) / 2 * Fintype.card ι
+        + q * ((Module.finrank ℚ K : ℝ) / 2 * Fintype.card ι
             + Height.totalWeight K * Real.log (Fintype.card ι)
             + Real.log (Height.mulHeight y)))
       + Real.log (Height.mulHeight y), rfl, D₀, fun d hd ↦ ?_⟩
@@ -1093,47 +1163,48 @@ theorem exists_ne_zero_isMultiHomogeneous_forall_coeff_blockSubst_hasseDeriv_eq_
   have hcS0 : (0 : ℝ) < (Fintype.card F : ℝ) := by exact_mod_cast Fintype.card_pos
   have hcιn : (Fintype.card ι : ℝ) = (n : ℝ) + 1 := by rw [hcard]; push_cast; ring
   have hbad : ∀ i₀ : ι, (#(Bad i₀) : ℝ)
-      ≤ #(multiMons (ι := ι) d) * (2 * (Fintype.card F : ℝ))⁻¹ := by
+      ≤ #(multiMons (ι := ι) d) * ((q + 1) / q * (Fintype.card F : ℝ))⁻¹ := by
     intro i₀
-    refine (card_le_of_subset_multiMons hn hcard i₀ hd1 hη.le _
+    refine (card_le_of_subset_multiMons_layerRate hn hcard i₀ hd1 hη.le _
       (fun N hN ↦ ((hBad i₀ N).mp hN).1) (fun N hN ↦ ((hBad i₀ N).mp hN).2)).trans ?_
     refine mul_le_mul_of_nonneg_left ?_ (Nat.cast_nonneg _)
-    have hexp : -(((n : ℝ) + 1) * ((n : ℝ) + 2) * η ^ 2 * Fintype.card κ / 4)
-        + (η * ((n : ℝ) + 1) * ((n : ℝ) + 2) / 2) ^ 2 / (2 * ((n : ℝ) + 1))
-          * ∑ h, ((d h : ℝ))⁻¹
-        ≤ -Real.log (2 * (Fintype.card F : ℝ)) := by
+    have hexp : -(Fintype.card κ * Finset.layerRate n η)
+        + Finset.layerError n η * ∑ h, ((d h : ℝ))⁻¹
+        ≤ -Real.log ((q + 1) / q * (Fintype.card F : ℝ)) := by
       linarith [hD₀ d hd]
-    calc Real.exp (-(((n : ℝ) + 1) * ((n : ℝ) + 2) * η ^ 2 * Fintype.card κ / 4)
-            + (η * ((n : ℝ) + 1) * ((n : ℝ) + 2) / 2) ^ 2 / (2 * ((n : ℝ) + 1))
-              * ∑ h, ((d h : ℝ))⁻¹)
-        ≤ Real.exp (-Real.log (2 * (Fintype.card F : ℝ))) := Real.exp_le_exp.mpr hexp
-      _ = (2 * (Fintype.card F : ℝ))⁻¹ := by
+    calc Real.exp (-(Fintype.card κ * Finset.layerRate n η)
+            + Finset.layerError n η * ∑ h, ((d h : ℝ))⁻¹)
+        ≤ Real.exp (-Real.log ((q + 1) / q * (Fintype.card F : ℝ))) := Real.exp_le_exp.mpr hexp
+      _ = ((q + 1) / q * (Fintype.card F : ℝ))⁻¹ := by
           rw [Real.exp_neg, Real.exp_log (by positivity)]
-  -- there are at most half as many conditions as monomials, one family for each form
-  have hcount : 2 * (Fintype.card (Σ f : F, ↥(Bad (rep f).2)) : ℝ)
-      ≤ #(multiMons (ι := ι) d) := by
+  -- there are at most `q / (q + 1)` as many conditions as monomials, one family for each form
+  have hcount : (q + 1) * (Fintype.card (Σ f : F, ↥(Bad (rep f).2)) : ℝ)
+      ≤ q * #(multiMons (ι := ι) d) := by
     have hcardsig : (Fintype.card (Σ f : F, ↥(Bad (rep f).2)) : ℝ)
         = ∑ f : F, (#(Bad (rep f).2) : ℝ) := by
       rw [Fintype.card_sigma]
       push_cast
       exact Finset.sum_congr rfl fun f _ ↦ by rw [Fintype.card_coe]
     have hle : ∑ f : F, (#(Bad (rep f).2) : ℝ)
-        ≤ (Fintype.card F : ℝ) * (#(multiMons (ι := ι) d) * (2 * (Fintype.card F : ℝ))⁻¹) := by
+        ≤ (Fintype.card F : ℝ) * (#(multiMons (ι := ι) d)
+          * ((q + 1) / q * (Fintype.card F : ℝ))⁻¹) := by
       calc ∑ f : F, (#(Bad (rep f).2) : ℝ)
-          ≤ ∑ _f : F, (#(multiMons (ι := ι) d) : ℝ) * (2 * (Fintype.card F : ℝ))⁻¹ :=
+          ≤ ∑ _f : F, (#(multiMons (ι := ι) d) : ℝ) * ((q + 1) / q * (Fintype.card F : ℝ))⁻¹ :=
             Finset.sum_le_sum fun f _ ↦ hbad (rep f).2
-        _ = (Fintype.card F : ℝ) * (#(multiMons (ι := ι) d) * (2 * (Fintype.card F : ℝ))⁻¹) := by
+        _ = (Fintype.card F : ℝ) * (#(multiMons (ι := ι) d)
+            * ((q + 1) / q * (Fintype.card F : ℝ))⁻¹) := by
             rw [Finset.sum_const, Finset.card_univ, nsmul_eq_mul]
     rw [hcardsig]
-    have heq : 2 * ((Fintype.card F : ℝ) * (#(multiMons (ι := ι) d)
-        * (2 * (Fintype.card F : ℝ))⁻¹)) = (#(multiMons (ι := ι) d) : ℝ) := by field_simp
-    linarith [mul_le_mul_of_nonneg_left hle (by norm_num : (0 : ℝ) ≤ 2)]
+    have heq : (q + 1) * ((Fintype.card F : ℝ) * (#(multiMons (ι := ι) d)
+        * ((q + 1) / q * (Fintype.card F : ℝ))⁻¹)) = q * (#(multiMons (ι := ι) d) : ℝ) := by
+      field_simp
+    linarith [mul_le_mul_of_nonneg_left hle (by positivity : (0 : ℝ) ≤ q + 1)]
   -- Siegel's lemma
   obtain ⟨P, hP0, hPmulti, hPcond, hPht⟩ :=
-    exists_ne_zero_isMultiHomogeneous_coeff_blockSubst_eq_zero (d := d)
+    exists_ne_zero_isMultiHomogeneous_coeff_blockSubst_eq_zero_of_exponent (d := d)
       (Row := Σ f : F, ↥(Bad (rep f).2))
       (fun r ↦ (A (rep r.1).1)⁻¹) (fun r ↦ (r.2 : κ × ι →₀ ℕ)) hy0 (fun r w ↦ hMy (rep r.1).1 w)
-      hcount
+      hq hcount
   have hPsub : P.support ⊆ multiMons d := fun ν hν ↦
     mem_multiMons.mpr fun h ↦ hPmulti (MvPolynomial.mem_support_iff.mp hν) h
   have hPsupp : ∀ ν ∈ P.support, ∑ t, ν t ≤ ∑ h, d h := fun ν hν ↦
@@ -1148,7 +1219,7 @@ theorem exists_ne_zero_isMultiHomogeneous_forall_coeff_blockSubst_hasseDeriv_eq_
     exact le_trans (Real.log_le_log hsp0 hcardle) (log_card_multiMons_le d)
   -- the height of `P`
   have hheight : P.logHeight ≤ (2⁻¹ * Real.log |(NumberField.discr K : ℝ)|
-      + ((Module.finrank ℚ K : ℝ) / 2 * Fintype.card ι
+      + q * ((Module.finrank ℚ K : ℝ) / 2 * Fintype.card ι
           + Height.totalWeight K * Real.log (Fintype.card ι)
           + Real.log (Height.mulHeight y))) * ∑ h, (d h : ℝ) := by
     nlinarith [hPht, hdisc0, hD1]
@@ -1291,6 +1362,43 @@ theorem exists_ne_zero_isMultiHomogeneous_forall_coeff_blockSubst_hasseDeriv_eq_
         linarith
       obtain ⟨i₁, hi₁, hle⟩ := Finset.exists_le_of_sum_le hne0 hbound
       exact hne (hlow v I J i₁ hI hle)
+
+omit [DecidableEq κ] in
+/-- **Layer 5.2 at the book's condition** `4 log (2 |F|) < (n + 1)(n + 2) η² |κ|`
+(Bombieri–Gubler, Lemma 7.5.15), from
+`exists_ne_zero_isMultiHomogeneous_hasseDeriv_eq_zero_of_layerRate`. -/
+theorem exists_ne_zero_isMultiHomogeneous_forall_coeff_blockSubst_hasseDeriv_eq_zero
+    [Nonempty ι] [Nonempty κ] {n : ℕ} (hn : 1 ≤ n) (hcard : Fintype.card ι = n + 1)
+    {S : Type*} [Finite S] [Nonempty S] (A : S → Matrix ι ι K) (hA : ∀ v, IsUnit (A v).det)
+    {F : Type*} [Fintype F] (rep : F → S × ι) (hrep : ∀ v i, ∃ f, A (rep f).1 (rep f).2 = A v i)
+    {η : ℝ} (hη : 0 < η)
+    (hm : 4 * Real.log (2 * Fintype.card F)
+      < ((n : ℝ) + 1) * ((n : ℝ) + 2) * η ^ 2 * Fintype.card κ) :
+    ∃ C₂ C₃ : ℝ, C₂ = 2⁻¹ * Real.log |(NumberField.discr K : ℝ)|
+        + ((Module.finrank ℚ K : ℝ) / 2 * Fintype.card ι
+          + Height.totalWeight K * Real.log (Fintype.card ι)
+          + Real.log (Height.mulHeight
+              (Sum.elim (fun p : S × ι × ι ↦ ((A p.1)⁻¹) p.2.1 p.2.2) (fun _ : Unit ↦ (1 : K))))) ∧
+      ∃ D₀ : ℕ, ∀ d : κ → ℕ, (∀ h, D₀ ≤ d h) →
+      ∃ P : MvPolynomial (κ × ι) K, P ≠ 0 ∧ IsMultiHomogeneous d P ∧
+        P.logHeight ≤ C₂ * ∑ h, (d h : ℝ) ∧
+        (∀ (v : S) (I : κ × ι →₀ ℕ),
+          (blockSubst (A v)⁻¹ (hasseDeriv I P)).logHeight ≤ C₃ * ∑ h, (d h : ℝ)) ∧
+        ∀ (v : S) (I J : κ × ι →₀ ℕ),
+          ∑ h, (∑ i, (I (h, i) : ℝ)) / (d h : ℝ) ≤ Fintype.card κ * η →
+          (∃ i, ∑ h, (J (h, i) : ℝ) / (d h : ℝ)
+                ≤ Fintype.card κ / ((n : ℝ) + 1) - 2 * Fintype.card κ * η ∨
+              Fintype.card κ / ((n : ℝ) + 1) + 2 * (n : ℝ) * Fintype.card κ * η
+                ≤ ∑ h, (J (h, i) : ℝ) / (d h : ℝ)) →
+          (blockSubst (A v)⁻¹ (hasseDeriv I P)).coeff J = 0 :=
+  by
+  have hm' : Real.log ((1 + 1) / 1 * Fintype.card F) < Fintype.card κ * Finset.layerRate n η := by
+    have := mul_le_mul_of_nonneg_left (Finset.le_layerRate n η)
+      (Nat.cast_nonneg (α := ℝ) (Fintype.card κ))
+    norm_num
+    linarith
+  simpa using exists_ne_zero_isMultiHomogeneous_hasseDeriv_eq_zero_of_layerRate hn hcard
+    A hA rep hrep hη one_pos hm'
 
 end Milestone
 

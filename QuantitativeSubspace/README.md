@@ -741,7 +741,7 @@ Two consequences for the plan:
     - **with the caller's gap principle** (2026-10-23, from the consumer `lean-code` BB13, first
       stated in R. Stephan, *Line counts and a census for the exceptions to
       `‖(3/2)^n‖ ≥ (3/4)^n`, with an application to Waring's problem*, preprint 2026,
-      doi:10.13140/RG.2.2.15019.20008, Thm 7.2, Lemma 7.5, Thm 7.6): Q0.3's assembly is split
+      doi:10.13140/RG.2.2.15019.20008, §7.3, Lemma 7.5, Rem. 7.7): Q0.3's assembly is split
       after its first step, `exists_forall_mem_interval_systemSet` (the solutions above `X₀` lie
       in `NS` subspaces or in `NI` intervals of `log H`, the same for every solution;
       `exists_finset_submodule_of_forall_interval` is now this plus 9.4), with the instance
@@ -766,6 +766,19 @@ Two consequences for the plan:
       `STForMathlib/Analysis/SpecialFunctions/Log/SeriesBounds.lean` (partial sums of
       `2 artanh`, e.g. `log (1 + x) ≥ 2 x / (2 + x)`). BB13's large term `≤ 2.0093·10⁹` at
       `δ = 13/50` is then two `norm_num` calls.
+    - **at the caller's parameters** (2026-10-23, from the BB13 consumer; R. Stephan, *Line
+      counts …*, doi:10.13140/RG.2.2.15019.20008, §7.3, Thm 7.2 with (11)–(12) and items
+      (a)–(g)): `exists_forall_mem_interval_systemSet_two_of_rothLemmaAt` takes the scalar's
+      fraction `τ`, the margin `ε`, `η`, Siegel's exponent `q` and the chain length `m` from the
+      caller, under the budget `-W/2 + η · min (2 A₀) ([E : K] (2 (2 + δ) + N)) ≤ -ε/4` and
+      Layer 5.2's `log ((q + 1) / q · f) < (m + 1) · layerRate 1 η`, with Evertse's Roth lemma at
+      any `m`, `η` (`rothLemmaAt_evertse`). The ingredients: the scalar at `τ δ`
+      (`exists_forall_mem_interval_systemSet_of_shift`), the absolute weight `2 P + (1 + τ) δ`
+      (`systemPosWeight`), the pattern read per place (`rowDev`, `approxDevWeight`,
+      `subspace_key_inequality_of_sum_le`, `systemNegWeight`), Siegel at the exponent `q`, the
+      variance form of the Chernoff bound (`layerRate`, `layerRate_one_ge`), and the threshold
+      over `ℚ` (`systemThresholdTwoExplicit_rat_le`). For BB13's frame: `η = δ/9.07` against
+      `δ/448`, `m = 241` against `4 918 449`, and `22 900` lines with the root's gap.
   - The chain length needs no change. Ours is `⌈4 log (2 (n + 1) s) / ((n + 1) (n + 2) η²)⌉`
     with `η ≍ ε / ((n + 1)² (A + 1))` (5.2's Siegel lemma), BE's (A.26) is
     `1 + ⌊25600 δ⁻² log (2 r)⌋`: the same `δ⁻² log` shape, up to `s` for `r` and the factor `A`.

@@ -37,6 +37,8 @@ lemma (Q1.5) `4 σ⁻¹ = 16 (m + 1) / η` is polynomial, so the count is
   the caller, plus the range `[Y, X₀)` below the threshold.
 * `NumberField.systemThresholdTwoAt`: the threshold at the caller's margin `ε`, parameter `A`,
   form count `s` and fraction `τ` of `δ` spent on the scalar.
+* `NumberField.twoThresholdAt`, `NumberField.systemThresholdTwoExplicit`: the thresholds at an
+  explicit chain length `m`, `η` and height cost `F`, `g` of the Roth lemma.
 
 ## Main results
 
@@ -56,7 +58,7 @@ lemma (Q1.5) `4 σ⁻¹ = 16 (m + 1) / η` is polynomial, so the count is
   `systemLargeCountTwo ≤ 2 + 2 ℓ Y² (1 + 5 log (32 ℓ Y³) / δ)`, `ℓ = 1 + log (4 s)`.
 * `NumberField.exists_forall_mem_interval_systemSet_two`: the large solutions of a system lie in
   two subspaces or have `log H(x)` in `m` intervals of ratio `4 σ⁻¹`, the same for every
-  solution ([Ste26], Theorem 7.2).
+  solution (over `ℚ`, the generic parameters of [Ste26], §7.3).
 * `NumberField.exists_forall_mem_interval_approxDomain_two_of_budget`,
   `NumberField.exists_forall_mem_interval_systemSet_two_at`, `NumberField.systemThresholdTwoAt_le`:
   the same **at the caller's parameters**, from the weight budget of Steps IV and VI. The domain's
@@ -64,12 +66,26 @@ lemma (Q1.5) `4 σ⁻¹ = 16 (m + 1) / η` is polynomial, so the count is
   `η`: with `A = 0`, `η = W / (4 (A₀ + 2))` for weight `-W` and absolute weight `A₀`, against
   `δ / 448` over `ℚ` with `systemEps` and `systemAbsBound`. For the exceptions to
   `‖(3/2)^n‖ ≥ (3/4)^n` this cuts `m` from `4.9·10⁶` to `8445`.
+* `NumberField.exists_forall_mem_interval_approxDomain_two_of_rothLemmaAt`,
+  `NumberField.exists_forall_mem_interval_systemSet_two_of_rothLemmaAt`,
+  `NumberField.systemThresholdTwoExplicit_le`: the same **at explicit parameters**, with `m`, `η`
+  and a Roth lemma at them chosen by the caller (`NumberField.RothLemmaAt`) under Layer 5.2's
+  condition `log ((q + 1) / q · f) < (m + 1) · layerRate 1 η`, `f ≥ R [E : K]`, Siegel's
+  exponent `q ≥ 1`. The margin `ε` no longer bounds `η`, so `η → W / (2 D)` as `ε → 0`, for a
+  threshold `∝ ε⁻¹`; `f` counts the forms themselves; `Finset.layerRate 1 η ≥ 6 η² - 16 η³` is
+  the variance form of the Chernoff bound, four times the book's `3 η² / 2`
+  (`Finset.layerRate_one_ge`); and the deviation error is charged `D = min (2 A₀) D₀`,
+  `D₀ = [E : K] (2 (2 + δ) + N)` (`NumberField.approxDevWeight`), with `N = 0` when every place
+  has a nonnegative exponent. For the exceptions to `‖(3/2)^n‖ ≥ (3/4)^n` this cuts `m` from
+  `8445` to `241`. Over `ℚ` this is [Ste26], Theorem 7.2, with the budget (11), the chain
+  condition (12) and items (a)–(g).
 * `NumberField.exists_finset_submodule_of_gap_two`: **the count with the caller's gap
   principle**. If solutions on distinct lines with `Y ≤ log H(x) ≤ log H(y)` have
   `ρ log H(x) ≤ log H(y)`, each interval holds `1 + log (4 σ⁻¹) / log ρ` lines instead of
   `1 + log (4 σ⁻¹) / log (1 + δ / 4)`, and the range `[Y, X₀)` holds `1 + log (X₀ / Y) / log ρ`
-  ([Ste26], Theorem 7.6, where `ρ = 1.2618` against `1 + δ / 4 ≈ 1.065` cuts the line count of the
-  exceptions to `‖(3/2)^n‖ ≥ (3/4)^n` from `3.87·10⁹` to `1.05·10⁹`).
+  ([Ste26], Remark 7.7, where `ρ = 1.2618` against `1 + δ / 4 ≈ 1.065` cuts the line count of the
+  exceptions to `‖(3/2)^n‖ ≥ (3/4)^n` from `3.87·10⁹` to `1.05·10⁹` at the generic parameters;
+  Theorem 7.6 there is the same count at the parameters of Theorem 7.2, `22 900`).
 * `Real.finite_and_ncard_le_of_lacunary`, `Submodule.exists_finset_span_singleton_of_lacunary`:
   a `ρ`-lacunary set in `[a, b)` has at most `1 + log (b / a) / log ρ` elements, and a lacunary
   family meets at most that many lines ([Ste26], Lemma 7.5).
@@ -90,9 +106,12 @@ Y. Bugeaud and J.-H. Evertse, *On two notions of complexity of algebraic numbers
 **133** (2008), 221–250 (arXiv:0709.1560), Appendix.
 
 [Ste26] R. Stephan, *Line counts and a census for the exceptions to `‖(3/2)^n‖ ≥ (3/4)^n`, with an
-application to Waring's problem*, preprint (2026), doi:10.13140/RG.2.2.15019.20008, §7: Theorem 7.2
-(the interval result for the solutions), Lemma 7.5 (lines in a range), Theorem 7.6 (the line
-count with the gap `ρ₀`). The results above marked [Ste26] appear there first.
+application to Waring's problem*, preprint (2026), doi:10.13140/RG.2.2.15019.20008, §7:
+§7.3 (the interval result for the solutions; Theorem 7.2 at given parameters, under the budget
+(11) and the chain condition (12), with items (a)–(g) against the generic parameters),
+Lemma 7.5 (lines in a range), Theorem 7.6 and Remark 7.7 (the line count with the gap `ρ₀`, at
+the parameters of Theorem 7.2 and at the generic ones). The results above marked [Ste26] appear
+there first.
 
 This is Layer Q1.6 of the `QuantitativeSubspace` roadmap.
 -/
@@ -250,42 +269,63 @@ noncomputable def twoThreshold (R : RothParams) (s : ℕ) (ε A : ℝ) : ℝ :=
   letI : LinearOrder ι := LinearOrder.lift' (Fintype.equivFin ι) (Equiv.injective _)
   max 1 (max (Real.log (rankThreshold Sfin L ε)) (penultimateThreshold Sfin L R 1 s (2 * ε) A))
 
+variable (Sfin : Finset (FinitePlace K)) (L : AbsoluteValue K ℝ → ι → Dual K (ι → K)) in
 open scoped Classical in
-/-- **The parametric Subspace Theorem in two variables, as an interval result, from the weight
-budget**: `NumberField.exists_forall_mem_interval_approxDomain_two` with the absolute-weight bound
-`≤ A` replaced by the budget `w / 2 + 2 η AW ≤ -ε / 4` of Steps IV and VI
-(`NumberField.exists_forall_not_chain_of_budget` at `n = 1`, margin `2 ε`), where `w` is the
-weight, `AW` the absolute weight and `η = subspaceEta 1 (2 ε) A`. The parameter `A` then only
-fixes the chain, the Roth lemma and the threshold; `A = 0` gives the largest `η`. -/
-theorem exists_forall_mem_interval_approxDomain_two_of_budget (R : SubspaceRoth.{u} K)
+/-- **The threshold of the interval result in two variables at given parameters**: `twoThreshold`
+with `penultimateThresholdAt` for the chain length `m`, `η`, Siegel's exponent `q` and the height
+cost `F`, `g` of the Roth lemma. -/
+noncomputable def twoThresholdAt (m : ℕ) (η q ε F g : ℝ) : ℝ :=
+  letI : LinearOrder ι := LinearOrder.lift' (Fintype.equivFin ι) (Equiv.injective _)
+  max 1 (max (Real.log (rankThreshold Sfin L ε))
+    (penultimateThresholdAt Sfin L 1 m η q (2 * ε) F g))
+
+/-- `twoThreshold` is `twoThresholdAt` at the parameters of Steps IV and VI. -/
+theorem twoThreshold_eq_at (Sfin : Finset (FinitePlace K))
+    (L : AbsoluteValue K ℝ → ι → Dual K (ι → K)) (R : RothParams) (s : ℕ) (ε A : ℝ) :
+    twoThreshold Sfin L R s ε A = twoThresholdAt Sfin L (subspaceChainLength 1 s (2 * ε) A)
+      (subspaceEta 1 (2 * ε) A) 1 ε (R.factor 1 s (2 * ε) A) (R.shift 1 s (2 * ε) A) := by
+  simp only [twoThreshold, twoThresholdAt, penultimateThreshold_eq_at]
+
+open scoped Classical in
+/-- **The parametric Subspace Theorem in two variables, as an interval result, at given
+parameters**: `NumberField.exists_forall_mem_interval_approxDomain_two` with the chain length `m`,
+the `η` of the auxiliary polynomial and a generalized Roth lemma at them
+(`NumberField.exists_forall_mem_interval_approxSpan_of_rothLemmaAt` at `n = 1`, margin `2 ε`):
+Layer 5.2's condition `log ((q + 1) / q · f) < (m + 1) · layerRate 1 η` for a bound `f` on the
+number of distinct forms and Siegel's exponent `q ≥ 1`, and the budget `w / 2 + η DW ≤ -ε / 4`,
+where `w` is the weight and `DW = approxDevWeight` the deviation weight, `2 |c₁ - c₂|` per place
+with a nonnegative exponent (at most `2 AW`, `AW` the absolute weight). At most `m` intervals of
+ratio `4 σ⁻¹` above `twoThresholdAt` ([Ste26], items (c)–(g)). -/
+theorem exists_forall_mem_interval_approxDomain_two_of_rothLemmaAt
     (hcard : Fintype.card ι = 2) {Sfin : Finset (FinitePlace K)}
     {L : AbsoluteValue K ℝ → ι → Dual K (ι → K)}
     (hLInf : ∀ w : InfinitePlace K, LinearIndependent K (L w.1))
     (hLFin : ∀ v ∈ Sfin, LinearIndependent K (L v.1)) {c : AbsoluteValue K ℝ → ι → ℝ}
-    {ε : ℝ} (hε : 0 < ε) (hc : approxWeight Sfin c ≤ -ε) {A : ℝ} (hA0 : 0 ≤ A)
-    (hbudget : approxWeight Sfin c / 2 + 2 * subspaceEta 1 (2 * ε) A * approxAbsWeight Sfin c
-      ≤ -(ε / 4))
-    {s : ℕ} (hs : formCount Sfin L ≤ 2 * s) :
+    {ε : ℝ} (hε : 0 < ε) (hc : approxWeight Sfin c ≤ -ε) {m : ℕ} {η σ F g : ℝ} (hη0 : 0 < η)
+    (hσ0 : 0 < σ) (hF0 : 0 ≤ F) (hg0 : 0 ≤ g) (hR : RothLemmaAt.{u} K 1 m η σ F g)
+    (hbudget : approxWeight Sfin c / 2 + η * approxDevWeight Sfin c ≤ -(ε / 4))
+    {f : ℕ} (hf : formCount Sfin L ≤ f) {q : ℝ} (hq : 1 ≤ q)
+    (hm : Real.log ((q + 1) / q * (f : ℝ)) < ((m : ℝ) + 1) * Finset.layerRate 1 η) :
     ∃ T : Finset (Submodule K (ι → K)),
       #T ≤ 2 ∧ (∀ W ∈ T, W ≠ ⊤) ∧
-      ∀ Q₀' : ℝ, twoThreshold Sfin L R.toRothParams s ε A ≤ Q₀' →
-      ∃ 𝒯 : Finset ℝ,
-        #𝒯 ≤ subspaceChainLength 1 s (2 * ε) A ∧
+      ∀ Q₀' : ℝ, twoThresholdAt Sfin L m η q ε F g ≤ Q₀' →
+      ∃ 𝒯 : Finset ℝ, #𝒯 ≤ m ∧
         (∀ t ∈ 𝒯, Q₀' ≤ t) ∧ ∀ Q : ℝ, 1 < Q → Q₀' ≤ Real.log Q →
           (∃ W ∈ T, approxDomain Sfin L c Q ⊆ W) ∨
-            ∃ t ∈ 𝒯, t ≤ Real.log Q ∧ Real.log Q < 4 * (R.ratio 1 s (2 * ε) A)⁻¹ * t := by
+            ∃ t ∈ 𝒯, t ≤ Real.log Q ∧ Real.log Q < 4 * σ⁻¹ * t := by
   have : Nonempty ι := Fintype.card_pos_iff.1 (by omega)
   let _ : LinearOrder ι := LinearOrder.lift' (Fintype.equivFin ι) (Equiv.injective _)
   have hε2 : 0 < 2 * ε := by positivity
   have hb : approxWeight Sfin c / (((1 : ℕ) : ℝ) + 1)
-      + 2 * ((1 : ℕ) : ℝ) * subspaceEta 1 (2 * ε) A * approxAbsWeight Sfin c
+      + η * approxDevWeight Sfin c
       ≤ -(2 * ε / (4 * (((1 : ℕ) : ℝ) + 1))) := by
     have e : -(2 * ε / (4 * (((1 : ℕ) : ℝ) + 1))) = -(ε / 4) := by push_cast; ring
     rw [e]
     push_cast
     linarith
-  obtain ⟨𝒲, Q₀, h𝒲fin, h𝒲card, -, hQ₀eq, hint⟩ := exists_forall_mem_interval_approxSpan_of_budget
-    R (n := 1) le_rfl hcard hLInf hLFin hε2 (by linarith) hA0 hb (s := s) (by omega)
+  obtain ⟨𝒲, Q₀, h𝒲fin, h𝒲card, -, hQ₀eq, hint⟩ :=
+    exists_forall_mem_interval_approxSpan_of_rothLemmaAt (n := 1) le_rfl hcard hLInf hLFin hε2
+      (by linarith) hη0 hσ0 hF0 hg0 hR hb hf hq hm
   set T : Finset (Submodule K (ι → K)) := insert ⊥ (h𝒲fin.toFinset.filter (· ≠ ⊤)) with hT
   refine ⟨T, ?_, ?_, fun Q₀' hQ₀' ↦ ?_⟩
   · refine (Finset.card_insert_le _ _).trans (Nat.add_le_add_right ?_ 1)
@@ -326,6 +366,47 @@ theorem exists_forall_mem_interval_approxDomain_two_of_budget (R : SubspaceRoth.
       ⟨h𝒲fin.mem_toFinset.2 hW, htop⟩), Submodule.subset_span⟩
   · obtain ⟨i, h1, h2⟩ := hint Q hQ1 hQ hR hW
     exact Or.inr ⟨t i, Finset.mem_image_of_mem t (Finset.mem_univ i), h1, h2⟩
+
+open scoped Classical in
+/-- **The parametric Subspace Theorem in two variables, as an interval result, from the weight
+budget**: `NumberField.exists_forall_mem_interval_approxDomain_two` with the absolute-weight bound
+`≤ A` replaced by the budget `w / 2 + 2 η AW ≤ -ε / 4` of Steps IV and VI
+(`NumberField.exists_forall_not_chain_of_budget` at `n = 1`, margin `2 ε`), where `w` is the
+weight, `AW` the absolute weight and `η = subspaceEta 1 (2 ε) A`. The parameter `A` then only
+fixes the chain, the Roth lemma and the threshold; `A = 0` gives the largest `η`. -/
+theorem exists_forall_mem_interval_approxDomain_two_of_budget (R : SubspaceRoth.{u} K)
+    (hcard : Fintype.card ι = 2) {Sfin : Finset (FinitePlace K)}
+    {L : AbsoluteValue K ℝ → ι → Dual K (ι → K)}
+    (hLInf : ∀ w : InfinitePlace K, LinearIndependent K (L w.1))
+    (hLFin : ∀ v ∈ Sfin, LinearIndependent K (L v.1)) {c : AbsoluteValue K ℝ → ι → ℝ}
+    {ε : ℝ} (hε : 0 < ε) (hc : approxWeight Sfin c ≤ -ε) {A : ℝ} (hA0 : 0 ≤ A)
+    (hbudget : approxWeight Sfin c / 2 + 2 * subspaceEta 1 (2 * ε) A * approxAbsWeight Sfin c
+      ≤ -(ε / 4))
+    {s : ℕ} (hs : formCount Sfin L ≤ 2 * s) :
+    ∃ T : Finset (Submodule K (ι → K)),
+      #T ≤ 2 ∧ (∀ W ∈ T, W ≠ ⊤) ∧
+      ∀ Q₀' : ℝ, twoThreshold Sfin L R.toRothParams s ε A ≤ Q₀' →
+      ∃ 𝒯 : Finset ℝ,
+        #𝒯 ≤ subspaceChainLength 1 s (2 * ε) A ∧
+        (∀ t ∈ 𝒯, Q₀' ≤ t) ∧ ∀ Q : ℝ, 1 < Q → Q₀' ≤ Real.log Q →
+          (∃ W ∈ T, approxDomain Sfin L c Q ⊆ W) ∨
+            ∃ t ∈ 𝒯, t ≤ Real.log Q ∧ Real.log Q < 4 * (R.ratio 1 s (2 * ε) A)⁻¹ * t := by
+  rw [twoThreshold_eq_at]
+  have hε2 : 0 < 2 * ε := by positivity
+  have : Nonempty ι := Fintype.card_pos_iff.1 (by omega)
+  have hdev := mul_le_mul_of_nonneg_left (approxDevWeight_le (n := 1) le_rfl (by omega) Sfin c)
+    (subspaceEta_pos (n := 1) hε2 hA0).le
+  refine exists_forall_mem_interval_approxDomain_two_of_rothLemmaAt hcard hLInf hLFin hε hc
+    (subspaceEta_pos hε2 hA0) (R.ratio_pos hε2 hA0) (R.factor_nonneg hε2 hA0)
+    (R.shift_nonneg hε2 hA0) (R.rothLemmaAt le_rfl hε2 hA0) (by push_cast at hdev; linarith) hs
+    le_rfl ?_
+  have h := subspaceChainLength_spec 1 s hε2 hA0
+  have e : (1 + 1) * s = 2 * s := by ring
+  rw [e] at h
+  have h' := Finset.lt_mul_layerRate h (by positivity)
+  push_cast at h' ⊢
+  norm_num at h' ⊢
+  linarith
 
 open scoped Classical in
 /-- **The parametric Subspace Theorem in two variables, as an interval result** (Bugeaud–Evertse
@@ -389,6 +470,34 @@ theorem twoThreshold_le (R : RothParams) {Sfin : Finset (FinitePlace K)}
   have e1 := mul_nonneg h1 (by linarith : 0 ≤ thresholdScale Sfin L)
   have e2 := mul_nonneg h2 (by linarith : 0 ≤ thresholdScale Sfin L)
   rw [twoThreshold]
+  refine max_le (by nlinarith) (max_le ?_ ?_) <;> nlinarith
+
+open scoped Classical in
+/-- **The threshold in two variables at given parameters is linear in the heights**:
+`twoThresholdAt ≤ a Λ` with `a = 1 + rankCoeff + penultimateCoeffAt`. -/
+theorem twoThresholdAt_le {Sfin : Finset (FinitePlace K)}
+    {L : AbsoluteValue K ℝ → ι → Dual K (ι → K)}
+    (hLInf : ∀ w : InfinitePlace K, LinearIndependent K (L w.1))
+    (hLFin : ∀ v ∈ Sfin, LinearIndependent K (L v.1)) (hcard : Fintype.card ι = 2) (m : ℕ)
+    {η q ε F g : ℝ} (hq : 0 ≤ q) (hε : 0 < ε) (hF : 0 ≤ F) (hg : 0 ≤ g) :
+    twoThresholdAt Sfin L m η q ε F g ≤ (1 + rankCoeff (finrank ℚ K) 2 #Sfin ε
+      + penultimateCoeffAt (finrank ℚ K) 2 (Fintype.card (InfinitePlace K)) #Sfin 1 m η q (2 * ε)
+        F g) * thresholdScale Sfin L := by
+  have : Nonempty ι := Fintype.card_pos_iff.1 (by omega)
+  let o : LinearOrder ι := LinearOrder.lift' (Fintype.equivFin ι) (Equiv.injective _)
+  have hsc := thresholdScale_congr (Sfin := Sfin) (L := L)
+    (fun a b ↦ @LinearOrder.toDecidableEq ι o a b) (fun a b ↦ Classical.propDecidable (a = b))
+  have hΛ : 1 ≤ thresholdScale Sfin L := one_le_thresholdScale Sfin L
+  have hrank := log_rankThreshold_le hLInf hLFin hε (Sfin := Sfin) (L := L)
+  have hpen := penultimateThresholdAt_le hLInf hLFin (n := 1) (by omega) m (η := η)
+    (ε := 2 * ε) hq (by positivity) hF hg (Sfin := Sfin) (L := L)
+  rw [hcard, hsc] at hrank hpen
+  have h1 := rankCoeff_nonneg (finrank ℚ K) 2 #Sfin hε.le
+  have h2 := penultimateCoeffAt_nonneg (finrank ℚ K) 2 (Fintype.card (InfinitePlace K)) #Sfin 1 m
+    (η := η) hq (by positivity : 0 < 2 * ε) hF hg
+  have e1 := mul_nonneg h1 (by linarith : 0 ≤ thresholdScale Sfin L)
+  have e2 := mul_nonneg h2 (by linarith : 0 ≤ thresholdScale Sfin L)
+  rw [twoThresholdAt]
   refine max_le (by nlinarith) (max_le ?_ ?_) <;> nlinarith
 
 /-! ### Systems in two variables -/
@@ -677,7 +786,7 @@ intervals**: for every `X₀ ≥ systemThresholdTwo`, at most two proper subspac
 `m = subspaceChainLength 1 s (2 ε) A` intervals `[s, 4 σ⁻¹ s)`, `s ≥ X₀`, of `log H(x)`, with
 `s = R [E : K]`, `ε = systemEps [E : K] δ`, `A = systemAbsBound [E : K] 2` and `σ` the ratio of
 the Roth lemma. `NumberField.exists_forall_mem_interval_systemSet` fed with the interval result
-in two variables; over `ℚ`, Theorem 7.2 of [Ste26]. -/
+in two variables; over `ℚ`, the generic parameters of [Ste26], §7.3. -/
 theorem exists_forall_mem_interval_systemSet_two (RL : SubspaceRoth.{u} E)
     (hcard : Fintype.card ι = 2)
     (S : Finset (HeightOneSpectrum (𝓞 K))) (w : AbsoluteValue K ℝ → AbsoluteValue E ℝ)
@@ -742,6 +851,67 @@ noncomputable def systemThresholdTwoAt (S : Finset (HeightOneSpectrum (𝓞 K)))
       (systemHeightThreshold (Fintype.card ι) (finrank ℚ E) (Fintype.card (InfinitePlace K) + #S)
         δ H (Real.log (scalarConst K S)) / (2 * τ)))
 
+variable (E) in
+open scoped Classical in
+/-- **The threshold of the interval result for a system in two variables, at explicit
+parameters**: `systemThresholdTwoAt` with `twoThresholdAt` for the chain length `m`, `η`,
+Siegel's exponent `q` and the height cost `F`, `g` of the Roth lemma (the `X₁` of [Ste26],
+Theorem 7.2). -/
+noncomputable def systemThresholdTwoExplicit (S : Finset (HeightOneSpectrum (𝓞 K)))
+    (w : AbsoluteValue K ℝ → AbsoluteValue E ℝ) (L : AbsoluteValue K ℝ → ι → Dual E (ι → E))
+    (m : ℕ) (H δ τ η q ε F g : ℝ) : ℝ :=
+  max (twoThresholdAt (systemPlacesOver E S) (conjSystem univ (S.image FinitePlace.mk) w L) m η q
+      ε F g)
+    (max (finrank ℚ K * (2 * Fintype.card ι / δ) * Real.log (Fintype.card ι))
+      (systemHeightThreshold (Fintype.card ι) (finrank ℚ E) (Fintype.card (InfinitePlace K) + #S)
+        δ H (Real.log (scalarConst K S)) / (2 * τ)))
+
+omit [IsGalois K E] in
+/-- `systemThresholdTwoAt` is `systemThresholdTwoExplicit` at the parameters of Steps IV and VI. -/
+theorem systemThresholdTwoAt_eq_explicit (S : Finset (HeightOneSpectrum (𝓞 K)))
+    (w : AbsoluteValue K ℝ → AbsoluteValue E ℝ) (L : AbsoluteValue K ℝ → ι → Dual E (ι → E))
+    (R : RothParams) (s : ℕ) (H δ τ ε A : ℝ) :
+    systemThresholdTwoAt E S w L R s H δ τ ε A = systemThresholdTwoExplicit E S w L
+      (subspaceChainLength 1 s (2 * ε) A) H δ τ (subspaceEta 1 (2 * ε) A) 1 ε
+      (R.factor 1 s (2 * ε) A) (R.shift 1 s (2 * ε) A) := by
+  rw [systemThresholdTwoAt, systemThresholdTwoExplicit, twoThreshold_eq_at]
+
+open scoped Classical in
+/-- **The threshold at explicit parameters is linear in the height of the coefficients**: as
+`NumberField.systemThresholdTwoAt_le`, for the chain length `m`, `η` and the height cost `F`, `g`
+of the Roth lemma. -/
+theorem systemThresholdTwoExplicit_le (hcard : Fintype.card ι = 2)
+    {S : Finset (HeightOneSpectrum (𝓞 K))} {w : AbsoluteValue K ℝ → AbsoluteValue E ℝ}
+    (hwInf : ∀ v : InfinitePlace K, (w v.1).LiesOver v.1)
+    (hwFin : ∀ v ∈ S, (w (FinitePlace.mk v).1).LiesOver (FinitePlace.mk v).1)
+    {L : AbsoluteValue K ℝ → ι → Dual E (ι → E)} {C : InfinitePlace K ⊕ S → ℝ}
+    {c : InfinitePlace K ⊕ S → ι → ℝ} {H : ℝ} {D R : ℕ} {δ : ℝ}
+    (hN : IsNormalizedSystem S w L C c H D R δ) (m : ℕ) (τ : ℝ) {η q ε F g : ℝ} (hq : 0 ≤ q)
+    (hε : 0 < ε) (hF : 0 ≤ F) (hg : 0 ≤ g) :
+    systemThresholdTwoExplicit E S w L m H δ τ η q ε F g ≤
+      max ((1 + rankCoeff (finrank ℚ E) 2 #(systemPlacesOver E S) ε
+          + penultimateCoeffAt (finrank ℚ E) 2 (Fintype.card (InfinitePlace E))
+            #(systemPlacesOver E S) 1 m η q (2 * ε) F g)
+          * ((Fintype.card (InfinitePlace E) + #(systemPlacesOver E S)) * Fintype.card ι ^ 2 *
+              (finrank ℚ E * Real.log H) + Real.log |(discr E : ℝ)| +
+            ∑ V ∈ systemPlacesOver E S, Real.log (Ideal.absNorm V.maximalIdeal.asIdeal : ℝ) + 1))
+        (max (finrank ℚ K * (2 * Fintype.card ι / δ) * Real.log (Fintype.card ι))
+          (systemHeightThreshold (Fintype.card ι) (finrank ℚ E)
+            (Fintype.card (InfinitePlace K) + #S) δ H (Real.log (scalarConst K S)) / (2 * τ))) := by
+  have : Nonempty ι := Fintype.card_pos_iff.1 (by omega)
+  have h1 := rankCoeff_nonneg (finrank ℚ E) 2 #(systemPlacesOver E S) hε.le
+  have h2 := penultimateCoeffAt_nonneg (finrank ℚ E) 2 (Fintype.card (InfinitePlace E))
+    #(systemPlacesOver E S) 1 m (η := η) hq (by positivity : 0 < 2 * ε) hF hg
+  refine max_le_max ?_ le_rfl
+  refine (twoThresholdAt_le (linearIndependent_conjSystem_infinitePlace hwInf
+    fun v ↦ hN.linearIndependent (.inl v))
+    (fun V hV ↦ linearIndependent_conjSystem_systemPlacesOver hwFin
+      (fun p hp ↦ hN.linearIndependent (.inr ⟨p, hp⟩)) hV) hcard m hq hε hF hg).trans ?_
+  refine mul_le_mul_of_nonneg_left ?_ (by positivity)
+  rw [thresholdScale]
+  gcongr
+  exact hN.formLogHeight_conjSystem_le hwInf hwFin
+
 open scoped Classical in
 /-- **The threshold at given parameters is linear in the height of the coefficients**: as
 `NumberField.systemThresholdTwo_le`, at the margin `ε`, the parameter `A`, the form count `s`
@@ -780,6 +950,76 @@ theorem systemThresholdTwoAt_le (RL : RothParams) (hcard : Fintype.card ι = 2)
 
 open scoped Classical in
 /-- **The large solutions of a system in two variables lie in two subspaces or in `m` height
+intervals, at explicit parameters.** As `NumberField.exists_forall_mem_interval_systemSet_two_at`,
+with the chain length `m`, the `η` of the auxiliary polynomial and a generalized Roth lemma
+`RothLemmaAt E 1 m η σ F g` chosen by the caller: the budget `-W / 2 + η · min (2 A₀) D₀ ≤ -ε / 4`,
+`W = [E : K] (1 - τ) δ`, `A₀ = [E : K] (2 P + (1 + τ) δ)`, `P = systemPosWeight c`,
+`D₀ = [E : K] (2 (2 + δ) + N)`, `N = systemNegWeight c` (`0` when every place has a nonnegative
+exponent), and Layer 5.2's
+condition `log ((q + 1) / q · f) < (m + 1) · layerRate 1 η` for `f ≥ R [E : K]` and Siegel's
+exponent `q ≥ 1` give at most `m` intervals of ratio `4 σ⁻¹`. The margin `ε ≤ W` is now free of
+`η`: `η` may take almost all of the budget, `η → W / (4 A₀)` as `ε → 0`, at the cost of a
+threshold `∝ ε⁻¹`. Over `ℚ` this is Theorem 7.2 of [Ste26], with `η`, `q`, `ε` its `η_R`, `ν`,
+`ε₀`, the budget (11), the chain condition (12) (`Λ = layerRate 1`) and items (a)–(g) there. -/
+theorem exists_forall_mem_interval_systemSet_two_of_rothLemmaAt (hcard : Fintype.card ι = 2)
+    (S : Finset (HeightOneSpectrum (𝓞 K))) (w : AbsoluteValue K ℝ → AbsoluteValue E ℝ)
+    (hwInf : ∀ v : InfinitePlace K, (w v.1).LiesOver v.1)
+    (hwFin : ∀ v ∈ S, (w (FinitePlace.mk v).1).LiesOver (FinitePlace.mk v).1)
+    {L : AbsoluteValue K ℝ → ι → Dual E (ι → E)} {C : InfinitePlace K ⊕ S → ℝ}
+    {c : InfinitePlace K ⊕ S → ι → ℝ} {H : ℝ} {D R : ℕ} {δ : ℝ}
+    (hN : IsNormalizedSystem S w L C c H D R δ) {τ ε : ℝ} (hτ : 0 < τ) (hε : 0 < ε)
+    (hεW : ε ≤ finrank K E * ((1 - τ) * δ)) {m : ℕ} {η σ F g : ℝ} (hη0 : 0 < η) (hσ0 : 0 < σ)
+    (hF0 : 0 ≤ F) (hg0 : 0 ≤ g) (hRL : RothLemmaAt.{u} E 1 m η σ F g)
+    (hbudget : -(finrank K E * ((1 - τ) * δ)) / 2 + η *
+      min (2 * (finrank K E * (2 * systemPosWeight c + (1 + τ) * δ)))
+        (finrank K E * (2 * (2 + δ) + systemNegWeight c)) ≤ -(ε / 4))
+    {f : ℕ} (hf : R * finrank K E ≤ f) {q : ℝ} (hq : 1 ≤ q)
+    (hm : Real.log ((q + 1) / q * (f : ℝ)) < ((m : ℝ) + 1) * Finset.layerRate 1 η) {X₀ : ℝ}
+    (hX₀ : systemThresholdTwoExplicit E S w L m H δ τ η q ε F g ≤ X₀) :
+    ∃ T : Finset (Submodule K (ι → K)), #T ≤ 2 ∧ (∀ U ∈ T, U ≠ ⊤) ∧
+      ∃ 𝒯 : Finset ℝ, #𝒯 ≤ m ∧ (∀ t ∈ 𝒯, X₀ ≤ t) ∧
+        ∀ x ∈ systemSet S w L C c, X₀ ≤ Real.log (mulHeightAff x) →
+          (∃ U ∈ T, x ∈ U) ∨
+            ∃ t ∈ 𝒯, t ≤ Real.log (mulHeightAff x) ∧ Real.log (mulHeightAff x) <
+              4 * σ⁻¹ * t := by
+  have : Nonempty ι := Fintype.card_pos_iff.1 (by omega)
+  have hLI : ∀ v : InfinitePlace K, LinearIndependent E (L v.1) := fun v ↦
+    hN.linearIndependent (.inl v)
+  have hLF : ∀ p ∈ S, LinearIndependent E (L (FinitePlace.mk p).1) := fun p hp ↦
+    hN.linearIndependent (.inr ⟨p, hp⟩)
+  have hsE : formCount (systemPlacesOver E S) (conjSystem univ (S.image FinitePlace.mk) w L) ≤
+      f := (formCount_conjSystem_le hwInf hwFin hN.ncard_le).trans hf
+  have hX₀T := (le_max_right _ _).trans hX₀
+  have hX₀P := (le_max_left _ _).trans hX₀
+  have hX₀H : systemHeightThreshold (Fintype.card ι) (finrank ℚ E)
+      (Fintype.card (InfinitePlace K) + #S) δ H (Real.log (scalarConst K S)) ≤ 2 * τ * X₀ := by
+    have h := (le_max_right _ _).trans hX₀T
+    rw [div_le_iff₀ (by positivity)] at h
+    linarith
+  exact exists_forall_mem_interval_systemSet_of_shift S w hwInf hwFin hN hτ hX₀H
+    ((le_max_left _ _).trans hX₀T) fun c' hcw hcA _ hcD ↦ by
+      have hdev : approxDevWeight (systemPlacesOver E S) c' ≤
+          min (2 * (finrank K E * (2 * systemPosWeight c + (1 + τ) * δ)))
+            (finrank K E * (2 * (2 + δ) + systemNegWeight c)) := by
+        refine le_min ((approxDevWeight_le (n := 1) le_rfl (by omega) _ c').trans ?_) ?_
+        · push_cast
+          linarith
+        · rw [hcard] at hcD
+          push_cast at hcD
+          exact hcD
+      obtain ⟨T, hTcard, hTtop, hint⟩ :=
+        exists_forall_mem_interval_approxDomain_two_of_rothLemmaAt (K := E) hcard
+          (linearIndependent_conjSystem_infinitePlace hwInf hLI)
+          (fun V hV ↦ linearIndependent_conjSystem_systemPlacesOver hwFin hLF hV) hε
+          (by rw [hcw]; linarith) hη0 hσ0 hF0 hg0 hRL (by
+            rw [hcw]
+            have := mul_le_mul_of_nonneg_left hdev hη0.le
+            linarith) hsE hq hm
+      obtain ⟨𝒯, h𝒯card, h𝒯ge, hQint⟩ := hint X₀ hX₀P
+      exact ⟨T, hTcard, hTtop, 𝒯, h𝒯card, h𝒯ge, hQint⟩
+
+open scoped Classical in
+/-- **The large solutions of a system in two variables lie in two subspaces or in `m` height
 intervals, from the weight budget.** `NumberField.exists_forall_mem_interval_systemSet_two` with
 the parameters chosen by the caller: the scalar costs a fraction `τ` of `δ`, so the exponents of
 the domain have weight exactly `-W`, `W = [E : K] (1 - τ) δ`, and absolute weight at most
@@ -807,34 +1047,23 @@ theorem exists_forall_mem_interval_systemSet_two_at (RL : SubspaceRoth.{u} E)
           (∃ U ∈ T, x ∈ U) ∨
             ∃ t ∈ 𝒯, t ≤ Real.log (mulHeightAff x) ∧ Real.log (mulHeightAff x) <
               4 * (RL.ratio 1 s (2 * ε) A)⁻¹ * t := by
-  have : Nonempty ι := Fintype.card_pos_iff.1 (by omega)
-  have hLI : ∀ v : InfinitePlace K, LinearIndependent E (L v.1) := fun v ↦
-    hN.linearIndependent (.inl v)
-  have hLF : ∀ p ∈ S, LinearIndependent E (L (FinitePlace.mk p).1) := fun p hp ↦
-    hN.linearIndependent (.inr ⟨p, hp⟩)
-  have hsE : formCount (systemPlacesOver E S) (conjSystem univ (S.image FinitePlace.mk) w L) ≤
-      2 * s := (formCount_conjSystem_le hwInf hwFin hN.ncard_le).trans hs
-  have hη0 : 0 < subspaceEta 1 (2 * ε) A := subspaceEta_pos (by positivity) hA0
-  have hX₀T := (le_max_right _ _).trans hX₀
-  have hX₀P := (le_max_left _ _).trans hX₀
-  have hX₀H : systemHeightThreshold (Fintype.card ι) (finrank ℚ E)
-      (Fintype.card (InfinitePlace K) + #S) δ H (Real.log (scalarConst K S)) ≤ 2 * τ * X₀ := by
-    have h := (le_max_right _ _).trans hX₀T
-    rw [div_le_iff₀ (by positivity)] at h
-    linarith
-  exact exists_forall_mem_interval_systemSet_of_shift S w hwInf hwFin hN hτ hX₀H
-    ((le_max_left _ _).trans hX₀T) fun c' hcw hcA _ ↦ by
-      obtain ⟨T, hTcard, hTtop, hint⟩ :=
-        exists_forall_mem_interval_approxDomain_two_of_budget (K := E) RL hcard
-          (linearIndependent_conjSystem_infinitePlace hwInf hLI)
-          (fun V hV ↦ linearIndependent_conjSystem_systemPlacesOver hwFin hLF hV) hε
-          (by rw [hcw]; linarith) hA0 (by
-            rw [hcw]
-            have := mul_le_mul_of_nonneg_left hcA (by positivity :
-              (0 : ℝ) ≤ 2 * subspaceEta 1 (2 * ε) A)
-            linarith) hsE
-      obtain ⟨𝒯, h𝒯card, h𝒯ge, hQint⟩ := hint X₀ hX₀P
-      exact ⟨T, hTcard, hTtop, 𝒯, h𝒯card, h𝒯ge, hQint⟩
+  rw [systemThresholdTwoAt_eq_explicit] at hX₀
+  have hε2 : 0 < 2 * ε := by positivity
+  refine exists_forall_mem_interval_systemSet_two_of_rothLemmaAt hcard S w hwInf hwFin hN hτ hε hεW
+    (subspaceEta_pos hε2 hA0) (RL.ratio_pos hε2 hA0) (RL.factor_nonneg hε2 hA0)
+    (RL.shift_nonneg hε2 hA0) (RL.rothLemmaAt le_rfl hε2 hA0) (by
+      have := mul_le_mul_of_nonneg_left (min_le_left
+        (2 * (finrank K E * (2 * systemPosWeight c + (1 + τ) * δ)))
+        (finrank K E * (2 * (2 + δ) + systemNegWeight c)))
+        (subspaceEta_pos (n := 1) hε2 hA0).le
+      linarith) hs le_rfl ?_ hX₀
+  have h := subspaceChainLength_spec 1 s hε2 hA0
+  have e : (1 + 1) * s = 2 * s := by ring
+  rw [e] at h
+  have h' := Finset.lt_mul_layerRate h (by positivity)
+  push_cast at h' ⊢
+  norm_num at h' ⊢
+  linarith
 
 /-- **The number of subspaces in two variables with a gap principle of the caller's**: `⊥` and
 Layer 5.6's exceptional subspace; for each of the `m` intervals of ratio `4 σ⁻¹`, at most
@@ -857,8 +1086,10 @@ on distinct lines with `Y ≤ log H(x) ≤ log H(y)` have `ρ log H(x) ≤ log H
 range `[Y, X₀)` counted with the caller's gap (`Submodule.exists_finset_span_singleton_of_lacunary`)
 in place of Layer 9.4's ratio `1 + δ / 4`. No count for the solutions below `Y` is included.
 
-This is the count of Theorem 7.6 of [Ste26], where the exceptions to `‖(3/2)^n‖ ≥ (3/4)^n` have
-the gap `ρ₀ = 1.2618` from `n > 10⁵` on, against `1 + δ / 4 ≈ 1.065`. -/
+This is the count of Remark 7.7 of [Ste26] (at the generic parameters; Theorem 7.6 there counts
+the same way after `NumberField.exists_forall_mem_interval_systemSet_two_of_rothLemmaAt`), where
+the exceptions to `‖(3/2)^n‖ ≥ (3/4)^n` have the gap `ρ₀ = 1.2618` from `n > 10⁵` on, against
+`1 + δ / 4 ≈ 1.065`. -/
 theorem exists_finset_submodule_of_gap_two (RL : SubspaceRoth.{u} E)
     (hcard : Fintype.card ι = 2)
     (S : Finset (HeightOneSpectrum (𝓞 K))) (w : AbsoluteValue K ℝ → AbsoluteValue E ℝ)
