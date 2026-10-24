@@ -2211,7 +2211,10 @@ Move from points in `Kⁿ` to points in `ℚ̄ⁿ`, with counts independent of `
   `Bugeaud2013/Additions/CountHalf.lean` (via `Real.SubspaceIntervalFamily`, `S = ∅`), where the
   `≍ ε⁻¹` classes of the exponents had cost one interval result each: the exponent of the three
   complexity bounds goes from `1/3` to `1/2`. The `δ⁻²` left is the number `m ≍ δ⁻²` of blocks of
-  the auxiliary polynomial.
+  the auxiliary polynomial. Published as Theorem 2.1 of R. Stephan, *The Evertse–Ferretti interval
+  result for a set of weights, and the exponent `1/2` in three complexity bounds* (2026), with
+  Lemma 3.2 the weight types, Proposition 4.1 the approximation domains and Theorem 4.2 the real
+  forms.
 
 Possible additions (proposed 2026-10-12; not started). They come from a consumer: `lean-code`'s
 `CITED/BugeaudEvertseRidout.lean` keeps Bugeaud–Evertse 2008 Cor. 5.2 as a cited axiom

@@ -28,6 +28,9 @@ result with counts independent of `𝒩`.
 J.-H. Evertse, *On the Quantitative Subspace Theorem*, Zap. Nauchn. Sem. POMI **377** (2010),
 217–240 (arXiv:1008.2268), proof of Theorem 2.1. J.-H. Evertse and R. G. Ferretti, *A further
 improvement of the Quantitative Subspace Theorem*, Ann. of Math. **177** (2013), 513–590.
+
+R. Stephan, *The Evertse–Ferretti interval result for a set of weights, and the exponent `1/2` in
+three complexity bounds* (2026), §4.1.
 -/
 
 @[expose] public section

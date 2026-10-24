@@ -12,7 +12,9 @@ an explicit exponent `δ < 1/4` (see `Additions/README.md`), published as Theore
 *The exponent `1/4` in three complexity bounds* (arXiv:2610.30937, 2026). Since 2026-10-24 it
 also proves `δ < 1/3` (`Nat.frequently_lt_encard_factors_of_lt_third`), with the interval form of
 Evertse–Ferretti's count, and `δ < 1/2` (`Nat.frequently_lt_encard_factors_of_lt_half`), with the
-interval form for a set of exponents.
+interval form for a set of exponents; these are Remark 8.1 and Theorem B of Stephan, *The
+Evertse–Ferretti interval result for a set of weights, and the exponent `1/2` in three complexity
+bounds* (2026).
 
 ## The library
 

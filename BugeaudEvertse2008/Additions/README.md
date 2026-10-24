@@ -93,6 +93,12 @@ bounds: integer bases, continued fractions, and the `(3/2)^n` steering word*, ar
 lemmas of `PlaneLiouville.lean` and `SmallGap.lean`, and Remark 6.1 is the `1/7` of
 `Theorem21.lean`. Its Appendix A maps every numbered statement to its Lean declaration.
 
+The `1/2` of `Theorem21Half.lean` is Theorem A of R. Stephan, *The Evertse–Ferretti interval
+result for a set of weights, and the exponent `1/2` in three complexity bounds* (2026), §5:
+Propositions 5.1–5.2 are `Real.exists_plane_intervals_family_of_approx` and
+`Real.card_le_of_approx_half`. Its Remark 8.1 is the `1/3` of `Theorem21Third.lean`, and its
+Appendix A maps every numbered statement to its Lean declaration.
+
 ## Checks (2026-10-21)
 
 * `lake build BugeaudEvertse2008`: no errors, no warnings, no `set_option`.

@@ -15,7 +15,9 @@ Improved to `η < 1/3` in `Additions/` (2026-10-24, std3,
 (`Real.SubspaceIntervalWith`) leaves one plane per class and `O(ε⁻² log² ε⁻¹)` further points.
 Improved to `η < 1/2` in `Additions/` (2026-10-24, std3,
 `Real.frequently_lt_complexity_of_lt_half`): the interval form for a set of exponents
-(`Real.SubspaceIntervalFamilyWith`) serves all classes at once.**
+(`Real.SubspaceIntervalFamilyWith`) serves all classes at once. The `1/3` and the `1/2` are
+Remark 8.1 and Theorem A of Stephan, *The Evertse–Ferretti interval result for a set of weights,
+and the exponent `1/2` in three complexity bounds* (2026).**
 Optional later work:
 Thm 3.1, Cor. 3.2, Thm 9.1, 9.2. The directory is its own `lean_lib`
 (`BugeaudEvertse2008`), held to the same rules as the other paper directories (no `sorry`, no

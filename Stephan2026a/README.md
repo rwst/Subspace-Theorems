@@ -14,7 +14,9 @@ and the `(3/2)^n` steering word*, arXiv:2610.30937 (2026), §5. **(2026-10-24): 
 `η < 1/3`** (`SteeringWord.frequently_lt_complexity_third`, `QuantitativeThird.lean`), with the
 interval form of Evertse–Ferretti's count (`Real.SubspaceIntervalWith`); **every `η < 1/2`**
 (`SteeringWord.frequently_lt_complexity_half`, `QuantitativeHalf.lean`), with the interval form
-for a set of exponents (`Real.SubspaceIntervalFamilyWith`). The
+for a set of exponents (`Real.SubspaceIntervalFamilyWith`). The `1/3` and the `1/2` are Remark 8.1
+and Theorem C of R. Stephan, *The Evertse–Ferretti interval result for a set of weights, and the
+exponent `1/2` in three complexity bounds* (2026). The
 directory is its own `lean_lib` (`Stephan2026a`), held to the same rules as the other paper
 directories (no `sorry`, no `set_option`, std3 axioms, fine-grained imports, module system,
 Mathlib-style namespaces), and is in the gates' library lists. Its comparator lane certifies
@@ -161,4 +163,7 @@ points of all classes into `K` planes, `K` independent of `ε`, and `O(ε⁻² l
 The `δ⁻²` left is the number of intervals of Theorem 2.3, the number `m ≍ δ⁻²` of blocks of
 the auxiliary polynomial (Hoeffding). The same change brings integer bases and continued
 fractions to `1/2` (`BugeaudEvertse2008/Additions/Theorem21Half.lean`,
-`Bugeaud2013/Additions/CountHalf.lean`).
+`Bugeaud2013/Additions/CountHalf.lean`). All three, and the theorem for a set of exponents, are in
+R. Stephan, *The Evertse–Ferretti interval result for a set of weights, and the exponent `1/2` in
+three complexity bounds* (2026): its Theorem 2.1 is
+`NumberField.FormSystem.exists_intervals_cover_family`, and its §7 is this step.

@@ -13,6 +13,8 @@ public import QuantitativeSubspace.FormWeightType
 
 J.-H. Evertse and R. G. Ferretti, *A further improvement of the Quantitative Subspace Theorem*,
 Ann. of Math. **177** (2013), 513–590, Theorem 2.3, §18.
+R. Stephan, *The Evertse–Ferretti interval result for a set of weights, and the exponent `1/2` in
+three complexity bounds* (2026), Theorem 2.1 and §3.
 
 EF13 Theorem 2.3 is stated for one tuple of exponents `c`. Here the forms `L` are fixed and `c`
 runs through a set `𝒞` of exponents, all vanishing outside a finite set `S₁` of places, with

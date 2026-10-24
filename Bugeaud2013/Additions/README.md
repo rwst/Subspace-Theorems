@@ -57,7 +57,7 @@ same forms and differ only in their exponents; with the interval form for a set 
 (`CountHalf.lean`) one application serves all cells, with `K` subspaces and `K ε⁻² log ε⁻¹`
 intervals, and the count is `ε⁻²`: `δ < 1/2`.
 
-## Reference
+## References
 
 R. Stephan, *The exponent `1/4` in three complexity bounds: integer bases, continued fractions, and
 the `(3/2)^n` steering word*, arXiv:2610.30937 (2026), §4: Theorem 1.2 is
@@ -65,6 +65,12 @@ the `(3/2)^n` steering word*, arXiv:2610.30937 (2026), §4: Theorem 1.2 is
 `Nat.cfPoint_spadeVec` and `Nat.exists_config`, and Proposition 4.3 with its steps (i)–(iv) is
 `Real.card_le_of_cfPoints` (`Count.lean`, `Points.lean`, `Subspaces.lean`, `Hyperplanes.lean`). Its
 Appendix A maps every numbered statement to its Lean declaration.
+
+The `1/2` instance is Theorem B of R. Stephan, *The Evertse–Ferretti interval result for a set of
+weights, and the exponent `1/2` in three complexity bounds* (2026), §6: Propositions 6.1–6.2 are
+`Real.exists_cover_four_intervals_family` and `Real.card_le_of_cfPoints_half` (`CountHalf.lean`);
+its Remark 8.1 is the `1/3` instance (`CountThird.lean`). Its Appendix A maps every numbered
+statement to its Lean declaration.
 
 ## Checks (2026-10-10)
 

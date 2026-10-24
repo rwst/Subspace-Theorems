@@ -13,6 +13,8 @@ public import QuantitativeSubspace.FormSubspaceWeight
 
 J.-H. Evertse and R. G. Ferretti, *A further improvement of the Quantitative Subspace Theorem*,
 Ann. of Math. **177** (2013), 513–590, (2.19)–(2.21) and Lemma 15.2.
+R. Stephan, *The Evertse–Ferretti interval result for a set of weights, and the exponent `1/2` in
+three complexity bounds* (2026), Lemma 3.2.
 
 The weight `w_{L,c}(U)` of (2.19), (2.20) at a place `v` is the least `Σ_{i ∈ I} c_iv` over the
 index sets `I` for which the restrictions `L_i^{(v)}|_U`, `i ∈ I`, form a basis of the dual of `U`.

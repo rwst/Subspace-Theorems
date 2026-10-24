@@ -47,6 +47,9 @@ and saves the factor of the number of classes.
 
 J.-H. Evertse and R. G. Ferretti, *A further improvement of the Quantitative Subspace Theorem*,
 Ann. of Math. **177** (2013), 513–590, Theorems 2.3 and 3.3.
+
+R. Stephan, *The Evertse–Ferretti interval result for a set of weights, and the exponent `1/2` in
+three complexity bounds* (2026), Theorem 4.2.
 -/
 
 @[expose] public section

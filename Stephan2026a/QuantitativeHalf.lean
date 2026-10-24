@@ -51,6 +51,9 @@ R. Stephan, *Superlinear complexity of the `(3/2)^n` steering word*, arXiv:2607.
 Y. Bugeaud, J.-H. Evertse, *On two notions of complexity of algebraic numbers*, Acta Arith.
 **133** (2008), 221–250, §7; J.-H. Evertse, R. G. Ferretti, *A further improvement of the
 quantitative Subspace Theorem*, Ann. of Math. **177** (2013), 513–590, Theorems 2.3 and 3.3.
+
+R. Stephan, *The Evertse–Ferretti interval result for a set of weights, and the exponent `1/2` in
+three complexity bounds* (2026), Theorem C and §7.
 -/
 
 @[expose] public section
