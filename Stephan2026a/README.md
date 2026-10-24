@@ -106,14 +106,18 @@ step 4 Lemma 5.7, step 5 the proof of Theorem 1.3.
    share it), and Lemma 2.7 turns each into `|ε_c - ε_a| ≤ (3^c)^{-ε}`.
 2. Pairs with a large gap `s > ε c / 4`: the kernel point `(3^c, 2^s 3^a, 2^c M)` solves a
    three-variable system at `∞`, `2`, `3` in the class `⌊k s / c⌋` of its gap; Evertse–Ferretti
-   (`Real.subspaceBoundAt_three`) gives `K ε⁻⁴ (1 + log ε⁻¹)²` planes. One exponent at `∞` is
+   (`Real.subspaceBoundAt_three`) gives `K ε⁻⁴ (1 + log ε⁻¹)²` planes, with `K = 96 · 10²⁴`
+   (`SteeringWord.exists_planes_of_violators_explicit`: the forms have integer coefficients, so
+   Evertse–Ferretti's constant is explicit, `≤ 10²⁴`). One exponent at `∞` is
    `λ - ε` with `λ = log 2 / log 3 ≈ 0.63`, not `≤ 0`; the hypothesis of `Real.SubspaceBoundAt` was
    weakened to "one exponent `≤ 1 - δ / 2n`", which is all its proof uses.
 3. On one plane the points are few by integer identities alone: the same gap gives `7 c₂ < 19 c₁`
    (`2^19 < 3^12`), two different gaps bound every further point by `c < 18 (c₁ + c₂) + 18`; a
    doubling sequence then has `O(1 + log ε⁻¹)` points on a plane.
 4. Pairs with a small gap: the point `(3^c - 2^s 3^a, 2^c M)` solves a two-variable system;
-   `K ε⁻³ (1 + log ε⁻¹)²` lines, at most three points on each (`3^5 < 2^8`).
+   `K ε⁻³ (1 + log ε⁻¹)²` lines with `K = 32 · 10²¹`
+   (`SteeringWord.exists_lines_of_violators_explicit`), at most three points on each
+   (`3^5 < 2^8`).
 5. With `ε ≈ (log τ_{2N})^{-v}` the `N` points `N ≤ n < 2N` number at most
    `K ε⁻⁴ (1 + log ε⁻¹)³ = o(N)` when `4 v < 1` (DA's `Real.eventually_doubling_thresholds`).
 

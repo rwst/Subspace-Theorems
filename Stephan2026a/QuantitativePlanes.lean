@@ -32,7 +32,8 @@ gap among `k = ⌊2/ε⌋ + 1` classes,
 The exponents sum to `1/k - ε = -δ`, `δ ≥ ε/2`, exactly in `λ`; the only numerical fact used
 is `λ ≤ 2/3` (`2^3 ≤ 3^2`). Evertse–Ferretti's count (`Real.subspaceBoundAt_three`) puts the
 points of one class above the threshold `K δ⁻¹` into `K δ⁻³ (1 + log δ⁻¹)²` planes, and the
-`k ≤ 3/ε` classes into `K' ε⁻⁴ (1 + log ε⁻¹)²` planes (`SteeringWord.exists_planes_of_violators`).
+`k ≤ 3/ε` classes into `K' ε⁻⁴ (1 + log ε⁻¹)²` planes (`SteeringWord.exists_planes_of_violators`);
+here `α = 0`, so `K ≤ 10²⁴` and `K' = 96 · 10²⁴`.
 This is the three-variable step of Bugeaud–Evertse 2008, §7, with `(3^c, 2^s 3^a, 2^c M)` in place
 of `(b^t, b^r, p)`; the third coordinate is not `S`-integral, and its `2`-adic smallness pays for
 `2^c` as in Theorem 4.5.
@@ -46,7 +47,11 @@ of `(b^t, b^r, p)`; the third coordinate is not `S`-integral, and its `2`-adic s
 
 * `SteeringWord.kernelNum_eq`: `N = 2^c (ε_c - ε_a)`; `abs_kernelNum_lt`: `|N| < 2^c`;
   `odd_kernelNum`: `N` is odd.
-* `SteeringWord.exists_planes_of_violators`: **the three-variable step**.
+* `SteeringWord.subspaceBoundWith_two_three_two`, `SteeringWord.subspaceBoundWith_two_three_three`:
+  Evertse–Ferretti's count for integer forms at `∞`, `2` and `3` in two and three variables, with
+  `K = 10²¹` and `K = 10²⁴`.
+* `SteeringWord.exists_planes_of_violators`: **the three-variable step**; with
+  `K = 96 · 10²⁴`, `SteeringWord.exists_planes_of_violators_explicit`.
 
 ## References
 
@@ -195,22 +200,125 @@ theorem padicNorm_intCast_le_of_dvd {p : ℕ} [Fact p.Prime] {n : ℕ} {z : ℤ}
   have h := (Rat.cast_le (K := ℝ)).mpr (padicNorm_le_of_dvd hz)
   rwa [Rat.cast_pow, Rat.cast_div, Rat.cast_one, Rat.cast_natCast] at h
 
+/-! ### Evertse–Ferretti's constant at `α = 0` and the primes `2`, `3` -/
+
+/-- `log x ≤ k` for `0 < x ≤ 2.7^k`, as `2.7 < e`. -/
+theorem log_le_of_le_pow {x : ℝ} (hx : 0 < x) (k : ℕ) (h : x ≤ 2.7 ^ k) : log x ≤ k := by
+  rw [log_le_iff_le_exp hx, ← exp_one_pow]
+  exact h.trans (pow_le_pow_left₀ (by norm_num) (by linarith [exp_one_gt_d9]) k)
+
+/-- The primes `2` and `3` are distinct. -/
+theorem prime_two_ne_prime_three : (⟨2, Nat.prime_two⟩ : Nat.Primes) ≠ ⟨3, Nat.prime_three⟩ := by
+  decide
+
+/-- `log 2 + log 2 + log 3 ≤ 4`: the logarithm of Minkowski's constant `2 · 2 · 3` at `2`, `3`. -/
+theorem log_two_add_sum_log_le :
+    log 2 + ∑ l ∈ ({⟨2, Nat.prime_two⟩, ⟨3, Nat.prime_three⟩} : Finset Nat.Primes),
+      log (l : ℕ) ≤ 4 := by
+  rw [sum_pair (ι := Nat.Primes) prime_two_ne_prime_three]
+  have h2 := log_le_sub_one_of_pos (show (0 : ℝ) < 2 by norm_num)
+  have h3 := log_le_sub_one_of_pos (show (0 : ℝ) < 3 by norm_num)
+  change log 2 + (log ((2 : ℕ) : ℝ) + log ((3 : ℕ) : ℝ)) ≤ 4
+  push_cast
+  linarith
+
+/-- **EF13's constant at `n = 2`** over `ℚ`, `4` conjugated forms. -/
+theorem efCountConst_two_le : efCountConst 2 (2 * 2 * 1) ≤ 10 ^ 21 := by
+  have l1 := log_le_of_le_pow (x := 24) (by norm_num) 4 (by norm_num)
+  have l2 := log_le_of_le_pow (x := 12) (by norm_num) 3 (by norm_num)
+  have l3 := log_le_of_le_pow (x := 6) (by norm_num) 2 (by norm_num)
+  push_cast at l1 l2 l3
+  have h0 : 1 ≤ 2 * log 12 := by
+    have := log_le_log (by norm_num : (0 : ℝ) < 3) (by norm_num : (3 : ℝ) ≤ 12)
+    have := log_le_sub_one_of_pos (show (0 : ℝ) < 1 / 3 by norm_num)
+    rw [one_div, log_inv] at this
+    linarith
+  have l4 : log (2 * log 12) ≤ 2 := (log_le_log (by linarith) (by linarith)).trans l3
+  have l40 : 0 ≤ log (2 * log 12) + 1 := by linarith [log_nonneg h0]
+  unfold efCountConst
+  rw [show ((2 * 2 * 1 : ℕ) : ℝ) = 4 by norm_num, show (6 : ℝ) * 4 = 24 by norm_num,
+    show (3 : ℝ) * 4 = 12 by norm_num, Nat.cast_ofNat]
+  calc 2 * 10 ^ 13 * 4 ^ 2 * (2 : ℝ) ^ 14 * 8 * (log 24 + 1) * (log (2 * log 12) + 1)
+      ≤ 2 * 10 ^ 13 * 4 ^ 2 * 2 ^ 14 * 8 * 5 * 3 :=
+        mul_le_mul (mul_le_mul_of_nonneg_left (by linarith) (by norm_num)) (by linarith) l40
+          (by norm_num)
+    _ ≤ 10 ^ 21 := by norm_num
+
+/-- **The constant of Evertse–Ferretti's count at `n = 2`** over `ℚ` with two primes is at most
+`10^21`. -/
+theorem subspaceConst_two_le {μ : ℝ} (hμ : μ ≤ 4) : subspaceConst 2 1 2 0 μ ≤ 10 ^ 21 := by
+  unfold subspaceConst
+  refine max_le (max_le efCountConst_two_le ?_) (by norm_num)
+  unfold thrConst
+  rw [show Nat.choose (2 * 2 * 1 + 2) 2 = 15 by decide]
+  push_cast
+  nlinarith
+
+/-- **EF13's constant at `n = 3`** over `ℚ`, `6` conjugated forms. -/
+theorem efCountConst_three_le : efCountConst 3 (2 * 3 * 1) ≤ 10 ^ 24 := by
+  have l1 := log_le_of_le_pow (x := 36) (by norm_num) 4 (by norm_num)
+  have l2 := log_le_of_le_pow (x := 18) (by norm_num) 3 (by norm_num)
+  have l3 := log_le_of_le_pow (x := 6) (by norm_num) 2 (by norm_num)
+  push_cast at l1 l2 l3
+  have h0 : 1 ≤ 2 * log 18 := by
+    have := log_le_log (by norm_num : (0 : ℝ) < 3) (by norm_num : (3 : ℝ) ≤ 18)
+    have := log_le_sub_one_of_pos (show (0 : ℝ) < 1 / 3 by norm_num)
+    rw [one_div, log_inv] at this
+    linarith
+  have l4 : log (2 * log 18) ≤ 2 := (log_le_log (by linarith) (by linarith)).trans l3
+  have l40 : 0 ≤ log (2 * log 18) + 1 := by linarith [log_nonneg h0]
+  unfold efCountConst
+  rw [show ((2 * 3 * 1 : ℕ) : ℝ) = 6 by norm_num, show (6 : ℝ) * 6 = 36 by norm_num,
+    show (3 : ℝ) * 6 = 18 by norm_num, Nat.cast_ofNat]
+  calc 2 * 10 ^ 13 * 4 ^ 3 * (3 : ℝ) ^ 14 * 8 * (log 36 + 1) * (log (2 * log 18) + 1)
+      ≤ 2 * 10 ^ 13 * 4 ^ 3 * 3 ^ 14 * 8 * 5 * 3 :=
+        mul_le_mul (mul_le_mul_of_nonneg_left (by linarith) (by norm_num)) (by linarith) l40
+          (by norm_num)
+    _ ≤ 10 ^ 24 := by norm_num
+
+/-- **The constant of Evertse–Ferretti's count at `n = 3`** over `ℚ` with two primes is at most
+`10^24`. -/
+theorem subspaceConst_three_le {μ : ℝ} (hμ : μ ≤ 4) : subspaceConst 3 1 2 0 μ ≤ 10 ^ 24 := by
+  unfold subspaceConst
+  refine max_le (max_le efCountConst_three_le ?_) (by norm_num)
+  unfold thrConst
+  rw [show Nat.choose (2 * 3 * 1 + 3) 3 = 84 by decide]
+  push_cast
+  nlinarith
+
+/-- **Evertse–Ferretti's count for integer forms in two variables at `∞`, `2` and `3`**, with
+`K = 10²¹`. -/
+theorem subspaceBoundWith_two_three_two :
+    SubspaceBoundWith 0 {⟨2, Nat.prime_two⟩, ⟨3, Nat.prime_three⟩} 3 2 (10 ^ 21) := by
+  have h := subspaceBoundWith_three_zero {⟨2, Nat.prime_two⟩, ⟨3, Nat.prime_three⟩}
+    (n := 2) le_rfl (by norm_num)
+  rw [card_pair (α := Nat.Primes) prime_two_ne_prime_three] at h
+  exact h.mono_const (subspaceConst_two_le log_two_add_sum_log_le)
+
+/-- **Evertse–Ferretti's count for integer forms in three variables at `∞`, `2` and `3`**, with
+`K = 10²⁴`. -/
+theorem subspaceBoundWith_two_three_three :
+    SubspaceBoundWith 0 {⟨2, Nat.prime_two⟩, ⟨3, Nat.prime_three⟩} 3 3 (10 ^ 24) := by
+  have h := subspaceBoundWith_three_zero {⟨2, Nat.prime_two⟩, ⟨3, Nat.prime_three⟩}
+    (n := 3) (by norm_num) (by norm_num)
+  rw [card_pair (α := Nat.Primes) prime_two_ne_prime_three] at h
+  exact h.mono_const (subspaceConst_three_le log_two_add_sum_log_le)
+
 /-- **The three-variable step** (Bugeaud–Evertse 2008, (7.3)–(7.11), for the kernel points, with
-Evertse–Ferretti's count). There is `K > 0` such that for `0 < ε ≤ 1` the kernel points of the
-pairs `2 ≤ a < c` with `|ε_c - ε_a| ≤ (3^c)^{-ε}` and `K ε⁻¹ ≤ c log 3` lie in at most
-`K ε⁻⁴ (1 + log ε⁻¹)²` proper subspaces of `ℚ³`.
-Proposition 5.2 of Stephan's *The exponent `1/4` in three complexity bounds* (2026,
-arXiv:2610.30937). -/
-theorem exists_planes_of_violators :
-    ∃ K : ℝ, 0 < K ∧ ∀ ε : ℝ, 0 < ε → ε ≤ 1 → ∃ T : Finset (Submodule ℚ (Fin 3 → ℚ)),
-      (#T : ℝ) ≤ K * ε⁻¹ ^ 4 * (1 + log ε⁻¹) ^ 2 ∧ (∀ U ∈ T, U ≠ ⊤) ∧
+Evertse–Ferretti's count), with `K = 96 · 10²⁴`: for `0 < ε ≤ 1` the kernel points of the pairs
+`2 ≤ a < c` with `|ε_c - ε_a| ≤ (3^c)^{-ε}` and `K ε⁻¹ ≤ c log 3` lie in at most
+`K ε⁻⁴ (1 + log ε⁻¹)²` proper subspaces of `ℚ³`. -/
+theorem exists_planes_of_violators_explicit {ε : ℝ} (hε : 0 < ε) (hε1 : ε ≤ 1) :
+    ∃ T : Finset (Submodule ℚ (Fin 3 → ℚ)),
+      (#T : ℝ) ≤ 96 * 10 ^ 24 * ε⁻¹ ^ 4 * (1 + log ε⁻¹) ^ 2 ∧ (∀ U ∈ T, U ≠ ⊤) ∧
       ∀ a c : ℕ, 2 ≤ a → a < c → |(eps c : ℝ) - eps a| ≤ ((3 : ℝ) ^ c) ^ (-ε) →
-        K * ε⁻¹ ≤ c * log 3 → ∃ U ∈ T, (fun i ↦ (kernelPoint a c i : ℚ)) ∈ U := by
+        96 * 10 ^ 24 * ε⁻¹ ≤ c * log 3 → ∃ U ∈ T, (fun i ↦ (kernelPoint a c i : ℚ)) ∈ U := by
   classical
   set S : Finset Nat.Primes := {⟨2, Nat.prime_two⟩, ⟨3, Nat.prime_three⟩} with hS
   have h23 : (⟨2, Nat.prime_two⟩ : Nat.Primes) ≠ ⟨3, Nat.prime_three⟩ := by decide
-  obtain ⟨K₀, hK₀, hBE⟩ := subspaceBoundAt_three isAlgebraic_zero S 3 (by norm_num) (by norm_num)
-  refine ⟨96 * K₀, by positivity, fun ε hε hε1 ↦ ?_⟩
+  have hBE : SubspaceBoundWith 0 S 3 3 (10 ^ 24) := subspaceBoundWith_two_three_three
+  set K₀ : ℝ := 10 ^ 24 with hK₀def
+  have hK₀ : 0 < K₀ := by positivity
   set lam := logb 3 2 with hlam
   have hlam0 : 0 < lam := logb_three_two_pos
   have hlam1 : lam ≤ 2 / 3 := logb_three_two_le
@@ -434,5 +542,18 @@ theorem exists_planes_of_violators :
         _ ≤ c * log 3 := hthr
     obtain ⟨U, hU, hmem⟩ := hTmem ℓ hℓk x hx0 hinf hpad hthr'
     exact ⟨U, mem_biUnion.mpr ⟨ℓ, mem_range.mpr hℓk, hU⟩, hmem⟩
+
+/-- **The three-variable step** (Bugeaud–Evertse 2008, (7.3)–(7.11), for the kernel points, with
+Evertse–Ferretti's count). There is `K > 0` such that for `0 < ε ≤ 1` the kernel points of the
+pairs `2 ≤ a < c` with `|ε_c - ε_a| ≤ (3^c)^{-ε}` and `K ε⁻¹ ≤ c log 3` lie in at most
+`K ε⁻⁴ (1 + log ε⁻¹)²` proper subspaces of `ℚ³`.
+Proposition 5.2 of Stephan's *The exponent `1/4` in three complexity bounds* (2026,
+arXiv:2610.30937). -/
+theorem exists_planes_of_violators :
+    ∃ K : ℝ, 0 < K ∧ ∀ ε : ℝ, 0 < ε → ε ≤ 1 → ∃ T : Finset (Submodule ℚ (Fin 3 → ℚ)),
+      (#T : ℝ) ≤ K * ε⁻¹ ^ 4 * (1 + log ε⁻¹) ^ 2 ∧ (∀ U ∈ T, U ≠ ⊤) ∧
+      ∀ a c : ℕ, 2 ≤ a → a < c → |(eps c : ℝ) - eps a| ≤ ((3 : ℝ) ^ c) ^ (-ε) →
+        K * ε⁻¹ ≤ c * log 3 → ∃ U ∈ T, (fun i ↦ (kernelPoint a c i : ℚ)) ∈ U :=
+  ⟨96 * 10 ^ 24, by positivity, fun _ hε hε1 ↦ exists_planes_of_violators_explicit hε hε1⟩
 
 end SteeringWord

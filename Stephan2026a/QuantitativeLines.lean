@@ -41,7 +41,8 @@ satisfy `y₀ y₁' = y₀' y₁`; since `y₀'` is odd, `2^{c'} ∣ y₁ < 3^c`
 
 ## Main results
 
-* `SteeringWord.exists_lines_of_violators`: **the two-variable step**.
+* `SteeringWord.exists_lines_of_violators`: **the two-variable step**; with `K = 32 · 10²¹`,
+  `SteeringWord.exists_lines_of_violators_explicit`.
 * `SteeringWord.card_mem_line_le`: **at most three points on a line**.
 
 ## References
@@ -116,22 +117,21 @@ theorem five_mul_lt_of_mul_eq {a' c' : ℕ} (ha : 2 ≤ a) (hac : a < c) (hac' :
     exact Nat.pow_le_pow_left (by norm_num) _
   exact lt_irrefl _ ((e1.trans_lt e2).trans_le e3)
 
-/-- **The two-variable step.** There is `K > 0` such that for `0 < ε ≤ 1` the line points of the
+/-- **The two-variable step**, with `K = 32 · 10²¹`: for `0 < ε ≤ 1` the line points of the
 pairs `2 ≤ a < c` with `|ε_c - ε_a| ≤ (3^c)^{-ε}`, a small gap `c - a ≤ ε c / 4` and
-`K ε⁻¹ ≤ c log 3` lie in at most `K ε⁻³ (1 + log ε⁻¹)²` proper subspaces of `ℚ²`.
-First proved as Lemma 5.7 of Stephan's *The exponent `1/4` in three complexity bounds* (2026,
-arXiv:2610.30937). -/
-theorem exists_lines_of_violators :
-    ∃ K : ℝ, 0 < K ∧ ∀ ε : ℝ, 0 < ε → ε ≤ 1 → ∃ T : Finset (Submodule ℚ (Fin 2 → ℚ)),
-      (#T : ℝ) ≤ K * ε⁻¹ ^ 3 * (1 + log ε⁻¹) ^ 2 ∧ (∀ U ∈ T, U ≠ ⊤) ∧
+`K ε⁻¹ ≤ c log 3` lie in at most `K ε⁻³ (1 + log ε⁻¹)²` proper subspaces of `ℚ²`. -/
+theorem exists_lines_of_violators_explicit {ε : ℝ} (hε : 0 < ε) (hε1 : ε ≤ 1) :
+    ∃ T : Finset (Submodule ℚ (Fin 2 → ℚ)),
+      (#T : ℝ) ≤ 32 * 10 ^ 21 * ε⁻¹ ^ 3 * (1 + log ε⁻¹) ^ 2 ∧ (∀ U ∈ T, U ≠ ⊤) ∧
       ∀ a c : ℕ, 2 ≤ a → a < c → |(eps c : ℝ) - eps a| ≤ ((3 : ℝ) ^ c) ^ (-ε) →
-        ((c - a : ℕ) : ℝ) ≤ ε / 4 * c → K * ε⁻¹ ≤ c * log 3 →
+        ((c - a : ℕ) : ℝ) ≤ ε / 4 * c → 32 * 10 ^ 21 * ε⁻¹ ≤ c * log 3 →
         ∃ U ∈ T, (fun i ↦ (linePoint a c i : ℚ)) ∈ U := by
   classical
   set S : Finset Nat.Primes := {⟨2, Nat.prime_two⟩, ⟨3, Nat.prime_three⟩} with hS
   have h23 : (⟨2, Nat.prime_two⟩ : Nat.Primes) ≠ ⟨3, Nat.prime_three⟩ := by decide
-  obtain ⟨K₀, hK₀, hBE⟩ := subspaceBoundAt_three isAlgebraic_zero S 2 le_rfl (by norm_num)
-  refine ⟨32 * K₀, by positivity, fun ε hε hε1 ↦ ?_⟩
+  have hBE : SubspaceBoundWith 0 S 3 2 (10 ^ 21) := subspaceBoundWith_two_three_two
+  set K₀ : ℝ := 10 ^ 21 with hK₀def
+  have hK₀ : 0 < K₀ := by positivity
   set lam := logb 3 2 with hlam
   have hlam0 : 0 < lam := logb_three_two_pos
   have hlam1 : lam ≤ 2 / 3 := logb_three_two_le
@@ -322,6 +322,19 @@ theorem exists_lines_of_violators :
       have hB : 3 * log 3 ≤ c * log 3 := mul_le_mul_of_nonneg_right hc3 hl30.le
       linarith
     exact hTmem y hy0 hinf hpad hthr'
+
+/-- **The two-variable step.** There is `K > 0` such that for `0 < ε ≤ 1` the line points of the
+pairs `2 ≤ a < c` with `|ε_c - ε_a| ≤ (3^c)^{-ε}`, a small gap `c - a ≤ ε c / 4` and
+`K ε⁻¹ ≤ c log 3` lie in at most `K ε⁻³ (1 + log ε⁻¹)²` proper subspaces of `ℚ²`.
+First proved as Lemma 5.7 of Stephan's *The exponent `1/4` in three complexity bounds* (2026,
+arXiv:2610.30937). -/
+theorem exists_lines_of_violators :
+    ∃ K : ℝ, 0 < K ∧ ∀ ε : ℝ, 0 < ε → ε ≤ 1 → ∃ T : Finset (Submodule ℚ (Fin 2 → ℚ)),
+      (#T : ℝ) ≤ K * ε⁻¹ ^ 3 * (1 + log ε⁻¹) ^ 2 ∧ (∀ U ∈ T, U ≠ ⊤) ∧
+      ∀ a c : ℕ, 2 ≤ a → a < c → |(eps c : ℝ) - eps a| ≤ ((3 : ℝ) ^ c) ^ (-ε) →
+        ((c - a : ℕ) : ℝ) ≤ ε / 4 * c → K * ε⁻¹ ≤ c * log 3 →
+        ∃ U ∈ T, (fun i ↦ (linePoint a c i : ℚ)) ∈ U :=
+  ⟨32 * 10 ^ 21, by positivity, fun _ hε hε1 ↦ exists_lines_of_violators_explicit hε hε1⟩
 
 /-- **At most three points on a line.** Let `2 τ_n < τ_{n+1}` and `ρ_n < τ_n`. The indices `n`
 whose line point at `(ρ_n + 2, τ_n + 2)` lies on a proper subspace of `ℚ²` number at most

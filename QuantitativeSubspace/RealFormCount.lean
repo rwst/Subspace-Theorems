@@ -12,6 +12,7 @@ public import DiophantineApproximation.LinearFormSubspaces
 import ArithmeticHeights.Extension
 import DiophantineApproximation.PlacesOverFinite
 import DiophantineApproximation.RationalPlaces
+import QuantitativeSubspace.Numerics
 import Mathlib.FieldTheory.Galois.Basic
 import Mathlib.FieldTheory.IsAlgClosed.Basic
 import Mathlib.FieldTheory.Normal.Basic
@@ -26,7 +27,8 @@ the coordinates; and integer points. This file states what such an application u
 (`Real.SubspaceBoundAt α S a`: the solutions lie in at most `K δ^{-a} (1 + log δ⁻¹)²` proper
 subspaces, above a threshold linear in `δ⁻¹` and in the logarithms of the data) and
 proves it with `a = 3` from the Evertse–Ferretti count
-(`NumberField.exists_finset_submodule_of_efSystemThreshold_le`, `NumberField.efLargeCount_le_ef`).
+(`NumberField.exists_finset_submodule_of_efSystemThreshold_le`, `NumberField.efLargeCount_le_ef`),
+with an explicit `K` (`Real.SubspaceBoundWith`, `Real.subspaceConst`).
 
 The case `S = ∅` is what Bugeaud 2013, (6.1), uses (`Bugeaud2013/Additions/`); the case `n = 3`,
 `S` the primes of the base `b`, with the forms `X₀`, `X₁`, `α X₀ - α X₁ - X₂` at `∞`, is the
@@ -37,14 +39,26 @@ quantitative form of `Real.exists_finset_submodule_of_repetition` (DA 7.4) that 
 ## Main definitions
 
 * `Real.quadVal α b`: `b₀ + b₁ α + b₂ α²`.
-* `Real.SubspaceBoundAt α S a`: the quantitative Subspace Theorem for such forms in `2 ≤ n ≤ 4`
-  variables, at `∞` and the primes of `S`, with `δ^{-a}` subspaces.
+* `Real.SubspaceBoundWith α S a n K`: the quantitative Subspace Theorem for such forms in `n`
+  variables, at `∞` and the primes of `S`, with `K δ^{-a} (1 + log δ⁻¹)²` subspaces above the
+  threshold `K δ⁻¹ (1 + log B + log C + log γ⁻¹)`.
+* `Real.SubspaceBoundAt α S a`: `Real.SubspaceBoundWith α S a n K` for `2 ≤ n ≤ 4` and some `K`.
+* `Real.efCountConst n M`, `Real.thrConst n d s μ`, `Real.subspaceConst n d s h μ`: EF13's
+  constant at `M` conjugated forms, the threshold constant, and the larger of the two, in `n`, the
+  degree `d` of the field of the forms, the height `h = log H(α)` in it, the number `s` of primes
+  and `μ = log 2 + ∑_{l ∈ S} log l`.
 
 ## Main results
 
-* `Real.subspaceBoundAt_three`: **Evertse–Ferretti 2013**: `Real.SubspaceBoundAt α S 3` for every
-  real algebraic `α` and every finite set of primes `S`.
-* `Real.SubspaceBoundAt.mono`: a larger exponent is weaker.
+* `Real.subspaceBoundWith_three_of_mem`: **Evertse–Ferretti 2013, with an explicit constant**:
+  `Real.SubspaceBoundWith α S 3 n (Real.subspaceConst n d #S h μ)` for `2 ≤ n ≤ 4` and every Galois
+  field `E ⊆ ℂ` of degree `d` containing `α`.
+* `Real.subspaceBoundAt_three`: `Real.SubspaceBoundAt α S 3` for every real algebraic `α` and every
+  finite set of primes `S`.
+* `Real.subspaceBoundWith_three_ratCast`, `Real.subspaceBoundWith_three_zero`: the case
+  `α ∈ ℚ`, with `d = 1` and `h = log H(α)`.
+* `Real.SubspaceBoundWith.mono_const`, `Real.SubspaceBoundWith.mono`,
+  `Real.SubspaceBoundAt.mono`: a larger constant or exponent is weaker.
 
 ## Implementation notes
 
@@ -272,18 +286,17 @@ namespace Real
 
 open NumberField
 
-/-- **The quantitative Subspace Theorem for forms in `1, α, α²` at `∞` and the primes of `S`, with
-`δ^{-a}` subspaces.** For `2 ≤ n ≤ 4` there is `K` such that: for forms
+/-- **The quantitative Subspace Theorem for forms in `1, α, α²` at `∞` and the primes of `S`, in
+`n` variables, with `δ^{-a}` subspaces and the constant `K`.** For forms
 `∑_k quadVal α (P i k) X_k` at `∞` with integer data `|P i k m| ≤ B` and determinant at least `γ`
 in absolute value, a constant `C ≥ 1`, exponents `e i ≤ 1` at `∞`, one of them `1` and one of them
 `≤ 1 - δ / 2n`, and exponents `f l i ≤ 0` at the primes `l ∈ S`, one of them `0` at each `l`, of
 total sum at most `-δ`, the nonzero integer points `x` with
 `|∑_k quadVal α (P i k) x_k| ≤ C |x|^{e i}` and `|x i|_l ≤ |x|^{f l i}` for all `i` and `l ∈ S`,
 and `log |x| ≥ K δ⁻¹ (1 + log B + log C + log γ⁻¹)`, lie in at most `K δ^{-a} (1 + log δ⁻¹)²`
-proper subspaces of `ℚⁿ`. The constant `K` depends on `α`, `S` and `n` only. -/
-def SubspaceBoundAt (α : ℝ) (S : Finset Nat.Primes) (a : ℝ) : Prop :=
-  ∀ n : ℕ, 2 ≤ n → n ≤ 4 → ∃ K : ℝ, 0 < K ∧
-    ∀ (P : Fin n → Fin n → Fin 3 → ℤ) (B : ℝ), 1 ≤ B → (∀ i k m, |(P i k m : ℝ)| ≤ B) →
+proper subspaces of `ℚⁿ`. -/
+def SubspaceBoundWith (α : ℝ) (S : Finset Nat.Primes) (a : ℝ) (n : ℕ) (K : ℝ) : Prop :=
+  ∀ (P : Fin n → Fin n → Fin 3 → ℤ) (B : ℝ), 1 ≤ B → (∀ i k m, |(P i k m : ℝ)| ≤ B) →
     ∀ γ : ℝ, 0 < γ → γ ≤ 1 → γ ≤ |(Matrix.of fun i k ↦ quadVal α (P i k)).det| →
     ∀ C : ℝ, 1 ≤ C → ∀ (e : Fin n → ℝ) (f : Nat.Primes → Fin n → ℝ) (δ : ℝ), 0 < δ → δ ≤ 1 →
       (∀ i, e i ≤ 1) → (∃ i, e i = 1) → (∃ i, e i ≤ 1 - δ / (2 * n)) →
@@ -297,23 +310,70 @@ def SubspaceBoundAt (α : ℝ) (S : Finset Nat.Primes) (a : ℝ) : Prop :=
         K * δ⁻¹ * (1 + log B + log C + log γ⁻¹) ≤ log (⨆ k, |(x k : ℝ)|) →
         ∃ U ∈ T, (fun k ↦ (x k : ℚ)) ∈ U
 
+/-- **The quantitative Subspace Theorem for forms in `1, α, α²` at `∞` and the primes of `S`, with
+`δ^{-a}` subspaces**: `Real.SubspaceBoundWith α S a n K` for `2 ≤ n ≤ 4` and some `K > 0`, which
+depends on `α`, `S` and `n` only. -/
+def SubspaceBoundAt (α : ℝ) (S : Finset Nat.Primes) (a : ℝ) : Prop :=
+  ∀ n : ℕ, 2 ≤ n → n ≤ 4 → ∃ K : ℝ, 0 < K ∧ SubspaceBoundWith α S a n K
+
+/-- A larger constant is a weaker statement. -/
+theorem SubspaceBoundWith.mono_const {α a K K' : ℝ} {S : Finset Nat.Primes} {n : ℕ}
+    (h : SubspaceBoundWith α S a n K) (hKK : K ≤ K') : SubspaceBoundWith α S a n K' := by
+  intro P B hB hP γ hγ hγ1 hdet C hC e f δ hδ hδ1 he1 he he0 hf hf0 hsum
+  obtain ⟨T, hcard, hT, hmem⟩ := h P B hB hP γ hγ hγ1 hdet C hC e f δ hδ hδ1 he1 he he0 hf hf0 hsum
+  refine ⟨T, hcard.trans ?_, hT, fun x hx hsol hfin hlarge ↦ hmem x hx hsol hfin ?_⟩
+  · have : 0 ≤ δ⁻¹ ^ a := Real.rpow_nonneg (inv_nonneg.2 hδ.le) a
+    gcongr
+  · have hΞ : 0 ≤ δ⁻¹ * (1 + log B + log C + log γ⁻¹) := by
+      have := Real.log_nonneg hB
+      have := Real.log_nonneg hC
+      have := Real.log_nonneg ((one_le_inv₀ hγ).2 hγ1)
+      have : 0 < δ⁻¹ := inv_pos.2 hδ
+      positivity
+    refine le_trans ?_ hlarge
+    rw [mul_assoc, mul_assoc]
+    exact mul_le_mul_of_nonneg_right hKK hΞ
+
 /-- A larger exponent is a weaker statement. -/
-theorem SubspaceBoundAt.mono {α a b : ℝ} {S : Finset Nat.Primes} (h : SubspaceBoundAt α S a)
-    (hab : a ≤ b) : SubspaceBoundAt α S b := by
-  intro n hn2 hn4
-  obtain ⟨K, hK, hT⟩ := h n hn2 hn4
-  refine ⟨K, hK, fun P B hB hP γ hγ hγ1 hdet C hC e f δ hδ hδ1 he1 he he0 hf hf0 hsum ↦ ?_⟩
-  obtain ⟨T, hcard, hT, hmem⟩ :=
-    hT P B hB hP γ hγ hγ1 hdet C hC e f δ hδ hδ1 he1 he he0 hf hf0 hsum
+theorem SubspaceBoundWith.mono {α a b K : ℝ} {S : Finset Nat.Primes} {n : ℕ}
+    (h : SubspaceBoundWith α S a n K) (hK : 0 ≤ K) (hab : a ≤ b) : SubspaceBoundWith α S b n K := by
+  intro P B hB hP γ hγ hγ1 hdet C hC e f δ hδ hδ1 he1 he he0 hf hf0 hsum
+  obtain ⟨T, hcard, hT, hmem⟩ := h P B hB hP γ hγ hγ1 hdet C hC e f δ hδ hδ1 he1 he he0 hf hf0 hsum
   refine ⟨T, hcard.trans ?_, hT, hmem⟩
   have h1 : 1 ≤ δ⁻¹ := (one_le_inv₀ hδ).2 hδ1
   have := Real.rpow_le_rpow_of_exponent_le h1 hab
   gcongr
 
+/-- A larger exponent is a weaker statement. -/
+theorem SubspaceBoundAt.mono {α a b : ℝ} {S : Finset Nat.Primes} (h : SubspaceBoundAt α S a)
+    (hab : a ≤ b) : SubspaceBoundAt α S b := by
+  intro n hn2 hn4
+  obtain ⟨K, hK, hT⟩ := h n hn2 hn4
+  exact ⟨K, hK, hT.mono hK.le hab⟩
+
+/-- **EF13's constant** for `n` variables and `M` conjugated forms:
+`8 · 2 · 10¹³ · 4ⁿ n¹⁴ (log 6M + 1) (log (2 log 3M) + 1)`. -/
+noncomputable def efCountConst (n M : ℕ) : ℝ :=
+  2 * 10 ^ 13 * 4 ^ n * (n : ℝ) ^ 14 * 8 * (Real.log (6 * M) + 1) *
+    (Real.log (2 * Real.log (3 * M)) + 1)
+
+theorem efCountConst_pos {n M : ℕ} (hn : 1 ≤ n) (hM : 1 ≤ M) : 0 < efCountConst n M := by
+  have hM' : (1 : ℝ) ≤ M := by exact_mod_cast hM
+  have hlog3 : 1 ≤ Real.log 3 := by
+    rw [Real.le_log_iff_exp_le (by norm_num)]
+    have := Real.exp_one_lt_d9
+    linarith
+  have hl1 : 0 ≤ Real.log (6 * M) := Real.log_nonneg (by linarith)
+  have hl3 : 1 ≤ Real.log (3 * M) := hlog3.trans (Real.log_le_log (by norm_num) (by linarith))
+  have hl2 : 0 ≤ Real.log (2 * Real.log (3 * M)) := Real.log_nonneg (by linarith)
+  have : (0 : ℝ) < n := by exact_mod_cast hn
+  unfold efCountConst
+  positivity
+
 /-- **EF13's count in closed form**, at `r` forms and `δ / 2`. -/
-theorem efLargeCount_half_le {n d r : ℕ} (hn : 2 ≤ n) (hd : 1 ≤ d) (hr : 1 ≤ r) :
-    ∃ K : ℝ, 0 < K ∧ ∀ δ : ℝ, 0 < δ → δ ≤ 1 →
-      efLargeCount n d r (δ / 2) ≤ K * δ⁻¹ ^ (3 : ℝ) * (1 + log δ⁻¹) ^ 2 := by
+theorem efLargeCount_half_le {n d r : ℕ} (hn : 2 ≤ n) (hd : 1 ≤ d) (hr : 1 ≤ r) {δ : ℝ}
+    (hδ : 0 < δ) (hδ1 : δ ≤ 1) :
+    efLargeCount n d r (δ / 2) ≤ efCountConst n (r * d) * δ⁻¹ ^ (3 : ℝ) * (1 + log δ⁻¹) ^ 2 := by
   set m : ℝ := ((r * d : ℕ) : ℝ)
   have hm : 1 ≤ m := by
     have : 1 ≤ r * d := Nat.one_le_iff_ne_zero.2 (Nat.mul_ne_zero (by omega) (by omega))
@@ -328,8 +388,6 @@ theorem efLargeCount_half_le {n d r : ℕ} (hn : 2 ≤ n) (hd : 1 ≤ d) (hr : 1
     hlog3.trans (Real.log_le_log (by norm_num) (by linarith))
   have hl2 : 0 ≤ Real.log (2 * Real.log (3 * m)) := Real.log_nonneg (by linarith)
   set c0 : ℝ := 2 * 10 ^ 13 * 4 ^ n * (n : ℝ) ^ 14
-  refine ⟨c0 * 8 * (Real.log (6 * m) + 1) * (Real.log (2 * Real.log (3 * m)) + 1),
-    by positivity, fun δ hδ hδ1 ↦ ?_⟩
   have hδ2 : 0 < δ / 2 := by positivity
   have h := efLargeCount_le_ef (n := n) (e := d) (r := r) hn hd hr hδ2 (by linarith)
   have hinv : 0 ≤ Real.log δ⁻¹ := Real.log_nonneg ((one_le_inv₀ hδ).2 hδ1)
@@ -829,11 +887,16 @@ theorem one_le_scalarConst_rat (S : Finset (HeightOneSpectrum (𝓞 ℚ))) :
   norm_num
   linarith
 
+/-- The constant of the threshold, for `2 ≤ n ≤ 4` variables over a field of degree `d`, at `∞`
+and `s` finite places with `μ` the logarithm of Minkowski's constant. -/
+noncomputable def thrConst (n d s : ℕ) (μ : ℝ) : ℝ :=
+  2 * ((1 + 10 * ((2 * n * d + n).choose n : ℝ)) * (23 + 64 * (d + d * s)) + 60) + 48 +
+    2 * (8 * μ + 4 * (1 + s) * (23 + 4 * d))
+
 /-- The constant of the threshold, for `2 ≤ n ≤ 4` variables over a field of degree `d`, at the
 places `∞` and `S`. -/
 noncomputable def thrConstAt (n d : ℕ) (S : Finset (HeightOneSpectrum (𝓞 ℚ))) : ℝ :=
-  2 * ((1 + 10 * ((2 * n * d + n).choose n : ℝ)) * (23 + 64 * (d + d * #S)) + 60) + 48 +
-    2 * (8 * Real.log (scalarConst ℚ S) + 4 * (1 + #S) * (23 + 4 * d))
+  thrConst n d #S (Real.log (scalarConst ℚ S))
 
 /-- **The threshold of the scaled system** is at most `thrConstAt n d S (1 + log H) / δ`. -/
 theorem efSystemThreshold_le_thrConstAt {E : Type} [Field E] [NumberField E] [IsGalois ℚ E]
@@ -886,7 +949,7 @@ theorem efSystemThreshold_le_thrConstAt {E : Type} [Field E] [NumberField E] [Is
     have e1 : 23 + 64 * (c : ℝ) * log H ≤ (23 + 64 * ((d : ℝ) + d * #S)) * (1 + log H) := by
       nlinarith
     have e2 := mul_le_mul_of_nonneg_left e1 (by positivity : (0 : ℝ) ≤ 1 + 10 * ch)
-    unfold thrConstAt
+    unfold thrConstAt thrConst
     have : (0 : ℝ) ≤ (48 + 2 * (8 * μ + 4 * (1 + #S) * (23 + 4 * d))) * (1 + log H) := by
       positivity
     nlinarith
@@ -895,7 +958,7 @@ theorem efSystemThreshold_le_thrConstAt {E : Type} [Field E] [NumberField E] [Is
     rw [show 2 * (n : ℝ) / (δ / 2) * Real.log n = 4 * n * Real.log n / δ by field_simp; ring]
     refine div_le_div_of_nonneg_right ?_ hδ.le
     have : (n : ℝ) * Real.log n ≤ 4 * 3 := mul_le_mul hn4' hlogn hlogn0 (by norm_num)
-    unfold thrConstAt
+    unfold thrConstAt thrConst
     have : (0 : ℝ) ≤ (2 * ((1 + 10 * ch) * (23 + 64 * ((d : ℝ) + d * #S)) + 60) +
       2 * (8 * μ + 4 * (1 + #S) * (23 + 4 * d))) * (1 + log H) := by positivity
     nlinarith
@@ -917,20 +980,41 @@ theorem efSystemThreshold_le_thrConstAt {E : Type} [Field E] [NumberField E] [Is
     have htG : 4 * (1 + (#S : ℝ)) * G ≤ 4 * (1 + #S) * ((23 + 4 * d) * (1 + log H)) :=
       mul_le_mul_of_nonneg_left hG (by positivity)
     have hnμ : 2 * (n : ℝ) * μ ≤ 8 * μ * (1 + log H) := by nlinarith
-    unfold thrConstAt
+    unfold thrConstAt thrConst
     have : (0 : ℝ) ≤ (2 * ((1 + 10 * ch) * (23 + 64 * ((d : ℝ) + d * #S)) + 60) + 48) *
       (1 + log H) := by positivity
     nlinarith
 
 /-! ### Evertse–Ferretti -/
 
-/-- **The quantitative Subspace Theorem at `∞` and finitely many finite places of `ℚ`**, the form
-`Real.subspaceBoundAt_three` is assembled from: the places are elements of
-`HeightOneSpectrum (𝓞 ℚ)` and the exponents at them a function on all of them. -/
-theorem exists_subspaceBound_places {α : ℝ} (hα : IsAlgebraic ℚ α) {n : ℕ} (hn : 2 ≤ n)
-    (hn4 : n ≤ 4) (S : Finset (HeightOneSpectrum (𝓞 ℚ))) :
-    ∃ K : ℝ, 0 < K ∧
-      ∀ (P : Fin n → Fin n → Fin 3 → ℤ) (B : ℝ), 1 ≤ B → (∀ i k m, |(P i k m : ℝ)| ≤ B) →
+/-- **The constant of `Real.subspaceBoundWith_three_of_mem`**, for `n` variables, forms over a
+field of degree `d` in which `α` has height `log H(α) = h` (not normalized by the degree), and `s`
+finite places with `μ` the logarithm of Minkowski's constant: the larger of EF13's constant at
+`2 n d` conjugated forms and the threshold constant. -/
+noncomputable def subspaceConst (n d s : ℕ) (h μ : ℝ) : ℝ :=
+  max (max (efCountConst n (2 * n * d)) (thrConst n d s μ * (1 + 17 * d + 3 * h) + 2 * n ^ 2)) 1
+
+theorem one_le_subspaceConst (n d s : ℕ) (h μ : ℝ) : 1 ≤ subspaceConst n d s h μ :=
+  le_max_right _ _
+
+theorem efCountConst_le_subspaceConst (n d s : ℕ) (h μ : ℝ) :
+    efCountConst n (2 * n * d) ≤ subspaceConst n d s h μ :=
+  (le_max_left _ _).trans (le_max_left _ _)
+
+theorem thrConst_le_subspaceConst (n d s : ℕ) (h μ : ℝ) :
+    thrConst n d s μ * (1 + 17 * d + 3 * h) + 2 * n ^ 2 ≤ subspaceConst n d s h μ :=
+  (le_max_right _ _).trans (le_max_left _ _)
+
+/-- **The quantitative Subspace Theorem at `∞` and finitely many finite places of `ℚ`**, with an
+explicit constant, the form `Real.subspaceBoundWith_three_of_mem` is assembled from: the places
+are elements of `HeightOneSpectrum (𝓞 ℚ)` and the exponents at them a function on all of them.
+The forms are taken over a Galois field `E ⊆ ℂ` containing `α`. -/
+theorem subspaceBound_places_of_mem {α : ℝ} (E : IntermediateField ℚ ℂ) [IsGalois ℚ E]
+    [NumberField E] (hαE : (α : ℂ) ∈ E) {n : ℕ} (hn : 2 ≤ n) (hn4 : n ≤ 4)
+    (S : Finset (HeightOneSpectrum (𝓞 ℚ))) :
+    let K := subspaceConst n (finrank ℚ E) #S (log (mulHeight₁ (⟨α, hαE⟩ : E)))
+        (log (scalarConst ℚ S))
+    ∀ (P : Fin n → Fin n → Fin 3 → ℤ) (B : ℝ), 1 ≤ B → (∀ i k m, |(P i k m : ℝ)| ≤ B) →
       ∀ γ : ℝ, 0 < γ → γ ≤ 1 → γ ≤ |(Matrix.of fun i k ↦ quadVal α (P i k)).det| →
       ∀ C : ℝ, 1 ≤ C → ∀ (e : Fin n → ℝ) (f : HeightOneSpectrum (𝓞 ℚ) → Fin n → ℝ) (δ : ℝ),
         0 < δ → δ ≤ 1 → (∀ i, e i ≤ 1) → (∃ i, e i = 1) → (∃ i, e i ≤ 1 - δ / (2 * n)) →
@@ -943,17 +1027,17 @@ theorem exists_subspaceBound_places {α : ℝ} (hα : IsAlgebraic ℚ α) {n : �
           (∀ v ∈ S, ∀ i, FinitePlace.mk v (x i : ℚ) ≤ (⨆ k, |(x k : ℝ)|) ^ f v i) →
           K * δ⁻¹ * (1 + log B + log C + log γ⁻¹) ≤ log (⨆ k, |(x k : ℝ)|) →
           ∃ U ∈ T, (fun k ↦ (x k : ℚ)) ∈ U := by
-  obtain ⟨E, hgal, hfd, hmem⟩ := exists_isGalois_mem hα
-  have : NumberField E := { }
+  intro K
   set d := finrank ℚ E with hd
   have hd1 : 1 ≤ d := finrank_pos
-  set β : E := ⟨(α : ℂ), hmem⟩
+  set β : E := ⟨(α : ℂ), hαE⟩
   set σ : E →+* ℂ := E.val.toRingHom
   have hβ : σ β = α := rfl
   have hwInf := placeAbs_liesOver_infinitePlace σ
   have hwFin : ∀ v ∈ S, (placeAbs σ (FinitePlace.mk v).1).LiesOver (FinitePlace.mk v).1 :=
     fun v _ ↦ placeAbs_liesOver_finitePlace σ (FinitePlace.mk v)
-  obtain ⟨K₁, hK₁, hcount⟩ := efLargeCount_half_le (d := d) (r := 2 * n) hn hd1 (by omega)
+  have hcount := fun δ (hδ : 0 < δ) (hδ1 : δ ≤ 1) ↦
+    efLargeCount_half_le (d := d) (r := 2 * n) hn hd1 (by omega) hδ hδ1
   set Mβ := mulHeight₁ β
   have hMβ : 1 ≤ Mβ := one_le_mulHeight₁ β
   have hlM : 0 ≤ log Mβ := Real.log_nonneg hMβ
@@ -962,14 +1046,12 @@ theorem exists_subspaceBound_places {α : ℝ} (hα : IsAlgebraic ℚ α) {n : �
   set M := thrConstAt n d S
   have hM0 : 0 ≤ M := by
     have := Real.log_nonneg (one_le_scalarConst_rat S)
-    unfold M thrConstAt
+    unfold M thrConstAt thrConst
     positivity
   have hn0 : (0 : ℝ) < n := by exact_mod_cast (by omega : 0 < n)
   have hn1 : (1 : ℝ) ≤ n := by exact_mod_cast (by omega : 1 ≤ n)
   have hn4' : (n : ℝ) ≤ 4 := by exact_mod_cast hn4
-  set Kc := max (max K₁ (M * c₁ + 2 * n ^ 2)) 1 with hKc
-  refine ⟨Kc, by positivity,
-    fun P B hB hP γ hγ hγ1 hdet C hC e f δ hδ hδ1 he1 he he0 hf hf0 hsum ↦ ?_⟩
+  intro P B hB hP γ hγ hγ1 hdet C hC e f δ hδ hδ1 he1 he he0 hf hf0 hsum
   obtain ⟨k, hk, hklog⟩ := exists_two_pow hC hγ hγ1 n
   have hN := isNormalizedSystem_placeForms hβ P e δ k S f hn hB hP hγ hdet hδ hδ1 he1 he hf hf0
     hsum
@@ -980,7 +1062,7 @@ theorem exists_subspaceBound_places {α : ℝ} (hα : IsAlgebraic ℚ α) {n : �
   · -- the count
     rw [Fintype.card_fin] at hT
     refine hT.trans ((hcount δ hδ hδ1).trans ?_)
-    have : K₁ ≤ Kc := (le_max_left _ _).trans (le_max_left _ _)
+    have : efCountConst n (2 * n * d) ≤ K := efCountConst_le_subspaceConst ..
     gcongr
   -- the data
   have hlB : 0 ≤ log B := Real.log_nonneg hB
@@ -999,7 +1081,7 @@ theorem exists_subspaceBound_places {α : ℝ} (hα : IsAlgebraic ℚ α) {n : �
   have hX0 : 0 < X := by linarith
   have hbig : (M * c₁ + 2 * n ^ 2) * δ⁻¹ * Ξ ≤ log X := by
     refine le_trans ?_ hlarge
-    have h1 : M * c₁ + 2 * n ^ 2 ≤ Kc := (le_max_right _ _).trans (le_max_left _ _)
+    have h1 : M * c₁ + 2 * n ^ 2 ≤ K := thrConst_le_subspaceConst ..
     have : 0 ≤ M * c₁ + 2 * n ^ 2 := by positivity
     gcongr
   have hsplit : (M * c₁ + 2 * n ^ 2) * δ⁻¹ * Ξ =
@@ -1071,17 +1153,38 @@ theorem primeIdeal_injective : Function.Injective primeIdeal := by
   rw [primeIdeal, primeIdeal, FinitePlace.mk_maximalIdeal, FinitePlace.mk_maximalIdeal] at this
   exact Rat.finitePlace_injective this
 
+theorem card_image_primeIdeal [DecidableEq (HeightOneSpectrum (𝓞 ℚ))] (S : Finset Nat.Primes) :
+    #(S.image primeIdeal) = #S :=
+  card_image_of_injective S primeIdeal_injective
+
+/-- **Minkowski's constant at the primes of `S`** is `2 ∏_{l ∈ S} l`. -/
+theorem log_scalarConst_image_primeIdeal [DecidableEq (HeightOneSpectrum (𝓞 ℚ))]
+    (S : Finset Nat.Primes) :
+    Real.log (scalarConst ℚ (S.image primeIdeal)) = Real.log 2 + ∑ l ∈ S, Real.log (l : ℕ) := by
+  have hl (l : Nat.Primes) : (0 : ℝ) < (l : ℕ) := by exact_mod_cast l.2.pos
+  rw [scalarConst_rat, Finset.prod_image fun l _ l' _ h ↦ primeIdeal_injective h,
+    Real.log_mul (by norm_num) (Finset.prod_ne_zero_iff.2 fun l _ ↦ by
+      rw [primeIdeal, Rat.absNorm_maximalIdeal_finitePlace]; exact (hl l).ne'),
+    Real.log_prod fun l _ ↦ by
+      rw [primeIdeal, Rat.absNorm_maximalIdeal_finitePlace]; exact (hl l).ne']
+  simp only [primeIdeal, Rat.absNorm_maximalIdeal_finitePlace]
+
 /-- **The quantitative Subspace Theorem of Evertse–Ferretti 2013 for forms in `1, α, α²` at `∞`
-and the primes of `S`**: `δ^{-3} (1 + log δ⁻¹)²` subspaces. The forms are taken over the Galois
-closure of `α` in `ℂ`, scaled at `∞` to a normalized system of weight `-δ / 2` with the coordinates
-at the primes (`Real.isNormalizedSystem_placeForms`), and counted by
-`NumberField.exists_finset_submodule_of_efSystemThreshold_le`. -/
-theorem subspaceBoundAt_three {α : ℝ} (hα : IsAlgebraic ℚ α) (S : Finset Nat.Primes) :
-    SubspaceBoundAt α S 3 := by
+and the primes of `S`, with an explicit constant**: `δ^{-3} (1 + log δ⁻¹)²` subspaces, with the
+constant `Real.subspaceConst` of `n`, the degree `d` of a Galois field `E ⊆ ℂ` containing `α`, the
+height `log H(α)` of `α` in `E` (`d` times the absolute logarithmic height), `#S` and
+`log 2 + ∑_{l ∈ S} log l`. The forms are taken over `E`, scaled at `∞` to a normalized system of
+weight `-δ / 2` with the coordinates at the primes (`Real.isNormalizedSystem_placeForms`), and
+counted by `NumberField.exists_finset_submodule_of_efSystemThreshold_le`. -/
+theorem subspaceBoundWith_three_of_mem {α : ℝ} (E : IntermediateField ℚ ℂ) [IsGalois ℚ E]
+    [NumberField E] (hαE : (α : ℂ) ∈ E) (S : Finset Nat.Primes) {n : ℕ} (hn : 2 ≤ n)
+    (hn4 : n ≤ 4) :
+    SubspaceBoundWith α S 3 n (subspaceConst n (finrank ℚ E) #S
+      (log (mulHeight₁ (⟨α, hαE⟩ : E))) (log 2 + ∑ l ∈ S, log (l : ℕ))) := by
   classical
-  intro n hn hn4
-  obtain ⟨K, hK, hT⟩ := exists_subspaceBound_places hα hn hn4 (S.image primeIdeal)
-  refine ⟨K, hK, fun P B hB hP γ hγ hγ1 hdet C hC e f δ hδ hδ1 he1 he he0 hf hf0 hsum ↦ ?_⟩
+  have hT := subspaceBound_places_of_mem E hαE hn hn4 (S.image primeIdeal)
+  rw [card_image_primeIdeal, log_scalarConst_image_primeIdeal] at hT
+  intro P B hB hP γ hγ hγ1 hdet C hC e f δ hδ hδ1 he1 he he0 hf hf0 hsum
   set f' : HeightOneSpectrum (𝓞 ℚ) → Fin n → ℝ := fun v ↦ f (Function.invFun primeIdeal v)
   have hf' (l : Nat.Primes) : f' (primeIdeal l) = f l := by
     simp only [f', Function.leftInverse_invFun primeIdeal_injective l]
@@ -1100,5 +1203,37 @@ theorem subspaceBoundAt_three {α : ℝ} (hα : IsAlgebraic ℚ α) (S : Finset 
   obtain ⟨l, hl, rfl⟩ := Finset.mem_image.1 hv
   rw [hf', finitePlace_mk_primeIdeal]
   exact hfin l hl i
+
+/-- **The quantitative Subspace Theorem of Evertse–Ferretti 2013 for forms in `1, α, α²` at `∞`
+and the primes of `S`**: `δ^{-3} (1 + log δ⁻¹)²` subspaces. The forms are taken over the Galois
+closure of `α` in `ℂ` (`Real.subspaceBoundWith_three_of_mem`). -/
+theorem subspaceBoundAt_three {α : ℝ} (hα : IsAlgebraic ℚ α) (S : Finset Nat.Primes) :
+    SubspaceBoundAt α S 3 := by
+  intro n hn hn4
+  obtain ⟨E, hgal, hfd, hmem⟩ := exists_isGalois_mem hα
+  have : NumberField E := { }
+  exact ⟨_, zero_lt_one.trans_le (one_le_subspaceConst ..),
+    subspaceBoundWith_three_of_mem E hmem S hn hn4⟩
+
+/-- **The rational case of `Real.subspaceBoundWith_three_of_mem`**: for `α = q ∈ ℚ` the forms are
+over `ℚ`, `d = 1`, and the height is `log max (|num q|, den q)`. -/
+theorem subspaceBoundWith_three_ratCast (q : ℚ) (S : Finset Nat.Primes) {n : ℕ} (hn : 2 ≤ n)
+    (hn4 : n ≤ 4) :
+    SubspaceBoundWith (q : ℝ) S 3 n
+      (subspaceConst n 1 #S (log (mulHeight₁ q)) (log 2 + ∑ l ∈ S, log (l : ℕ))) := by
+  have : NumberField (⊥ : IntermediateField ℚ ℂ) := { }
+  have hq : (((q : ℝ) : ℂ)) ∈ (⊥ : IntermediateField ℚ ℂ) :=
+    IntermediateField.mem_bot.2 ⟨q, by simp⟩
+  have h := subspaceBoundWith_three_of_mem ⊥ hq S hn hn4
+  have hβ : (⟨((q : ℝ) : ℂ), hq⟩ : (⊥ : IntermediateField ℚ ℂ)) =
+      algebraMap ℚ (⊥ : IntermediateField ℚ ℂ) q := Subtype.ext (by simp)
+  rwa [IntermediateField.finrank_bot, hβ, ← NumberField.mulHeight₁_pow_finrank,
+    IntermediateField.finrank_bot, pow_one] at h
+
+/-- **The case `α = 0`**: forms with integer coefficients. -/
+theorem subspaceBoundWith_three_zero (S : Finset Nat.Primes) {n : ℕ} (hn : 2 ≤ n) (hn4 : n ≤ 4) :
+    SubspaceBoundWith 0 S 3 n (subspaceConst n 1 #S 0 (log 2 + ∑ l ∈ S, log (l : ℕ))) := by
+  have h := subspaceBoundWith_three_ratCast 0 S hn hn4
+  rwa [Rat.cast_zero, mulHeight₁_zero, Real.log_one] at h
 
 end Real

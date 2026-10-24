@@ -2143,11 +2143,25 @@ Move from points in `Kⁿ` to points in `ℚ̄ⁿ`, with counts independent of `
   (`efSystemThreshold_le_thrConstAt`). Consumers: `Bugeaud2013/Additions` (`S = ∅`,
   `Real.subspaceBound_three` is now its corollary) and `BugeaudEvertse2008` (BE.0: `n = 3`,
   `S` = the primes of the base, and `n = 2` for the planes, where EF13's count replaces the
-  two-variable count Q1.6).
+  two-variable count Q1.6) and `Stephan2026a` (`α = 0`, `S = {2, 3}`, `n = 2, 3`).
+  **The constant is explicit** (2026-10-24): `Real.SubspaceBoundWith α S a n K` is the statement
+  at a given `K`, and `Real.subspaceBoundWith_three_of_mem` proves it with
+  `K = Real.subspaceConst n d #S h μ` for every Galois field `E ⊆ ℂ` of degree `d` containing `α`,
+  `h = log H(α)` the height of `α` in `E` and `μ = log 2 + ∑_{l ∈ S} log l` (Minkowski's constant
+  `2 ∏ l`): the larger of EF13's constant `Real.efCountConst n (2 n d)`
+  (`16 · 10¹³ · 4ⁿ n¹⁴ (1 + log 12 n d) (1 + log (2 log 6 n d))`) and the threshold constant
+  `Real.thrConst n d #S μ · (1 + 17 d + 3 h) + 2 n²`. For `α ∈ ℚ`, `d = 1`
+  (`Real.subspaceBoundWith_three_ratCast`, `Real.subspaceBoundWith_three_zero`). At `α = 0`,
+  `S = {2, 3}` this gives `K ≤ 10²¹` for `n = 2` and `K ≤ 10²⁴` for `n = 3`
+  (`SteeringWord.subspaceBoundWith_two_three_two`, `_three`); EF13's constant is all of it, the
+  threshold constant is about `7 · 10⁶`.
 
 Possible additions (proposed 2026-10-12; not started). They come from a consumer: `lean-code`'s
 `CITED/BugeaudEvertseRidout.lean` keeps Bugeaud–Evertse 2008 Cor. 5.2 as a cited axiom
-(`BugeaudEvertse.ridout_line_cover`), used by its `BB13/` root, because nothing below discharges it.
+(`BugeaudEvertse.ridout_line_cover`) for its count uniform in `S`, which nothing below gives.
+Nothing in `lean-code` uses the axiom any more: the line cover with the hypotheses and the
+threshold of Cor. 5.2 is std3 in its `BB13/RidoutST.lean`, with a count that depends on `S`
+(see BE08 Cor. 5.2 below).
 
 - **Q4.4** **EF13's count above Evertse's threshold.** For a normalized system, the solutions
   with `IsLargeSolution H δ x` lie in at most `efLargeCount` (or an explicit multiple) proper
@@ -2208,11 +2222,18 @@ These use the counts above and are recorded in [`papers.md`](../papers.md):
   `η < 1/7`** in `BugeaudEvertse2008/Theorem21.lean` (`Real.frequently_lt_complexity`, std3,
   2026-10-13), and for **`η < 1/4`** in `BugeaudEvertse2008/Additions/Theorem21Quarter.lean`
   (`Real.frequently_lt_complexity_of_lt_quarter`, std3, 2026-10-21).
-- **BE08**, Cor. 5.2 (quantitative Ridout, a line count above `max (2 H(ξ), 2^{4/ε})`): was used
-  by `lean-code`'s Problem 10.13 root as a cited axiom. Since 2026-10-22 that root no longer needs
-  it: Q1.6's count in two variables, without threshold, gives `3.87·10⁹` lines, and with the
-  root's own gap (`exists_finset_submodule_of_gap_two`) `1.05·10⁹`, std3 (Stephan 2026,
-  doi:10.13140/RG.2.2.15019.20008, §7). Cor. 5.2 as stated still needs Q4.4 and Q4.5.
+- **BE08**, Cor. 5.2 (quantitative Ridout, a line count above `max (2 H(ξ), 2^{4/ε})`): is
+  kept by `lean-code` as a cited axiom, and nothing there uses it. Its Problem 10.13 root counts
+  the lines of its frame from Q1.6's count in two variables: without threshold `3.87·10⁹`
+  (`BB13/LineCoverST.lean`), with the root's own gap (`exists_finset_submodule_of_gap_two`)
+  `1.05·10⁹` (`BB13/LineCoverRho.lean`), and with the interval result at the caller's parameters
+  (`exists_forall_mem_interval_systemSet_two_of_rothLemmaAt`) `22 900`
+  (`BB13/LineCoverSharp.lean`), all std3 (Stephan 2026, doi:10.13140/RG.2.2.15019.20008, §7).
+  Cor. 5.2 itself, for every `ξ ∈ ℚ`, every `S` and every split of the exponents, is std3 in
+  `BB13/RidoutST.lean` (the interval result above the threshold, the gap principle
+  `y^{1+ε} ≤ 2y'` below it), with a count uniform in `ξ` and the exponents but not in `S`
+  (`≤ 30 600` at `S = {2, 3}`, `ε = ε*`). The count of Cor. 5.2 as stated, independent of `S`,
+  still needs Q4.4 and Q4.5.
 - **ESS02**: the uniform bound for unit equations in a multiplicative group of finite rank.
 - **Sch90**: bounds for S-unit equations over number fields.
 - **AB10, AB11**: transcendence and irrationality measures from repetitive patterns.
