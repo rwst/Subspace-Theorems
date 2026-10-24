@@ -6,7 +6,7 @@ Authors: Ralf Stephan
 module
 
 public import Bugeaud2013.Additions.SubspaceCount
-public import QuantitativeSubspace.RealFormInterval
+public import QuantitativeSubspace.RealFormFamily
 
 /-!
 # The quantitative Subspace Theorem for real forms in `1, α, α²`, interval form
@@ -19,13 +19,21 @@ solutions above the threshold lie in one proper subspace, or have `log |x|` in o
 themselves into an interval, which is what saves a power of `δ⁻¹` in the count of
 `Bugeaud2013/Additions/CountThird.lean`.
 
+The same for a set of exponents (`Real.SubspaceIntervalFamily α`), the case `S = ∅` of
+`Real.subspaceIntervalFamilyAt_of_isAlgebraic` (`QuantitativeSubspace/RealFormFamily.lean`): the
+solutions for all exponents of the set lie in `K` proper subspaces or in `K δ⁻² (1 + log δ⁻¹)`
+intervals, however large the set.
+
 ## Main definitions
 
 * `Real.SubspaceInterval α`: the interval form for such forms in `2 ≤ n ≤ 4` variables at `∞`.
+* `Real.SubspaceIntervalFamily α`: the interval form for a set of exponents.
 
 ## Main results
 
 * `Real.subspaceInterval_of_isAlgebraic`: `Real.SubspaceInterval α` for every real algebraic `α`.
+* `Real.subspaceIntervalFamily_of_isAlgebraic`: `Real.SubspaceIntervalFamily α` for every real
+  algebraic `α`.
 -/
 
 @[expose] public section
@@ -85,5 +93,62 @@ theorem SubspaceIntervalAt.subspaceInterval {α : ℝ} (h : SubspaceIntervalAt �
 algebraic `α`: the case `S = ∅` of `Real.subspaceIntervalAt_of_isAlgebraic`. -/
 theorem subspaceInterval_of_isAlgebraic {α : ℝ} (hα : IsAlgebraic ℚ α) : SubspaceInterval α :=
   (subspaceIntervalAt_of_isAlgebraic hα ∅).subspaceInterval
+
+/-- **The interval form for a set of exponents, for forms in `1, α, α²`.** For `2 ≤ n ≤ 4` there
+is `K ≥ 1` such that: for the data of `Real.SubspaceBound` and a set `𝒞` of exponents `e`, there
+are at most `K` proper subspaces of `ℚⁿ` and at most `K δ⁻² (1 + log δ⁻¹)` reals `s` such that
+for every `e ∈ 𝒞` every solution `x` with `log |x| ≥ K δ^{-K} (1 + log B + log C + log γ⁻¹)`
+lies in one of the subspaces or has `s ≤ log |x| < K δ⁻¹ s` for one of the reals. -/
+def SubspaceIntervalFamily (α : ℝ) : Prop :=
+  ∀ n : ℕ, 2 ≤ n → n ≤ 4 → ∃ K : ℝ, 1 ≤ K ∧
+    ∀ (P : Fin n → Fin n → Fin 3 → ℤ) (B : ℝ), 1 ≤ B → (∀ i k m, |(P i k m : ℝ)| ≤ B) →
+    ∀ γ : ℝ, 0 < γ → γ ≤ 1 → γ ≤ |(Matrix.of fun i k ↦ quadVal α (P i k)).det| →
+    ∀ C : ℝ, 1 ≤ C → ∀ δ : ℝ, 0 < δ → δ ≤ 1 → ∀ 𝒞 : Set (Fin n → ℝ),
+      (∀ e ∈ 𝒞, (∀ i, e i ≤ 1) ∧ (∃ i, e i = 1) ∧ ∑ i, e i ≤ -δ) →
+    ∃ T : Finset (Submodule ℚ (Fin n → ℚ)), (#T : ℝ) ≤ K ∧ (∀ U ∈ T, U ≠ ⊤) ∧
+      ∃ 𝒯 : Finset ℝ, (#𝒯 : ℝ) ≤ K * δ⁻¹ ^ 2 * (1 + log δ⁻¹) ∧
+      ∀ e ∈ 𝒞, ∀ x : Fin n → ℤ, x ≠ 0 →
+        (∀ i, |∑ k, quadVal α (P i k) * x k| ≤ C * (⨆ k, |(x k : ℝ)|) ^ e i) →
+        K * δ⁻¹ ^ K * (1 + log B + log C + log γ⁻¹) ≤ log (⨆ k, |(x k : ℝ)|) →
+        (∃ U ∈ T, (fun k ↦ (x k : ℚ)) ∈ U) ∨
+          ∃ s ∈ 𝒯, s ≤ log (⨆ k, |(x k : ℝ)|) ∧ log (⨆ k, |(x k : ℝ)|) < K * δ⁻¹ * s
+
+/-- **The case `S = ∅`** of the interval form for a set of exponents. -/
+theorem SubspaceIntervalFamilyAt.subspaceIntervalFamily {α : ℝ}
+    (h : SubspaceIntervalFamilyAt α ∅) : SubspaceIntervalFamily α := by
+  intro n hn2 hn4
+  obtain ⟨K, hK, hT⟩ := h n hn2 hn4
+  refine ⟨K, hK, fun P B hB hP γ hγ hγ1 hdet C hC δ hδ hδ1 𝒞 h𝒞 ↦ ?_⟩
+  have hδi : 1 ≤ δ⁻¹ := (one_le_inv₀ hδ).2 hδ1
+  set 𝒞' : Set ((Fin n → ℝ) × (Nat.Primes → Fin n → ℝ)) := (fun e ↦ (e, fun _ _ ↦ 0)) '' 𝒞
+  obtain ⟨T, hT1, hTtop, 𝒯, hcard, hmem⟩ := hT P B hB hP γ hγ hγ1 hdet C hC δ hδ hδ1 𝒞' (by
+    rintro _ ⟨e, he, rfl⟩
+    obtain ⟨he1, he, hsum⟩ := h𝒞 e he
+    have he0 : ∃ i, e i ≤ 0 := by
+      by_contra! hpos
+      have : 0 < ∑ i, e i :=
+        Finset.sum_pos (fun i _ ↦ hpos i) ⟨⟨0, by omega⟩, Finset.mem_univ _⟩
+      linarith
+    exact ⟨he1, he, exists_le_one_sub_div_of_exists_nonpos hn2 hδ1 he0, by simp, by simp,
+      by simpa using hsum⟩)
+  refine ⟨T, hT1, hTtop, 𝒯, hcard, fun e he x hx hsol hlarge ↦
+    hmem _ ⟨e, he, rfl⟩ x hx hsol (by simp) (le_trans ?_ hlarge)⟩
+  -- `δ⁻¹ ≤ δ⁻¹ ^ K`
+  have h2 : δ⁻¹ ≤ δ⁻¹ ^ K :=
+    calc δ⁻¹ = δ⁻¹ ^ (1 : ℝ) := (Real.rpow_one _).symm
+      _ ≤ δ⁻¹ ^ K := Real.rpow_le_rpow_of_exponent_le hδi hK
+  have : 0 ≤ 1 + log B + log C + log γ⁻¹ := by
+    have := Real.log_nonneg hB
+    have := Real.log_nonneg hC
+    have := Real.log_nonneg ((one_le_inv₀ hγ).2 hγ1)
+    linarith
+  have : 0 ≤ K := by linarith
+  gcongr
+
+/-- **The interval form for a set of exponents, for forms in `1, α, α²`**, for every real
+algebraic `α`: the case `S = ∅` of `Real.subspaceIntervalFamilyAt_of_isAlgebraic`. -/
+theorem subspaceIntervalFamily_of_isAlgebraic {α : ℝ} (hα : IsAlgebraic ℚ α) :
+    SubspaceIntervalFamily α :=
+  (subspaceIntervalFamilyAt_of_isAlgebraic hα ∅).subspaceIntervalFamily
 
 end Real

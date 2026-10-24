@@ -204,35 +204,29 @@ private theorem isMultiHomogeneous_map_blockSubst [Finite κ] (hP : IsMultiHomog
   (hP.hasseDeriv I).blockSubst B fun h ↦ hν (by rw [coeff_map, h, map_zero])
 
 /-- **EF13 (14.16) at an infinite place `w` of `F`.** If the coefficients of `∂_I P` read in the
-coordinates `L̂^{(v)}` vanish beyond `T` (Prop. 13.6 (i)), and
-`|L̂_s^{(v)}(x_h)|_w ≤ G Q_h^{ĉ_{sv} [K:ℚ] / mult v}`, then
-`|P_I(x)|_w ≤ 2^{N Σ r} A_v G^{Σ r} e^{([K:ℚ]/mult v) Λ (T + ε m n γ_v)}`. -/
-theorem apply_eval_le_arch (hp : 1 ≤ p) (hpn : p < Fintype.card ι) {c : FormExponent K ι}
-    {v : InfinitePlace K} (hc0 : ∑ i, c.arch v i = 0) (hr : ∀ h, 0 < r h)
+coordinates `L̂^{(v)}` vanish beyond `T` for the exponents `f` (Prop. 13.6 (i),
+`f_{hs} = ĉ_{h,sv}`), `|f_{hs}| ≤ F₀`, and `|L̂_s^{(v)}(x_h)|_w ≤ G Q_h^{f_{hs} [K:ℚ] / mult v}`,
+then `|P_I(x)|_w ≤ 2^{N Σ r} A_v G^{Σ r} e^{([K:ℚ]/mult v) Λ (T + ε m F₀)}`. -/
+theorem apply_eval_le_arch {v : InfinitePlace K} (hr : ∀ h, 0 < r h)
     (hP : IsMultiHomogeneous r P) (I : κ × Set.powersetCard ι p →₀ ℕ) (hQ : ∀ h, 0 < Q h)
-    {G T : ℝ} (hΛ : 0 ≤ Λ) (hε : 0 ≤ ε) (hG : 1 ≤ G)
+    {G T F₀ : ℝ} (hΛ : 0 ≤ Λ) (hε : 0 ≤ ε) (hF₀ : 0 ≤ F₀) (hG : 1 ≤ G)
     (ht : ∀ h, Λ ≤ r h * Real.log (Q h) ∧ r h * Real.log (Q h) ≤ (1 + ε) * Λ)
     {w : InfinitePlace F} (hv : w.comap (algebraMap K F) = v)
-    (hPi : ∀ J, T < blockAvg r J (fun _ s ↦ (c.exteriorPower p).arch v s) →
+    (f : κ → Set.powersetCard ι p → ℝ) (hf : ∀ h s, |f h s| ≤ F₀)
+    (hPi : ∀ J, T < blockAvg r J f →
       (blockSubst ((L.arch v).compound p)⁻¹ (hasseDeriv I P)).coeff J = 0)
     (y : κ → Set.powersetCard ι p → F)
     (hy : ∀ h s, w ((((L.arch v).compound p).map (algebraMap K F) *ᵥ y h) s) ≤
-      G * Q h ^ ((c.exteriorPower p).arch v s * finrank ℚ K / v.mult)) :
+      G * Q h ^ (f h s * finrank ℚ K / v.mult)) :
     w (eval (fun t ↦ y t.1 t.2) (map (algebraMap K F) (hasseDeriv I P))) ≤
       2 ^ (Fintype.card (Set.powersetCard ι p) * ∑ h, r h) *
         (⨆ J, v ((blockSubst ((L.arch v).compound p)⁻¹ (hasseDeriv I P)).coeff J)) *
-        (G ^ (∑ h, r h) * Real.exp (finrank ℚ K / v.mult * Λ *
-          (T + ε * Fintype.card κ * (Fintype.card ι * ⨆ i, c.arch v i)))) := by
-  have : Nonempty ι := Fintype.card_pos_iff.mp (Nat.zero_lt_of_lt hpn)
+        (G ^ (∑ h, r h) *
+          Real.exp (finrank ℚ K / v.mult * Λ * (T + ε * Fintype.card κ * F₀))) := by
   set B := (L.arch v).compound p
   have hB : B.det ≠ 0 := det_compound_ne_zero p (L.arch_det_ne_zero v)
   rw [eval_map_hasseDeriv_eq hB]
   have hR := isMultiHomogeneous_map_blockSubst (F := F) hP B⁻¹ I
-  have hγ : 0 ≤ ⨆ i, c.arch v i := FormExponent.iSup_vec_nonneg (c := c) (v := Sum.inl v) hc0
-  have hF₀ : 0 ≤ (Fintype.card ι : ℝ) * ⨆ i, c.arch v i := mul_nonneg (Nat.cast_nonneg _) hγ
-  have hf : ∀ (_ : κ) s, |(c.exteriorPower p).arch v s| ≤ Fintype.card ι * ⨆ i, c.arch v i :=
-    fun _ s ↦ (c.abs_exteriorPower_arch_le hp hpn hc0 s).trans
-      (mul_le_mul_of_nonneg_right (by exact_mod_cast Nat.sub_le _ _) hγ)
   have hcoeff : (⨆ J, v ((blockSubst B⁻¹ (hasseDeriv I P)).coeff J)) =
       ⨆ J, w ((map (algebraMap K F) (blockSubst B⁻¹ (hasseDeriv I P))).coeff J) := by
     refine iSup_congr fun J ↦ ?_
@@ -246,8 +240,7 @@ theorem apply_eval_le_arch (hp : 1 ≤ p) (hpn : p < Fintype.card ι) {c : FormE
   refine prod_apply_pow_le w.1 hr hQ hΛ hε hF₀ hG (by positivity) ht _ hf _ (fun t ↦ ?_) J
     (fun h ↦ ?_) (not_lt.mp fun h ↦ hJ0' (hPi J h))
   · have := hy t.1 t.2
-    rwa [show (c.exteriorPower p).arch v t.2 * finrank ℚ K / v.mult =
-      finrank ℚ K / v.mult * (c.exteriorPower p).arch v t.2 by ring] at this
+    rwa [show f t.1 t.2 * finrank ℚ K / v.mult = finrank ℚ K / v.mult * f t.1 t.2 by ring] at this
   · rw [hR hJ0 h]
     exact Nat.sub_le _ _
 
@@ -319,31 +312,35 @@ private theorem finprod_exp {α : Type*} {g : α → ℝ} (hg : (Function.suppor
       exact ha (by simp [h]),
     Real.exp_sum]
 
-/-- **EF13 (14.10)–(14.17) and the product formula.** Let `x_h ∈ F^N` (`N = C(n, p)`) satisfy the
-local bounds of (14.15), `P` the polynomial of Prop. 13.6 with (i), (ii) for the order `I`, and
-`P_I(x) ≠ 0`. Then, with `A_v = max_J |d^{(v)}_{I,J}(a_P)|_v`,
+/-- **EF13 (14.10)–(14.17) and the product formula**, for exponents `c_h` depending on the block,
+with `c_{h,iv} ≤ γ_v`, `γ_{v₀} = 0` and `Σ_v γ_v ≤ 1` (EF13's (8.4) for `γ_v = max_i c_{iv}`).
+Let `x_h ∈ F^N` (`N = C(n, p)`) satisfy the local bounds of (14.15), `P` the polynomial of
+Prop. 13.6 with (i), (ii) for the order `I`, and `P_I(x) ≠ 0`. Then, with
+`A_v = max_J |d^{(v)}_{I,J}(a_P)|_v`,
 `1 ≤ (∏_v A_v) (2^{N Σ r} G^{Σ r})^{[K:ℚ]} e^{[K:ℚ] Λ m (10 n ε - δ/(nN))}`. -/
 theorem one_le_evalBound [NumberField F] (hp : 1 ≤ p) (hpn : p < Fintype.card ι)
-    {c : FormExponent K ι} (hc0 : ∀ v, ∑ i, c.vec v i = 0)
-    (hγ : (∑ v, ⨆ i, c.arch v i) + ∑ᶠ v, ⨆ i, c.fin v i ≤ 1) {v₀ : FinitePlace K}
-    (hL : L.fin v₀ = 1) (hc₀ : c.fin v₀ = 0) (hr : ∀ h, 0 < r h) (hP : IsMultiHomogeneous r P)
+    {c : κ → FormExponent K ι} (hc0 : ∀ h v, ∑ i, (c h).vec v i = 0)
+    {γ : InfinitePlace K ⊕ FinitePlace K → ℝ} (hγc : ∀ h v i, (c h).vec v i ≤ γ v)
+    (hγ0 : ∀ v, 0 ≤ γ v) (hγs : (Function.support fun v : FinitePlace K ↦ γ (.inr v)).Finite)
+    (hγ : (∑ v, γ (.inl v)) + ∑ᶠ v, γ (.inr v) ≤ 1) {v₀ : FinitePlace K}
+    (hL : L.fin v₀ = 1) (hγ₀ : γ (.inr v₀) = 0) (hr : ∀ h, 0 < r h) (hP : IsMultiHomogeneous r P)
     (I : κ × Set.powersetCard ι p →₀ ℕ) (hQ : ∀ h, 0 < Q h) {G δ : ℝ} (hΛ : 0 ≤ Λ)
     (hε : 0 ≤ ε) (hG : 1 ≤ G)
     (ht : ∀ h, Λ ≤ r h * Real.log (Q h) ∧ r h * Real.log (Q h) ≤ (1 + ε) * Λ)
     (e : κ → Set.powersetCard ι p → ℝ) (he : ∀ h s, |e h s| ≤ Fintype.card ι)
-    (hPi : ∀ v J, 4 * Fintype.card κ * Fintype.card ι * ε * (⨆ i, c.vec v i) <
-        blockAvg r J (fun _ s ↦ (c.exteriorPower p).vec v s) →
+    (hPi : ∀ v J, 4 * Fintype.card κ * Fintype.card ι * ε * γ v <
+        blockAvg r J (fun h s ↦ ((c h).exteriorPower p).vec v s) →
       (blockSubst ((L.mat v).compound p)⁻¹ (hasseDeriv I P)).coeff J = 0)
     (hPii : ∀ J, -(Fintype.card κ * δ / (Fintype.card ι * Fintype.card (Set.powersetCard ι p))) +
         4 * Fintype.card κ * Fintype.card ι * ε < blockAvg r J e → (hasseDeriv I P).coeff J = 0)
     (y : κ → Set.powersetCard ι p → F)
     (harch : ∀ h (w : InfinitePlace F) s,
       w ((((L.arch (w.comap (algebraMap K F))).compound p).map (algebraMap K F) *ᵥ y h) s) ≤
-        G * Q h ^ ((c.exteriorPower p).arch (w.comap (algebraMap K F)) s * finrank ℚ K /
+        G * Q h ^ (((c h).exteriorPower p).arch (w.comap (algebraMap K F)) s * finrank ℚ K /
           (w.comap (algebraMap K F)).mult))
     (hfin : ∀ h (w : FinitePlace F), w.under K ≠ v₀ → ∀ s,
       w ((((L.fin (w.under K)).compound p).map (algebraMap K F) *ᵥ y h) s) ≤
-        (Q h ^ ((c.exteriorPower p).fin (w.under K) s * finrank ℚ K)) ^ w.localDegree K)
+        (Q h ^ (((c h).exteriorPower p).fin (w.under K) s * finrank ℚ K)) ^ w.localDegree K)
     (hv₀ : ∀ h (w : FinitePlace F), w.under K = v₀ → ∀ s,
       w (y h s) ≤ (Q h ^ (e h s * finrank ℚ K)) ^ w.localDegree K)
     (hne : eval (fun t ↦ y t.1 t.2) (map (algebraMap K F) (hasseDeriv I P)) ≠ 0) :
@@ -370,16 +367,16 @@ theorem one_le_evalBound [NumberField F] (hp : 1 ≤ p) (hpn : p < Fintype.card 
     fun v ↦ ⨆ J, v ((blockSubst ((L.arch v).compound p)⁻¹ (hasseDeriv I P)).coeff J) with hAa
   set Af : FinitePlace K → ℝ :=
     fun v ↦ ⨆ J, v ((blockSubst ((L.fin v).compound p)⁻¹ (hasseDeriv I P)).coeff J) with hAf
-  set γa : InfinitePlace K → ℝ := fun v ↦ ⨆ i, c.arch v i with hγa
-  set γf : FinitePlace K → ℝ := fun v ↦ ⨆ i, c.fin v i with hγf
+  set γa : InfinitePlace K → ℝ := fun v ↦ γ (.inl v) with hγa
+  set γf : FinitePlace K → ℝ := fun v ↦ γ (.inr v) with hγf
   set C : ℝ := 2 ^ (Fintype.card (Set.powersetCard ι p) * D) * G ^ D with hC
   set ga : InfinitePlace K → ℝ :=
     fun v ↦ C * Aa v * Real.exp (d / v.mult * Λ * (5 * m * n * ε * γa v)) with hga
   set ψ : FinitePlace K → ℝ := fun v ↦ 5 * m * n * ε * γf v +
     if v = v₀ then -(m * δ / (n * N)) + 5 * m * n * ε else 0 with hψ
   set gf : FinitePlace K → ℝ := fun v ↦ Af v * Real.exp (d * Λ * ψ v) with hgf
-  have hγa0 : ∀ v, 0 ≤ γa v := fun v ↦ FormExponent.iSup_vec_nonneg (v := Sum.inl v) (hc0 _)
-  have hγf0 : ∀ v, 0 ≤ γf v := fun v ↦ FormExponent.iSup_vec_nonneg (v := Sum.inr v) (hc0 _)
+  have hγa0 : ∀ v, 0 ≤ γa v := fun v ↦ hγ0 _
+  have hγf0 : ∀ v, 0 ≤ γf v := fun v ↦ hγ0 _
   have hAa0 : ∀ v, 0 ≤ Aa v := fun v ↦ Real.iSup_nonneg fun _ ↦ apply_nonneg _ _
   have hAf0 : ∀ v, 0 ≤ Af v := fun v ↦ Real.iSup_nonneg fun _ ↦ apply_nonneg _ _
   have hC0 : 0 ≤ C := by positivity
@@ -387,11 +384,12 @@ theorem one_le_evalBound [NumberField F] (hp : 1 ≤ p) (hpn : p < Fintype.card 
   have hloca : ∀ w : InfinitePlace F, w x ≤ ga (w.comap φ) := by
     intro w
     set v := w.comap φ
-    have h := apply_eval_le_arch (L := L) hp hpn (c := c) (v := v) (hc0 (Sum.inl v)) hr hP I hQ
-      (T := 4 * m * n * ε * γa v) hΛ hε hG ht rfl (fun J hJ ↦ hPi (Sum.inl v) J hJ) y
-      (fun h s ↦ harch h w s)
-    simp only [← hm_def, ← hn_def, ← hd_def] at h
-    rw [show (⨆ i, c.arch v i) = γa v from rfl] at h
+    have h := apply_eval_le_arch (L := L) (v := v) hr hP I hQ (T := 4 * m * n * ε * γa v)
+      (F₀ := n * γa v) hΛ hε (mul_nonneg (Nat.cast_nonneg _) (hγa0 v)) hG ht rfl
+      (fun h s ↦ ((c h).exteriorPower p).arch v s)
+      (fun h s ↦ (c h).abs_exteriorPower_vec_le_of_le (v := .inl v) hp hpn (hc0 h _) (hγc h _) s)
+      (fun J hJ ↦ hPi (Sum.inl v) J hJ) y (fun h s ↦ harch h w s)
+    simp only [← hm_def, ← hd_def] at h
     refine h.trans (le_of_eq ?_)
     rw [show 4 * m * n * ε * γa v + ε * m * (n * γa v) = 5 * m * n * ε * γa v by ring]
     simp only [hga, hC]
@@ -407,7 +405,7 @@ theorem one_le_evalBound [NumberField F] (hp : 1 ≤ p) (hpn : p < Fintype.card 
         (fun h s ↦ by
           rw [hB, Matrix.map_one _ (map_zero _) (map_one _), one_mulVec]
           exact hv₀ h w hw s)
-      have hγv₀ : γf v₀ = 0 := by simp [hγf, hc₀]
+      have hγv₀ : γf v₀ = 0 := hγ₀
       have hgv₀ : gf v₀ = Af v₀ *
           Real.exp (d * Λ * (-(m * δ / (n * N)) + 4 * m * n * ε + ε * m * n)) := by
         simp only [hgf, hψ, hγv₀, ↓reduceIte]
@@ -416,13 +414,12 @@ theorem one_le_evalBound [NumberField F] (hp : 1 ≤ p) (hpn : p < Fintype.card 
       refine h.trans (le_of_eq ?_)
       rw [hw, hgv₀]
     · set v := w.under K
-      have hf : ∀ (_ : κ) s, |(c.exteriorPower p).fin v s| ≤ n * γf v :=
-        fun _ s ↦ (c.abs_exteriorPower_fin_le hp hpn (hc0 (Sum.inr v)) s).trans
-          (mul_le_mul_of_nonneg_right (by rw [hn_def]; exact_mod_cast Nat.sub_le _ _) (hγf0 v))
+      have hf : ∀ h s, |((c h).exteriorPower p).fin v s| ≤ n * γf v := fun h s ↦
+        (c h).abs_exteriorPower_vec_le_of_le (v := .inr v) hp hpn (hc0 h _) (hγc h _) s
       have h := apply_eval_le_fin (B := (L.fin v).compound p)
         (det_compound_ne_zero p (L.fin_det_ne_zero v)) hr hP I hQ
         (T := 4 * m * n * ε * γf v) (F₀ := n * γf v) hΛ hε (mul_nonneg hn0 (hγf0 v)) ht rfl
-        (fun _ s ↦ (c.exteriorPower p).fin v s) hf (fun J hJ ↦ hPi (Sum.inr v) J hJ) y
+        (fun h s ↦ ((c h).exteriorPower p).fin v s) hf (fun J hJ ↦ hPi (Sum.inr v) J hJ) y
         (fun h s ↦ hfin h w hw s)
       have hgv : gf v = Af v * Real.exp (d * Λ * (4 * m * n * ε * γf v + ε * m * (n * γf v))) := by
         simp only [hgf, hψ, hw, ↓reduceIte, add_zero]
@@ -445,10 +442,7 @@ theorem one_le_evalBound [NumberField F] (hp : 1 ≤ p) (hpn : p < Fintype.card 
     refine Set.mem_biUnion (x := L.fin v) (L.fin_mem_matSet v) ?_
     rw [Function.mem_mulSupport] at hv ⊢
     exact hv
-  have hγfs : (Function.support γf).Finite :=
-    c.finite_setOf_fin_ne_zero.subset fun v hv ↦ by
-      by_contra hcon
-      exact hv (by simp [hγf, show c.fin v = 0 from not_not.mp hcon])
+  have hγfs : (Function.support γf).Finite := hγs
   have hψs : (Function.support (fun v ↦ d * Λ * ψ v)).Finite :=
     (hγfs.union (Set.finite_singleton v₀)).subset fun v hv ↦ by
       by_contra hcon

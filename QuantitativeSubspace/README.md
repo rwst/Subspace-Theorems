@@ -2176,6 +2176,42 @@ Move from points in `Kⁿ` to points in `ℚ̄ⁿ`, with counts independent of `
   `Stephan2026a/QuantitativeThird.lean`, `BugeaudEvertse2008/Additions/Theorem21Third.lean` and
   `Bugeaud2013/Additions/CountThird.lean` (via `Real.SubspaceInterval`, `S = ∅`), which bring the
   exponent of the three complexity bounds from `1/4` to `1/3`.
+- **Q4.8** ✅ **EF13 Theorem 2.3 for a set of exponents** (2026-10-24). For forms `L` with at
+  most `R` distinct forms and a set `𝒞` of exponents `c` with `Σ_i c_iv = 0` at every place,
+  (2.9), a common bound `c_iv ≤ γ_v` with `Σ_v γ_v ≤ 1`, all vanishing outside a set `S₁` of at
+  most `Rⁿ` places: at most `J = (n + 1) (2^{2ⁿ})^{#S₁}` proper subspaces and at most
+  `J (nⁿ)^{#S₁} intervalCount n R δ` intervals `[b, b^{ω₀})` serve every `c ∈ 𝒞`
+  (`NumberField.FormSystem.exists_intervals_cover_family`, `FormIntervalFamily.lean`). Neither
+  count depends on `𝒞`. The ingredients:
+  * **Roth's step with exponents per block.** EF13's Prop. 12.1 and the Hoeffding bound of Lemma
+    13.2 are per block; Lemma 13.5 takes `c_h` per block with a common bound `γ_v`
+    (`NumberField.FormSystem.exists_auxiliaryPolynomial`), Prop. 13.6 over a fixed set of places
+    needs no representatives (`…exists_auxiliaryPolynomial_hasseDeriv_of_places`, condition
+    `2 (#S₁ + 1) ≤ e^{m ε²/2}`, met by `gapBlocks n R δ` when `#S₁ ≤ Rⁿ`), and §14 runs with
+    `γ_v` in place of `max_i c_iv` (`…false_of_chain_family`). Theorem 8.1 for a set of exponents
+    is `…exists_intervals_family` (`FormSemistableGap.lean`), with the same intervals as for one.
+  * **Weight types** (`FormWeightType.lean`). If the exponents vanish outside `S₁`, the weight
+    `w_{L,c}(U)` depends only on `c` and the type of `U`: its dimension and, at each place of
+    `S₁`, the index sets of the bases of `U`'s dual among the `L_i^{(v)}|_U`. By the uniqueness of
+    the destabilizing subspace (Lemma 15.2 (i)) the `T(L, c)` are determined by their types
+    (`…eq_of_isDestabilizing_of_weightType_eq`), so there are at most `J`
+    (`…exists_finset_isDestabilizing`).
+  * **The reduction of §18** depends on `c` only through the row selections at the places of
+    `S₁` (`…quotSystem_congr`): at most `(nⁿ)^{#S₁}` quotient systems per `T`.
+  Then EF13 Thm 3.3 for a set of approximation domains with the same forms
+  (`NumberField.exists_forall_mem_interval_approxDomain_ef_family`, `FormSystemFamily.lean`;
+  one normalization `κ = 2A` for the whole set, `A` bounding `t` times every absolute weight),
+  for a set of normalized systems with the same forms
+  (`NumberField.exists_forall_mem_interval_of_efSystemThreshold_le_family`, with DA's
+  `NumberField.exists_forall_mem_interval_systemSet_family`), and for real forms
+  (`Real.SubspaceIntervalFamilyWith α S n K`, `RealFormFamily.lean`: the scaled forms depend on
+  the exponents at `∞` only through which are within `δ / 2n` of `1`, so a set of exponents falls
+  into `2ⁿ` classes; `Real.subspaceIntervalFamilyAt_of_isAlgebraic`). Consumers:
+  `Stephan2026a/QuantitativeHalf.lean`, `BugeaudEvertse2008/Additions/Theorem21Half.lean` and
+  `Bugeaud2013/Additions/CountHalf.lean` (via `Real.SubspaceIntervalFamily`, `S = ∅`), where the
+  `≍ ε⁻¹` classes of the exponents had cost one interval result each: the exponent of the three
+  complexity bounds goes from `1/3` to `1/2`. The `δ⁻²` left is the number `m ≍ δ⁻²` of blocks of
+  the auxiliary polynomial.
 
 Possible additions (proposed 2026-10-12; not started). They come from a consumer: `lean-code`'s
 `CITED/BugeaudEvertseRidout.lean` keeps Bugeaud–Evertse 2008 Cor. 5.2 as a cited axiom

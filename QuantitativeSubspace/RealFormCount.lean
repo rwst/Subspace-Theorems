@@ -61,7 +61,8 @@ quantitative form of `Real.exists_finset_submodule_of_repetition` (DA 7.4) that 
   `Real.SubspaceBoundAt.mono`: a larger constant or exponent is weaker.
 * `Real.exists_normalized_places_of_mem`: the normalized system of the forms over `E`, and every
   solution above the threshold is a solution of it above its threshold; shared with the interval
-  form of `QuantitativeSubspace/RealFormInterval.lean`.
+  form of `QuantitativeSubspace/RealFormInterval.lean`. `Real.normalized_placeForms_of_mem` is
+  the same with the forms, constants and exponents of the system written out, for a given `k`.
 
 ## Implementation notes
 
@@ -1008,14 +1009,11 @@ theorem thrConst_le_subspaceConst (n d s : ℕ) (h μ : ℝ) :
     thrConst n d s μ * (1 + 17 * d + 3 * h) + 2 * n ^ 2 ≤ subspaceConst n d s h μ :=
   (le_max_right _ _).trans (le_max_left _ _)
 
-/-- **The system of the forms in `1, α, α²` at `∞` and finitely many finite places of `ℚ`**: the
-forms are taken over a Galois field `E ⊆ ℂ` containing `α`, scaled at `∞` to a normalized system
-of weight `-δ / 2` with the coordinates at the primes (`Real.isNormalizedSystem_placeForms`), and
-every solution above the threshold `(thrConstAt n d S (1 + 17 d + 3 log H(α)) + 2 n²) δ⁻¹ Ξ`,
-`Ξ = 1 + log B + log C + log γ⁻¹`, is a solution of that system above its threshold
-`efSystemThreshold`. Both `Real.subspaceBound_places_of_mem` and
-`Real.subspaceInterval_places_of_mem` count these. -/
-theorem exists_normalized_places_of_mem {α : ℝ} (E : IntermediateField ℚ ℂ) [IsGalois ℚ E]
+/-- **The system of `Real.exists_normalized_places_of_mem`, explicitly**: for a `k` with
+`C^n / γ ≤ 2^k` and `k log 2 ≤ 1 + n log C + log γ⁻¹`, the forms `placeForms β (normLam e δ k) P`,
+the constants `placeConst` and the exponents `placeExp e δ S f`. The forms and the constants depend
+on `e` only through the set of `i` with `e i > 1 - δ / 2n`. -/
+theorem normalized_placeForms_of_mem {α : ℝ} (E : IntermediateField ℚ ℂ) [IsGalois ℚ E]
     [NumberField E] (hαE : (α : ℂ) ∈ E) {n : ℕ} (hn : 2 ≤ n) (hn4 : n ≤ 4)
     (S : Finset (HeightOneSpectrum (𝓞 ℚ))) (P : Fin n → Fin n → Fin 3 → ℤ) {B : ℝ}
     (hB : 1 ≤ B) (hP : ∀ i k m, |(P i k m : ℝ)| ≤ B) {γ : ℝ} (hγ : 0 < γ) (hγ1 : γ ≤ 1)
@@ -1023,19 +1021,31 @@ theorem exists_normalized_places_of_mem {α : ℝ} (E : IntermediateField ℚ �
     (e : Fin n → ℝ) (f : HeightOneSpectrum (𝓞 ℚ) → Fin n → ℝ) {δ : ℝ} (hδ : 0 < δ)
     (hδ1 : δ ≤ 1) (he1 : ∀ i, e i ≤ 1) (he : ∃ i, e i = 1) (he0 : ∃ i, e i ≤ 1 - δ / (2 * n))
     (hf : ∀ v ∈ S, ∀ i, f v i ≤ 0) (hf0 : ∀ v ∈ S, ∃ i, f v i = 0)
-    (hsum : ∑ i, e i + ∑ v ∈ S, ∑ i, f v i ≤ -δ) :
-    ∃ (L : AbsoluteValue ℚ ℝ → Fin n → Dual E (Fin n → E)) (Cs : InfinitePlace ℚ ⊕ S → ℝ)
-      (c : InfinitePlace ℚ ⊕ S → Fin n → ℝ) (H : ℝ),
-      IsNormalizedSystem S (placeAbs E.val.toRingHom) L Cs c H (finrank ℚ E) (2 * n) (δ / 2) ∧
+    (hsum : ∑ i, e i + ∑ v ∈ S, ∑ i, f v i ≤ -δ)
+    {k : ℕ} (hk : C ^ n / γ ≤ 2 ^ k)
+    (hklog : (k : ℝ) * Real.log 2 ≤ 1 + n * Real.log C + Real.log γ⁻¹) :
+    IsNormalizedSystem S (placeAbs E.val.toRingHom) (placeForms ⟨α, hαE⟩ (normLam e δ k) P)
+      (placeConst S
+        (|(Matrix.of fun i j ↦ (normLam e δ k i : ℝ) * quadVal α (P i j)).det| ^ (n : ℝ)⁻¹))
+      (placeExp e δ S f)
+      (3 ^ finrank ℚ E * (2 ^ k * B) ^ (3 * finrank ℚ E) * mulHeight₁ (⟨α, hαE⟩ : E) ^ 3)
+      (finrank ℚ E) (2 * n) (δ / 2) ∧
       ∀ x : Fin n → ℤ, x ≠ 0 →
         (∀ i, |∑ k, quadVal α (P i k) * x k| ≤ C * (⨆ k, |(x k : ℝ)|) ^ e i) →
         (∀ v ∈ S, ∀ i, FinitePlace.mk v (x i : ℚ) ≤ (⨆ k, |(x k : ℝ)|) ^ f v i) →
         (thrConstAt n (finrank ℚ E) S *
             (1 + 17 * finrank ℚ E + 3 * log (mulHeight₁ (⟨α, hαE⟩ : E))) + 2 * n ^ 2) *
             δ⁻¹ * (1 + log B + log C + log γ⁻¹) ≤ log (⨆ k, |(x k : ℝ)|) →
-        (fun k ↦ (x k : ℚ)) ∈ systemSet S (placeAbs E.val.toRingHom) L Cs c ∧
-          efSystemThreshold E S (placeAbs E.val.toRingHom) L (2 * n) H (δ / 2) ≤
-            log (mulHeightAff fun k ↦ (x k : ℚ)) := by
+        (fun j ↦ (x j : ℚ)) ∈ systemSet S (placeAbs E.val.toRingHom)
+            (placeForms ⟨α, hαE⟩ (normLam e δ k) P)
+            (placeConst S
+              (|(Matrix.of fun i j ↦ (normLam e δ k i : ℝ) * quadVal α (P i j)).det| ^ (n : ℝ)⁻¹))
+            (placeExp e δ S f) ∧
+          efSystemThreshold E S (placeAbs E.val.toRingHom) (placeForms ⟨α, hαE⟩ (normLam e δ k) P)
+            (2 * n)
+            (3 ^ finrank ℚ E * (2 ^ k * B) ^ (3 * finrank ℚ E) * mulHeight₁ (⟨α, hαE⟩ : E) ^ 3)
+            (δ / 2) ≤
+            log (mulHeightAff fun j ↦ (x j : ℚ)) := by
   set d := finrank ℚ E with hd
   have hd1 : 1 ≤ d := finrank_pos
   set β : E := ⟨(α : ℂ), hαE⟩
@@ -1057,10 +1067,9 @@ theorem exists_normalized_places_of_mem {α : ℝ} (E : IntermediateField ℚ �
   have hn0 : (0 : ℝ) < n := by exact_mod_cast (by omega : 0 < n)
   have hn1 : (1 : ℝ) ≤ n := by exact_mod_cast (by omega : 1 ≤ n)
   have hn4' : (n : ℝ) ≤ 4 := by exact_mod_cast hn4
-  obtain ⟨k, hk, hklog⟩ := exists_two_pow hC hγ hγ1 n
   have hN := isNormalizedSystem_placeForms hβ P e δ k S f hn hB hP hγ hdet hδ hδ1 he1 he hf hf0
     hsum
-  refine ⟨_, _, _, _, hN, fun x hx hsol hfin hlarge ↦ ?_⟩
+  refine ⟨hN, fun x hx hsol hfin hlarge ↦ ?_⟩
   have hδi : 1 ≤ δ⁻¹ := (one_le_inv₀ hδ).2 hδ1
   -- the data
   have hlB : 0 ≤ log B := Real.log_nonneg hB
@@ -1131,6 +1140,38 @@ theorem exists_normalized_places_of_mem {α : ℝ} (E : IntermediateField ℚ �
           linarith
   exact ⟨mem_systemSet_placeForms hβ P e δ k S f hx hCc h2k hsol hfin,
     by rwa [Height.mulHeightAff_intCast hx]⟩
+
+/-- **The system of the forms in `1, α, α²` at `∞` and finitely many finite places of `ℚ`**: the
+forms are taken over a Galois field `E ⊆ ℂ` containing `α`, scaled at `∞` to a normalized system
+of weight `-δ / 2` with the coordinates at the primes (`Real.isNormalizedSystem_placeForms`), and
+every solution above the threshold `(thrConstAt n d S (1 + 17 d + 3 log H(α)) + 2 n²) δ⁻¹ Ξ`,
+`Ξ = 1 + log B + log C + log γ⁻¹`, is a solution of that system above its threshold
+`efSystemThreshold`. Both `Real.subspaceBound_places_of_mem` and
+`Real.subspaceInterval_places_of_mem` count these. -/
+theorem exists_normalized_places_of_mem {α : ℝ} (E : IntermediateField ℚ ℂ) [IsGalois ℚ E]
+    [NumberField E] (hαE : (α : ℂ) ∈ E) {n : ℕ} (hn : 2 ≤ n) (hn4 : n ≤ 4)
+    (S : Finset (HeightOneSpectrum (𝓞 ℚ))) (P : Fin n → Fin n → Fin 3 → ℤ) {B : ℝ}
+    (hB : 1 ≤ B) (hP : ∀ i k m, |(P i k m : ℝ)| ≤ B) {γ : ℝ} (hγ : 0 < γ) (hγ1 : γ ≤ 1)
+    (hdet : γ ≤ |(Matrix.of fun i k ↦ quadVal α (P i k)).det|) {C : ℝ} (hC : 1 ≤ C)
+    (e : Fin n → ℝ) (f : HeightOneSpectrum (𝓞 ℚ) → Fin n → ℝ) {δ : ℝ} (hδ : 0 < δ)
+    (hδ1 : δ ≤ 1) (he1 : ∀ i, e i ≤ 1) (he : ∃ i, e i = 1) (he0 : ∃ i, e i ≤ 1 - δ / (2 * n))
+    (hf : ∀ v ∈ S, ∀ i, f v i ≤ 0) (hf0 : ∀ v ∈ S, ∃ i, f v i = 0)
+    (hsum : ∑ i, e i + ∑ v ∈ S, ∑ i, f v i ≤ -δ) :
+    ∃ (L : AbsoluteValue ℚ ℝ → Fin n → Dual E (Fin n → E)) (Cs : InfinitePlace ℚ ⊕ S → ℝ)
+      (c : InfinitePlace ℚ ⊕ S → Fin n → ℝ) (H : ℝ),
+      IsNormalizedSystem S (placeAbs E.val.toRingHom) L Cs c H (finrank ℚ E) (2 * n) (δ / 2) ∧
+      ∀ x : Fin n → ℤ, x ≠ 0 →
+        (∀ i, |∑ k, quadVal α (P i k) * x k| ≤ C * (⨆ k, |(x k : ℝ)|) ^ e i) →
+        (∀ v ∈ S, ∀ i, FinitePlace.mk v (x i : ℚ) ≤ (⨆ k, |(x k : ℝ)|) ^ f v i) →
+        (thrConstAt n (finrank ℚ E) S *
+            (1 + 17 * finrank ℚ E + 3 * log (mulHeight₁ (⟨α, hαE⟩ : E))) + 2 * n ^ 2) *
+            δ⁻¹ * (1 + log B + log C + log γ⁻¹) ≤ log (⨆ k, |(x k : ℝ)|) →
+        (fun k ↦ (x k : ℚ)) ∈ systemSet S (placeAbs E.val.toRingHom) L Cs c ∧
+          efSystemThreshold E S (placeAbs E.val.toRingHom) L (2 * n) H (δ / 2) ≤
+            log (mulHeightAff fun k ↦ (x k : ℚ)) := by
+  obtain ⟨k, hk, hklog⟩ := exists_two_pow hC hγ hγ1 n
+  exact ⟨_, _, _, _, normalized_placeForms_of_mem E hαE hn hn4 S P hB hP hγ hγ1 hdet hC e f hδ hδ1
+    he1 he he0 hf hf0 hsum hk hklog⟩
 
 /-- **The quantitative Subspace Theorem at `∞` and finitely many finite places of `ℚ`**, with an
 explicit constant, the form `Real.subspaceBoundWith_three_of_mem` is assembled from: the places

@@ -724,22 +724,20 @@ theorem exists_intervals_of_isDestabilizing (hc : c.sum = 0)
   exact L.exists_intervals_of_splitting c S hc hsup hR hδ hδ1 hT
     ((range_inclLin_eq_extendPi S).symm.trans hS) hm
 
-/-- **EF13 Theorem 2.3**: let `n ≥ 2`, `(L, c)` with `Σ_v Σ_i c_iv = 0` (2.8) and
-`Σ_v max_i c_iv ≤ 1` (2.9), at most `R` distinct forms, `0 < δ ≤ 1`, and `T = T(L, c)` the
-destabilizing subspace (2.21). Then there is a set of at most `intervalCount n R δ` reals
-`b ≥ C₀ = max(H_L^{1/R}, n^{1/δ})` such that every `Q ≥ C₀` with a point `x ∉ T`,
-`H_{L,c,Q}(x) ≤ Δ_L^{1/n} Q^{-δ}` (2.24), lies in one of the intervals `[b, b^{ω₀})`,
-`ω₀ = δ⁻¹ log 3R` (2.25). The count is not EF13's `m₀`. -/
-theorem exists_intervals_cover (hn : 2 ≤ n) (hc : c.sum = 0)
-    (hsup : (∑ v, ⨆ i, c.arch v i) + ∑ᶠ v, ⨆ i, c.fin v i ≤ 1) {R : ℕ} (hR : #L.forms ≤ R)
-    {δ : ℝ} (hδ : 0 < δ) (hδ1 : δ ≤ 1) {T : Submodule Ω (Fin n → Ω)}
-    (hT : Submodule.IsDestabilizing (L.subspaceWeight c) ⊤ T) :
+/-- **The cutting step of EF13 Theorem 2.3**: if the `Q ≥ C`,
+`log C = quotThreshold n R δ (log H_L)`, with a property `P` lie in the intervals `[a, a^{2ω}]`
+of Theorem 8.1 for a quotient of dimension `1 ≤ m ≤ n` (`m` variables, `Rⁿ` forms and `δ / 2n`),
+then the `Q ≥ C₀ = max(H_L^{1/R}, n^{1/δ})` with `P` lie in at most `intervalCount n R δ`
+intervals `[b, b^{ω₀})`, `b ≥ C₀`. -/
+theorem exists_cover_of_intervals (hn : 2 ≤ n) {R : ℕ} (hR : #L.forms ≤ R) {δ : ℝ} (hδ : 0 < δ)
+    (hδ1 : δ ≤ 1) {m : ℕ} (hm : 1 ≤ m) (hmn : m ≤ n) (P : ∀ Q : ℝ, 1 ≤ Q → Prop)
+    (a : Fin (gapIntervals m (R ^ n) (δ / (2 * n))) → ℝ) (ha1 : ∀ i, 1 < a i)
+    (ha : ∀ (Q : ℝ) (hQ : 1 ≤ Q), Real.exp (quotThreshold n R δ (Real.log L.absFormHeight)) ≤ Q →
+      P Q hQ → ∃ i, a i ≤ Q ∧ Q ≤ a i ^ (2 * gapRatio m (R ^ n) (δ / (2 * n)))) :
     ∃ s : Finset ℝ, #s ≤ intervalCount n R δ ∧
       (∀ b ∈ s, max (L.absFormHeight ^ ((R : ℝ)⁻¹)) ((n : ℝ) ^ δ⁻¹) ≤ b) ∧
       ∀ (Q : ℝ) (hQ : 1 ≤ Q), max (L.absFormHeight ^ ((R : ℝ)⁻¹)) ((n : ℝ) ^ δ⁻¹) ≤ Q →
-      ∀ x : Fin n → Ω, x ∉ T → L.absMulHeight (c.weight (zero_lt_one.trans_le hQ)) x ≤
-        L.absDet ^ ((n : ℝ)⁻¹) * Q ^ (-δ) →
-      ∃ b ∈ s, b ≤ Q ∧ Q < b ^ cutRatio R δ := by
+      P Q hQ → ∃ b ∈ s, b ≤ Q ∧ Q < b ^ cutRatio R δ := by
   classical
   have hnR := L.le_card_forms.trans hR
   have hR0 : (0 : ℝ) < R := Nat.cast_pos.2 (by omega)
@@ -765,12 +763,6 @@ theorem exists_intervals_cover (hn : 2 ≤ n) (hc : c.sum = 0)
       _ ≤ Real.log C₀ := Real.log_le_log (by positivity) (le_max_left _ _)
   have hl2 : 0 < Real.log 2 / δ := div_pos (Real.log_pos one_lt_two) hδ
   have hlC₀ : 0 < Real.log C₀ := hl2.trans_le hlC₀n
-  have hm : 0 < n - finrank Ω T := by
-    have := Submodule.finrank_lt hT.lt.ne
-    rw [Module.finrank_fin_fun] at this
-    omega
-  set m := n - finrank Ω T
-  obtain ⟨a, ha1, ha⟩ := L.exists_intervals_of_isDestabilizing c hc hsup hR hδ hδ1 hT
   set N₀ := Real.cutCount (intervalBound n R δ) ω₀
   set N₁ := Real.cutCount (2 * gapRatio m (R ^ n) (δ / (2 * n))) ω₀
   set s := ((range N₀).image fun j ↦ C₀ ^ (ω₀ ^ j)) ∪
@@ -781,17 +773,17 @@ theorem exists_intervals_cover (hn : 2 ≤ n) (hc : c.sum = 0)
     refine card_image_le.trans ?_
     rw [card_product, card_range, card_univ, Fintype.card_fin]
     exact le_sup (f := fun p ↦ gapIntervals p (R ^ n) (δ / (2 * n)) *
-      Real.cutCount (2 * gapRatio p (R ^ n) (δ / (2 * n))) ω₀) (mem_Icc.2 ⟨hm, by omega⟩)
+      Real.cutCount (2 * gapRatio p (R ^ n) (δ / (2 * n))) ω₀) (mem_Icc.2 ⟨hm, hmn⟩)
   · intro b hb
     rcases mem_union.1 hb with h | h
     · obtain ⟨j, -, rfl⟩ := mem_image.1 h
       exact Real.self_le_rpow_of_one_le hC₀.le (one_le_pow₀ hω₀.le)
     · obtain ⟨p, -, rfl⟩ := mem_image.1 h
       exact le_max_right _ _
-  intro Q hQ hC₀Q x hx hxQ
+  intro Q hQ hC₀Q hPQ
   set Θ := quotThreshold n R δ ℓ
   by_cases hΘ : Real.exp Θ ≤ Q
-  · obtain ⟨i, h1, h2⟩ := ha Q hQ hΘ x hx hxQ
+  · obtain ⟨i, h1, h2⟩ := ha Q hQ hΘ hPQ
     obtain ⟨j, hj, h3, h4⟩ := Real.exists_cut (ha1 i) hω₀ h1 h2
     refine ⟨max (a i ^ (ω₀ ^ j)) C₀, mem_union_right _ (mem_image.2 ⟨(i, j),
       mem_product.2 ⟨mem_univ _, mem_range.2 hj⟩, rfl⟩), max_le h3 hC₀Q, h4.trans_le ?_⟩
@@ -825,6 +817,32 @@ theorem exists_intervals_cover (hn : 2 ≤ n) (hc : c.sum = 0)
       field_simp
     rw [h3, intervalBound]
     gcongr
+
+/-- **EF13 Theorem 2.3**: let `n ≥ 2`, `(L, c)` with `Σ_v Σ_i c_iv = 0` (2.8) and
+`Σ_v max_i c_iv ≤ 1` (2.9), at most `R` distinct forms, `0 < δ ≤ 1`, and `T = T(L, c)` the
+destabilizing subspace (2.21). Then there is a set of at most `intervalCount n R δ` reals
+`b ≥ C₀ = max(H_L^{1/R}, n^{1/δ})` such that every `Q ≥ C₀` with a point `x ∉ T`,
+`H_{L,c,Q}(x) ≤ Δ_L^{1/n} Q^{-δ}` (2.24), lies in one of the intervals `[b, b^{ω₀})`,
+`ω₀ = δ⁻¹ log 3R` (2.25). The count is not EF13's `m₀`. -/
+theorem exists_intervals_cover (hn : 2 ≤ n) (hc : c.sum = 0)
+    (hsup : (∑ v, ⨆ i, c.arch v i) + ∑ᶠ v, ⨆ i, c.fin v i ≤ 1) {R : ℕ} (hR : #L.forms ≤ R)
+    {δ : ℝ} (hδ : 0 < δ) (hδ1 : δ ≤ 1) {T : Submodule Ω (Fin n → Ω)}
+    (hT : Submodule.IsDestabilizing (L.subspaceWeight c) ⊤ T) :
+    ∃ s : Finset ℝ, #s ≤ intervalCount n R δ ∧
+      (∀ b ∈ s, max (L.absFormHeight ^ ((R : ℝ)⁻¹)) ((n : ℝ) ^ δ⁻¹) ≤ b) ∧
+      ∀ (Q : ℝ) (hQ : 1 ≤ Q), max (L.absFormHeight ^ ((R : ℝ)⁻¹)) ((n : ℝ) ^ δ⁻¹) ≤ Q →
+      ∀ x : Fin n → Ω, x ∉ T → L.absMulHeight (c.weight (zero_lt_one.trans_le hQ)) x ≤
+        L.absDet ^ ((n : ℝ)⁻¹) * Q ^ (-δ) →
+      ∃ b ∈ s, b ≤ Q ∧ Q < b ^ cutRatio R δ := by
+  have hm : 0 < n - finrank Ω T := by
+    have := Submodule.finrank_lt hT.lt.ne
+    rw [Module.finrank_fin_fun] at this
+    omega
+  obtain ⟨a, ha1, ha⟩ := L.exists_intervals_of_isDestabilizing c hc hsup hR hδ hδ1 hT
+  obtain ⟨s, hs, hsge, hsQ⟩ := L.exists_cover_of_intervals hn hR hδ hδ1 hm (by omega)
+    (fun Q hQ ↦ ∃ x : Fin n → Ω, x ∉ T ∧ L.absMulHeight (c.weight (zero_lt_one.trans_le hQ)) x ≤
+      L.absDet ^ ((n : ℝ)⁻¹) * Q ^ (-δ)) a ha1 fun Q hQ hΘ ⟨x, hx, hxQ⟩ ↦ ha Q hQ hΘ x hx hxQ
+  exact ⟨s, hs, hsge, fun Q hQ hC₀Q x hx hxQ ↦ hsQ Q hQ hC₀Q ⟨x, hx, hxQ⟩⟩
 
 end Reduction
 

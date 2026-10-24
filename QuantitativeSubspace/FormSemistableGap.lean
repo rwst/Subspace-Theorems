@@ -727,6 +727,98 @@ theorem exists_intervals (hLs : L.IsNormalSemistable c Ω) (hn : 2 ≤ n) {R : �
     ((n - 1) * gapChain n R δ) S (fun q ⟨_, hqT, _⟩ ↦ hqT) hnochain
   exact ⟨a, ha1, fun Q hQ hQT h1 ↦ ha Q ⟨hQ, hQT, h1⟩⟩
 
+/-- **EF13 Theorem 8.1 for a set of exponents.** Let `𝒞` be a set of exponents `c` such that every
+`(L, c)` satisfies (8.3), (8.4), (8.8) at the same `v₀`, (8.9), with `c_{iv} ≤ γ_v`, `γ_v ≥ 0`,
+`γ_{v₀} = 0` and `Σ_v γ_v ≤ 1`, all vanishing outside a set `S₁` of at most `Rⁿ` places. Then the
+`Q ≥ C₂` for which some `c ∈ 𝒞` has a nonzero point of height `≤ Q^{-δ}` lie in the same
+`gapIntervals n R δ` intervals `[a, a^{2ω}]` as in `exists_intervals`: the number of intervals
+does not depend on `#𝒞`. -/
+theorem exists_intervals_family (𝒞 : Set (FormExponent K (Fin n)))
+    (hLs : ∀ c ∈ 𝒞, L.IsNormalSemistable c Ω) {v₀ : FinitePlace K} (hL₀ : L.fin v₀ = 1)
+    (hc₀ : ∀ c ∈ 𝒞, c.fin v₀ = 0) {γ : InfinitePlace K ⊕ FinitePlace K → ℝ}
+    (hγc : ∀ c ∈ 𝒞, ∀ v i, c.vec v i ≤ γ v) (hγ0 : ∀ v, 0 ≤ γ v)
+    (hγs : (Function.support fun v : FinitePlace K ↦ γ (.inr v)).Finite)
+    (hγ : (∑ v, γ (.inl v)) + ∑ᶠ v, γ (.inr v) ≤ 1) (hγ₀ : γ (.inr v₀) = 0)
+    (S₁ : Finset (InfinitePlace K ⊕ FinitePlace K)) (hS₁ : ∀ c ∈ 𝒞, ∀ v ∉ S₁, c.vec v = 0)
+    (hn : 2 ≤ n) {R : ℕ} (hR : #L.forms ≤ R) (hnR : n ≤ R) (hS₁R : #S₁ ≤ R ^ n) {δ : ℝ}
+    (hδ : 0 < δ) (hδ1 : δ ≤ 1) :
+    ∃ a : Fin (gapIntervals n R δ) → ℝ, (∀ i, 1 < a i) ∧ ∀ c ∈ 𝒞, ∀ (Q : ℝ) (hQ : 1 < Q),
+      Real.exp (gapThreshold n R δ (Real.log L.absFormHeight)) ≤ Q →
+      L.successiveInf (c.weight (zero_lt_one.trans hQ)) Ω 1 ≤ Q ^ (-δ) →
+      ∃ i, a i ≤ Q ∧ Q ≤ a i ^ (2 * gapRatio n R δ) := by
+  classical
+  have hn1 : 1 ≤ n := by omega
+  have hε := gapEps_pos hn1 hδ
+  have hε1 := gapEps_le_one hn1 hδ1
+  have hεδ := mul_gapEps hn1 δ
+  have hℓ := Real.log_nonneg L.one_le_absFormHeight
+  set Θ := gapThreshold n R δ (Real.log L.absFormHeight) with hΘ
+  obtain ⟨T1, T2, T3, T4, T5, T6, T7, T8⟩ := terms_le_gapThreshold (R := R) hn1 hδ hℓ
+  have hΘpos : 0 < Θ := lt_of_lt_of_le (by positivity) T4
+  set S : Set ℝ := {Q | ∃ hQ : 1 < Q, Real.exp Θ ≤ Q ∧
+    ∃ c ∈ 𝒞, L.successiveInf (c.weight (zero_lt_one.trans hQ)) Ω 1 ≤ Q ^ (-δ)} with hS
+  have hS1 : ∀ q ∈ S, 1 < q := fun q ⟨hq, _⟩ ↦ hq
+  have hlogS : ∀ q ∈ S, Θ ≤ Real.log q := fun q ⟨hq, hqT, _⟩ ↦
+    (Real.le_log_iff_exp_le (zero_lt_one.trans hq)).mpr hqT
+  have hm1 : 1 ≤ gapBlocks n R δ := by unfold gapBlocks; omega
+  have hω1 : 1 ≤ gapRatio n R δ := by
+    unfold gapRatio
+    rw [le_div_iff₀ hε]
+    have : (1 : ℝ) ≤ gapBlocks n R δ := by exact_mod_cast hm1
+    linarith
+  -- Prop. 13.6's condition at the places of `S₁`
+  have hm : 2 * (#S₁ + 1 : ℝ) ≤ Real.exp (gapBlocks n R δ * gapEps n δ ^ 2 / 2) := by
+    refine le_trans ?_ (two_mul_le_exp_gapBlocks hn1 hδ hS₁R)
+    have h0 : (0 : ℝ) ≤ n / gapEps n δ := by positivity
+    have : (1 : ℝ) ≤ (n / gapEps n δ + 2) ^ n := one_le_pow₀ (by linarith)
+    nlinarith [Nat.cast_nonneg (α := ℝ) #S₁]
+  have hnochain : ∀ q : Fin ((n - 1) * gapChain n R δ + 1) → ℝ,
+      ¬ Real.IsLogChain S (gapRatio n R δ) q := by
+    intro q hq
+    have hk : ∀ i, ∃ c ∈ 𝒞, ∃ k, 0 < k ∧ k < n ∧
+        L.successiveInf (c.weight (zero_lt_one.trans (hS1 _ (hq.1 i)))) Ω k ≤
+          q i ^ (-(δ / (n - 1))) *
+            L.successiveInf (c.weight (zero_lt_one.trans (hS1 _ (hq.1 i)))) Ω (k + 1) := by
+      intro i
+      obtain ⟨hQi, -, c, hc, h1i⟩ := hq.1 i
+      exact ⟨c, hc, L.exists_successiveInf_le (Ω := Ω) c hn (hLs c hc).sum_eq_zero hQi.le h1i
+        (sqrt_pow_le_absDet_mul hn1 hR hδ hQi (T1.trans (hlogS _ (hq.1 i))))⟩
+    choose cc hcc col hcol0 hcoln hcolgap using hk
+    obtain ⟨k₀, hk₀, g, hg, hq'⟩ := Real.exists_subchain hω1 hS1 hq col (Finset.Ioo 0 n)
+      (fun i ↦ Finset.mem_Ioo.2 ⟨hcol0 i, hcoln i⟩) (by simp)
+    obtain ⟨hk0, hkn⟩ := Finset.mem_Ioo.1 hk₀
+    have hQg : ∀ a, 1 < q (g a) := fun a ↦ hS1 _ (hq.1 (g a))
+    have hlg : ∀ a, Θ ≤ Real.log (q (g a)) := fun a ↦ hlogS _ (hq.1 (g a))
+    set cs : Fin (gapBlocks n R δ) → FormExponent K (Fin n) := fun a ↦ cc (g a) with hcs
+    have hcs𝒞 : ∀ a, cs a ∈ 𝒞 := fun a ↦ hcc (g a)
+    have hc0 : ∀ a v, ∑ i, (cs a).vec v i = 0 := by
+      rintro a (v | v)
+      exacts [(hLs _ (hcs𝒞 a)).sum_arch v, (hLs _ (hcs𝒞 a)).sum_fin v]
+    refine L.false_of_chain_family hL₀ hn hR hnR hδ hε hε1 hm1 cs (fun a ↦ hLs _ (hcs𝒞 a))
+      (fun a ↦ hc₀ _ (hcs𝒞 a)) (fun a ↦ hγc _ (hcs𝒞 a)) hγ0 hγs hγ hγ₀ ⟨k₀, hkn⟩ hk0
+      (fun r hr e he hes ↦ L.exists_auxiliaryPolynomial_hasseDeriv_of_places hL₀ hc0
+        (by simp only; omega) (by simpa using (show n - k₀ < n by omega)) hr
+        (fun a ↦ hγc _ (hcs𝒞 a)) hγ0 S₁ (fun a ↦ hS₁ _ (hcs𝒞 a)) hε.le (by simpa using hm) e he
+        hes)
+      (Q := q ∘ g) (fun a ↦ hQg a) (fun i j hij ↦ hq'.2 i j hij) (fun a ↦ ?_)
+      (fun a ↦ mul_rpow_le_rpow_one_div hn1 hR (hQg a) (T2.trans (hlg a)))
+      (fun a ↦ sqrt_two_pow_mul_absDet_le (hQg a) (T3.trans (hlg a)))
+      (fun a ↦ three_pow_le_rpow (hQg a) (T4.trans (hlg a)))
+      (fun a ↦ pow_le_rpow_of_eleven hn hδ (hQg a) (T5.trans (hlg a)))
+      (fun a ↦ pow_le_rpow_of_ten hδ (hQg a) (T6.trans (hlg a)))
+      rfl rfl rfl rfl rfl rfl ?_ ?_
+    · have := hcolgap (g a)
+      rw [hg a] at this
+      exact this
+    · exact thetaOne_lt hR (by omega) (p := n - k₀) (by omega) (by omega) hε hδ
+        (T7.trans (hlg _))
+    · exact thetaTwo_lt hR (p := n - k₀) (by omega) (by omega) hm1 hε hδ hεδ.le
+        (T8.trans (hlg _))
+  obtain ⟨a, ha1, ha⟩ := Real.exists_cover_of_not_chain (by linarith)
+    (Real.one_lt_exp_iff.mpr hΘpos)
+    ((n - 1) * gapChain n R δ) S (fun q ⟨_, hqT, _⟩ ↦ hqT) hnochain
+  exact ⟨a, ha1, fun c hc Q hQ hQT h1 ↦ ha Q ⟨hQ, hQT, c, hc, h1⟩⟩
+
 
 omit [IsAlgClosed Ω] in
 /-- A nonzero point of height `≤ λ` gives `λ_1 ≤ λ`. -/

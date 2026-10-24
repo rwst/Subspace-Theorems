@@ -6,6 +6,7 @@ number of factors of length `n` of `a₁ a₂ …` exceeds `C n (log n)^δ` for 
 
 | statement | `δ` | Subspace count used |
 |---|---|---|
+| `Nat.frequently_lt_encard_factors_of_lt_half` | `0 ≤ δ < 1/2` | Evertse–Ferretti 2013, Theorem 2.3 for a set of exponents, in interval form (`Real.subspaceIntervalFamily_of_isAlgebraic`, proved) |
 | `Nat.frequently_lt_encard_factors_of_lt_third` | `0 ≤ δ < 1/3` | Evertse–Ferretti 2013 in interval form (`Real.subspaceInterval_of_isAlgebraic`, proved) |
 | `Nat.frequently_lt_encard_factors_of_lt_quarter` | `0 ≤ δ < 1/4` | Evertse–Ferretti 2013 (`Real.subspaceBound_three`, proved) |
 | `Nat.frequently_lt_encard_factors_of_lt_ninth` | `0 ≤ δ < 1/9` | the shape of Evertse–Schlickewei 2002, `δ^{-(n+4)}` at `n = 4` (`SubspaceBound.mono`) |
@@ -26,12 +27,13 @@ follows from the proved EF13 count.
 | `Hyperplanes.lean` | the 3-variable applications on `z^⊥` and on `T₀ = {X₂ = X₃}` |
 | `Subspaces.lean` | a proper subspace holds `O(log 1/ε)` points off `T₀` |
 | `Count.lean` | `card_le_of_cfPoints`: `#points ≤ K ε^{-(b+1)} (1 + log ε⁻¹)³`; the shape `Real.CFCount α b` |
-| `SubspaceInterval.lean` | `Real.SubspaceInterval`: the interval form, one subspace and `K δ⁻² (1 + log δ⁻¹)` intervals of `log |x|` |
+| `SubspaceInterval.lean` | `Real.SubspaceInterval`: the interval form, one subspace and `K δ⁻² (1 + log δ⁻¹)` intervals of `log |x|`; `Real.SubspaceIntervalFamily`: the same for a set of exponents, `K` subspaces |
 | `CountThird.lean` | steps (i) and (iv) in interval form; `card_le_of_cfPoints_third`: `#points ≤ K ε⁻³ (1 + log ε⁻¹)²`, i.e. `Real.CFCount α 2` |
 | `CFPoints.lean` | the continued-fraction points `spadeVec` are `CFPoint`s |
 | `Complexity.lean` | `exists_config`: from `p(ℓ) ≤ p`, a repetition that cannot slide left |
 | `Asymptotics.lean` | the lengths `ℓ_k = E^{k+1}(k+1)^{2(k+1)}` and the final growth estimates |
 | `Delta.lean` | the contradiction; the 1/3, 1/4 and 1/9 instances |
+| `CountHalf.lean` | step (i) with one interval result for all cells; `card_le_of_cfPoints_half`: `#points ≤ K ε⁻² (1 + log ε⁻¹)²`, i.e. `Real.CFCount α 1`; the 1/2 instance |
 
 ## The proof
 
@@ -49,6 +51,12 @@ The count `card_le_of_cfPoints` covers the `N` points with `N ≤ k < 2N` in thr
 This bounds the `N` points by `O(N^{(b+1)δ(1+η)+3η})`. That is `o(N)` when `(b + 1)δ < 1`, a
 contradiction.
 
+With the interval form (`CountThird.lean`) the points of doubling height put `O(log ε⁻¹)` of
+themselves into each interval, and the count is `ε⁻³`: `δ < 1/3`. The cells of step 1 have the
+same forms and differ only in their exponents; with the interval form for a set of exponents
+(`CountHalf.lean`) one application serves all cells, with `K` subspaces and `K ε⁻² log ε⁻¹`
+intervals, and the count is `ε⁻²`: `δ < 1/2`.
+
 ## Reference
 
 R. Stephan, *The exponent `1/4` in three complexity bounds: integer bases, continued fractions, and
@@ -61,7 +69,8 @@ Appendix A maps every numbered statement to its Lean declaration.
 ## Checks (2026-10-10)
 
 * Each module builds without errors or warnings, and no `set_option` is used.
-* `#print axioms` gives `propext, Classical.choice, Quot.sound` for all three theorems.
+* `#print axioms` gives `propext, Classical.choice, Quot.sound` for all three theorems, and
+  (2026-10-24) for the `1/3` and `1/2` instances.
 * `#lint in Bugeaud2013.Additions` is clean.
 * `scripts/guards.sh` passes.
 * `scripts/lint-style.sh`: headers conform; with the directory named `Additions/`, the module

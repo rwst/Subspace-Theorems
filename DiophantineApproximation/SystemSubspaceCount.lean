@@ -68,7 +68,8 @@ of the conjugated forms are those of the coefficients (`logHeight₁_algEquiv`,
   Layer 9.4's (`NumberField.exists_finset_submodule_of_gap_two` for `n = 2`).
   `NumberField.exists_forall_mem_interval_systemSet_of_shift` is the same with the scalar costing
   a fraction `τ` of `δ` instead of `δ / 2`, and the absolute weight `2 P + (1 + τ) δ` of the
-  system's own positive weight `P` (`NumberField.systemPosWeight`) instead of `2 n + 2`.
+  system's own positive weight `P` (`NumberField.systemPosWeight`) instead of `2 n + 2`; its
+  steps 1–3 up to the interval result are `NumberField.exists_domain_of_shift`.
 * `NumberField.exists_finset_submodule_of_forall_interval`: steps 1–4 for **any** interval
   result above `X₀` for the conjugated forms, with counts `NS`, `NI` and ratio `ρ`. Layer 6.1 is
   one; for `n = 2` Layer 5.6 is one (`QuantitativeSubspace/SubspaceCountTwo.lean`).
@@ -211,6 +212,19 @@ theorem comap_algebraMapPi_ne_top [Finite ι] {W : Submodule E (ι → E)} (hW :
     · subst hk; simp
     · simp [hk]
   simpa [hf] using hmem
+
+omit [NumberField K] [NumberField E] [Fintype ι] in
+/-- A point of `Kⁿ` lies in the `K`-points of every `E`-subspace that a nonzero multiple of it lies
+in. -/
+theorem mem_comap_algebraMapPi_of_mul {β : K} (hβ0 : β ≠ 0) {W : Submodule E (ι → E)}
+    {x : ι → K} (h : (fun j ↦ algebraMap K E (β * x j)) ∈ W) :
+    x ∈ (W.restrictScalars K).comap (algebraMapPi K E ι) := by
+  have hβE : algebraMap K E β ≠ 0 := (map_ne_zero _).2 hβ0
+  have hxW : (fun j ↦ algebraMap K E (x j)) ∈ W := by
+    convert W.smul_mem (algebraMap K E β)⁻¹ h using 1
+    funext j
+    simp [map_mul, inv_mul_cancel_left₀ hβE]
+  exact hxW
 
 /-! ### Local bounds in terms of the coefficient height -/
 
@@ -812,43 +826,35 @@ theorem IsNormalizedSystem.exists_raise {S : Finset (HeightOneSpectrum (𝓞 K))
 /-! ### The large solutions -/
 
 open scoped Classical in
-/-- **The large solutions of a system lie in `NS` subspaces or in `NI` height intervals, with the
-scalar costing a fraction `τ` of `δ`**: `NumberField.exists_forall_mem_interval_systemSet` with
-the shift `γ = τ δ / (n t)` in place of `δ / (2 n t)`. The interval result is asked for exponents
-of weight exactly `-[E : K] (1 - τ) δ` and absolute weight at most `[E : K] (2 P + (1 + τ) δ)`,
-`P = systemPosWeight c` the positive weight of the system's own exponents (at most `n`), and with
-deviation weight (`NumberField.approxDevWeight`) at most `[E : K] (2 (n + δ) + N)`,
-`N = systemNegWeight c`; the price is the threshold `systemHeightThreshold / (2 τ)` of the scalar,
-which is small next to the thresholds of the interval results ([Ste26], items (a)–(c)). -/
-theorem exists_forall_mem_interval_systemSet_of_shift [IsGalois K E]
+/-- **The domains of the solutions of a system, with the scalar costing a fraction `τ` of `δ`**:
+exponents `e'` and a nonzero `β ∈ K` such that `β x` lies in the domain at level `H(x)` of the
+conjugated exponents of `e'` over `E`, for every solution `x` with `log H(x) ≥ X₀`. The conjugated
+exponents have weight `-[E : K] (1 - τ) δ`, absolute weight at most `[E : K] (2 P + (1 + τ) δ)`,
+`P = systemPosWeight c`, largest exponents of weight at most `[E : K] (1 + τ δ / n)` and deviation
+weight at most `[E : K] (2 (n + δ) + N)`, `N = systemNegWeight c`. The first half of
+`NumberField.exists_forall_mem_interval_systemSet_of_shift`. -/
+theorem exists_domain_of_shift [IsGalois K E]
     (S : Finset (HeightOneSpectrum (𝓞 K))) (w : AbsoluteValue K ℝ → AbsoluteValue E ℝ)
     (hwInf : ∀ v : InfinitePlace K, (w v.1).LiesOver v.1)
     (hwFin : ∀ v ∈ S, (w (FinitePlace.mk v).1).LiesOver (FinitePlace.mk v).1)
     {L : AbsoluteValue K ℝ → ι → Dual E (ι → E)} {C : InfinitePlace K ⊕ S → ℝ}
     {c : InfinitePlace K ⊕ S → ι → ℝ} {H : ℝ} {D R : ℕ} {δ : ℝ}
-    (hN : IsNormalizedSystem S w L C c H D R δ) {τ : ℝ} (hτ : 0 < τ) {X₀ ρ : ℝ} {NS NI : ℕ}
+    (hN : IsNormalizedSystem S w L C c H D R δ) {τ : ℝ} (hτ : 0 < τ) {X₀ : ℝ}
     (hX₀H : systemHeightThreshold (Fintype.card ι) (finrank ℚ E)
       (Fintype.card (InfinitePlace K) + #S) δ H (Real.log (scalarConst K S)) ≤ 2 * τ * X₀)
-    (hX₀n : finrank ℚ K * (2 * Fintype.card ι / δ) * Real.log (Fintype.card ι) ≤ X₀)
-    (hint : ∀ c' : AbsoluteValue E ℝ → ι → ℝ,
-      approxWeight (systemPlacesOver E S) c' = -(finrank K E * ((1 - τ) * δ)) →
-      approxAbsWeight (systemPlacesOver E S) c' ≤
-        finrank K E * (2 * systemPosWeight c + (1 + τ) * δ) →
-      approxSupWeight (systemPlacesOver E S) c' ≤
-        finrank K E * (1 + τ * δ / Fintype.card ι) →
-      approxDevWeight (systemPlacesOver E S) c' ≤
-        finrank K E * (2 * (Fintype.card ι + δ) + systemNegWeight c) →
-      ∃ T : Finset (Submodule E (ι → E)), #T ≤ NS ∧ (∀ W ∈ T, W ≠ ⊤) ∧
-        ∃ 𝒯 : Finset ℝ, #𝒯 ≤ NI ∧ (∀ s ∈ 𝒯, X₀ ≤ s) ∧
-          ∀ Q : ℝ, 1 < Q → X₀ ≤ Real.log Q →
-            (∃ W ∈ T, approxDomain (systemPlacesOver E S)
-              (conjSystem univ (S.image FinitePlace.mk) w L) c' Q ⊆ W) ∨
-              ∃ s ∈ 𝒯, s ≤ Real.log Q ∧ Real.log Q < ρ * s) :
-    ∃ T : Finset (Submodule K (ι → K)), #T ≤ NS ∧ (∀ U ∈ T, U ≠ ⊤) ∧
-      ∃ 𝒯 : Finset ℝ, #𝒯 ≤ NI ∧ (∀ s ∈ 𝒯, X₀ ≤ s) ∧
-        ∀ x ∈ systemSet S w L C c, X₀ ≤ Real.log (mulHeightAff x) →
-          (∃ U ∈ T, x ∈ U) ∨
-            ∃ s ∈ 𝒯, s ≤ Real.log (mulHeightAff x) ∧ Real.log (mulHeightAff x) < ρ * s := by
+    (hX₀n : finrank ℚ K * (2 * Fintype.card ι / δ) * Real.log (Fintype.card ι) ≤ X₀) :
+    ∃ (e' : InfinitePlace K ⊕ S → ι → ℝ) (β : K), β ≠ 0 ∧
+      approxWeight (systemPlacesOver E S) (conjExponent S e') =
+        -(finrank K E * ((1 - τ) * δ)) ∧
+      approxAbsWeight (systemPlacesOver E S) (conjExponent S e') ≤
+        finrank K E * (2 * systemPosWeight c + (1 + τ) * δ) ∧
+      approxSupWeight (systemPlacesOver E S) (conjExponent S e') ≤
+        finrank K E * (1 + τ * δ / Fintype.card ι) ∧
+      approxDevWeight (systemPlacesOver E S) (conjExponent S e') ≤
+        finrank K E * (2 * (Fintype.card ι + δ) + systemNegWeight c) ∧
+      ∀ x ∈ systemSet S w L C c, X₀ ≤ Real.log (mulHeightAff x) →
+        (fun j ↦ algebraMap K E (β * x j)) ∈ approxDomain (systemPlacesOver E S)
+          (conjSystem univ (S.image FinitePlace.mk) w L) (conjExponent S e') (mulHeightAff x) := by
   set n := Fintype.card ι with hn
   have hn2 : 2 ≤ n := hN.two_le_card
   have : Nonempty ι := Fintype.card_pos_iff.1 (by omega)
@@ -970,7 +976,6 @@ theorem exists_forall_mem_interval_systemSet_of_shift [IsGalois K E]
       _ = 2 * (n + δ) + systemNegWeight c := by
           rw [sum_systemExponent, htnγ, hsumw]
           ring
-  obtain ⟨T, hTcard, hTtop, 𝒯, h𝒯card, h𝒯ge, hQint⟩ := hint _ hwe hA' hsup hdev
   -- `β x` lies in the domain
   have hdom : ∀ x ∈ systemSet S w L C c, X₀ ≤ Real.log (mulHeightAff x) →
       (fun j ↦ algebraMap K E (β * x j)) ∈ approxDomain Sfin' L' (conjExponent S e')
@@ -1001,23 +1006,68 @@ theorem exists_forall_mem_interval_systemSet_of_shift [IsGalois K E]
           mul_le_mul hκx (Real.rpow_le_rpow_of_exponent_le hHx1 (hcc' p i))
             (Real.rpow_nonneg hHx0.le _) (Real.rpow_nonneg hHx0.le _)
       _ = mulHeightAff x ^ e' p i := by rw [he', Real.rpow_add hHx0, mul_comm]
+  exact ⟨e', β, hβ0, hwe, hA', hsup, hdev, hdom⟩
+
+open scoped Classical in
+/-- **The large solutions of a system lie in `NS` subspaces or in `NI` height intervals, with the
+scalar costing a fraction `τ` of `δ`**: `NumberField.exists_forall_mem_interval_systemSet` with
+the shift `γ = τ δ / (n t)` in place of `δ / (2 n t)`. The interval result is asked for exponents
+of weight exactly `-[E : K] (1 - τ) δ` and absolute weight at most `[E : K] (2 P + (1 + τ) δ)`,
+`P = systemPosWeight c` the positive weight of the system's own exponents (at most `n`), and with
+deviation weight (`NumberField.approxDevWeight`) at most `[E : K] (2 (n + δ) + N)`,
+`N = systemNegWeight c`; the price is the threshold `systemHeightThreshold / (2 τ)` of the scalar,
+which is small next to the thresholds of the interval results ([Ste26], items (a)–(c)). -/
+theorem exists_forall_mem_interval_systemSet_of_shift [IsGalois K E]
+    (S : Finset (HeightOneSpectrum (𝓞 K))) (w : AbsoluteValue K ℝ → AbsoluteValue E ℝ)
+    (hwInf : ∀ v : InfinitePlace K, (w v.1).LiesOver v.1)
+    (hwFin : ∀ v ∈ S, (w (FinitePlace.mk v).1).LiesOver (FinitePlace.mk v).1)
+    {L : AbsoluteValue K ℝ → ι → Dual E (ι → E)} {C : InfinitePlace K ⊕ S → ℝ}
+    {c : InfinitePlace K ⊕ S → ι → ℝ} {H : ℝ} {D R : ℕ} {δ : ℝ}
+    (hN : IsNormalizedSystem S w L C c H D R δ) {τ : ℝ} (hτ : 0 < τ) {X₀ ρ : ℝ} {NS NI : ℕ}
+    (hX₀H : systemHeightThreshold (Fintype.card ι) (finrank ℚ E)
+      (Fintype.card (InfinitePlace K) + #S) δ H (Real.log (scalarConst K S)) ≤ 2 * τ * X₀)
+    (hX₀n : finrank ℚ K * (2 * Fintype.card ι / δ) * Real.log (Fintype.card ι) ≤ X₀)
+    (hint : ∀ c' : AbsoluteValue E ℝ → ι → ℝ,
+      approxWeight (systemPlacesOver E S) c' = -(finrank K E * ((1 - τ) * δ)) →
+      approxAbsWeight (systemPlacesOver E S) c' ≤
+        finrank K E * (2 * systemPosWeight c + (1 + τ) * δ) →
+      approxSupWeight (systemPlacesOver E S) c' ≤
+        finrank K E * (1 + τ * δ / Fintype.card ι) →
+      approxDevWeight (systemPlacesOver E S) c' ≤
+        finrank K E * (2 * (Fintype.card ι + δ) + systemNegWeight c) →
+      ∃ T : Finset (Submodule E (ι → E)), #T ≤ NS ∧ (∀ W ∈ T, W ≠ ⊤) ∧
+        ∃ 𝒯 : Finset ℝ, #𝒯 ≤ NI ∧ (∀ s ∈ 𝒯, X₀ ≤ s) ∧
+          ∀ Q : ℝ, 1 < Q → X₀ ≤ Real.log Q →
+            (∃ W ∈ T, approxDomain (systemPlacesOver E S)
+              (conjSystem univ (S.image FinitePlace.mk) w L) c' Q ⊆ W) ∨
+              ∃ s ∈ 𝒯, s ≤ Real.log Q ∧ Real.log Q < ρ * s) :
+    ∃ T : Finset (Submodule K (ι → K)), #T ≤ NS ∧ (∀ U ∈ T, U ≠ ⊤) ∧
+      ∃ 𝒯 : Finset ℝ, #𝒯 ≤ NI ∧ (∀ s ∈ 𝒯, X₀ ≤ s) ∧
+        ∀ x ∈ systemSet S w L C c, X₀ ≤ Real.log (mulHeightAff x) →
+          (∃ U ∈ T, x ∈ U) ∨
+            ∃ s ∈ 𝒯, s ≤ Real.log (mulHeightAff x) ∧ Real.log (mulHeightAff x) < ρ * s := by
+  have hn2 : 2 ≤ Fintype.card ι := hN.two_le_card
+  have hn0 : (0 : ℝ) < Fintype.card ι := by exact_mod_cast (by omega : 0 < Fintype.card ι)
+  have hδ := hN.delta_pos
+  have hX₀pos : 0 < X₀ := by
+    have hl : 0 < Real.log (Fintype.card ι) :=
+      Real.log_pos (by exact_mod_cast (by omega : 1 < Fintype.card ι))
+    have hK : (0 : ℝ) < finrank ℚ K := by exact_mod_cast finrank_pos
+    exact (by positivity : (0 : ℝ) < finrank ℚ K * (2 * Fintype.card ι / δ) *
+      Real.log (Fintype.card ι)).trans_le hX₀n
+  obtain ⟨e', β, hβ0, hwe, hA', hsup, hdev, hdom⟩ :=
+    exists_domain_of_shift S w hwInf hwFin hN hτ hX₀H hX₀n
+  obtain ⟨T, hTcard, hTtop, 𝒯, h𝒯card, h𝒯ge, hQint⟩ := hint _ hwe hA' hsup hdev
   refine ⟨T.image fun W ↦ (W.restrictScalars K).comap (algebraMapPi K E ι),
     Finset.card_image_le.trans hTcard, fun U hU ↦ ?_, 𝒯, h𝒯card, h𝒯ge, fun x hx hlogH ↦ ?_⟩
   · obtain ⟨W, hW, rfl⟩ := Finset.mem_image.1 hU
     exact comap_algebraMapPi_ne_top (hTtop W hW)
-  have hy := hdom x hx hlogH
   have hH1 : 1 < mulHeightAff x := by
     rw [← Real.log_pos_iff (mulHeightAff_pos x).le]
     linarith
   rcases hQint (mulHeightAff x) hH1 hlogH with ⟨W, hW, hsub⟩ | hs
-  · refine Or.inl ⟨_, Finset.mem_image_of_mem _ hW, ?_⟩
-    have hβE : algebraMap K E β ≠ 0 := (map_ne_zero _).2 hβ0
-    have hxW : (fun j ↦ algebraMap K E (x j)) ∈ W := by
-      have h := W.smul_mem (algebraMap K E β)⁻¹ (hsub hy)
-      convert h using 1
-      funext j
-      simp [map_mul, inv_mul_cancel_left₀ hβE]
-    exact hxW
+  · exact Or.inl ⟨_, Finset.mem_image_of_mem _ hW,
+      mem_comap_algebraMapPi_of_mul hβ0 (hsub (hdom x hx hlogH))⟩
   · exact Or.inr hs
 
 open scoped Classical in

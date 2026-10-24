@@ -384,20 +384,48 @@ variable {K : Type} [Field K] [NumberField K] {n : ℕ} {Ω : Type*} [Field Ω] 
 
 open MvPolynomial
 
-/-- **EF13 §14: no chain of exceptional `Q`.** Let `(L, c)` satisfy (8.3), (8.4), (8.8) at `v₀`,
-(8.9), and let `Q_0, …, Q_{m-1}` share the gap of Lemma 9.4 at the same `0 < k < n`, with
-`log Q_{h+1} ≥ (4m/ε) log Q_h`, the size conditions of `exists_wedgePoints`, and `Q_0` so large
-that Prop. 12.1 applies (`hΘ₁`) and the product formula fails (`hΘ₂`). Then this is impossible.
-Here `N = C(n, n-k)`, `Y` is the coefficient of `Σ r` in Prop. 13.6 (iii), `Y₂` bounds the height
-of `invTuple`, `G` bounds the grid (14.7) and `Z` collects the logarithms of (14.14)–(14.16). -/
-theorem false_of_chain (hLs : L.IsNormalSemistable c Ω) {v₀ : FinitePlace K}
-    (hL₀ : L.fin v₀ = 1) (hc₀ : c.fin v₀ = 0) (hn : 2 ≤ n) {R : ℕ} (hR : #L.forms ≤ R)
-    (hnR : n ≤ R) {δ ε : ℝ} (hδ : 0 < δ) (hε : 0 < ε) (hε1 : ε ≤ 1) {m : ℕ} (hm1 : 1 ≤ m)
-    (hm : 2 * (#L.matSet * (n / ε + 2) ^ n + 1) ≤ Real.exp (m * ε ^ 2 / 2))
-    (k : Fin n) (hk : 0 < (k : ℕ)) {Q : Fin m → ℝ} (hQ : ∀ h, 1 < Q h)
+/-- **EF13 §14 for exponents depending on the block: no chain of exceptional `Q`.** Let every
+`(L, c_h)` satisfy (8.3), (8.4), (8.8) at the same `v₀`, (8.9), let `c_{h,iv} ≤ γ_v` with
+`γ_v ≥ 0`, `γ_{v₀} = 0` and `Σ_v γ_v ≤ 1`, and let the auxiliary polynomial of Prop. 13.6 exist
+for these exponents (`hAux`, with (i) at the bounds `γ_v`). Let `Q_0, …, Q_{m-1}` share the gap of
+Lemma 9.4 at the same `0 < k < n`, `Q_h` for `c_h`, with `log Q_{h+1} ≥ (4m/ε) log Q_h`, the size
+conditions of `exists_wedgePoints`, and `Q_0` so large that Prop. 12.1 applies (`hΘ₁`) and the
+product formula fails (`hΘ₂`). Then this is impossible. Here `N = C(n, n-k)`, `Y` is the
+coefficient of `Σ r` in Prop. 13.6 (iii), `Y₂` bounds the height of `invTuple`, `G` bounds the
+grid (14.7) and `Z` collects the logarithms of (14.14)–(14.16). -/
+theorem false_of_chain_family {v₀ : FinitePlace K} (hL₀ : L.fin v₀ = 1) (hn : 2 ≤ n) {R : ℕ}
+    (hR : #L.forms ≤ R) (hnR : n ≤ R) {δ ε : ℝ} (hδ : 0 < δ) (hε : 0 < ε) (hε1 : ε ≤ 1) {m : ℕ}
+    (hm1 : 1 ≤ m) (cs : Fin m → FormExponent K (Fin n))
+    (hLs : ∀ h, L.IsNormalSemistable (cs h) Ω) (hc₀ : ∀ h, (cs h).fin v₀ = 0)
+    {γ : InfinitePlace K ⊕ FinitePlace K → ℝ} (hγc : ∀ h v i, (cs h).vec v i ≤ γ v)
+    (hγ0 : ∀ v, 0 ≤ γ v) (hγs : (Function.support fun v : FinitePlace K ↦ γ (.inr v)).Finite)
+    (hγ : (∑ v, γ (.inl v)) + ∑ᶠ v, γ (.inr v) ≤ 1) (hγ₀ : γ (.inr v₀) = 0)
+    (k : Fin n) (hk : 0 < (k : ℕ))
+    (hAux : ∀ r : Fin m → ℕ, (∀ h, r h ≠ 0) → ∀ e : Fin m → Set.powersetCard (Fin n) (n - k) → ℝ,
+      (∀ h s, |e h s| ≤ Fintype.card (Fin n)) → (∀ h, ∑ s, e h s ≤ -δ / Fintype.card (Fin n)) →
+      ∃ P : MvPolynomial (Fin m × Set.powersetCard (Fin n) (n - k)) K, P ≠ 0 ∧
+        IsMultiHomogeneous r P ∧
+        (∀ v (I J : Fin m × Set.powersetCard (Fin n) (n - k) →₀ ℕ),
+          blockAvg r I 1 ≤ 2 * Fintype.card (Fin m) * ε →
+          4 * Fintype.card (Fin m) * Fintype.card (Fin n) * ε * γ v <
+            blockAvg r J (fun h s ↦ ((cs h).exteriorPower (n - k)).vec v s) →
+          (blockSubst ((L.mat v).compound (n - k))⁻¹ (hasseDeriv I P)).coeff J = 0) ∧
+        (∀ I J : Fin m × Set.powersetCard (Fin n) (n - k) →₀ ℕ,
+          blockAvg r I 1 ≤ 2 * Fintype.card (Fin m) * ε →
+          -(Fintype.card (Fin m) * δ / (Fintype.card (Fin n) *
+            Fintype.card (Set.powersetCard (Fin n) (n - k)))) +
+            4 * Fintype.card (Fin m) * Fintype.card (Fin n) * ε < blockAvg r J e →
+          (hasseDeriv I P).coeff J = 0) ∧
+        P.logHeight ≤ 2⁻¹ * Real.log |(NumberField.discr K : ℝ)|
+          + ((finrank ℚ K : ℝ) / 2 * Fintype.card (Set.powersetCard (Fin n) (n - k))
+              + finrank ℚ K * Real.log (Fintype.card (Set.powersetCard (Fin n) (n - k)))
+              + finrank ℚ K * Real.log (n - k : ℕ).factorial
+              + 2 * (n - k : ℕ) * #L.matSet * Real.log L.mulFormHeight) * ∑ h, (r h : ℝ))
+    {Q : Fin m → ℝ} (hQ : ∀ h, 1 < Q h)
     (hω : ∀ i j : Fin m, (i : ℕ) + 1 = j → 4 * m / ε * Real.log (Q i) ≤ Real.log (Q j))
-    (hgap : ∀ h, L.successiveInf (c.weight (zero_lt_one.trans (hQ h))) Ω k ≤
-      Q h ^ (-(δ / (n - 1))) * L.successiveInf (c.weight (zero_lt_one.trans (hQ h))) Ω (k + 1))
+    (hgap : ∀ h, L.successiveInf ((cs h).weight (zero_lt_one.trans (hQ h))) Ω k ≤
+      Q h ^ (-(δ / (n - 1))) *
+        L.successiveInf ((cs h).weight (zero_lt_one.trans (hQ h))) Ω (k + 1))
     (hQ₁ : ∀ h, n * L.absFormHeight ^ ((L.forms.card.choose n : ℕ) : ℝ) ≤
       Q h ^ (1 / (3 * n) : ℝ))
     (hQ₂ : ∀ h, √2 ^ (n * (n - 1)) * L.absDet ≤ Q h ^ (1 / 6 : ℝ))
@@ -449,7 +477,8 @@ theorem false_of_chain (hLs : L.IsNormalSemistable c Ω) {v₀ : FinitePlace K}
   have hmono : Monotone fun h ↦ Real.log (Q h) := fun i j hij ↦
     hmono' (j - i) i j (by have := Fin.le_iff_val_le_val.mp hij; omega)
   -- the wedge points (§11) for every `Q_h`
-  have hW := fun h ↦ L.exists_wedgePoints c hLs hL₀ hc₀ hn hR hnR (hQ h) hδ k hk (hgap h)
+  have hW := fun h ↦ L.exists_wedgePoints (cs h) (hLs h) hL₀ (hc₀ h) hn hR hnR (hQ h) hδ k hk
+    (hgap h)
     (hQ₁ h) (hQ₂ h) (hQ₃ h) (hQ₄ h) (hbig h)
   choose E hE e x he hes harch hfin hv0 hli W hWspan hWdim hWH using hW
   -- the compositum `F`
@@ -471,12 +500,11 @@ theorem false_of_chain (hLs : L.IsNormalSemistable c Ω) {v₀ : FinitePlace K}
   obtain ⟨Λ, r, hΛ0, hr, hanti, ht, hrle⟩ :=
     exists_blockDegrees hm0 hQ hmono hε (Real.log |(NumberField.discr K : ℝ)|)
   -- Prop. 13.6
-  have hc0 : ∀ v, ∑ i, c.vec v i = 0 := by
-    rintro (v | v)
-    exacts [hLs.sum_arch v, hLs.sum_fin v]
-  obtain ⟨P, hP0, hPh, hPi, hPii, hPht⟩ := L.exists_auxiliaryPolynomial_hasseDeriv
-    (κ := Fin m) hL₀ hc0 hp1 (by simpa using hpn) (fun h ↦ (hr h).ne') hε
-    (by simpa using hm) e (by simpa using he) (by simpa using hes)
+  have hc0 : ∀ h v, ∑ i, (cs h).vec v i = 0 := by
+    rintro h (v | v)
+    exacts [(hLs h).sum_arch v, (hLs h).sum_fin v]
+  obtain ⟨P, hP0, hPh, hPi, hPii, hPht⟩ := hAux r (fun h ↦ (hr h).ne') e (by simpa using he)
+    (by simpa using hes)
   -- Prop. 12.1
   set N' := Fintype.card (Set.powersetCard (Fin n) (n - k)) - 1 with hN'
   have hcard : Fintype.card (Set.powersetCard (Fin n) (n - k)) = N' + 1 := by omega
@@ -607,11 +635,11 @@ theorem false_of_chain (hLs : L.IsNormalSemistable c Ω) {v₀ : FinitePlace K}
       w ((((L.arch (w.comap (algebraMap K F))).compound (n - k)).map (algebraMap K F) *ᵥ
         yF h) s) ≤ (Fintype.card (Set.powersetCard (Fin n) (n - k)) - 1) *
           ((Fintype.card (Set.powersetCard (Fin n) (n - k)) - 1) / ε + 1) *
-          Q h ^ ((c.exteriorPower (n - k)).arch (w.comap (algebraMap K F)) s * finrank ℚ K /
-            (w.comap (algebraMap K F)).mult) := by
+          Q h ^ (((cs h).exteriorPower (n - k)).arch (w.comap (algebraMap K F)) s *
+            finrank ℚ K / (w.comap (algebraMap K F)).mult) := by
     intro h w s
     have hb : ∀ l, w ((((L.arch (w.comap (algebraMap K F))).compound (n - k)).map
-        (algebraMap K F) *ᵥ u h l) s) ≤ ((c.exteriorPower (n - k)).weight
+        (algebraMap K F) *ᵥ u h l) s) ≤ (((cs h).exteriorPower (n - k)).weight
           (zero_lt_one.trans (hQ h))).arch (w.comap (algebraMap K F)) s := fun l ↦ by
       rw [FormExponent.weight_exteriorPower]
       exact FormSystem.apply_mulVec_le_arch_of_le (L.exteriorPower (n - k)) _ (hEF h)
@@ -621,11 +649,11 @@ theorem false_of_chain (hLs : L.IsNormalSemistable c Ω) {v₀ : FinitePlace K}
     exact this
   have hfin' : ∀ h (w : FinitePlace F), w.under K ≠ v₀ → ∀ s,
       w ((((L.fin (w.under K)).compound (n - k)).map (algebraMap K F) *ᵥ yF h) s) ≤
-        (Q h ^ ((c.exteriorPower (n - k)).fin (w.under K) s * finrank ℚ K)) ^
+        (Q h ^ (((cs h).exteriorPower (n - k)).fin (w.under K) s * finrank ℚ K)) ^
           w.localDegree K := by
     intro h w hw s
     have hb : ∀ l, w ((((L.fin (w.under K)).compound (n - k)).map
-        (algebraMap K F) *ᵥ u h l) s) ≤ ((c.exteriorPower (n - k)).weight
+        (algebraMap K F) *ᵥ u h l) s) ≤ (((cs h).exteriorPower (n - k)).weight
           (zero_lt_one.trans (hQ h))).fin (w.under K) s ^ w.localDegree K := fun l ↦ by
       rw [FormExponent.weight_exteriorPower]
       exact FormSystem.apply_mulVec_le_fin_of_le (L.exteriorPower (n - k)) _ (hEF h)
@@ -648,8 +676,8 @@ theorem false_of_chain (hLs : L.IsNormalSemistable c Ω) {v₀ : FinitePlace K}
   -- the product formula and Prop. 13.6 (iv)
   have hI' : blockAvg r I 1 ≤ 2 * Fintype.card (Fin m) * ε := by
     simpa [blockAvg] using hI
-  have h1 := one_le_evalBound (L := L) (F := F) hp1 (by simpa using hpn) hc0 hLs.sum_iSup_le
-    hL₀ hc₀ hr hPh I (fun h ↦ zero_lt_one.trans (hQ h))
+  have h1 := one_le_evalBound (L := L) (F := F) hp1 (by simpa using hpn) hc0 hγc hγ0 hγs hγ
+    hL₀ hγ₀ hr hPh I (fun h ↦ zero_lt_one.trans (hQ h))
     (hΛpos.le) hε.le hG1 ht e (by simpa using he) (fun v J hJ ↦ hPi v I J hI' hJ)
     (fun J hJ ↦ hPii I J hI' hJ) yF harch' hfin' hv₀' hneF
   have h2 := L.prod_iSup_coeff_blockSubst_hasseDeriv_le (by simp) hPh hP0 I
@@ -718,5 +746,54 @@ theorem false_of_chain (hLs : L.IsNormalSemistable c Ω) {v₀ : FinitePlace K}
   linarith [show -(↑(finrank ℚ K) * Λ * (↑m * (10 * ↑n * ε - δ / (↑n *
       ↑(Fintype.card (Set.powersetCard (Fin n) (n - k))))))) = Λ * (↑(finrank ℚ K) * ↑m *
         (δ / (↑n * ↑(Fintype.card (Set.powersetCard (Fin n) (n - k)))) - 10 * ↑n * ε)) by ring]
+
+/-- **EF13 §14: no chain of exceptional `Q`.** Let `(L, c)` satisfy (8.3), (8.4), (8.8) at `v₀`,
+(8.9), and let `Q_0, …, Q_{m-1}` share the gap of Lemma 9.4 at the same `0 < k < n`, with
+`log Q_{h+1} ≥ (4m/ε) log Q_h`, the size conditions of `exists_wedgePoints`, and `Q_0` so large
+that Prop. 12.1 applies (`hΘ₁`) and the product formula fails (`hΘ₂`). Then this is impossible.
+Here `N = C(n, n-k)`, `Y` is the coefficient of `Σ r` in Prop. 13.6 (iii), `Y₂` bounds the height
+of `invTuple`, `G` bounds the grid (14.7) and `Z` collects the logarithms of (14.14)–(14.16). -/
+theorem false_of_chain (hLs : L.IsNormalSemistable c Ω) {v₀ : FinitePlace K}
+    (hL₀ : L.fin v₀ = 1) (hc₀ : c.fin v₀ = 0) (hn : 2 ≤ n) {R : ℕ} (hR : #L.forms ≤ R)
+    (hnR : n ≤ R) {δ ε : ℝ} (hδ : 0 < δ) (hε : 0 < ε) (hε1 : ε ≤ 1) {m : ℕ} (hm1 : 1 ≤ m)
+    (hm : 2 * (#L.matSet * (n / ε + 2) ^ n + 1) ≤ Real.exp (m * ε ^ 2 / 2))
+    (k : Fin n) (hk : 0 < (k : ℕ)) {Q : Fin m → ℝ} (hQ : ∀ h, 1 < Q h)
+    (hω : ∀ i j : Fin m, (i : ℕ) + 1 = j → 4 * m / ε * Real.log (Q i) ≤ Real.log (Q j))
+    (hgap : ∀ h, L.successiveInf (c.weight (zero_lt_one.trans (hQ h))) Ω k ≤
+      Q h ^ (-(δ / (n - 1))) * L.successiveInf (c.weight (zero_lt_one.trans (hQ h))) Ω (k + 1))
+    (hQ₁ : ∀ h, n * L.absFormHeight ^ ((L.forms.card.choose n : ℕ) : ℝ) ≤
+      Q h ^ (1 / (3 * n) : ℝ))
+    (hQ₂ : ∀ h, √2 ^ (n * (n - 1)) * L.absDet ≤ Q h ^ (1 / 6 : ℝ))
+    (hQ₃ : ∀ h, (3 : ℝ) ^ (n ^ 3) ≤ Q h ^ (1 / 2 : ℝ))
+    (hQ₄ : ∀ h, (3 ^ (n ^ 3) * (√2 ^ (n * (n - 1)) * L.absFormHeight)) ^ (2 ^ n) ≤
+      Q h ^ (δ / (n * (n - 1))))
+    (hbig : ∀ h, (2 ^ (3 * n ^ 2) * L.absFormHeight) ^ (3 * n * R ^ n) ≤ Q h ^ δ)
+    {N d Y Y₂ G Z : ℝ} (hN : N = Fintype.card (Set.powersetCard (Fin n) (n - k)))
+    (hd : d = finrank ℚ K)
+    (hY : Y = d / 2 * N + d * Real.log N + d * Real.log (n - k : ℕ).factorial +
+      2 * (n - k : ℕ) * #L.matSet * Real.log L.mulFormHeight)
+    (hY₂ : Y₂ = d * Real.log (n - k : ℕ).factorial +
+      2 * (n - k : ℕ) * #L.matSet * Real.log L.mulFormHeight)
+    (hG : G = (N - 1) * ((N - 1) / ε + 1))
+    (hZ : Z = Y + Y₂ + d * (2 * N * Real.log 2 + Real.log 2 + Real.log N + Real.log G))
+    (hΘ₁ : d * Real.log N + (N - 1) * (m / ε) ^ m * (20 * m ^ 3 * d + m / 2 + 2 * m ^ 2 * Y) <
+      Real.log (Q ⟨0, hm1⟩) * (d * δ / (3 * R ^ n)))
+    (hΘ₂ : 1 / 2 + 2 * m * Z < Real.log (Q ⟨0, hm1⟩) * (d * m * (δ / (n * N) - 10 * n * ε))) :
+    False := by
+  have : Nonempty (Fin n) := ⟨⟨0, by omega⟩⟩
+  have hc0 : ∀ v, ∑ i, c.vec v i = 0 := by
+    rintro (v | v)
+    exacts [hLs.sum_arch v, hLs.sum_fin v]
+  refine L.false_of_chain_family hL₀ hn hR hnR hδ hε hε1 hm1 (fun _ ↦ c) (fun _ ↦ hLs)
+    (fun _ ↦ hc₀) (γ := fun v ↦ ⨆ i, c.vec v i)
+    (fun _ _ i ↦ le_ciSup (Finite.bddAbove_range _) i)
+    (fun v ↦ FormExponent.iSup_vec_nonneg (hc0 v)) ?_ hLs.sum_iSup_le
+    (by simp [FormExponent.vec, hc₀])
+    k hk (fun r hr e he hes ↦ L.exists_auxiliaryPolynomial_hasseDeriv (κ := Fin m) hL₀ hc0
+      (by omega) (by simpa using (show n - (k : ℕ) < n by omega)) hr hε (by simpa using hm) e he
+      hes) hQ hω hgap hQ₁ hQ₂ hQ₃ hQ₄ hbig hN hd hY hY₂ hG hZ hΘ₁ hΘ₂
+  refine c.finite_setOf_fin_ne_zero.subset fun v hv ↦ ?_
+  by_contra hcon
+  exact hv (by simp [FormExponent.vec, show c.fin v = 0 from not_not.mp hcon])
 
 end NumberField.FormSystem

@@ -30,12 +30,15 @@ word of `(3/2)^n`) use doubling sequences of this kind.
 
 * `Real.SubspaceIntervalWith α S n K`, `Real.SubspaceIntervalAt α S`: the interval form.
 * `Real.efIntervalConst n M`, `Real.efRatioConst n M`: EF13's constants for the number of
-  intervals and for their ratio, at `M` forms and coordinates.
+  intervals and for their ratio, at `M` forms and coordinates; `Real.efIntervalConstAt n M a`
+  the first at `δ' ≥ δ / a`.
 * `Real.intervalConst n d s h μ`: the constant of the interval form, in the variables of
   `Real.subspaceConst`.
 
 ## Main results
 
+* `Real.intervalCount_le_of_inv_le`: the closed form
+  `intervalCount n M δ' ≤ efIntervalConstAt n M a δ⁻² (1 + log δ⁻¹)` whenever `δ'⁻¹ ≤ a δ⁻¹`.
 * `Real.intervalCount_half_le`, `Real.cutRatio_half_le`: the closed forms
   `intervalCount ≤ efIntervalConst n M δ⁻² (1 + log δ⁻¹)` and `ω₀ ≤ efRatioConst n M δ⁻¹`.
 * `Real.subspaceIntervalWith_of_mem`: **the interval form of Evertse–Ferretti 2013, with an
@@ -124,6 +127,61 @@ coordinates: `60 n (n + 3) (9216000 n¹⁰ 4ⁿ (log (768 n² M) + 1) + 2)`. -/
 noncomputable def efIntervalConst (n M : ℕ) : ℝ :=
   60 * n * (n + 3) * (9216000 * n ^ 10 * 4 ^ n * (Real.log (768 * n ^ 2 * M) + 1) + 2)
 
+/-- **The constant of EF13's number of intervals at `δ' ≥ δ / a`**, for `n` variables and `M`
+forms and coordinates: `60 n (n + 3) (64000 n⁸ 4ⁿ a² (log (64 n M a) + 1) + 2)`. -/
+noncomputable def efIntervalConstAt (n M : ℕ) (a : ℝ) : ℝ :=
+  60 * n * (n + 3) * (64000 * n ^ 8 * 4 ^ n * a ^ 2 * (Real.log (64 * n * M * a) + 1) + 2)
+
+/-- **EF13's number of intervals in closed form**: if `δ'⁻¹ ≤ a δ⁻¹`, `a ≥ 1`, then
+`intervalCount n M δ' ≤ efIntervalConstAt n M a δ⁻² (1 + log δ⁻¹)`. -/
+theorem intervalCount_le_of_inv_le {n M : ℕ} (hn : 2 ≤ n) (hM : 2 ≤ M) {δ δ' a : ℝ}
+    (hδ : 0 < δ) (hδ1 : δ ≤ 1) (hδ'0 : 0 < δ') (hδ'1 : δ' ≤ 1) (ha : 1 ≤ a)
+    (hinv : δ'⁻¹ ≤ a * δ⁻¹) :
+    (FormSystem.intervalCount n M δ' : ℝ) ≤ efIntervalConstAt n M a * δ⁻¹ ^ 2 * (1 + log δ⁻¹) := by
+  have hN : (2 : ℝ) ≤ n := by exact_mod_cast hn
+  have hM1 : (2 : ℝ) ≤ M := by exact_mod_cast hM
+  have hδi : 1 ≤ δ⁻¹ := (one_le_inv₀ hδ).2 hδ1
+  have hl : 0 ≤ log δ⁻¹ := Real.log_nonneg hδi
+  have hinv0 : 0 < δ'⁻¹ := inv_pos.2 hδ'0
+  have ha0 : 0 < a := zero_lt_one.trans_le ha
+  set L := Real.log (64 * n * M * a) with hL
+  have h64 : (1 : ℝ) ≤ 64 * n * M := by nlinarith
+  have hL0 : 0 ≤ L := Real.log_nonneg (one_le_mul_of_one_le_of_one_le h64 ha)
+  -- the logarithm
+  have hlog : Real.log (64 * n * M / δ') ≤ (L + 1) * (1 + log δ⁻¹) := by
+    have e : 64 * (n : ℝ) * M / δ' = 64 * n * M * δ'⁻¹ := div_eq_mul_inv _ _
+    have h1 : Real.log (64 * n * M * δ'⁻¹) ≤ Real.log (64 * n * M * (a * δ⁻¹)) :=
+      Real.log_le_log (by positivity) (by gcongr)
+    have e2 : 64 * (n : ℝ) * M * (a * δ⁻¹) = 64 * n * M * a * δ⁻¹ := by ring
+    rw [e2, Real.log_mul (x := 64 * (n : ℝ) * M * a) (by positivity) (by positivity), ← hL]
+      at h1
+    rw [e]
+    nlinarith [mul_nonneg hL0 hl]
+  -- the number of blocks
+  have hsq : (1 : ℝ) / δ' ^ 2 ≤ a ^ 2 * δ⁻¹ ^ 2 := by
+    rw [one_div, ← inv_pow]
+    calc δ'⁻¹ ^ 2 ≤ (a * δ⁻¹) ^ 2 := pow_le_pow_left₀ hinv0.le hinv 2
+      _ = a ^ 2 * δ⁻¹ ^ 2 := by ring
+  have hX1 : 1 ≤ δ⁻¹ ^ 2 * (1 + log δ⁻¹) :=
+    one_le_mul_of_one_le_of_one_le (one_le_pow₀ hδi) (by linarith)
+  have hchain : FormSystem.chainBound n M δ' ≤
+      (64000 * n ^ 8 * 4 ^ n * a ^ 2 * (L + 1) + 2) * (δ⁻¹ ^ 2 * (1 + log δ⁻¹)) := by
+    rw [FormSystem.chainBound]
+    have hlog0 : 0 ≤ Real.log (64 * n * M / δ') :=
+      Real.log_nonneg ((one_le_div hδ'0).2 (by nlinarith))
+    have : 64000 * (n : ℝ) ^ 8 * 4 ^ n / δ' ^ 2 * Real.log (64 * n * M / δ') ≤
+        64000 * n ^ 8 * 4 ^ n * (a ^ 2 * δ⁻¹ ^ 2) * ((L + 1) * (1 + log δ⁻¹)) := by
+      rw [div_eq_mul_one_div (64000 * (n : ℝ) ^ 8 * 4 ^ n)]
+      gcongr
+    have e : 64000 * (n : ℝ) ^ 8 * 4 ^ n * (a ^ 2 * δ⁻¹ ^ 2) * ((L + 1) * (1 + log δ⁻¹)) =
+        64000 * n ^ 8 * 4 ^ n * a ^ 2 * (L + 1) * (δ⁻¹ ^ 2 * (1 + log δ⁻¹)) := by ring
+    nlinarith
+  calc (FormSystem.intervalCount n M δ' : ℝ) ≤ 60 * n * (n + 3) * FormSystem.chainBound n M δ' :=
+        FormSystem.intervalCount_le hn hM hδ'0 hδ'1
+    _ ≤ 60 * n * (n + 3) *
+        ((64000 * n ^ 8 * 4 ^ n * a ^ 2 * (L + 1) + 2) * (δ⁻¹ ^ 2 * (1 + log δ⁻¹))) := by gcongr
+    _ = efIntervalConstAt n M a * δ⁻¹ ^ 2 * (1 + log δ⁻¹) := by rw [efIntervalConstAt, ← hL]; ring
+
 /-- **EF13's number of intervals in closed form**, at `δ / 2`:
 `intervalCount n M δ' ≤ efIntervalConst n M δ⁻² (1 + log δ⁻¹)`, `δ' = efSystemDelta n (δ / 2)`. -/
 theorem intervalCount_half_le {n M : ℕ} (hn : 2 ≤ n) (hM : 2 ≤ M) {δ : ℝ} (hδ : 0 < δ)
@@ -131,55 +189,16 @@ theorem intervalCount_half_le {n M : ℕ} (hn : 2 ≤ n) (hM : 2 ≤ M) {δ : �
     (FormSystem.intervalCount n M (efSystemDelta n (δ / 2)) : ℝ) ≤
       efIntervalConst n M * δ⁻¹ ^ 2 * (1 + log δ⁻¹) := by
   have hδ2 : 0 < δ / 2 := by positivity
-  set δ' := efSystemDelta n (δ / 2) with hδ'
-  have hδ'0 : 0 < δ' := efSystemDelta_pos hδ2
-  have hδ'1 : δ' ≤ 1 := efSystemDelta_le_one n hδ2
   have hN : (2 : ℝ) ≤ n := by exact_mod_cast hn
-  have hM1 : (2 : ℝ) ≤ M := by exact_mod_cast hM
-  have hδi : 1 ≤ δ⁻¹ := (one_le_inv₀ hδ).2 hδ1
-  have hl : 0 ≤ log δ⁻¹ := Real.log_nonneg hδi
-  -- `δ'⁻¹ ≤ 12 n δ⁻¹`
-  have hinv : δ'⁻¹ ≤ 12 * n * δ⁻¹ := by
+  have hinv : (efSystemDelta n (δ / 2))⁻¹ ≤ 12 * n * δ⁻¹ := by
     refine (inv_efSystemDelta_le hn hδ2 (by linarith)).trans_eq ?_
     field_simp
     ring
-  have hinv0 : 0 < δ'⁻¹ := inv_pos.2 hδ'0
-  set L := Real.log (768 * n ^ 2 * M) with hL
-  have hL0 : 0 ≤ L := Real.log_nonneg (by nlinarith)
-  -- the logarithm
-  have hlog : Real.log (64 * n * M / δ') ≤ (L + 1) * (1 + log δ⁻¹) := by
-    have e : 64 * (n : ℝ) * M / δ' = 64 * n * M * δ'⁻¹ := div_eq_mul_inv _ _
-    have h1 : Real.log (64 * n * M * δ'⁻¹) ≤ Real.log (64 * n * M * (12 * n * δ⁻¹)) :=
-      Real.log_le_log (by positivity) (by gcongr)
-    have e2 : 64 * (n : ℝ) * M * (12 * n * δ⁻¹) = 768 * n ^ 2 * M * δ⁻¹ := by ring
-    rw [e2, Real.log_mul (x := 768 * (n : ℝ) ^ 2 * M) (by positivity) (by positivity), ← hL]
-      at h1
-    rw [e]
-    nlinarith [mul_nonneg hL0 hl]
-  -- the number of blocks
-  have hsq : (1 : ℝ) / δ' ^ 2 ≤ 144 * n ^ 2 * δ⁻¹ ^ 2 := by
-    rw [one_div, ← inv_pow]
-    calc δ'⁻¹ ^ 2 ≤ (12 * n * δ⁻¹) ^ 2 := pow_le_pow_left₀ hinv0.le hinv 2
-      _ = 144 * n ^ 2 * δ⁻¹ ^ 2 := by ring
-  have hX1 : 1 ≤ δ⁻¹ ^ 2 * (1 + log δ⁻¹) :=
-    one_le_mul_of_one_le_of_one_le (one_le_pow₀ hδi) (by linarith)
-  have hchain : FormSystem.chainBound n M δ' ≤
-      (9216000 * n ^ 10 * 4 ^ n * (L + 1) + 2) * (δ⁻¹ ^ 2 * (1 + log δ⁻¹)) := by
-    rw [FormSystem.chainBound]
-    have hlog0 : 0 ≤ Real.log (64 * n * M / δ') :=
-      Real.log_nonneg ((one_le_div hδ'0).2 (by nlinarith))
-    have : 64000 * (n : ℝ) ^ 8 * 4 ^ n / δ' ^ 2 * Real.log (64 * n * M / δ') ≤
-        64000 * n ^ 8 * 4 ^ n * (144 * n ^ 2 * δ⁻¹ ^ 2) * ((L + 1) * (1 + log δ⁻¹)) := by
-      rw [div_eq_mul_one_div (64000 * (n : ℝ) ^ 8 * 4 ^ n)]
-      gcongr
-    have e : 64000 * (n : ℝ) ^ 8 * 4 ^ n * (144 * n ^ 2 * δ⁻¹ ^ 2) * ((L + 1) * (1 + log δ⁻¹)) =
-        9216000 * n ^ 10 * 4 ^ n * (L + 1) * (δ⁻¹ ^ 2 * (1 + log δ⁻¹)) := by ring
-    nlinarith
-  calc (FormSystem.intervalCount n M δ' : ℝ) ≤ 60 * n * (n + 3) * FormSystem.chainBound n M δ' :=
-        FormSystem.intervalCount_le hn hM hδ'0 hδ'1
-    _ ≤ 60 * n * (n + 3) *
-        ((9216000 * n ^ 10 * 4 ^ n * (L + 1) + 2) * (δ⁻¹ ^ 2 * (1 + log δ⁻¹))) := by gcongr
-    _ = efIntervalConst n M * δ⁻¹ ^ 2 * (1 + log δ⁻¹) := by rw [efIntervalConst, ← hL]; ring
+  refine (intervalCount_le_of_inv_le hn hM hδ hδ1 (efSystemDelta_pos hδ2)
+    (efSystemDelta_le_one n hδ2) (by linarith) hinv).trans_eq ?_
+  have e : 64 * (n : ℝ) * M * (12 * n) = 768 * n ^ 2 * M := by ring
+  rw [efIntervalConstAt, efIntervalConst, e]
+  ring
 
 /-- **The constant of EF13's interval ratio**: `12 n log 3M`. -/
 noncomputable def efRatioConst (n M : ℕ) : ℝ := 12 * n * Real.log (3 * M)

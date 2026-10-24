@@ -672,37 +672,42 @@ theorem domainComap_ne_top {T : Submodule Ω (Fin n → Ω)} (hT : T ≠ ⊤) :
   exact hmem
 
 open scoped Classical in
-/-- **EF13 Theorem 3.3 for approximation domains** (with Lemmas 5.1 and 5.2), in the shape of Layer
-6.1's `NumberField.exists_forall_mem_interval_approxDomain`. Let `L` be forms on `Kⁱ`, `#ι ≥ 2`,
-independent at the infinite places and at the places of `Sfin`, with at most `s` distinct forms,
-and let `c` have weight `≤ -ε` and spread `approxSupWeight - approxWeight / n ≤ 2A`, with
-`ε ≤ 4nA`. Then there is one proper subspace `W`
-(the `K`-points of EF13's `T(L', c')` over `AlgebraicClosure K`) and at most
-`intervalCount n (s + n) δ'` reals `t ≥ X₀`, `δ' = ε / 4nA`, such that for every level `Q` with
-`log Q ≥ X₀` the domain at level `Q` lies in `W`, or `log Q` lies in one of the intervals
-`[t, ω₀ t)`, `ω₀ = cutRatio (s + n) δ'`. The threshold `X₀ ≥ domainThreshold` is linear in the
-height of the forms. -/
-theorem exists_forall_mem_interval_approxDomain_ef [Nontrivial ι] [DecidableEq ι] [NumberField K]
+/-- **The interval of a level whose domain leaves `W`**: the step from EF13 Theorem 2.3 to
+Theorem 3.3. Let `L`, `c`, `ε`, `A` and `X₀` be as in
+`NumberField.exists_forall_mem_interval_approxDomain_ef`, and suppose that the reals of a finite
+set `b` cover, by intervals `[b', b'^{ω₀})`, `ω₀ = cutRatio R δ'`, every level `Q' ≥ C₀` at which a
+point outside `T` has height `≤ Δ^{1/n} Q'^{-δ'}` for the system of the domain and the centered
+exponents with `κ = 2A`. If the domain at a level `Q` with `log Q ≥ X₀` does not lie in the
+`K`-points `W` of `T`, then `log Q` lies in one of the intervals `[t, ω₀ t)`,
+`t = max X₀ (log b' / M)`, `M = 2A / [K : ℚ]`. -/
+theorem exists_interval_of_not_subset_approxDomain [Nontrivial ι] [DecidableEq ι] [NumberField K]
     {Sfin : Finset (FinitePlace K)} {L : AbsoluteValue K ℝ → ι → Dual K (ι → K)}
     (hLInf : ∀ w : InfinitePlace K, LinearIndependent K (L w.1))
     (hLFin : ∀ v ∈ Sfin, LinearIndependent K (L v.1)) {c : AbsoluteValue K ℝ → ι → ℝ}
     {ε : ℝ} (hε : 0 < ε) (hc : approxWeight Sfin c ≤ -ε) {A : ℝ}
-    (hεA : ε ≤ 4 * Fintype.card ι * A)
-    (hA : approxSupWeight Sfin c - approxWeight Sfin c / Fintype.card ι ≤ 2 * A) {s : ℕ}
-    (hs : formCount Sfin L ≤ s) {X₀ : ℝ}
-    (hX₀ : domainThreshold (Fintype.card ι) (finrank ℚ K) s ε A (formLogHeight Sfin L) ≤ X₀) :
-    ∃ T : Finset (Submodule K (ι → K)), #T ≤ 1 ∧ (∀ W ∈ T, W ≠ ⊤) ∧
-      ∃ 𝒯 : Finset ℝ,
-        #𝒯 ≤ FormSystem.intervalCount (Fintype.card ι) (s + Fintype.card ι)
-          (domainDelta (Fintype.card ι) ε A) ∧
-        (∀ t ∈ 𝒯, X₀ ≤ t) ∧ ∀ Q : ℝ, 1 < Q → X₀ ≤ Real.log Q →
-          (∃ W ∈ T, approxDomain Sfin L c Q ⊆ W) ∨
-            ∃ t ∈ 𝒯, t ≤ Real.log Q ∧ Real.log Q <
-              FormSystem.cutRatio (s + Fintype.card ι) (domainDelta (Fintype.card ι) ε A) * t := by
-  set n := Fintype.card ι with hn
-  have hn2 : 2 ≤ n := Fintype.one_lt_card
+    (hεA : ε ≤ 4 * n * A) {s : ℕ} (hs : formCount Sfin L ≤ s) {R : ℕ}
+    (hsR : s + n ≤ R) {X₀ : ℝ}
+    (hX₀ : domainThreshold (n) (finrank ℚ K) s ε A (formLogHeight Sfin L) ≤ X₀)
+    {T : Submodule (AlgebraicClosure K) (Fin n → AlgebraicClosure K)}
+    {b : Finset ℝ}
+    (hbge : ∀ b' ∈ b, max ((domainSystem L (e) Sfin hLInf hLFin).absFormHeight ^
+      ((R : ℝ)⁻¹)) ((n : ℝ) ^ (domainDelta (n) ε A)⁻¹) ≤ b')
+    (hb : ∀ (Q : ℝ) (hQ : 1 ≤ Q),
+      max ((domainSystem L (e) Sfin hLInf hLFin).absFormHeight ^ ((R : ℝ)⁻¹))
+        ((n : ℝ) ^ (domainDelta (n) ε A)⁻¹) ≤ Q →
+      ∀ x, x ∉ T → (domainSystem L (e) Sfin hLInf hLFin).absMulHeight
+        ((domainExponent Sfin c (e) (2 * A)).weight (zero_lt_one.trans_le hQ)) x ≤
+        (domainSystem L (e) Sfin hLInf hLFin).absDet ^
+          ((n : ℝ)⁻¹) * Q ^ (-domainDelta (n) ε A) →
+      ∃ b' ∈ b, b' ≤ Q ∧ Q < b' ^ FormSystem.cutRatio R (domainDelta (n) ε A))
+    {Q : ℝ} (hQ : 1 < Q) (hXQ : X₀ ≤ Real.log Q)
+    (hsub : ¬ approxDomain Sfin L c Q ⊆ domainComap K (e) T) :
+    ∃ t ∈ b.image fun b' ↦ max X₀ (Real.log b' / (2 * A / finrank ℚ K)), t ≤ Real.log Q ∧
+      Real.log Q < FormSystem.cutRatio R (domainDelta (n) ε A) * t := by
+  have hn2 : 2 ≤ n := by
+    have := Fintype.one_lt_card (α := ι)
+    rwa [Fintype.card_congr e, Fintype.card_fin] at this
   have hn0 : (0 : ℝ) < n := by exact_mod_cast (by omega : 0 < n)
-  set e := Fintype.equivFin ι
   set d := finrank ℚ K with hd
   have hd0 : (0 : ℝ) < d := by exact_mod_cast finrank_pos
   have hA0 : 0 < A := by
@@ -718,14 +723,8 @@ theorem exists_forall_mem_interval_approxDomain_ef [Nontrivial ι] [DecidableEq 
   have hδ'1 : δ' ≤ 1 := by
     rw [hδ', domainDelta, div_le_one (by positivity)]
     linarith
-  have hR'2 : 2 ≤ s + n := by omega
-  set Ω := AlgebraicClosure K
-  obtain ⟨T, hT, -⟩ := L'.exists_isDestabilizing_top (Ω := Ω) c'
+  have hR'2 : 2 ≤ R := by omega
   have hR : #L'.forms ≤ s + n := (card_forms_domainSystem_le e hLInf hLFin).trans (by omega)
-  have hsup : (∑ w, ⨆ i, c'.arch w i) + ∑ᶠ v, ⨆ i, c'.fin v i ≤ 1 :=
-    (domainExponent_sup_le_spread Sfin c e κ hκ0).trans (by rw [div_le_one hκ0]; linarith)
-  obtain ⟨S, hScard, hSge, hS⟩ := L'.exists_intervals_cover c' hn2 (domainExponent_sum Sfin c e κ)
-    hsup hR hδ'0 hδ'1 hT
   -- the logarithmic height `ℓ` of the forms bounds `log H_{L'}`
   set ℓ := Real.log n.factorial + n * formLogHeight Sfin L / d with hℓ
   have hH1 : 1 ≤ L'.absFormHeight := L'.one_le_absFormHeight
@@ -738,52 +737,38 @@ theorem exists_forall_mem_interval_approxDomain_ef [Nontrivial ι] [DecidableEq 
   set M := κ / d with hM
   have hM0 : 0 < M := by positivity
   -- above the threshold
-  have hthr : ∀ Q : ℝ, X₀ ≤ Real.log Q →
-      ℓ + Real.log n / δ' + C * ℓ / (n * δ') ≤ M * Real.log Q := by
-    intro Q hQ
+  have hthrQ : ℓ + Real.log n / δ' + C * ℓ / (n * δ') ≤ M * Real.log Q := by
     have h1 : M * domainThreshold n d s ε A (formLogHeight Sfin L) =
         ℓ + Real.log n / δ' + C * ℓ / (n * δ') := by
       rw [domainThreshold, ← hδ', ← hℓ, ← hCdef, hM, hκ]
       field_simp
     rw [← h1]
-    exact mul_le_mul_of_nonneg_left (hX₀.trans hQ) hM0.le
+    exact mul_le_mul_of_nonneg_left (hX₀.trans hXQ) hM0.le
   have hterm1 : 0 ≤ Real.log n / δ' := div_nonneg hlogn hδ'0.le
   have hterm2 : 0 ≤ C * ℓ / (n * δ') := by positivity
-  set W := domainComap K e T with hW
-  refine ⟨{W}, (card_singleton W).le, ?_, S.image fun b ↦ max X₀ (Real.log b / M),
-    card_image_le.trans hScard, fun t ht ↦ ?_, fun Q hQ hXQ ↦ ?_⟩
-  · intro W' hW'
-    rw [mem_singleton] at hW'
-    rw [hW']
-    exact domainComap_ne_top K e hT.lt.ne
-  · obtain ⟨b, -, rfl⟩ := mem_image.1 ht
-    exact le_max_left _ _
-  by_cases hsub : approxDomain Sfin L c Q ⊆ W
-  · exact Or.inl ⟨W, mem_singleton_self W, hsub⟩
-  right
   obtain ⟨x, hx, hxW⟩ := Set.not_subset.1 hsub
-  have hx0 : x ≠ 0 := by rintro rfl; exact hxW W.zero_mem
+  have hx0 : x ≠ 0 := by rintro rfl; exact hxW (domainComap K e T).zero_mem
   have hQ0 : 0 < Q := zero_lt_one.trans hQ
   set Q' := Q ^ M with hQ'
   have hQ'0 : 0 < Q' := Real.rpow_pos_of_pos hQ0 _
   have hQ'1 : 1 ≤ Q' := Real.one_le_rpow hQ.le hM0.le
   have hlQ' : Real.log Q' = M * Real.log Q := Real.log_rpow hQ0 _
-  have hthrQ := hthr Q hXQ
   -- `Q' ≥ C₀`
-  have hC₀ : max (L'.absFormHeight ^ (((s + n : ℕ) : ℝ)⁻¹)) ((n : ℝ) ^ δ'⁻¹) ≤ Q' := by
+  have hC₀ : max (L'.absFormHeight ^ ((R : ℝ)⁻¹)) ((n : ℝ) ^ δ'⁻¹) ≤ Q' := by
     refine max_le ?_ ?_
     · rw [← Real.log_le_log_iff (by positivity) hQ'0, Real.log_rpow (by positivity), hlQ']
-      have hR'1 : (1 : ℝ) ≤ ((s + n : ℕ) : ℝ) := by exact_mod_cast (by omega : 1 ≤ s + n)
-      calc ((s + n : ℕ) : ℝ)⁻¹ * Real.log L'.absFormHeight ≤ Real.log L'.absFormHeight :=
+      have hR'1 : (1 : ℝ) ≤ (R : ℝ) := by exact_mod_cast (by omega : 1 ≤ R)
+      calc (R : ℝ)⁻¹ * Real.log L'.absFormHeight ≤ Real.log L'.absFormHeight :=
             mul_le_of_le_one_left hlH0 (inv_le_one_of_one_le₀ hR'1)
         _ ≤ M * Real.log Q := by linarith
     · rw [← Real.log_le_log_iff (by positivity) hQ'0, Real.log_rpow hn0, hlQ']
       rw [inv_mul_eq_div]
       linarith
   -- Lemma 5.1 and the determinant
-  have hLem := absMulHeight_domainSystem_le (Ω := Ω) e hLInf hLFin hκ0 hQ0 hx0 hx
-  have hH : L'.absMulHeight (c'.weight (zero_lt_one.trans_le hQ'1)) (algebraMap K Ω ∘ (x ∘ e.symm))
-      ≤ L'.absDet ^ ((n : ℝ)⁻¹) * Q' ^ (-δ') := by
+  have hLem := absMulHeight_domainSystem_le (Ω := AlgebraicClosure K) e hLInf hLFin hκ0 hQ0 hx0 hx
+  have hH : L'.absMulHeight (c'.weight (zero_lt_one.trans_le hQ'1))
+      (algebraMap K (AlgebraicClosure K) ∘ (x ∘ e.symm)) ≤
+        L'.absDet ^ ((n : ℝ)⁻¹) * Q' ^ (-δ') := by
     refine hLem.trans ?_
     have h2 : Q ^ (approxWeight Sfin c / (n * d)) ≤ Q' ^ (-δ') * Q' ^ (-δ') := by
       rw [← Real.rpow_add hQ'0, hQ', ← Real.rpow_mul hQ0.le]
@@ -817,25 +802,89 @@ theorem exists_forall_mem_interval_approxDomain_ef [Nontrivial ι] [DecidableEq 
       exact div_le_div_of_nonneg_right hlow hn0.le
     rw [inv_mul_eq_div]
     linarith
-  have hyT : algebraMap K Ω ∘ (x ∘ e.symm) ∉ T := hxW
-  obtain ⟨b, hb, hbQ, hQb⟩ := hS Q' hQ'1 hC₀ _ hyT hH
-  have hb1 : 1 < b := by
-    have := hSge b hb
+  have hyT : algebraMap K (AlgebraicClosure K) ∘ (x ∘ e.symm) ∉ T := hxW
+  obtain ⟨b', hb', hbQ, hQb⟩ := hb Q' hQ'1 hC₀ _ hyT hH
+  have hb1 : 1 < b' := by
+    have := hbge b' hb'
     exact (Real.one_lt_rpow (by exact_mod_cast (by omega : 1 < n)) (inv_pos.2 hδ'0)).trans_le
       ((le_max_right _ _).trans this)
-  have hb0 : 0 < b := zero_lt_one.trans hb1
-  have hρ : 0 ≤ FormSystem.cutRatio (s + n) δ' :=
+  have hb0 : 0 < b' := zero_lt_one.trans hb1
+  have hρ : 0 ≤ FormSystem.cutRatio R δ' :=
     (zero_lt_one.trans (FormSystem.one_lt_cutRatio hR'2 hδ'0 hδ'1)).le
-  have hlb : Real.log b ≤ M * Real.log Q := by
+  have hlb : Real.log b' ≤ M * Real.log Q := by
     rw [← hlQ']; exact Real.log_le_log hb0 hbQ
-  have hlb2 : M * Real.log Q < FormSystem.cutRatio (s + n) δ' * Real.log b := by
+  have hlb2 : M * Real.log Q < FormSystem.cutRatio R δ' * Real.log b' := by
     rw [← hlQ', ← Real.log_rpow hb0]; exact Real.log_lt_log hQ'0 hQb
-  refine ⟨max X₀ (Real.log b / M), mem_image_of_mem _ hb, max_le hXQ ?_, ?_⟩
+  refine ⟨max X₀ (Real.log b' / M), mem_image_of_mem _ hb', max_le hXQ ?_, ?_⟩
   · rw [div_le_iff₀ hM0]; linarith
-  · calc Real.log Q < FormSystem.cutRatio (s + n) δ' * (Real.log b / M) := by
+  · calc Real.log Q < FormSystem.cutRatio R δ' * (Real.log b' / M) := by
           rw [mul_div_assoc', lt_div_iff₀ hM0]; linarith
-      _ ≤ FormSystem.cutRatio (s + n) δ' * max X₀ (Real.log b / M) :=
+      _ ≤ FormSystem.cutRatio R δ' * max X₀ (Real.log b' / M) :=
           mul_le_mul_of_nonneg_left (le_max_right _ _) hρ
+
+open scoped Classical in
+/-- **EF13 Theorem 3.3 for approximation domains** (with Lemmas 5.1 and 5.2), in the shape of Layer
+6.1's `NumberField.exists_forall_mem_interval_approxDomain`. Let `L` be forms on `Kⁱ`, `#ι ≥ 2`,
+independent at the infinite places and at the places of `Sfin`, with at most `s` distinct forms,
+and let `c` have weight `≤ -ε` and spread `approxSupWeight - approxWeight / n ≤ 2A`, with
+`ε ≤ 4nA`. Then there is one proper subspace `W`
+(the `K`-points of EF13's `T(L', c')` over `AlgebraicClosure K`) and at most
+`intervalCount n (s + n) δ'` reals `t ≥ X₀`, `δ' = ε / 4nA`, such that for every level `Q` with
+`log Q ≥ X₀` the domain at level `Q` lies in `W`, or `log Q` lies in one of the intervals
+`[t, ω₀ t)`, `ω₀ = cutRatio (s + n) δ'`. The threshold `X₀ ≥ domainThreshold` is linear in the
+height of the forms. -/
+theorem exists_forall_mem_interval_approxDomain_ef [Nontrivial ι] [DecidableEq ι] [NumberField K]
+    {Sfin : Finset (FinitePlace K)} {L : AbsoluteValue K ℝ → ι → Dual K (ι → K)}
+    (hLInf : ∀ w : InfinitePlace K, LinearIndependent K (L w.1))
+    (hLFin : ∀ v ∈ Sfin, LinearIndependent K (L v.1)) {c : AbsoluteValue K ℝ → ι → ℝ}
+    {ε : ℝ} (hε : 0 < ε) (hc : approxWeight Sfin c ≤ -ε) {A : ℝ}
+    (hεA : ε ≤ 4 * Fintype.card ι * A)
+    (hA : approxSupWeight Sfin c - approxWeight Sfin c / Fintype.card ι ≤ 2 * A) {s : ℕ}
+    (hs : formCount Sfin L ≤ s) {X₀ : ℝ}
+    (hX₀ : domainThreshold (Fintype.card ι) (finrank ℚ K) s ε A (formLogHeight Sfin L) ≤ X₀) :
+    ∃ T : Finset (Submodule K (ι → K)), #T ≤ 1 ∧ (∀ W ∈ T, W ≠ ⊤) ∧
+      ∃ 𝒯 : Finset ℝ,
+        #𝒯 ≤ FormSystem.intervalCount (Fintype.card ι) (s + Fintype.card ι)
+          (domainDelta (Fintype.card ι) ε A) ∧
+        (∀ t ∈ 𝒯, X₀ ≤ t) ∧ ∀ Q : ℝ, 1 < Q → X₀ ≤ Real.log Q →
+          (∃ W ∈ T, approxDomain Sfin L c Q ⊆ W) ∨
+            ∃ t ∈ 𝒯, t ≤ Real.log Q ∧ Real.log Q <
+              FormSystem.cutRatio (s + Fintype.card ι) (domainDelta (Fintype.card ι) ε A) * t := by
+  set n := Fintype.card ι with hn
+  have hn2 : 2 ≤ n := Fintype.one_lt_card
+  have hn0 : (0 : ℝ) < n := by exact_mod_cast (by omega : 0 < n)
+  set e := Fintype.equivFin ι
+  have hA0 : 0 < A := by
+    by_contra h
+    push Not at h
+    nlinarith [mul_nonpos_of_nonneg_of_nonpos hn0.le h]
+  have hκ0 : 0 < 2 * A := by positivity
+  set L' := domainSystem L e Sfin hLInf hLFin
+  set c' := domainExponent Sfin c e (2 * A)
+  set δ' := domainDelta n ε A with hδ'
+  have hδ'0 : 0 < δ' := by rw [hδ', domainDelta]; positivity
+  have hδ'1 : δ' ≤ 1 := by
+    rw [hδ', domainDelta, div_le_one (by positivity)]
+    linarith
+  obtain ⟨T, hT, -⟩ := L'.exists_isDestabilizing_top (Ω := AlgebraicClosure K) c'
+  have hR : #L'.forms ≤ s + n := (card_forms_domainSystem_le e hLInf hLFin).trans (by omega)
+  have hsup : (∑ w, ⨆ i, c'.arch w i) + ∑ᶠ v, ⨆ i, c'.fin v i ≤ 1 :=
+    (domainExponent_sup_le_spread Sfin c e (2 * A) hκ0).trans (by rw [div_le_one hκ0]; linarith)
+  obtain ⟨S, hScard, hSge, hS⟩ := L'.exists_intervals_cover c' hn2
+    (domainExponent_sum Sfin c e (2 * A)) hsup hR hδ'0 hδ'1 hT
+  set W := domainComap K e T with hW
+  refine ⟨{W}, (card_singleton W).le, ?_, S.image fun b ↦ max X₀ (Real.log b /
+    (2 * A / finrank ℚ K)), card_image_le.trans hScard, fun t ht ↦ ?_, fun Q hQ hXQ ↦ ?_⟩
+  · intro W' hW'
+    rw [mem_singleton] at hW'
+    rw [hW']
+    exact domainComap_ne_top K e hT.lt.ne
+  · obtain ⟨b, -, rfl⟩ := mem_image.1 ht
+    exact le_max_left _ _
+  by_cases hsub : approxDomain Sfin L c Q ⊆ W
+  · exact Or.inl ⟨W, mem_singleton_self W, hsub⟩
+  exact Or.inr (exists_interval_of_not_subset_approxDomain K e hLInf hLFin hε hc hεA hs le_rfl hX₀
+    hSge hS hQ hXQ hsub)
 
 end Interval
 

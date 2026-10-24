@@ -1,4 +1,4 @@
-# `BugeaudEvertse2008/Additions/`: Theorem 2.1 with `η < 1/3`
+# `BugeaudEvertse2008/Additions/`: Theorem 2.1 with `η < 1/2`
 
 Bugeaud–Evertse's Theorem 2.1 with a better exponent, machine-checked with the standard axioms
 only. Let `ξ = ofDigits a` be real algebraic irrational, with base-`b` digits `a`. Then for every
@@ -6,6 +6,7 @@ only. Let `ξ = ofDigits a` be real algebraic irrational, with base-`b` digits `
 
 | statement | `η` | file |
 |---|---|---|
+| `Real.frequently_lt_complexity_of_lt_half` | `η < 1/2` | `Additions/Theorem21Half.lean` |
 | `Real.frequently_lt_complexity_of_lt_third` | `η < 1/3` | `Additions/Theorem21Third.lean` |
 | `Real.frequently_lt_complexity_of_lt_quarter` | `η < 1/4` | `Additions/Theorem21Quarter.lean` |
 | `Real.frequently_lt_complexity` | `η < 1/7` | `Theorem21.lean` (BE08's route with EF13) |
@@ -23,6 +24,7 @@ and the `η < 1/4` of the `(3/2)^n` steering word (`Stephan2026a/QuantitativeThe
 | `SmallGap.lean` | one point per line (`Int.dvd_of_pow_sub_pow_mul_eq`); the two-variable step for small gaps, `K ε⁻³ (1 + log ε⁻¹)²` lines (`Real.exists_lines_of_small_gap`) |
 | `Theorem21Quarter.lean` | the counting contradiction; **Thm 2.1 with `1/4`** |
 | `Theorem21Third.lean` | the interval forms of the three- and two-variable steps; the count `A ε⁻³ (1 + log ε⁻¹)²` (`Real.card_le_of_approx_third`); **Thm 2.1 with `1/3`** |
+| `Theorem21Half.lean` | the three-variable step with one interval result for all classes; the count `A ε⁻² (1 + log ε⁻¹)²` (`Real.card_le_of_approx_half`); **Thm 2.1 with `1/2`** |
 
 The library files used: `Repetitions.lean` (Lemma 6.1), `ThreeVariable.lean` (the planes),
 `PlaneStep.lean` (`Real.exists_plane_eq`, Liouville `Real.exists_inv_le_abs_add_mul`), and DA's
@@ -73,6 +75,16 @@ Total `N ≤ A ε⁻³ (1 + log ε⁻¹)²` (`Real.card_le_of_approx_third`), a 
 The systems of the classes are shared with the count form (`Real.approx_class_hyps`,
 `Real.approx_class_mem`, `Real.gap_hyps`, `Real.gap_mem`).
 
+## `1/2`: one interval result for all classes
+
+The `k ≤ 3/ε` classes of `r/t` have the same forms `approxForms` and differ only in their
+exponents. The interval form for a set of exponents (`Real.SubspaceIntervalFamilyWith`,
+`QuantitativeSubspace/RealFormFamily.lean`, from EF13's Theorem 2.3 for a set of exponents) puts
+the points of all classes into `K` planes, `K` independent of `ε`, or into `O(ε⁻² log ε⁻¹)`
+intervals (`Real.exists_plane_intervals_family_of_approx`). Each plane holds `O(1 + log ε⁻¹)`
+points as before, the small gaps are as before, and `N ≤ A ε⁻² (1 + log ε⁻¹)²`
+(`Real.card_le_of_approx_half`), a contradiction for `2v < 1`.
+
 ## Literature
 
 The results of this directory first appear in R. Stephan, *The exponent `1/4` in three complexity
@@ -85,5 +97,6 @@ lemmas of `PlaneLiouville.lean` and `SmallGap.lean`, and Remark 6.1 is the `1/7`
 
 * `lake build BugeaudEvertse2008`: no errors, no warnings, no `set_option`.
 * `#print axioms Real.frequently_lt_complexity_of_lt_quarter`: `propext, Classical.choice,
-  Quot.sound`. The same for `Real.frequently_lt_complexity_of_lt_third` (2026-10-24).
+  Quot.sound`. The same for `Real.frequently_lt_complexity_of_lt_third` and
+  `Real.frequently_lt_complexity_of_lt_half` (2026-10-24).
 * `scripts/check.sh`: see the BE08 README.

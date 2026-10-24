@@ -359,6 +359,16 @@ theorem abs_exteriorPower_vec_le {p : ℕ} (hp : 1 ≤ p) (hpn : p < Fintype.car
   refine hle.trans (mul_le_mul_of_nonneg_right ?_ hγ)
   exact_mod_cast Nat.sub_le _ _
 
+omit [LinearOrder ι] in
+/-- `|ĉ_{sv}| ≤ n γ` for any upper bound `γ` of the `c_{iv}`. -/
+theorem abs_exteriorPower_vec_le_of_le {p : ℕ} (hp : 1 ≤ p) (hpn : p < Fintype.card ι)
+    {v : InfinitePlace K ⊕ FinitePlace K} (h0 : ∑ i, c.vec v i = 0) {γ : ℝ}
+    (hγ : ∀ i, c.vec v i ≤ γ) (s : Set.powersetCard ι p) :
+    |(c.exteriorPower p).vec v s| ≤ Fintype.card ι * γ := by
+  have : Nonempty ι := ⟨(Set.powersetCard.nonempty_ne_univ hp hpn s).1.choose⟩
+  exact (abs_exteriorPower_vec_le hp hpn h0 s).trans
+    (mul_le_mul_of_nonneg_left (ciSup_le hγ) (Nat.cast_nonneg _))
+
 end FormExponent
 
 /-! ### EF13 Lemma 13.5 -/
@@ -367,29 +377,30 @@ namespace FormSystem
 
 variable {L : FormSystem K ι} {κ : Type*} [Fintype κ]
 
-/-- **EF13 Lemma 13.5.** Let `L^{(v₀)}` be the coordinates (8.8), `Σ_i c_{iv} = 0` (8.3),
-`1 ≤ p < n` (`p = n - k`), `N = C(n, p)`, and `r_h ≥ 1`. Let `S₀` be a finite set of places
-with `c_v ≠ 0`, `m = #κ` and `2 (#S₀ + 1) ≤ e^{mε²/2}` (13.13). Let `e_{hs}` (EF13's
-`ĉ_{s,v₀}(Q_h)`) satisfy `|e_{hs}| ≤ n` (11.22) and `Σ_s e_{hs} ≤ -δ/n` (11.21). Then there is a
-nonzero polynomial `P`, multihomogeneous of multidegree `r` in `m` blocks of `N` variables, such
-that
+/-- **EF13 Lemma 13.5**, with exponents `c_h` that may depend on the block `h`. Let `L^{(v₀)}` be
+the coordinates (8.8), `Σ_i c_{h,iv} = 0` (8.3), `1 ≤ p < n` (`p = n - k`), `N = C(n, p)`, and
+`r_h ≥ 1`. Let `γ_v ≥ c_{h,iv}` for all `h, i`, `S₀` a finite set of places with `γ_v > 0`,
+`m = #κ` and `2 (#S₀ + 1) ≤ e^{mε²/2}` (13.13). Let `e_{hs}` (EF13's `ĉ_{s,v₀}(Q_h)`) satisfy
+`|e_{hs}| ≤ n` (11.22) and `Σ_s e_{hs} ≤ -δ/n` (11.21). Then there is a nonzero polynomial `P`,
+multihomogeneous of multidegree `r` in `m` blocks of `N` variables, such that
 
 * (i) for `v ∈ S₀`, the coefficients of `P` read in the coordinates `L̂^{(v)}` vanish at every
-  monomial `ν` with `Σ_h r_h⁻¹ Σ_s ν_{hs} ĉ_{sv} ≥ mnε max_i c_{iv}` (13.14), (13.15);
+  monomial `ν` with `Σ_h r_h⁻¹ Σ_s ν_{hs} ĉ_{h,sv} ≥ mnε γ_v` (13.14), (13.15);
 * (ii) the coefficients of `P` vanish at every `ν` with
   `Σ_h r_h⁻¹ Σ_s ν_{hs} e_{hs} ≥ -mδ/(nN) + mnε` (13.16), (13.17);
 * (iii) `h(P) ≤ ½ log |D_K| + ([K:ℚ](N/2 + log N + log p!) + 2ps log H_L) Σ_h r_h`, relative to
   `K`, `s = #matSet` (13.18). -/
 theorem exists_auxiliaryPolynomial {v₀ : FinitePlace K} (hL : L.fin v₀ = 1)
-    {c : FormExponent K ι} (hc0 : ∀ v, ∑ i, c.vec v i = 0) {p : ℕ} (hp : 1 ≤ p)
+    {c : κ → FormExponent K ι} (hc0 : ∀ h v, ∑ i, (c h).vec v i = 0) {p : ℕ} (hp : 1 ≤ p)
     (hpn : p < Fintype.card ι) {r : κ → ℕ} (hr : ∀ h, r h ≠ 0)
-    (S₀ : Finset (InfinitePlace K ⊕ FinitePlace K)) (hS₀ : ∀ v ∈ S₀, 0 < ⨆ i, c.vec v i)
+    {γ : InfinitePlace K ⊕ FinitePlace K → ℝ} (hγ : ∀ h v i, (c h).vec v i ≤ γ v)
+    (S₀ : Finset (InfinitePlace K ⊕ FinitePlace K)) (hS₀ : ∀ v ∈ S₀, 0 < γ v)
     {ε : ℝ} (hε : 0 ≤ ε) (hm : 2 * (#S₀ + 1 : ℝ) ≤ exp (Fintype.card κ * ε ^ 2 / 2))
     (e : κ → Set.powersetCard ι p → ℝ) {δ : ℝ} (he : ∀ h s, |e h s| ≤ Fintype.card ι)
     (hes : ∀ h, ∑ s, e h s ≤ -δ / Fintype.card ι) :
     ∃ P : MvPolynomial (κ × Set.powersetCard ι p) K, P ≠ 0 ∧ IsMultiHomogeneous r P ∧
-      (∀ v ∈ S₀, ∀ ν, Fintype.card κ * Fintype.card ι * ε * (⨆ i, c.vec v i) ≤
-          blockAvg r ν (fun _ s ↦ (c.exteriorPower p).vec v s) →
+      (∀ v ∈ S₀, ∀ ν, Fintype.card κ * Fintype.card ι * ε * γ v ≤
+          blockAvg r ν (fun h s ↦ ((c h).exteriorPower p).vec v s) →
         (blockSubst ((L.mat v).compound p)⁻¹ P).coeff ν = 0) ∧
       (∀ ν, -(Fintype.card κ * δ / (Fintype.card ι * Fintype.card (Set.powersetCard ι p))) +
           Fintype.card κ * Fintype.card ι * ε ≤ blockAvg r ν e → P.coeff ν = 0) ∧
@@ -412,9 +423,9 @@ theorem exists_auxiliaryPolynomial {v₀ : FinitePlace K} (hL : L.fin v₀ = 1)
   set Bmat : Option (InfinitePlace K ⊕ FinitePlace K) → Matrix ι ι K :=
     fun t ↦ t.elim (L.fin v₀) L.mat with hBmat
   set cv : Option (InfinitePlace K ⊕ FinitePlace K) → κ → Set.powersetCard ι p → ℝ :=
-    fun t ↦ t.elim e fun v _ s ↦ (c.exteriorPower p).vec v s with hcv
+    fun t ↦ t.elim e fun v h s ↦ ((c h).exteriorPower p).vec v s with hcv
   set γv : Option (InfinitePlace K ⊕ FinitePlace K) → ℝ :=
-    fun t ↦ t.elim n fun v ↦ n * ⨆ i, c.vec v i with hγv
+    fun t ↦ t.elim n fun v ↦ n * γ v with hγv
   set Bad : Option (InfinitePlace K ⊕ FinitePlace K) → Finset (κ × Set.powersetCard ι p →₀ ℕ) :=
     fun t ↦ {ν ∈ multiMons r | (∑ h, ∑ s, cv t h s) / N + m * γv t * ε ≤ blockAvg r ν (cv t)}
     with hBad
@@ -425,7 +436,7 @@ theorem exists_auxiliaryPolynomial {v₀ : FinitePlace K} (hL : L.fin v₀ = 1)
     · exact card_filter_multiMons_le hr hn hε he
     · have hv : v ∈ S₀ := by simpa [hT] using ht
       exact card_filter_multiMons_le hr (mul_pos hn (hS₀ v hv)) hε fun h s ↦
-        c.abs_exteriorPower_vec_le hp hpn (hc0 v) s
+        (c h).abs_exteriorPower_vec_le_of_le hp hpn (hc0 h v) (hγ h v) s
   have hTcard : (#T : ℝ) ≤ #S₀ + 1 := by
     have := card_insert_le none (S₀.map Function.Embedding.some)
     rw [card_map] at this
@@ -455,9 +466,10 @@ theorem exists_auxiliaryPolynomial {v₀ : FinitePlace K} (hL : L.fin v₀ = 1)
   · -- (i)
     by_cases hmem : ν ∈ multiMons (ι := Set.powersetCard ι p) r
     · refine hPc (some v) (by simp [hT, hv]) ν (mem_filter.mpr ⟨hmem, ?_⟩)
-      change (∑ h : κ, ∑ s, (c.exteriorPower p).vec v s) / N + m * (n * ⨆ i, c.vec v i) * ε ≤
-        blockAvg r ν fun _ s ↦ (c.exteriorPower p).vec v s
-      simp only [c.sum_exteriorPower_vec_eq_zero hp (hc0 v), sum_const_zero, zero_div, zero_add]
+      change (∑ h : κ, ∑ s, ((c h).exteriorPower p).vec v s) / N + m * (n * γ v) * ε ≤
+        blockAvg r ν fun h s ↦ ((c h).exteriorPower p).vec v s
+      rw [sum_eq_zero fun h _ ↦ (c h).sum_exteriorPower_vec_eq_zero hp (hc0 h v), zero_div,
+        zero_add]
       linarith
     · exact coeff_blockSubst_eq_zero_of_notMem hPh _ hmem
   · -- (ii)
@@ -647,7 +659,9 @@ theorem exists_auxiliaryPolynomial_hasseDeriv {v₀ : FinitePlace K} (hL : L.fin
   have hm' : 2 * (#S₀ + 1 : ℝ) ≤ exp (m * ε ^ 2 / 2) :=
     (mul_le_mul_of_nonneg_left (by linarith) zero_le_two).trans hm
   obtain ⟨P, hP0, hPh, hPi, hPii, hPht⟩ :=
-    exists_auxiliaryPolynomial hL hc0 hp hpn hr S₀ hS₀ hε.le hm' e he hes
+    exists_auxiliaryPolynomial hL (c := fun _ ↦ c) (fun _ ↦ hc0) hp hpn hr
+      (γ := fun v ↦ ⨆ i, c.vec v i) (fun _ _ i ↦ le_ciSup (Finite.bddAbove_range _) i) S₀ hS₀
+      hε.le hm' e he hes
   refine ⟨P, hP0, hPh, fun v I J hI hJ ↦ ?_, fun I J hI hJ ↦ ?_, hPht⟩
   · -- (i)
     set f : κ → Set.powersetCard ι p → ℝ := fun _ s ↦ (c.exteriorPower p).vec v s with hf
@@ -713,6 +727,102 @@ theorem exists_auxiliaryPolynomial_hasseDeriv {v₀ : FinitePlace K} (hL : L.fin
     have hIe := abs_blockAvg_le r I he
     have := neg_abs_le (blockAvg r I e)
     nlinarith [mul_le_mul_of_nonneg_left hI hn.le, mul_nonneg (mul_nonneg hm0 hn.le) hε.le]
+
+/-- **EF13 Prop. 13.6 for exponents depending on the block**, at the places of a fixed finite set
+`S₁` instead of representatives. Let `Σ_i c_{h,iv} = 0`, `0 ≤ γ_v` with `c_{h,iv} ≤ γ_v`, let
+`c_{h,v} = 0` for `v ∉ S₁`, and `2 (#S₁ + 1) ≤ e^{mε²/2}`. Then there is a nonzero polynomial `P`,
+multihomogeneous of multidegree `r`, such that for every order `I` with
+`Σ_h r_h⁻¹ Σ_s I_{hs} ≤ 2mε`:
+
+* (i) at every place `v`, the coefficients of `∂_I P` read in the coordinates `L̂^{(v)}` vanish at
+  every `J` with `Σ_h r_h⁻¹ Σ_s J_{hs} ĉ_{h,sv} > 4mnε γ_v`;
+* (ii) and (iii) as in `exists_auxiliaryPolynomial_hasseDeriv`. -/
+theorem exists_auxiliaryPolynomial_hasseDeriv_of_places {v₀ : FinitePlace K} (hL : L.fin v₀ = 1)
+    {c : κ → FormExponent K ι} (hc0 : ∀ h v, ∑ i, (c h).vec v i = 0) {p : ℕ} (hp : 1 ≤ p)
+    (hpn : p < Fintype.card ι) {r : κ → ℕ} (hr : ∀ h, r h ≠ 0)
+    {γ : InfinitePlace K ⊕ FinitePlace K → ℝ} (hγ : ∀ h v i, (c h).vec v i ≤ γ v)
+    (hγ0 : ∀ v, 0 ≤ γ v) (S₁ : Finset (InfinitePlace K ⊕ FinitePlace K))
+    (hS₁ : ∀ h v, v ∉ S₁ → (c h).vec v = 0) {ε : ℝ} (hε : 0 ≤ ε)
+    (hm : 2 * (#S₁ + 1 : ℝ) ≤ exp (Fintype.card κ * ε ^ 2 / 2))
+    (e : κ → Set.powersetCard ι p → ℝ) {δ : ℝ} (he : ∀ h s, |e h s| ≤ Fintype.card ι)
+    (hes : ∀ h, ∑ s, e h s ≤ -δ / Fintype.card ι) :
+    ∃ P : MvPolynomial (κ × Set.powersetCard ι p) K, P ≠ 0 ∧ IsMultiHomogeneous r P ∧
+      (∀ v (I J : κ × Set.powersetCard ι p →₀ ℕ), blockAvg r I 1 ≤ 2 * Fintype.card κ * ε →
+        4 * Fintype.card κ * Fintype.card ι * ε * γ v <
+          blockAvg r J (fun h s ↦ ((c h).exteriorPower p).vec v s) →
+        (blockSubst ((L.mat v).compound p)⁻¹ (hasseDeriv I P)).coeff J = 0) ∧
+      (∀ I J : κ × Set.powersetCard ι p →₀ ℕ, blockAvg r I 1 ≤ 2 * Fintype.card κ * ε →
+        -(Fintype.card κ * δ / (Fintype.card ι * Fintype.card (Set.powersetCard ι p))) +
+          4 * Fintype.card κ * Fintype.card ι * ε < blockAvg r J e →
+        (hasseDeriv I P).coeff J = 0) ∧
+      P.logHeight ≤ 2⁻¹ * Real.log |(NumberField.discr K : ℝ)|
+        + ((finrank ℚ K : ℝ) / 2 * Fintype.card (Set.powersetCard ι p)
+            + finrank ℚ K * Real.log (Fintype.card (Set.powersetCard ι p))
+            + finrank ℚ K * Real.log p.factorial
+            + 2 * p * #L.matSet * Real.log L.mulFormHeight) * ∑ h, (r h : ℝ) := by
+  classical
+  set n : ℝ := (Fintype.card ι : ℝ) with hn_def
+  set m : ℝ := (Fintype.card κ : ℝ) with hm_def
+  have hn : 0 < n := by rw [hn_def]; exact_mod_cast Nat.zero_lt_of_lt hpn
+  have hm0 : 0 ≤ m := Nat.cast_nonneg _
+  set S₀ := S₁.filter fun v ↦ 0 < γ v with hS₀
+  have hm' : 2 * (#S₀ + 1 : ℝ) ≤ exp (m * ε ^ 2 / 2) := by
+    refine le_trans ?_ hm
+    have : (#S₀ : ℝ) ≤ #S₁ := by exact_mod_cast card_filter_le _ _
+    linarith
+  obtain ⟨P, hP0, hPh, hPi, hPii, hPht⟩ := exists_auxiliaryPolynomial hL hc0 hp hpn hr hγ S₀
+    (fun v hv ↦ (mem_filter.1 hv).2) hε hm' e he hes
+  refine ⟨P, hP0, hPh, fun v I J hI hJ ↦ ?_, fun I J hI hJ ↦ ?_, hPht⟩
+  · -- (i)
+    set f : κ → Set.powersetCard ι p → ℝ := fun h s ↦ ((c h).exteriorPower p).vec v s with hf
+    have hγv := hγ0 v
+    by_cases hv : v ∈ S₀
+    swap
+    · -- off `S₀` all the `c_{h,v}` vanish: there is no such `J`
+      have hc : ∀ h i, (c h).vec v i = 0 := by
+        intro h i
+        by_cases hv₁ : v ∈ S₁
+        · have hγ' : γ v ≤ 0 := not_lt.1 fun h' ↦ hv (mem_filter.2 ⟨hv₁, h'⟩)
+          have : Nonempty ι := ⟨i⟩
+          exact FormExponent.vec_eq_zero_of_iSup_nonpos (hc0 h v)
+            ((ciSup_le (hγ h v)).trans hγ') i
+        · rw [hS₁ h v hv₁]
+          rfl
+      have hf0 : f = 0 := by
+        funext h s
+        simp [hf, (c h).exteriorPower_vec, hc]
+      rw [hf0] at hJ
+      simp only [blockAvg, Pi.zero_apply, mul_zero, sum_const_zero, zero_div] at hJ
+      have : 0 ≤ 4 * m * n * ε * γ v := by positivity
+      linarith
+    set A := (L.mat v).compound p with hA
+    have hdet : A.det ≠ 0 :=
+      det_compound_ne_zero p (det_ne_zero_of_mem_matSet (L.mat_mem_matSet v))
+    have hAM : A * A⁻¹ = 1 := mul_nonsing_inv A (isUnit_iff_ne_zero.mpr hdet)
+    have hMA : A⁻¹ * A = 1 := nonsing_inv_mul A (isUnit_iff_ne_zero.mpr hdet)
+    have key := coeff_blockSubst_hasseDeriv_eq_zero hAM (∑ t, I t) I rfl (blockSubst A⁻¹ P) J
+      fun I' hI' ↦ ?_
+    · rwa [blockSubst_blockSubst hMA] at key
+    by_cases hmem : J + I' ∈ multiMons (ι := Set.powersetCard ι p) r
+    swap
+    · exact coeff_blockSubst_eq_zero_of_notMem hPh _ hmem
+    refine hPi v hv (J + I') ?_
+    have hI'1 : blockAvg r I' 1 = blockAvg r I 1 := blockAvg_one_eq hI'
+    have hfb : ∀ h s, |f h s| ≤ n * γ v := fun h s ↦
+      (c h).abs_exteriorPower_vec_le_of_le hp hpn (hc0 h v) (hγ h v) s
+    have hI'f := abs_blockAvg_le r I' hfb
+    rw [hI'1] at hI'f
+    rw [blockAvg_add_left]
+    have := neg_abs_le (blockAvg r I' f)
+    have hγn : 0 ≤ n * γ v := mul_nonneg hn.le hγv
+    have hmnε : 0 ≤ m * n * ε * γ v := by positivity
+    nlinarith [mul_le_mul_of_nonneg_left hI hγn]
+  · -- (ii)
+    rw [hasseDeriv_coeff, hPii (J + I), mul_zero]
+    rw [blockAvg_add_left, ← hm_def, ← hn_def]
+    have hIe := abs_blockAvg_le r I he
+    have := neg_abs_le (blockAvg r I e)
+    nlinarith [mul_le_mul_of_nonneg_left hI hn.le, mul_nonneg (mul_nonneg hm0 hn.le) hε]
 
 /-! ### EF13 Lemma 13.4 and (13.29) -/
 

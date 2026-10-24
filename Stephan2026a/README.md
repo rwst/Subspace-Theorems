@@ -12,7 +12,9 @@ every `η < 1/4` and every `C` (`SteeringWord.frequently_lt_complexity`,
 of R. Stephan, *The exponent `1/4` in three complexity bounds: integer bases, continued fractions,
 and the `(3/2)^n` steering word*, arXiv:2610.30937 (2026), §5. **(2026-10-24): every
 `η < 1/3`** (`SteeringWord.frequently_lt_complexity_third`, `QuantitativeThird.lean`), with the
-interval form of Evertse–Ferretti's count (`Real.SubspaceIntervalWith`). The
+interval form of Evertse–Ferretti's count (`Real.SubspaceIntervalWith`); **every `η < 1/2`**
+(`SteeringWord.frequently_lt_complexity_half`, `QuantitativeHalf.lean`), with the interval form
+for a set of exponents (`Real.SubspaceIntervalFamilyWith`). The
 directory is its own `lean_lib` (`Stephan2026a`), held to the same rules as the other paper
 directories (no `sorry`, no `set_option`, std3 axioms, fine-grained imports, module system,
 Mathlib-style namespaces), and is in the gates' library lists. Its comparator lane certifies
@@ -47,7 +49,7 @@ theorem and Evertse–Ferretti's quantitative Subspace Theorem are theorems of
 | Lemma 4.2 | `0 < ‖ξ (3/2)^a‖ ≤ θ^a` finitely often | `SteeringWord.finite_setOf_distToNearestInt_mul_le` (`ConstantGap.lean`) |
 | Cor. 4.3 | the gap-bounded slice | `SteeringWord.finite_kernelViolators_gap_le` |
 | **Thm 4.5** | (K) holds | `SteeringWord.finite_kernelViolators` (`Kernel.lean`) |
-| **Problem 5.2** | `p_T(k) ≥ k (log k)^δ` infinitely often | **solved**, every `η < 1/4`: `SteeringWord.frequently_lt_complexity`, `quantitativeSuperlinear` (`QuantitativeTheorem.lean`); every `η < 1/3`: `SteeringWord.frequently_lt_complexity_third` (`QuantitativeThird.lean`) |
+| **Problem 5.2** | `p_T(k) ≥ k (log k)^δ` infinitely often | **solved**, every `η < 1/4`: `SteeringWord.frequently_lt_complexity`, `quantitativeSuperlinear` (`QuantitativeTheorem.lean`); every `η < 1/3`: `SteeringWord.frequently_lt_complexity_third` (`QuantitativeThird.lean`); every `η < 1/2`: `SteeringWord.frequently_lt_complexity_half` (`QuantitativeHalf.lean`) |
 | Problems 5.1, 5.3, 5.4, Conj. A.2 | open | stated in `Problems.lean` |
 
 `Function.complexity` (DA Layer 7.5, `FactorComplexity.lean`) is the subword complexity; the
@@ -93,6 +95,7 @@ Cor. 4.3), Proposition A.1 and the numerics of Appendix A.
 | `QuantitativeLines.lean` | step 4: small gaps, two variables; three points per line |
 | `QuantitativeTheorem.lean` | step 5: Problem 5.2 for every `η < 1/4` |
 | `QuantitativeThird.lean` | steps 2, 4 and 5 with the interval form: Problem 5.2 for every `η < 1/3` |
+| `QuantitativeHalf.lean` | step 2 with one interval result for all classes: Problem 5.2 for every `η < 1/2` |
 
 ## Problem 5.2
 
@@ -143,3 +146,19 @@ the gap, one plane with `O(log ε⁻¹)` points and `O(ε⁻² log² ε⁻¹)` f
 (`SteeringWord.kernel_class_hyps`, `SteeringWord.kernel_class_mem`, `SteeringWord.line_hyps`,
 `SteeringWord.line_mem`). The same change brings integer bases and continued fractions to `1/3`
 (`BugeaudEvertse2008/Additions/Theorem21Third.lean`, `Bugeaud2013/Additions/CountThird.lean`).
+
+**Every `η < 1/2`** (`QuantitativeHalf.lean`, 2026-10-24). The `≈ 2/ε` classes of the gap cost
+the remaining factor `ε⁻¹`: one interval result per class. The classes have the same forms and
+differ only in their exponents, and Evertse–Ferretti's Theorem 2.3 holds for a whole set of
+exponents with counts that do not depend on the set (`NumberField.FormSystem.exists_intervals_cover_family`,
+`QuantitativeSubspace/FormIntervalFamily.lean`): the destabilizing subspaces `T(L, c)` are
+determined by a finite weight type, and the reduction to the quotient depends on `c` only through
+finitely many row selections. Its interval form for real forms
+(`Real.SubspaceIntervalFamilyWith`, `QuantitativeSubspace/RealFormFamily.lean`) puts the kernel
+points of all classes into `K` planes, `K` independent of `ε`, and `O(ε⁻² log ε⁻¹)` intervals
+(`SteeringWord.exists_plane_intervals_family_of_violators`). So
+`N = O(ε⁻² log² ε⁻¹)` (`SteeringWord.card_le_of_violators_half`), which is `o(N)` when `2 v < 1`.
+The `δ⁻²` left is the number of intervals of Theorem 2.3, the number `m ≍ δ⁻²` of blocks of
+the auxiliary polynomial (Hoeffding). The same change brings integer bases and continued
+fractions to `1/2` (`BugeaudEvertse2008/Additions/Theorem21Half.lean`,
+`Bugeaud2013/Additions/CountHalf.lean`).
