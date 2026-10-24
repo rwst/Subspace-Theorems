@@ -1,4 +1,4 @@
-# `BugeaudEvertse2008/Additions/`: Theorem 2.1 with `η < 1/4`
+# `BugeaudEvertse2008/Additions/`: Theorem 2.1 with `η < 1/3`
 
 Bugeaud–Evertse's Theorem 2.1 with a better exponent, machine-checked with the standard axioms
 only. Let `ξ = ofDigits a` be real algebraic irrational, with base-`b` digits `a`. Then for every
@@ -6,6 +6,7 @@ only. Let `ξ = ofDigits a` be real algebraic irrational, with base-`b` digits `
 
 | statement | `η` | file |
 |---|---|---|
+| `Real.frequently_lt_complexity_of_lt_third` | `η < 1/3` | `Additions/Theorem21Third.lean` |
 | `Real.frequently_lt_complexity_of_lt_quarter` | `η < 1/4` | `Additions/Theorem21Quarter.lean` |
 | `Real.frequently_lt_complexity` | `η < 1/7` | `Theorem21.lean` (BE08's route with EF13) |
 | BE08, Theorem 2.1 | `η < 1/11` | the paper (ES02's count) |
@@ -21,6 +22,7 @@ and the `η < 1/4` of the `(3/2)^n` steering word (`Stephan2026a/QuantitativeThe
 | `PlaneLiouville.lean` | Liouville bound on a plane with `z₃ ≠ 0` (`Real.exists_mul_log_le_of_plane`); the plane step for large gaps, `K (1 + log ε⁻¹)` points (`Real.card_mem_plane_le_log`) |
 | `SmallGap.lean` | one point per line (`Int.dvd_of_pow_sub_pow_mul_eq`); the two-variable step for small gaps, `K ε⁻³ (1 + log ε⁻¹)²` lines (`Real.exists_lines_of_small_gap`) |
 | `Theorem21Quarter.lean` | the counting contradiction; **Thm 2.1 with `1/4`** |
+| `Theorem21Third.lean` | the interval forms of the three- and two-variable steps; the count `A ε⁻³ (1 + log ε⁻¹)²` (`Real.card_le_of_approx_third`); **Thm 2.1 with `1/3`** |
 
 The library files used: `Repetitions.lean` (Lemma 6.1), `ThreeVariable.lean` (the planes),
 `PlaneStep.lean` (`Real.exists_plane_eq`, Liouville `Real.exists_inv_le_abs_add_mul`), and DA's
@@ -53,6 +55,24 @@ Lemma 6.1 gives the points `x_n = (b^{t_n}, b^{r_n}, p_n)` with `2 t_n < t_{n+1}
 Total: `N ≤ K' ε⁻⁴ (1 + log ε⁻¹)³`, with `ε⁻¹ = (log t_{2N})^v = N^{v + o(1)}`, so `4v < 1` is a
 contradiction. The split by the size of the gap is the one of the steering word's proof.
 
+## `1/3`: the interval form
+
+EF13's `δ⁻³` subspaces are one exceptional subspace, `δ⁻² log δ⁻¹` intervals `[s, ω₀ s)` of
+`log |x|` (`ω₀ ≍ δ⁻¹ log`), and `δ⁻¹ log δ⁻¹` windows of the gap principle in each interval. The
+points `x_n` have `log |x_n| = t_n log b` with `2 t_n < t_{n+1}`, so an interval holds
+`O(log ε⁻¹)` of them and the gap principle is not needed (`Real.SubspaceIntervalWith`,
+`QuantitativeSubspace/RealFormInterval.lean`; `Real.card_le_of_forall_mem_window`).
+
+1. **Large gap.** In each of the `k ≤ 3/ε` classes: one plane, holding `O(1 + log ε⁻¹)` points
+   (`Real.card_mem_plane_le_log`), and `O(ε⁻² log ε⁻¹)` intervals
+   (`Real.exists_plane_intervals_of_approx`).
+2. **Small gap.** One line, holding at most one point, and `O(ε⁻² log ε⁻¹)` intervals
+   (`Real.exists_line_intervals_of_small_gap`).
+
+Total `N ≤ A ε⁻³ (1 + log ε⁻¹)²` (`Real.card_le_of_approx_third`), a contradiction for `3v < 1`.
+The systems of the classes are shared with the count form (`Real.approx_class_hyps`,
+`Real.approx_class_mem`, `Real.gap_hyps`, `Real.gap_mem`).
+
 ## Literature
 
 The results of this directory first appear in R. Stephan, *The exponent `1/4` in three complexity
@@ -65,5 +85,5 @@ lemmas of `PlaneLiouville.lean` and `SmallGap.lean`, and Remark 6.1 is the `1/7`
 
 * `lake build BugeaudEvertse2008`: no errors, no warnings, no `set_option`.
 * `#print axioms Real.frequently_lt_complexity_of_lt_quarter`: `propext, Classical.choice,
-  Quot.sound`.
+  Quot.sound`. The same for `Real.frequently_lt_complexity_of_lt_third` (2026-10-24).
 * `scripts/check.sh`: see the BE08 README.

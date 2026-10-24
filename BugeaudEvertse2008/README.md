@@ -9,7 +9,10 @@ the arXiv v1, 30 pages).
 `Additions/` (2026-10-21, std3, `Real.frequently_lt_complexity_of_lt_quarter`; see
 `Additions/README.md`): the plane step costs `O(1 + log ε⁻¹)` by Liouville's inequality once the
 small gaps are counted apart on lines. Both exponents are published in Stephan, *The exponent
-`1/4` in three complexity bounds* (arXiv:2610.30937, 2026), Theorem 1.1 and Remark 6.1.**
+`1/4` in three complexity bounds* (arXiv:2610.30937, 2026), Theorem 1.1 and Remark 6.1.
+Improved to `η < 1/3` in `Additions/` (2026-10-24, std3,
+`Real.frequently_lt_complexity_of_lt_third`): the interval form of EF13's count
+(`Real.SubspaceIntervalWith`) leaves one plane per class and `O(ε⁻² log² ε⁻¹)` further points.**
 Optional later work:
 Thm 3.1, Cor. 3.2, Thm 9.1, 9.2. The directory is its own `lean_lib`
 (`BugeaudEvertse2008`), held to the same rules as the other paper directories (no `sorry`, no
@@ -166,7 +169,7 @@ The corpus axiom has the same shape with `∀ N, ∃ n ≥ N` and the corpus `pC
 | `PlaneStep.lean` | BE.3 ✅ | §7 (7.12)–(7.19): the points on one plane |
 | `Thresholds.lean` | BE.4 ✅ | the thresholds and the final count, for `N ≥ N₀`: the case `(7, 4)` of DA's `Real.eventually_doubling_thresholds` (`DoublingSequences.lean`, moved 2026-10-21) |
 | `Theorem21.lean` | BE.5 ✅ | the counting contradiction; **Thm 2.1** with `1/7` |
-| `Additions/` | ✅ | **Thm 2.1** with `1/4`: Liouville per plane, small gaps on lines (`Additions/README.md`) |
+| `Additions/` | ✅ | **Thm 2.1** with `1/4`: Liouville per plane, small gaps on lines; with `1/3`: the interval form (`Additions/README.md`) |
 
 ### Milestones
 

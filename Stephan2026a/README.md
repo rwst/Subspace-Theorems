@@ -10,7 +10,9 @@ application of the Subspace Theorem.
 every `η < 1/4` and every `C` (`SteeringWord.frequently_lt_complexity`,
 `SteeringWord.quantitativeSuperlinear`), within the same three axioms; published as Theorem 1.3
 of R. Stephan, *The exponent `1/4` in three complexity bounds: integer bases, continued fractions,
-and the `(3/2)^n` steering word*, arXiv:2610.30937 (2026), §5. The
+and the `(3/2)^n` steering word*, arXiv:2610.30937 (2026), §5. **(2026-10-24): every
+`η < 1/3`** (`SteeringWord.frequently_lt_complexity_third`, `QuantitativeThird.lean`), with the
+interval form of Evertse–Ferretti's count (`Real.SubspaceIntervalWith`). The
 directory is its own `lean_lib` (`Stephan2026a`), held to the same rules as the other paper
 directories (no `sorry`, no `set_option`, std3 axioms, fine-grained imports, module system,
 Mathlib-style namespaces), and is in the gates' library lists. Its comparator lane certifies
@@ -45,7 +47,7 @@ theorem and Evertse–Ferretti's quantitative Subspace Theorem are theorems of
 | Lemma 4.2 | `0 < ‖ξ (3/2)^a‖ ≤ θ^a` finitely often | `SteeringWord.finite_setOf_distToNearestInt_mul_le` (`ConstantGap.lean`) |
 | Cor. 4.3 | the gap-bounded slice | `SteeringWord.finite_kernelViolators_gap_le` |
 | **Thm 4.5** | (K) holds | `SteeringWord.finite_kernelViolators` (`Kernel.lean`) |
-| **Problem 5.2** | `p_T(k) ≥ k (log k)^δ` infinitely often | **solved**, every `η < 1/4`: `SteeringWord.frequently_lt_complexity`, `quantitativeSuperlinear` (`QuantitativeTheorem.lean`) |
+| **Problem 5.2** | `p_T(k) ≥ k (log k)^δ` infinitely often | **solved**, every `η < 1/4`: `SteeringWord.frequently_lt_complexity`, `quantitativeSuperlinear` (`QuantitativeTheorem.lean`); every `η < 1/3`: `SteeringWord.frequently_lt_complexity_third` (`QuantitativeThird.lean`) |
 | Problems 5.1, 5.3, 5.4, Conj. A.2 | open | stated in `Problems.lean` |
 
 `Function.complexity` (DA Layer 7.5, `FactorComplexity.lean`) is the subword complexity; the
@@ -90,6 +92,7 @@ Cor. 4.3), Proposition A.1 and the numerics of Appendix A.
 | `QuantitativePlaneStep.lean` | step 3: the same-gap and distinct-gap principles; `12 (1 + log ε⁻¹)` points per plane |
 | `QuantitativeLines.lean` | step 4: small gaps, two variables; three points per line |
 | `QuantitativeTheorem.lean` | step 5: Problem 5.2 for every `η < 1/4` |
+| `QuantitativeThird.lean` | steps 2, 4 and 5 with the interval form: Problem 5.2 for every `η < 1/3` |
 
 ## Problem 5.2
 
@@ -125,3 +128,18 @@ The exponent `1/4` is the count `ε⁻⁴` of planes; Bugeaud–Evertse's per-pl
 `ε⁻³` more for algebraic numbers (their `1/7` here, `1/11` in the paper). The same split of the
 gap, with Liouville's inequality on the planes, brings algebraic numbers to `1/4` too
 (`BugeaudEvertse2008/Additions/`, 2026-10-21).
+
+**Every `η < 1/3`** (`QuantitativeThird.lean`, 2026-10-24). Evertse–Ferretti's `δ⁻³` is the
+product of `δ⁻² log δ⁻¹` intervals `[s, ω₀ s)` of `log |x|` outside one exceptional subspace (the
+parametric theorem, EF13 Thm 3.3) and `δ⁻¹ log δ⁻¹` windows of the gap principle in each. The
+points here have doubling positions `c = τ_n + 2`, so an interval of ratio `ω₀ ≍ δ⁻¹` holds
+`O(log δ⁻¹)` of them and the gap principle is not needed. The interval form
+(`Real.SubspaceIntervalWith`, `QuantitativeSubspace/RealFormInterval.lean`) gives, per class of
+the gap, one plane with `O(log ε⁻¹)` points and `O(ε⁻² log² ε⁻¹)` further points
+(`SteeringWord.exists_plane_intervals_of_violators`), and for the small gaps one line and
+`O(ε⁻² log² ε⁻¹)` points (`SteeringWord.exists_line_intervals_of_violators`). So
+`N = O(ε⁻³ log² ε⁻¹)` (`SteeringWord.card_le_of_violators_third`), which is `o(N)` when
+`3 v < 1`. The step-2 and step-4 systems are shared with the count form
+(`SteeringWord.kernel_class_hyps`, `SteeringWord.kernel_class_mem`, `SteeringWord.line_hyps`,
+`SteeringWord.line_mem`). The same change brings integer bases and continued fractions to `1/3`
+(`BugeaudEvertse2008/Additions/Theorem21Third.lean`, `Bugeaud2013/Additions/CountThird.lean`).

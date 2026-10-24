@@ -29,6 +29,9 @@ threshold `K δ⁻¹` into `K δ⁻³ (1 + log δ⁻¹)²` planes; summing over 
 
 * `Real.padicNorm_pow_eq_rpow`: `|b^r|_l = (b^r)^{g_l}`.
 * `Real.sum_factorization_log_div`: `∑_{l ∣ b} g_l = -1`.
+* `Real.approx_class_hyps`, `Real.approx_class_mem`: the system of a class (`Real.approxForms`,
+  `Real.approxExp`, `Real.approxPadic`, `Real.approxClass`) is admissible, and the point
+  `Real.approxPoint b r t p` of an approximation solves the system of its class.
 * `Real.exists_planes_of_approx`: **the three-variable step**.
 
 ## References
@@ -46,6 +49,9 @@ open Finset
 namespace Real
 
 variable {b : ℕ}
+
+/-- **The primes dividing `b`**, as elements of `Nat.Primes`. -/
+def basePrimes (b : ℕ) : Finset Nat.Primes := b.primeFactors.subtype Nat.Prime
 
 /-- **The `l`-adic norm of `b^r`** is `(b^r)^{g_l}` with `g_l = -v_l(b) log l / log b`. -/
 theorem padicNorm_pow_eq_rpow (hb : 2 ≤ b) (l : Nat.Primes) (r : ℕ) :
@@ -79,6 +85,185 @@ theorem sum_factorization_log_div (hb : 2 ≤ b) :
   rw [Finsupp.sum, Nat.support_factorization] at h
   simp only [neg_mul, neg_div, sum_neg_distrib, ← sum_div, ← h, div_self hlogb]
 
+/-! ### The systems of the classes -/
+
+/-- **The exponent at a prime `l ∣ b`**: `g_l = -v_l(b) log l / log b`, so that
+`|b^r|_l = (b^r)^{g_l}` (`Real.padicNorm_pow_eq_rpow`) and `∑_{l ∣ b} g_l = -1`
+(`Real.sum_factorization_log_div`). -/
+noncomputable def baseExp (b : ℕ) (l : Nat.Primes) : ℝ := -(b.factorization l : ℝ) * log l / log b
+
+theorem baseExp_nonpos (hb : 2 ≤ b) (l : Nat.Primes) : baseExp b l ≤ 0 := by
+  have hlogb : 0 < log b := log_pos (by exact_mod_cast (by omega : 1 < b))
+  have : 0 ≤ log (l : ℝ) := log_natCast_nonneg _
+  simp only [baseExp, neg_mul, neg_div]
+  exact neg_nonpos.mpr (div_nonneg (by positivity) hlogb.le)
+
+/-- **The forms of the three-variable step**: `X₁`, `X₂`, `ξ X₁ - ξ X₂ - X₃`. -/
+def approxForms : Fin 3 → Fin 3 → Fin 3 → ℤ :=
+  ![![![1, 0, 0], 0, 0], ![0, ![1, 0, 0], 0], ![![0, 1, 0], ![0, -1, 0], ![-1, 0, 0]]]
+
+theorem abs_approxForms_le (i j m : Fin 3) : |(approxForms i j m : ℝ)| ≤ 1 := by
+  fin_cases i <;> fin_cases j <;> fin_cases m <;> simp [approxForms]
+
+theorem one_le_abs_det_approxForms (ξ : ℝ) :
+    (1 : ℝ) ≤ |(Matrix.of fun i j ↦ quadVal ξ (approxForms i j)).det| := by
+  simp [Matrix.det_fin_three, quadVal, approxForms]
+
+/-- **The exponents at `∞` of the class `ℓ` among `k`**: `1`, `(ℓ + 1) / k`, `-ε`. -/
+noncomputable def approxExp (ε : ℝ) (k ℓ : ℕ) : Fin 3 → ℝ := ![1, ((ℓ : ℝ) + 1) / k, -ε]
+
+/-- **The exponents at `l ∣ b` of the class `ℓ` among `k`**: `g_l`, `g_l ℓ / k`, `0`. -/
+noncomputable def approxPadic (b k ℓ : ℕ) : Nat.Primes → Fin 3 → ℝ := fun l ↦
+  ![baseExp b l, baseExp b l * ℓ / k, 0]
+
+/-- **The class** of `r < t` among `k` classes: `⌊k r / t⌋`. -/
+def approxClass (k r t : ℕ) : ℕ := k * r / t
+
+/-- **The point** `(b^t, b^r, p)`. -/
+def approxPoint (b r t : ℕ) (p : ℤ) : Fin 3 → ℤ := ![(b : ℤ) ^ t, (b : ℤ) ^ r, p]
+
+theorem cast_approxPoint (b r t : ℕ) (p : ℤ) :
+    (fun i ↦ (approxPoint b r t p i : ℚ)) = ![(b : ℚ) ^ t, (b : ℚ) ^ r, (p : ℚ)] := by
+  ext i
+  fin_cases i <;> simp [approxPoint]
+
+/-- **The system of a class is admissible**: for `k > 2 / ε` and `ℓ < k`, the exponents of the
+class `ℓ` meet the hypotheses of `Real.SubspaceBoundWith` with `δ = ε - 1/k`, at `∞` and the
+primes of `b`. -/
+theorem approx_class_hyps (hb : 2 ≤ b) {ε : ℝ} (hε : 0 < ε) {k ℓ : ℕ} (hk : 2 / ε < k)
+    (hℓ : ℓ < k) :
+    (∀ i, approxExp ε k ℓ i ≤ 1) ∧ (∃ i, approxExp ε k ℓ i = 1) ∧
+      (∃ i, approxExp ε k ℓ i ≤ 1 - (ε - 1 / k) / (2 * ((3 : ℕ) : ℝ))) ∧
+      (∀ l ∈ basePrimes b, ∀ i,
+        approxPadic b k ℓ l i ≤ 0) ∧
+      (∀ l ∈ basePrimes b, ∃ i,
+        approxPadic b k ℓ l i = 0) ∧
+      ∑ i, approxExp ε k ℓ i + ∑ l ∈ basePrimes b,
+        ∑ i, approxPadic b k ℓ l i ≤ -(ε - 1 / k) := by
+  have hkpos : (0 : ℝ) < k := (by positivity : (0 : ℝ) < 2 / ε).trans hk
+  have hkε : 1 / k < ε / 2 := by
+    rw [div_lt_iff₀ hkpos]
+    rw [div_lt_iff₀ hε] at hk
+    linarith
+  have hδ1 : ε - 1 / k ≤ 1 + ε := by have : 0 < 1 / (k : ℝ) := by positivity
+                                     linarith
+  have hgsum : ∑ l ∈ basePrimes b, baseExp b l = -1 := sum_factorization_log_div hb
+  refine ⟨fun i ↦ ?_, ⟨0, by simp [approxExp]⟩, ?_, fun l _ i ↦ ?_, fun l _ ↦ ⟨2, by
+    simp [approxPadic]⟩, ?_⟩
+  · have : ((ℓ : ℝ) + 1) / k ≤ 1 := by
+      rw [div_le_one hkpos]; exact_mod_cast hℓ
+    fin_cases i <;> simp [approxExp] <;> linarith
+  · refine ⟨2, ?_⟩
+    have : 0 < (k : ℝ)⁻¹ := by positivity
+    change -ε ≤ 1 - (ε - 1 / k) / (2 * ((3 : ℕ) : ℝ))
+    rw [one_div]
+    push_cast
+    linarith
+  · have hgl := baseExp_nonpos hb l
+    have hgl2 : baseExp b l * ℓ / k ≤ 0 :=
+      div_nonpos_of_nonpos_of_nonneg (mul_nonpos_of_nonpos_of_nonneg hgl (by positivity))
+        hkpos.le
+    fin_cases i <;> simp [approxPadic, hgl, hgl2]
+  · have h1 : ∑ l ∈ basePrimes b,
+        ∑ i, approxPadic b k ℓ l i =
+        (1 + ℓ / k) * ∑ l ∈ basePrimes b, baseExp b l := by
+      rw [mul_sum]
+      refine sum_congr rfl fun l _ ↦ ?_
+      simp [approxPadic, Fin.sum_univ_three]
+      ring
+    rw [h1, hgsum]
+    simp only [approxExp, Fin.sum_univ_three, Matrix.cons_val_zero, Matrix.cons_val_one,
+      Matrix.cons_val_two, Matrix.head_cons, Matrix.tail_cons]
+    field_simp
+    ring_nf
+    linarith
+
+/-- **The point of an approximation solves the system of its class**: for `k > 0` and
+`r < t`, `|p| ≤ b^t`, `|b^t ξ - b^r ξ - p| ≤ (b^t)^{-ε}`, the class `ℓ = approxClass k r t` is
+`< k`, and the point `(b^t, b^r, p)`, of size `b^t`, solves the inequalities of
+`Real.SubspaceBoundWith` for `approxForms`, the constant `1` and the exponents of the class
+`ℓ`. -/
+theorem approx_class_mem (hb : 2 ≤ b) {ξ ε : ℝ} {k : ℕ} (hk : 0 < k) {r t : ℕ} {p : ℤ}
+    (hrt : r < t) (hp : |(p : ℝ)| ≤ (b : ℝ) ^ t)
+    (happ : |(b : ℝ) ^ t * ξ - b ^ r * ξ - p| ≤ ((b : ℝ) ^ t) ^ (-ε)) :
+    approxClass k r t < k ∧ approxPoint b r t p ≠ 0 ∧
+      (∀ i, |∑ j, quadVal ξ (approxForms i j) * (approxPoint b r t p j : ℝ)| ≤
+        1 * (⨆ j, |(approxPoint b r t p j : ℝ)|) ^ approxExp ε k (approxClass k r t) i) ∧
+      (∀ l ∈ basePrimes b, ∀ i,
+        ((padicNorm (l : ℕ) (approxPoint b r t p i : ℚ) : ℚ) : ℝ) ≤
+          (⨆ j, |(approxPoint b r t p j : ℝ)|) ^ approxPadic b k (approxClass k r t) l i) ∧
+      (⨆ j, |(approxPoint b r t p j : ℝ)|) = (b : ℝ) ^ t := by
+  have hbR : (1 : ℝ) < b := by exact_mod_cast (by omega : 1 < b)
+  have hb0 : (0 : ℝ) < b := by linarith
+  have hkpos : (0 : ℝ) < k := by exact_mod_cast hk
+  set ℓ := approxClass k r t with hℓdef
+  have htpos : 0 < t := by omega
+  have hℓk : ℓ < k := by
+    rw [hℓdef, approxClass, Nat.div_lt_iff_lt_mul htpos]
+    exact Nat.mul_lt_mul_of_pos_left hrt (by omega)
+  have hℓ1 : (ℓ : ℝ) * t ≤ k * r := by exact_mod_cast Nat.div_mul_le_self (k * r) t
+  have hℓ2 : (k : ℝ) * r < (ℓ + 1) * t := by
+    have := Nat.lt_mul_div_succ (k * r) htpos
+    have : (k * r : ℝ) < t * (ℓ + 1) := by exact_mod_cast this
+    linarith
+  have htR : (0 : ℝ) < t := by exact_mod_cast htpos
+  set x : Fin 3 → ℤ := approxPoint b r t p with hx
+  have hbt : (1 : ℝ) ≤ (b : ℝ) ^ t := one_le_pow₀ hbR.le
+  have hX : (⨆ i, |(x i : ℝ)|) = (b : ℝ) ^ t := by
+    have hbr : (b : ℝ) ^ r ≤ (b : ℝ) ^ t := pow_le_pow_right₀ hbR.le hrt.le
+    refine le_antisymm (ciSup_le fun i ↦ ?_) ?_
+    · fin_cases i <;> simp [x, approxPoint, abs_of_pos hb0, hbr, hp]
+    · refine le_ciSup_of_le (Set.finite_range _).bddAbove 0 ?_
+      simp [x, approxPoint, abs_of_pos hb0]
+  have hpow : ∀ y : ℝ, ((b : ℝ) ^ t) ^ y = (b : ℝ) ^ (t * y) := fun y ↦ by
+    rw [← rpow_natCast, ← rpow_mul hb0.le]
+  have hpowr : (b : ℝ) ^ r = (b : ℝ) ^ (r : ℝ) := (rpow_natCast _ _).symm
+  have hx0 : x ≠ 0 := fun h ↦ by
+    have := congrFun h 0
+    simp [x, approxPoint] at this
+    omega
+  have hinf : ∀ i, |∑ j, quadVal ξ (approxForms i j) * x j| ≤
+      1 * (⨆ j, |(x j : ℝ)|) ^ approxExp ε k ℓ i := by
+    rw [hX]
+    intro i
+    fin_cases i
+    · simp [x, approxPoint, approxForms, approxExp, quadVal, Fin.sum_univ_three,
+        abs_of_pos hb0]
+    · simp only [x, approxPoint, approxForms, approxExp, quadVal, Fin.sum_univ_three]
+      simp only [Int.reduceNeg, Fin.mk_one, Fin.isValue, Matrix.cons_val', Matrix.cons_val_zero,
+        Matrix.cons_val_fin_one, Pi.zero_apply, Matrix.cons_val_one, Int.cast_zero, zero_mul,
+        add_zero, Matrix.cons_val, Int.cast_pow, Int.cast_natCast, Int.cast_one, one_mul,
+        zero_add, abs_pow, Nat.abs_cast]
+      rw [hpow, hpowr]
+      refine rpow_le_rpow_of_exponent_le hbR.le ?_
+      rw [mul_div_assoc', le_div_iff₀ hkpos]
+      linarith
+    · simp only [x, approxPoint, approxForms, approxExp, quadVal, Fin.sum_univ_three]
+      simp only [one_mul]
+      convert happ using 2 <;> first | rfl | (simp; ring)
+  have hpad : ∀ l ∈ basePrimes b, ∀ i,
+      ((padicNorm (l : ℕ) (x i : ℚ) : ℚ) : ℝ) ≤ (⨆ j, |(x j : ℝ)|) ^ approxPadic b k ℓ l i := by
+    rw [hX]
+    have hcast : ∀ n : ℕ, (((b : ℤ) ^ n : ℤ) : ℚ) = (b : ℚ) ^ n := fun n ↦ by push_cast; rfl
+    intro l _ i
+    fin_cases i
+    · change ((padicNorm (l : ℕ) (((b : ℤ) ^ t : ℤ) : ℚ) : ℚ) : ℝ) ≤
+        ((b : ℝ) ^ t) ^ (-(b.factorization l : ℝ) * log l / log b)
+      rw [hcast t, padicNorm_pow_eq_rpow hb l t]
+    · change ((padicNorm (l : ℕ) (((b : ℤ) ^ r : ℤ) : ℚ) : ℚ) : ℝ) ≤
+        ((b : ℝ) ^ t) ^ (baseExp b l * ℓ / k)
+      rw [hcast r, padicNorm_pow_eq_rpow hb l r, hpowr, ← rpow_mul hb0.le, hpow]
+      refine rpow_le_rpow_of_exponent_le hbR.le ?_
+      have hgl := baseExp_nonpos hb l
+      change (r : ℝ) * baseExp b l ≤ t * (baseExp b l * ℓ / k)
+      rw [show (t : ℝ) * (baseExp b l * ℓ / k) = baseExp b l * (ℓ * t / k) by ring]
+      have : (ℓ : ℝ) * t / k ≤ r := by rw [div_le_iff₀ hkpos]; linarith
+      nlinarith
+    · change ((padicNorm (l : ℕ) ((p : ℤ) : ℚ) : ℚ) : ℝ) ≤ ((b : ℝ) ^ t) ^ (0 : ℝ)
+      rw [rpow_zero]
+      exact_mod_cast padicNorm.of_int p
+  exact ⟨hℓk, hx0, hinf, hpad, hX⟩
+
 /-- **The three-variable step** (Bugeaud–Evertse 2008, (7.3)–(7.11), with Evertse–Ferretti's
 count). For `ξ` real algebraic and `b ≥ 2` there is `K > 0` such that for `0 < ε ≤ 1` the points
 `(b^t, b^r, p)` with `r < t`, `|p| ≤ b^t`, `|b^t ξ - b^r ξ - p| ≤ (b^t)^{-ε}` and
@@ -92,12 +277,8 @@ theorem exists_planes_of_approx (hb : 2 ≤ b) {ξ : ℝ} (hξ : IsAlgebraic ℚ
         |(b : ℝ) ^ t * ξ - b ^ r * ξ - p| ≤ ((b : ℝ) ^ t) ^ (-ε) → K * ε⁻¹ ≤ t * log b →
         ∃ U ∈ T, ![(b : ℚ) ^ t, (b : ℚ) ^ r, (p : ℚ)] ∈ U := by
   classical
-  set S : Finset Nat.Primes := b.primeFactors.subtype Nat.Prime with hS
-  obtain ⟨K₀, hK₀, hBE⟩ := subspaceBoundAt_three hξ S 3 (by norm_num) (by norm_num)
+  obtain ⟨K₀, hK₀, hBE⟩ := subspaceBoundAt_three hξ (basePrimes b) 3 (by norm_num) (by norm_num)
   refine ⟨96 * K₀, by positivity, fun ε hε hε1 ↦ ?_⟩
-  have hbR : (1 : ℝ) < b := by exact_mod_cast (by omega : 1 < b)
-  have hb0 : (0 : ℝ) < b := by linarith
-  have hlogb : 0 < log b := log_pos hbR
   -- the classes and the weight `δ = ε - 1/k`
   set k : ℕ := ⌊2 / ε⌋₊ + 1 with hk
   have hk2 : 2 / ε < k := by rw [hk]; push_cast; exact Nat.lt_floor_add_one _
@@ -118,48 +299,11 @@ theorem exists_planes_of_approx (hb : 2 ≤ b) {ξ : ℝ} (hξ : IsAlgebraic ℚ
   have hδinv : δ⁻¹ ≤ 2 * ε⁻¹ := by
     calc δ⁻¹ ≤ (ε / 2)⁻¹ := inv_anti₀ (by positivity) hδ0
       _ = 2 * ε⁻¹ := by rw [inv_div, div_eq_mul_inv]
-  -- the forms, the exponents
-  set g : Nat.Primes → ℝ := fun l ↦ -(b.factorization l : ℝ) * log l / log b with hg
-  have hg0 : ∀ l, g l ≤ 0 := fun l ↦ by
-    have : 0 ≤ log (l : ℝ) := log_natCast_nonneg _
-    simp only [hg, neg_mul, neg_div]
-    exact neg_nonpos.mpr (div_nonneg (by positivity) hlogb.le)
-  have hgsum : ∑ l ∈ S, g l = -1 := sum_factorization_log_div hb
-  set P : Fin 3 → Fin 3 → Fin 3 → ℤ :=
-    ![![![1, 0, 0], 0, 0], ![0, ![1, 0, 0], 0], ![![0, 1, 0], ![0, -1, 0], ![-1, 0, 0]]] with hP
-  have hPB : ∀ i j m, |(P i j m : ℝ)| ≤ 1 := by
-    intro i j m; fin_cases i <;> fin_cases j <;> fin_cases m <;> simp [P]
-  have hdet : (1 : ℝ) ≤ |(Matrix.of fun i j ↦ quadVal ξ (P i j)).det| := by
-    simp [Matrix.det_fin_three, quadVal, P]
-  set e : ℕ → Fin 3 → ℝ := fun ℓ ↦ ![1, ((ℓ : ℝ) + 1) / k, -ε] with he
-  set f : ℕ → Nat.Primes → Fin 3 → ℝ := fun ℓ l ↦ ![g l, g l * ℓ / k, 0] with hf
-  have hclass := fun ℓ (hℓ : ℓ < k) ↦ hBE P 1 le_rfl hPB 1 one_pos le_rfl hdet 1 le_rfl (e ℓ)
-    (f ℓ) δ hδpos hδ1
-    (fun i ↦ by
-      have : ((ℓ : ℝ) + 1) / k ≤ 1 := by
-        rw [div_le_one hkpos]; exact_mod_cast hℓ
-      fin_cases i <;> simp [e] <;> linarith)
-    ⟨0, by simp [e]⟩
-    (exists_le_one_sub_div_of_exists_nonpos (by norm_num) hδ1 ⟨2, by simp [e]; linarith⟩)
-    (fun l _ i ↦ by
-      have hgl := hg0 l
-      have hgl2 : g l * ℓ / k ≤ 0 :=
-        div_nonpos_of_nonpos_of_nonneg (mul_nonpos_of_nonpos_of_nonneg hgl (by positivity))
-          hkpos.le
-      fin_cases i <;> simp [f, hgl, hgl2])
-    (fun l _ ↦ ⟨2, by simp [f]⟩)
-    (by
-      have h1 : ∑ l ∈ S, ∑ i, f ℓ l i = (1 + ℓ / k) * ∑ l ∈ S, g l := by
-        rw [mul_sum]
-        refine sum_congr rfl fun l _ ↦ ?_
-        simp [f, Fin.sum_univ_three]
-        ring
-      rw [h1, hgsum]
-      simp only [e, Fin.sum_univ_three, Matrix.cons_val_zero, Matrix.cons_val_one,
-        Matrix.cons_val_two, Matrix.head_cons, Matrix.tail_cons, hδ]
-      field_simp
-      ring_nf
-      linarith)
+  have hclass := fun ℓ (hℓ : ℓ < k) ↦ by
+    obtain ⟨h1, h2, h3, h4, h5, h6⟩ := approx_class_hyps hb hε hk2 hℓ
+    exact hBE approxForms 1 le_rfl abs_approxForms_le 1 one_pos le_rfl
+      (one_le_abs_det_approxForms ξ) 1 le_rfl (approxExp ε k ℓ) (approxPadic b k ℓ) δ hδpos hδ1
+      h1 h2 h3 h4 h5 h6
   choose! T hTcard hTtop hTmem using hclass
   refine ⟨(range k).biUnion T, ?_, ?_, ?_⟩
   · -- the count
@@ -189,71 +333,9 @@ theorem exists_planes_of_approx (hb : 2 ≤ b) {ξ : ℝ} (hξ : IsAlgebraic ℚ
     obtain ⟨ℓ, hℓ, hUℓ⟩ := mem_biUnion.mp hU
     exact hTtop ℓ (mem_range.mp hℓ) U hUℓ
   · intro r t p hrt hp happ hthr
-    -- the class of `(r, t)`
-    set ℓ := k * r / t with hℓdef
-    have htpos : 0 < t := by omega
-    have hℓk : ℓ < k := by
-      rw [hℓdef, Nat.div_lt_iff_lt_mul htpos]
-      exact Nat.mul_lt_mul_of_pos_left hrt (by omega)
-    have hℓ1 : (ℓ : ℝ) * t ≤ k * r := by exact_mod_cast Nat.div_mul_le_self (k * r) t
-    have hℓ2 : (k : ℝ) * r < (ℓ + 1) * t := by
-      have := Nat.lt_mul_div_succ (k * r) htpos
-      have : (k * r : ℝ) < t * (ℓ + 1) := by exact_mod_cast this
-      linarith
-    have htR : (0 : ℝ) < t := by exact_mod_cast htpos
-    set x : Fin 3 → ℤ := ![(b : ℤ) ^ t, (b : ℤ) ^ r, p] with hx
-    have hbt : (1 : ℝ) ≤ (b : ℝ) ^ t := one_le_pow₀ hbR.le
-    have hX : (⨆ i, |(x i : ℝ)|) = (b : ℝ) ^ t := by
-      have hbr : (b : ℝ) ^ r ≤ (b : ℝ) ^ t := pow_le_pow_right₀ hbR.le hrt.le
-      refine le_antisymm (ciSup_le fun i ↦ ?_) ?_
-      · fin_cases i <;> simp [x, abs_of_pos hb0, hbr, hp]
-      · refine le_ciSup_of_le (Set.finite_range _).bddAbove 0 ?_
-        simp [x, abs_of_pos hb0]
-    have hpow : ∀ y : ℝ, ((b : ℝ) ^ t) ^ y = (b : ℝ) ^ (t * y) := fun y ↦ by
-      rw [← rpow_natCast, ← rpow_mul hb0.le]
-    have hpowr : (b : ℝ) ^ r = (b : ℝ) ^ (r : ℝ) := (rpow_natCast _ _).symm
-    have hx0 : x ≠ 0 := fun h ↦ by
-      have := congrFun h 0
-      simp [x] at this
-      omega
-    have hinf : ∀ i, |∑ j, quadVal ξ (P i j) * x j| ≤ 1 * (⨆ k, |(x k : ℝ)|) ^ e ℓ i := by
-      rw [hX]
-      intro i
-      fin_cases i
-      · simp [x, P, e, quadVal, Fin.sum_univ_three, abs_of_pos hb0]
-      · simp only [x, P, e, quadVal, Fin.sum_univ_three]
-        simp only [Int.reduceNeg, Fin.mk_one, Fin.isValue, Matrix.cons_val', Matrix.cons_val_zero,
-          Matrix.cons_val_fin_one, Pi.zero_apply, Matrix.cons_val_one, Int.cast_zero, zero_mul,
-          add_zero, Matrix.cons_val, Int.cast_pow, Int.cast_natCast, Int.cast_one, one_mul,
-          zero_add, abs_pow, Nat.abs_cast]
-        rw [hpow, hpowr]
-        refine rpow_le_rpow_of_exponent_le hbR.le ?_
-        rw [mul_div_assoc', le_div_iff₀ hkpos]
-        linarith
-      · simp only [x, P, e, quadVal, Fin.sum_univ_three]
-        simp only [one_mul]
-        convert happ using 2 <;> first | rfl | (simp; ring)
-    have hpad : ∀ l ∈ S, ∀ i, ((padicNorm (l : ℕ) (x i : ℚ) : ℚ) : ℝ) ≤
-        (⨆ k, |(x k : ℝ)|) ^ f ℓ l i := by
-      rw [hX]
-      have hcast : ∀ n : ℕ, (((b : ℤ) ^ n : ℤ) : ℚ) = (b : ℚ) ^ n := fun n ↦ by push_cast; rfl
-      intro l _ i
-      fin_cases i
-      · change ((padicNorm (l : ℕ) (((b : ℤ) ^ t : ℤ) : ℚ) : ℚ) : ℝ) ≤ ((b : ℝ) ^ t) ^ g l
-        rw [hcast t, padicNorm_pow_eq_rpow hb l t]
-      · change ((padicNorm (l : ℕ) (((b : ℤ) ^ r : ℤ) : ℚ) : ℚ) : ℝ) ≤
-          ((b : ℝ) ^ t) ^ (g l * ℓ / k)
-        rw [hcast r, padicNorm_pow_eq_rpow hb l r, hpowr, ← rpow_mul hb0.le, hpow]
-        refine rpow_le_rpow_of_exponent_le hbR.le ?_
-        have hgl := hg0 l
-        change (r : ℝ) * g l ≤ t * (g l * ℓ / k)
-        rw [show (t : ℝ) * (g l * ℓ / k) = g l * (ℓ * t / k) by ring]
-        have : (ℓ : ℝ) * t / k ≤ r := by rw [div_le_iff₀ hkpos]; linarith
-        nlinarith
-      · change ((padicNorm (l : ℕ) ((p : ℤ) : ℚ) : ℚ) : ℝ) ≤ ((b : ℝ) ^ t) ^ (0 : ℝ)
-        rw [rpow_zero]
-        exact_mod_cast padicNorm.of_int p
-    have hthr' : K₀ * δ⁻¹ * (1 + log 1 + log 1 + log (1 : ℝ)⁻¹) ≤ log (⨆ k, |(x k : ℝ)|) := by
+    obtain ⟨hℓk, hx0, hinf, hpad, hX⟩ := approx_class_mem hb (by exact_mod_cast hkpos) hrt hp happ
+    have hthr' : K₀ * δ⁻¹ * (1 + log 1 + log 1 + log (1 : ℝ)⁻¹) ≤
+        log (⨆ k, |(approxPoint b r t p k : ℝ)|) := by
       rw [hX, log_pow]
       simp only [log_one, inv_one, add_zero, mul_one]
       calc K₀ * δ⁻¹ ≤ K₀ * (2 * ε⁻¹) := by gcongr
@@ -261,10 +343,7 @@ theorem exists_planes_of_approx (hb : 2 ≤ b) {ξ : ℝ} (hξ : IsAlgebraic ℚ
             have : 0 ≤ K₀ * ε⁻¹ := by positivity
             linarith
         _ ≤ t * log b := hthr
-    obtain ⟨U, hU, hmem⟩ := hTmem ℓ hℓk x hx0 hinf hpad hthr'
-    refine ⟨U, mem_biUnion.mpr ⟨ℓ, mem_range.mpr hℓk, hU⟩, ?_⟩
-    convert hmem using 1
-    ext i
-    fin_cases i <;> simp [x]
+    obtain ⟨U, hU, hmem⟩ := hTmem _ hℓk _ hx0 hinf hpad hthr'
+    exact ⟨U, mem_biUnion.mpr ⟨_, mem_range.mpr hℓk, hU⟩, cast_approxPoint b r t p ▸ hmem⟩
 
 end Real

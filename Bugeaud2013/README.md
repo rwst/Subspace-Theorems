@@ -9,7 +9,9 @@ std3 axioms, fine-grained imports, module system, Mathlib root namespaces).
 
 `Additions/` goes beyond the paper: it proves (6.1), which Bugeaud announced without proof, with
 an explicit exponent `δ < 1/4` (see `Additions/README.md`), published as Theorem 1.2 of Stephan,
-*The exponent `1/4` in three complexity bounds* (arXiv:2610.30937, 2026).
+*The exponent `1/4` in three complexity bounds* (arXiv:2610.30937, 2026). Since 2026-10-24 it
+also proves `δ < 1/3` (`Nat.frequently_lt_encard_factors_of_lt_third`), with the interval form of
+Evertse–Ferretti's count.
 
 ## The library
 
@@ -150,4 +152,5 @@ is `Nat.not_isAutomatic_of_three_le_natDegree`, Theorem 1.4 is
 `Nat.transcendental_contFrac_of_isClub`, Theorem 1.3 is `Nat.transcendental_contFrac_of_isStar`.
 The §6 `U^{7/3}` remark is `Nat.frequently_hasSevenThirdsPowerAt` (with the deviation above);
 (6.1), announced without proof in the paper, is proved in `Additions/` with `δ < 1/4`
-(`Nat.frequently_lt_encard_factors_of_lt_quarter`).
+(`Nat.frequently_lt_encard_factors_of_lt_quarter`) and with `δ < 1/3`
+(`Nat.frequently_lt_encard_factors_of_lt_third`).

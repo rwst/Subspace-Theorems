@@ -9,6 +9,7 @@ public import Bugeaud2013.Additions.Asymptotics
 public import Bugeaud2013.Additions.CFPoints
 public import Bugeaud2013.Additions.Complexity
 public import Bugeaud2013.Additions.Count
+public import Bugeaud2013.Additions.CountThird
 import Mathlib.Analysis.Complex.ExponentialBounds
 
 /-!
@@ -20,7 +21,10 @@ every `C` the complexity of `a₁ a₂ …` exceeds `C n (log n)^δ` for infinit
 (`Nat.frequently_lt_encard_factors`). With Evertse–Ferretti 2013 (`Real.subspaceBound_three`)
 this is `δ < 1/4` (`Nat.frequently_lt_encard_factors_of_lt_quarter`); the weaker count of
 Evertse–Schlickewei 2002, `δ^{-(n+4)}` in `n = 4` variables, gives `δ < 1/9`
-(`Nat.frequently_lt_encard_factors_of_lt_ninth`).
+(`Nat.frequently_lt_encard_factors_of_lt_ninth`). The argument uses the Subspace Theorem only
+through the count of the points, `Real.CFCount α b` (`Nat.frequently_lt_encard_factors_of_cfCount`);
+the interval form of Evertse–Ferretti's count gives `Real.CFCount α 2` (`Real.cfCount_two`), so
+`δ < 1/3` (`Nat.frequently_lt_encard_factors_of_lt_third`).
 
 **Proof.** Otherwise `p(ℓ) ≤ C ℓ (log ℓ)^δ` for all large `ℓ`. The alphabet is finite, so
 `aₙ ≤ A`. At the lengths `ℓ_k = Nat.lenSeq E k`, `Nat.exists_config` gives repetitions, and
@@ -134,12 +138,11 @@ theorem one_le_log_of_le {x : ℝ} (hx : 3 ≤ x) : 1 ≤ Real.log x := by
   rw [← Real.log_exp 1]
   exact Real.log_le_log (Real.exp_pos 1) (by linarith [Real.exp_one_lt_d9])
 
-/-- **(6.1) with the exponent of a quantitative Subspace Theorem.** If `1 ≤ aₙ`, `α` has degree
-at least `3`, `Real.SubspaceBound α b` holds and `(b + 1) δ < 1`, then for every `C` the number
-of factors of length `n` of `a₁ a₂ …` exceeds `C n (log n)^δ` for infinitely many `n`. -/
-theorem frequently_lt_encard_factors (ha : ∀ n, 1 ≤ a (n + 1))
-    (hdeg : 3 ≤ (minpoly ℚ (contFrac a)).natDegree) {b δ : ℝ}
-    (hSB : SubspaceBound (contFrac a) b) (hb : 0 ≤ b) (hδ : 0 ≤ δ) (hbδ : (b + 1) * δ < 1)
+/-- **(6.1) with the exponent of a count of the points.** If `1 ≤ aₙ`, the count
+`Real.CFCount α b` holds for `α = [0; a₁, a₂, …]` and `(b + 1) δ < 1`, then for every `C` the
+number of factors of length `n` of `a₁ a₂ …` exceeds `C n (log n)^δ` for infinitely many `n`. -/
+theorem frequently_lt_encard_factors_of_cfCount (ha : ∀ n, 1 ≤ a (n + 1)) {b δ : ℝ}
+    (hcnt : CFCount (contFrac a) b) (hb : 0 ≤ b) (hδ : 0 ≤ δ) (hbδ : (b + 1) * δ < 1)
     (C : ℝ) :
     ∃ᶠ n in atTop, ∀ k : ℕ, (Function.factors (fun i ↦ a (i + 1)) n).encard = k →
       C * n * Real.log n ^ δ < k := by
@@ -173,16 +176,8 @@ theorem frequently_lt_encard_factors (ha : ∀ n, 1 ≤ a (n + 1))
     exact ⟨A, fun n ↦ hA ⟨n, rfl⟩⟩
   have hA1 : 1 ≤ A := (ha 0).trans (hA 0)
   have hA1' : (1 : ℝ) ≤ A := by exact_mod_cast hA1
-  -- the constants of the count
-  have halg : IsAlgebraic ℚ (contFrac a) := by
-    by_contra h
-    have h0 := minpoly.eq_zero (fun hi : IsIntegral ℚ (contFrac a) ↦ h hi.isAlgebraic)
-    rw [h0] at hdeg
-    simp at hdeg
-  obtain ⟨c, hc, D, hLq⟩ := exists_pos_le_abs_quadVal halg hdeg
-  have hα : |contFrac a| ≤ 1 :=
-    abs_le.mpr ⟨by linarith [contFrac_pos ha], (contFrac_lt_one ha).le⟩
-  obtain ⟨K, hK, hcount⟩ := card_le_of_cfPoints hSB hA1' hc hLq hα
+  -- the constant of the count
+  obtain ⟨K, hK, hcount⟩ := hcnt A hA1'
   -- the repetitions
   set L₀ := max L₁ 16 with hL₀
   have hconf : ∀ ℓ : ℕ, ∃ j r u : ℕ, L₀ ≤ ℓ → 1 ≤ u ∧ u ≤ r ∧ 2 ≤ r ∧ ℓ ≤ 4 * u ∧
@@ -329,6 +324,23 @@ theorem isAlgebraic_of_three_le_natDegree {α : ℝ} (hdeg : 3 ≤ (minpoly ℚ 
   rw [h0] at hdeg
   simp at hdeg
 
+/-- `|α| ≤ 1` for `α = [0; a₁, a₂, …]`. -/
+theorem abs_contFrac_le_one (ha : ∀ n, 1 ≤ a (n + 1)) : |contFrac a| ≤ 1 :=
+  abs_le.mpr ⟨by linarith [contFrac_pos ha], (contFrac_lt_one ha).le⟩
+
+/-- **(6.1) with the exponent of a quantitative Subspace Theorem.** If `1 ≤ aₙ`, `α` has degree
+at least `3`, `Real.SubspaceBound α b` holds and `(b + 1) δ < 1`, then for every `C` the number
+of factors of length `n` of `a₁ a₂ …` exceeds `C n (log n)^δ` for infinitely many `n`. -/
+theorem frequently_lt_encard_factors (ha : ∀ n, 1 ≤ a (n + 1))
+    (hdeg : 3 ≤ (minpoly ℚ (contFrac a)).natDegree) {b δ : ℝ}
+    (hSB : SubspaceBound (contFrac a) b) (hb : 0 ≤ b) (hδ : 0 ≤ δ) (hbδ : (b + 1) * δ < 1)
+    (C : ℝ) :
+    ∃ᶠ n in atTop, ∀ k : ℕ, (Function.factors (fun i ↦ a (i + 1)) n).encard = k →
+      C * n * Real.log n ^ δ < k := by
+  obtain ⟨c, hc, D, hLq⟩ := exists_pos_le_abs_quadVal (isAlgebraic_of_three_le_natDegree hdeg) hdeg
+  exact frequently_lt_encard_factors_of_cfCount ha
+    (cfCount_of_subspaceBound hSB hc hLq (abs_contFrac_le_one ha)) hb hδ hbδ C
+
 /-- **(6.1) with `δ < 1/4`** (Evertse–Ferretti 2013).
 First proved as Theorem 1.2 of Stephan's *The exponent `1/4` in three complexity bounds* (2026,
 arXiv:2610.30937). -/
@@ -353,5 +365,19 @@ theorem frequently_lt_encard_factors_of_lt_ninth (ha : ∀ n, 1 ≤ a (n + 1))
     ((subspaceBound_three (isAlgebraic_of_three_le_natDegree hdeg)).mono
       (show (3 : ℝ) ≤ 8 by norm_num))
     (by norm_num) hδ (by linarith) C
+
+/-- **(6.1) with `δ < 1/3`** (Evertse–Ferretti 2013, in interval form). The points of the
+proof have doubling heights, so the intervals of Evertse–Ferretti's parametric theorem hold
+`O(log ε⁻¹)` points each, and the count is `ε⁻³` instead of `ε⁻⁴` (`Real.cfCount_two`). -/
+theorem frequently_lt_encard_factors_of_lt_third (ha : ∀ n, 1 ≤ a (n + 1))
+    (hdeg : 3 ≤ (minpoly ℚ (contFrac a)).natDegree) {δ : ℝ} (hδ : 0 ≤ δ) (hδ3 : δ < 1 / 3)
+    (C : ℝ) :
+    ∃ᶠ n in atTop, ∀ k : ℕ, (Function.factors (fun i ↦ a (i + 1)) n).encard = k →
+      C * n * Real.log n ^ δ < k := by
+  have halg := isAlgebraic_of_three_le_natDegree hdeg
+  obtain ⟨c, hc, D, hLq⟩ := exists_pos_le_abs_quadVal halg hdeg
+  exact frequently_lt_encard_factors_of_cfCount ha
+    (cfCount_two (subspaceInterval_of_isAlgebraic halg) (subspaceBound_three halg) hc hLq
+      (abs_contFrac_le_one ha)) (by norm_num) hδ (by linarith) C
 
 end Nat

@@ -3948,7 +3948,10 @@ p n ≤ c n (log n)^u (n ≥ n₀), 0 ≤ u < v  ⟹  r_n < t_n, 2 t_n < t_{n+1}
 ```
 
 (`Function.exists_repetitions_of_complexity_le`, `Nat.card_le_of_doubling_window`,
-`Real.eventually_doubling_thresholds`). ⚠ **Only the factors need be finite in number**, not the
+`Real.eventually_doubling_thresholds`). For real heights `g` with `q g_n ≤ g_{n+1}`, `q > 1`,
+windows `[s, ρ s)` at the points of a finite set `𝒯` hold at most `#𝒯 (log ρ / log q + 1)`
+indices (`Real.card_le_of_forall_mem_window`, 2026-10-24): the count of the interval form of the
+quantitative Subspace Theorem (`QuantitativeSubspace/RealFormInterval.lean`). ⚠ **Only the factors need be finite in number**, not the
 alphabet: the hypothesis is `∀ m, (factors a m).Finite`, which `Function.finite_factors` gives
 over a finite alphabet and which the steering word of `(3/2)^n`, a sequence of integers in
 `[-2, 2]`, satisfies directly. ⚠ **Bugeaud–Evertse state the lemma for `v < u`; it holds for

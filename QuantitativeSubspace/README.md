@@ -2155,6 +2155,27 @@ Move from points in `Kⁿ` to points in `ℚ̄ⁿ`, with counts independent of `
   `S = {2, 3}` this gives `K ≤ 10²¹` for `n = 2` and `K ≤ 10²⁴` for `n = 3`
   (`SteeringWord.subspaceBoundWith_two_three_two`, `_three`); EF13's constant is all of it, the
   threshold constant is about `7 · 10⁶`.
+- **Q4.7** ✅ **The interval form of Q4.6** (2026-10-24): `QuantitativeSubspace/RealFormInterval.lean`.
+  `Real.SubspaceIntervalWith α S n K`: for the data of Q4.6, there are **one** proper subspace `U`
+  and at most `K δ⁻² (1 + log δ⁻¹)` reals `s` such that every solution above the threshold
+  `K δ⁻¹ (1 + log B + log C + log γ⁻¹)` lies in `U` or has `s ≤ log |x| < K δ⁻¹ s` for one of them;
+  `Real.subspaceIntervalWith_of_mem` proves it with `K = Real.intervalConst n d #S h μ`, and
+  `Real.subspaceIntervalAt_of_isAlgebraic` for every real algebraic `α`. It is EF13 Thm 3.3 for
+  the system before Layer 9.4's gap principle:
+  `NumberField.exists_forall_mem_interval_of_efSystemThreshold_le` (`FormSystemCount.lean`) is
+  `NumberField.exists_forall_mem_interval_systemSet` fed with Q4.2c, with `NS = 1`,
+  `NI = intervalCount n R' δ'` and ratio `ω₀ = cutRatio R' δ'`
+  (`NumberField.forall_interval_approxDomain_of_isNormalizedSystem_ef` is the shared interval
+  hypothesis), and `Real.intervalCount_half_le`, `Real.cutRatio_half_le` are the closed forms
+  `intervalCount ≤ efIntervalConst n M δ⁻² (1 + log δ⁻¹)` and `ω₀ ≤ efRatioConst n M δ⁻¹`. The
+  system and the threshold are shared with Q4.6 (`Real.exists_normalized_places_of_mem`).
+  Q4.3's count is this times `1 + log ω₀ / log (1 + δ / 2n) ≍ δ⁻¹ log δ⁻¹`. Solutions whose
+  `log |x|` grow geometrically (`q log |x_m| ≤ log |x_{m+1}|`, `q > 1`) put
+  `log ω₀ / log q + 1` of themselves into an interval (DA's `Real.card_le_of_forall_mem_window`),
+  so outside `U` there are `O(δ⁻² log² δ⁻¹)` of them: one power of `δ⁻¹` below Q4.3. Consumers:
+  `Stephan2026a/QuantitativeThird.lean`, `BugeaudEvertse2008/Additions/Theorem21Third.lean` and
+  `Bugeaud2013/Additions/CountThird.lean` (via `Real.SubspaceInterval`, `S = ∅`), which bring the
+  exponent of the three complexity bounds from `1/4` to `1/3`.
 
 Possible additions (proposed 2026-10-12; not started). They come from a consumer: `lean-code`'s
 `CITED/BugeaudEvertseRidout.lean` keeps Bugeaud–Evertse 2008 Cor. 5.2 as a cited axiom

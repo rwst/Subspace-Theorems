@@ -39,7 +39,9 @@ The exponent `1/4` is the Evertse–Ferretti count `δ⁻³` of the three-variab
 logarithm. Bugeaud–Evertse's own exponent for algebraic numbers is `1/11` (`1/7` with the same
 count, `BugeaudEvertse2008/Theorem21.lean`): their per-plane step costs a second `ε⁻³`. The same
 split of the gap brings them to `1/4` as well (`BugeaudEvertse2008/Additions/`), with Liouville's
-inequality in place of the integer identities used here.
+inequality in place of the integer identities used here. The interval form of Evertse–Ferretti's
+count removes one power of `ε⁻¹` and gives every `η < 1/3`
+(`Stephan2026a/QuantitativeThird.lean`).
 
 ## Main results
 

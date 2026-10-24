@@ -22,6 +22,8 @@ the Subspace Theorem holds with `δ^{-a}` subspaces (`Real.SubspaceBound α a`).
   the points of `T₀` lie in `O(ε^{-a} log² ε⁻¹)` planes (`Real.exists_planes_t0`), each holding
   `O(log ε⁻¹)` points (`Real.card_mem_le_of_finrank_le_two`).
 
+`Real.CFCount α b` is the shape of the count that the main argument of (6.1) uses.
+
 ## References
 
 R. Stephan, *The exponent `1/4` in three complexity bounds: integer bases, continued fractions, and
@@ -451,5 +453,21 @@ theorem card_le_of_cfPoints (hSB : SubspaceBound α a) (hA : 1 ≤ A) (hc : 0 < 
         gcongr
     _ = Kc * ε⁻¹ ^ (a + 1) * (1 + L) ^ 3 := by simp only [Kc]; ring
     _ ≤ K * ε⁻¹ ^ (a + 1) * (1 + L) ^ 3 := by gcongr
+
+/-- **The count of the points with exponent `b + 1`**: for every `A ≥ 1` there is `K > 0` such
+that for `0 < ε ≤ 1` a family of points of §3 with doubling heights `log H ≥ K ε^{-K}` has at most
+`K ε^{-(b+1)} (1 + log ε⁻¹)³` members. `Real.card_le_of_cfPoints` gives it with `b = a` from
+`Real.SubspaceBound α a` (`Real.cfCount_of_subspaceBound`); the main argument of (6.1) uses
+nothing else (`Nat.frequently_lt_encard_factors_of_cfCount`). -/
+def CFCount (α b : ℝ) : Prop :=
+  ∀ A : ℝ, 1 ≤ A → ∃ K : ℝ, 0 < K ∧ ∀ ε : ℝ, 0 < ε → ε ≤ 1 → ∀ (Hs Qs : ℕ → ℝ)
+    (vs : ℕ → Fin 4 → ℤ) (I : Finset ℕ), Doubling Hs →
+    (∀ k ∈ I, CFPoint α A ε (vs k) (Hs k) (Qs k)) → (∀ k ∈ I, K * ε⁻¹ ^ K ≤ log (Hs k)) →
+    (#I : ℝ) ≤ K * ε⁻¹ ^ (b + 1) * (1 + log ε⁻¹) ^ 3
+
+/-- **The count from `δ^{-a}` subspaces**: `Real.CFCount α a`. -/
+theorem cfCount_of_subspaceBound (hSB : SubspaceBound α a) (hc : 0 < c)
+    (hL : LiouvilleQuad α c D) (hα : |α| ≤ 1) : CFCount α a :=
+  fun _ hA ↦ card_le_of_cfPoints hSB hA hc hL hα
 
 end Real

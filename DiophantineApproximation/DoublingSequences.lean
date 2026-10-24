@@ -9,6 +9,7 @@ public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Data.Finset.Card
 
 -- Used only inside proofs.
+import Mathlib.Algebra.Order.BigOperators.Group.Finset
 import Mathlib.Analysis.Complex.ExponentialBounds
 import Mathlib.Analysis.SpecialFunctions.Pow.Asymptotics
 import Mathlib.Analysis.SpecificLimits.Normed
@@ -23,7 +24,8 @@ complexity `p n ≤ c n (log n)^u` (`Function.exists_repetitions_of_complexity_l
 every count of Bugeaud–Evertse type:
 
 * a doubling sequence grows geometrically, so a window `t_{n₀} ≤ t_n ≤ R t_{n₀}` holds at most
-  `log R / log 2 + 1` members (`Nat.card_le_of_doubling_window`);
+  `log R / log 2 + 1` members (`Nat.card_le_of_doubling_window`; for real heights growing by a
+  factor `q > 1`, `Real.card_le_of_geometric_window`);
 * with `ε = (log t_{2N})^{-v}` the points `N ≤ n < 2N` satisfy every threshold the Subspace
   Theorem asks for, and a count `K ε^{-p} (1 + log ε⁻¹)^q` of subspaces stays below `N` when
   `p v < 1` (`Real.eventually_doubling_thresholds`): `log t_{2N}` lies between `(2N - 1) log 2`
@@ -33,6 +35,12 @@ every count of Bugeaud–Evertse type:
 
 * `Nat.two_pow_mul_le_of_doubling`: `2 t_n < t_{n+1}` gives `2^k t_i ≤ t_{i+k}`.
 * `Nat.card_le_of_doubling_window`: a window of ratio `R` holds `≤ log R / log 2 + 1` members.
+* `Real.card_le_of_geometric_window`, `Real.card_le_of_forall_mem_window`: the same for real
+  heights `g` with `q g_n ≤ g_{n+1}`, `q > 1`: a window `[s, ρ s)` holds `≤ log ρ / log q + 1`
+  indices, and windows at the points of a finite set `𝒯` hold `≤ #𝒯 (log ρ / log q + 1)`. This is
+  how the interval form of the quantitative Subspace Theorem (`Real.SubspaceIntervalWith`) is
+  counted for points of geometrically growing heights; `Real.log_div_log_two_le` bounds the
+  factor `log ρ / log 2 + 1` for `ρ = K X`.
 * `Real.eventually_doubling_thresholds`: **the thresholds of Bugeaud–Evertse 2008, §7**, for a
   count `K ε^{-p} (1 + log ε⁻¹)^q`.
 
@@ -87,6 +95,81 @@ theorem Nat.card_le_of_doubling_window {t : ℕ → ℕ} (ht : ∀ n, 2 * t n < 
   linarith
 
 namespace Real
+
+/-- **Geometric growth**: `q g_n ≤ g_{n+1}` with `q ≥ 0` gives `q^k g_i ≤ g_{i+k}`. -/
+theorem pow_mul_le_of_geometric {g : ℕ → ℝ} {q : ℝ} (hq : 0 ≤ q) (hg : ∀ n, q * g n ≤ g (n + 1))
+    (i k : ℕ) : q ^ k * g i ≤ g (i + k) := by
+  induction k with
+  | zero => simp
+  | succ k ih =>
+    calc q ^ (k + 1) * g i = q * (q ^ k * g i) := by ring
+      _ ≤ q * g (i + k) := mul_le_mul_of_nonneg_left ih hq
+      _ ≤ g (i + (k + 1)) := hg (i + k)
+
+/-- **A window of geometrically growing heights.** Let `g_n > 0` with `q g_n ≤ g_{n+1}`, `q > 1`.
+The indices `n` with `s ≤ g_n < ρ s` number at most `⌊log ρ / log q⌋ + 1`. -/
+theorem card_le_of_geometric_window {g : ℕ → ℝ} {q : ℝ} (hq : 1 < q) (hg0 : ∀ n, 0 < g n)
+    (hg : ∀ n, q * g n ≤ g (n + 1)) {ρ s : ℝ} (hρ : 1 ≤ ρ) {J : Finset ℕ}
+    (hJ : ∀ n ∈ J, s ≤ g n ∧ g n < ρ * s) : #J ≤ ⌊log ρ / log q⌋₊ + 1 := by
+  rcases J.eq_empty_or_nonempty with rfl | hne
+  · simp
+  set n₀ := J.min' hne with hn₀
+  have hlq : 0 < log q := log_pos hq
+  have hsub : J ⊆ Icc n₀ (n₀ + ⌊log ρ / log q⌋₊) := by
+    intro n hn
+    have h1 : n₀ ≤ n := J.min'_le n hn
+    refine mem_Icc.2 ⟨h1, ?_⟩
+    have hgeo := pow_mul_le_of_geometric (by linarith) hg n₀ (n - n₀)
+    rw [Nat.add_sub_cancel' h1] at hgeo
+    have hs : s ≤ g n₀ := (hJ n₀ (J.min'_mem hne)).1
+    have hlt : q ^ (n - n₀) * g n₀ < ρ * g n₀ :=
+      hgeo.trans_lt ((hJ n hn).2.trans_le (mul_le_mul_of_nonneg_left hs (by linarith)))
+    have hqρ : q ^ (n - n₀) < ρ := lt_of_mul_lt_mul_right hlt (hg0 n₀).le
+    have hlog : ((n - n₀ : ℕ) : ℝ) * log q < log ρ := by
+      rw [← log_pow]
+      exact log_lt_log (by positivity) hqρ
+    have : ((n - n₀ : ℕ) : ℝ) ≤ log ρ / log q := by
+      rw [le_div_iff₀ hlq]
+      exact hlog.le
+    have := Nat.le_floor this
+    omega
+  have hc := card_le_card hsub
+  rw [Nat.card_Icc] at hc
+  omega
+
+/-- **Windows of geometrically growing heights.** Let `g_n > 0` with `q g_n ≤ g_{n+1}`, `q > 1`,
+and `ρ ≥ 1`. If every index of `J` has `s ≤ g_n < ρ s` for some `s ∈ 𝒯`, then
+`#J ≤ #𝒯 (log ρ / log q + 1)`. -/
+theorem card_le_of_forall_mem_window {g : ℕ → ℝ} {q : ℝ} (hq : 1 < q) (hg0 : ∀ n, 0 < g n)
+    (hg : ∀ n, q * g n ≤ g (n + 1)) {ρ : ℝ} (hρ : 1 ≤ ρ) (𝒯 : Finset ℝ) {J : Finset ℕ}
+    (hJ : ∀ n ∈ J, ∃ s ∈ 𝒯, s ≤ g n ∧ g n < ρ * s) :
+    (#J : ℝ) ≤ #𝒯 * (log ρ / log q + 1) := by
+  classical
+  set D := ⌊log ρ / log q⌋₊ with hD
+  have hsub : J ⊆ 𝒯.biUnion fun s ↦ J.filter fun n ↦ s ≤ g n ∧ g n < ρ * s := by
+    intro n hn
+    obtain ⟨s, hs, h⟩ := hJ n hn
+    exact mem_biUnion.2 ⟨s, hs, mem_filter.2 ⟨hn, h⟩⟩
+  have hcard : #J ≤ #𝒯 * (D + 1) := (card_le_card hsub).trans <|
+    card_biUnion_le_card_mul _ _ _ fun s _ ↦
+      card_le_of_geometric_window hq hg0 hg hρ fun n hn ↦ (mem_filter.1 hn).2
+  have hfl : (D : ℝ) ≤ log ρ / log q :=
+    Nat.floor_le (div_nonneg (log_nonneg hρ) (log_pos hq).le)
+  calc (#J : ℝ) ≤ #𝒯 * ((D : ℝ) + 1) := by exact_mod_cast hcard
+    _ ≤ #𝒯 * (log ρ / log q + 1) := by gcongr
+
+/-- **The window factor**: `log (K X) / log 2 + 1 ≤ (2 log K + 3) (1 + log X)` for `K, X ≥ 1`. -/
+theorem log_div_log_two_le {K X : ℝ} (hK : 1 ≤ K) (hX : 1 ≤ X) :
+    log (K * X) / log 2 + 1 ≤ (2 * log K + 3) * (1 + log X) := by
+  have hlK := log_nonneg hK
+  have hlX := log_nonneg hX
+  have hq : 1 / 2 ≤ log (2 : ℝ) := by have := log_two_gt_d9; linarith
+  have hq0 : 0 < log (2 : ℝ) := by linarith
+  rw [log_mul (by linarith) (by linarith)]
+  have : (log K + log X) / log 2 ≤ 2 * (log K + log X) := by
+    rw [div_le_iff₀ hq0]
+    nlinarith
+  nlinarith [mul_nonneg hlK hlX]
 
 /-- **The thresholds of Bugeaud–Evertse 2008, §7.** Let `p, q ≥ 1`, `0 < v`, `p v < 1`,
 `K, L > 0`. For all large `N` and every `t` with `2 t_n < t_{n+1}` and

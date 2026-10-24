@@ -42,6 +42,8 @@ of `(b^t, b^r, p)`; the third coordinate is not `S`-integral, and its `2`-adic s
 
 * `SteeringWord.kernelPoint a c`: the point `(3^c, 2^s 3^a, 2^c (m_c - m_a))`.
 * `SteeringWord.kernelNum a c`: `N = 3^c - 2^s 3^a - 2^c (m_c - m_a)`.
+* `SteeringWord.kernelForms`, `SteeringWord.kernelExp`, `SteeringWord.kernelPadic`,
+  `SteeringWord.kernelClass`: the system of the class `ℓ` of the gap among `k`.
 
 ## Main results
 
@@ -50,6 +52,8 @@ of `(b^t, b^r, p)`; the third coordinate is not `S`-integral, and its `2`-adic s
 * `SteeringWord.subspaceBoundWith_two_three_two`, `SteeringWord.subspaceBoundWith_two_three_three`:
   Evertse–Ferretti's count for integer forms at `∞`, `2` and `3` in two and three variables, with
   `K = 10²¹` and `K = 10²⁴`.
+* `SteeringWord.kernel_class_hyps`, `SteeringWord.kernel_class_mem`: the system of a class is
+  admissible, and the kernel point of a violator solves the system of its class.
 * `SteeringWord.exists_planes_of_violators`: **the three-variable step**; with
   `K = 96 · 10²⁴`, `SteeringWord.exists_planes_of_violators_explicit`.
 
@@ -304,6 +308,218 @@ theorem subspaceBoundWith_two_three_three :
   rw [card_pair (α := Nat.Primes) prime_two_ne_prime_three] at h
   exact h.mono_const (subspaceConst_three_le log_two_add_sum_log_le)
 
+/-! ### The systems of the classes -/
+
+/-- **The forms of the three-variable step**: `X₀ - X₁ - X₂`, `X₁`, `X₂`, with integer
+coefficients. -/
+def kernelForms : Fin 3 → Fin 3 → Fin 3 → ℤ :=
+  ![![![1, 0, 0], ![-1, 0, 0], ![-1, 0, 0]], ![0, ![1, 0, 0], 0], ![0, 0, ![1, 0, 0]]]
+
+theorem abs_kernelForms_le (i j m : Fin 3) : |(kernelForms i j m : ℝ)| ≤ 1 := by
+  fin_cases i <;> fin_cases j <;> fin_cases m <;> simp [kernelForms]
+
+theorem one_le_abs_det_kernelForms :
+    (1 : ℝ) ≤ |(Matrix.of fun i j ↦ quadVal 0 (kernelForms i j)).det| := by
+  simp [Matrix.det_fin_three, quadVal, kernelForms]
+
+/-- **The exponents at `∞` of the class `ℓ` among `k`**: `λ - ε`, `1 - (1 - λ) ℓ / k`, `1`,
+`λ = log 2 / log 3`. -/
+noncomputable def kernelExp (ε : ℝ) (k ℓ : ℕ) : Fin 3 → ℝ :=
+  ![logb 3 2 - ε, 1 - (1 - logb 3 2) * ℓ / k, 1]
+
+/-- **The exponents at `2` and `3` of the class `ℓ` among `k`**: `0`, `-λ ℓ / k`, `-λ` at `2`
+and `-1`, `-(1 - (ℓ + 1) / k)`, `0` at `3`. -/
+noncomputable def kernelPadic (k ℓ : ℕ) : Nat.Primes → Fin 3 → ℝ := fun l ↦
+  if (l : ℕ) = 2 then ![0, -(logb 3 2 * ℓ / k), -logb 3 2] else ![-1, -(1 - (ℓ + 1) / k), 0]
+
+theorem kernelPadic_two (k ℓ : ℕ) : kernelPadic k ℓ ⟨2, Nat.prime_two⟩ =
+    (![0, -(logb 3 2 * ℓ / k), -logb 3 2] : Fin 3 → ℝ) := rfl
+
+theorem kernelPadic_three (k ℓ : ℕ) : kernelPadic k ℓ ⟨3, Nat.prime_three⟩ =
+    (![-1, -(1 - ((ℓ : ℝ) + 1) / k), 0] : Fin 3 → ℝ) := rfl
+
+/-- **The class of the gap** of a pair `a < c` among `k` classes: `⌊k (c - a) / c⌋`. -/
+def kernelClass (k a c : ℕ) : ℕ := k * (c - a) / c
+
+/-- **The system of a class is admissible**: for `k > 2 / ε` and `ℓ < k`, the exponents of the
+class `ℓ` meet the hypotheses of `Real.SubspaceBoundWith` with `δ = ε - 1/k`. -/
+theorem kernel_class_hyps {ε : ℝ} (hε : 0 < ε) {k ℓ : ℕ} (hk : 2 / ε < k) (hℓ : ℓ < k) :
+    (∀ i, kernelExp ε k ℓ i ≤ 1) ∧ (∃ i, kernelExp ε k ℓ i = 1) ∧
+      (∃ i, kernelExp ε k ℓ i ≤ 1 - (ε - 1 / k) / (2 * ((3 : ℕ) : ℝ))) ∧
+      (∀ l ∈ ({⟨2, Nat.prime_two⟩, ⟨3, Nat.prime_three⟩} : Finset Nat.Primes), ∀ i,
+        kernelPadic k ℓ l i ≤ 0) ∧
+      (∀ l ∈ ({⟨2, Nat.prime_two⟩, ⟨3, Nat.prime_three⟩} : Finset Nat.Primes), ∃ i,
+        kernelPadic k ℓ l i = 0) ∧
+      ∑ i, kernelExp ε k ℓ i + ∑ l ∈ ({⟨2, Nat.prime_two⟩, ⟨3, Nat.prime_three⟩} :
+        Finset Nat.Primes), ∑ i, kernelPadic k ℓ l i ≤ -(ε - 1 / k) := by
+  have hlam0 : 0 < logb 3 2 := logb_three_two_pos
+  have hlam1 : logb 3 2 ≤ 2 / 3 := logb_three_two_le
+  have hkpos : (0 : ℝ) < k := (by positivity : (0 : ℝ) < 2 / ε).trans hk
+  have hkε : 1 / k < ε / 2 := by
+    rw [div_lt_iff₀ hkpos]
+    rw [div_lt_iff₀ hε] at hk
+    linarith
+  refine ⟨fun i ↦ ?_, ⟨2, by simp [kernelExp]⟩, ⟨0, ?_⟩, fun l hl i ↦ ?_, fun l hl ↦ ?_, ?_⟩
+  · have : 0 ≤ (1 - logb 3 2) * ℓ / k := div_nonneg (mul_nonneg (by linarith) ℓ.cast_nonneg)
+      hkpos.le
+    fin_cases i <;> simp [kernelExp] <;> linarith
+  · have : 0 < (k : ℝ)⁻¹ := by positivity
+    simp [kernelExp]
+    linarith
+  · have hℓk : ((ℓ : ℝ) + 1) / k ≤ 1 := by rw [div_le_one hkpos]; exact_mod_cast hℓ
+    have hℓ0 : 0 ≤ logb 3 2 * ℓ / k := by positivity
+    rcases mem_insert.mp hl with rfl | hl
+    · rw [kernelPadic_two]; fin_cases i <;> simp <;> linarith
+    · obtain rfl := Finset.mem_singleton.mp hl
+      rw [kernelPadic_three]; fin_cases i <;> simp; linarith
+  · rcases mem_insert.mp hl with rfl | hl
+    · exact ⟨0, by rw [kernelPadic_two]; simp⟩
+    · obtain rfl := Finset.mem_singleton.mp hl
+      exact ⟨2, by rw [kernelPadic_three]; simp⟩
+  · rw [sum_pair (ι := Nat.Primes) prime_two_ne_prime_three, kernelPadic_two, kernelPadic_three]
+    simp only [kernelExp, Fin.sum_univ_three, Matrix.cons_val_zero, Matrix.cons_val_one,
+      Matrix.cons_val_two, Matrix.head_cons, Matrix.tail_cons]
+    field_simp
+    ring_nf
+    linarith
+
+/-- **The kernel point of a violator solves the system of its class**: for `k > 0`, a pair
+`2 ≤ a < c` with `|ε_c - ε_a| ≤ (3^c)^{-ε}` has its class `ℓ = kernelClass k a c < k`, and its
+kernel point, of size `3^c`, solves the inequalities of `Real.SubspaceBoundWith` for
+`kernelForms`, the constant `1` and the exponents of the class `ℓ`. -/
+theorem kernel_class_mem {ε : ℝ} {k : ℕ} (hk : 0 < k) {a c : ℕ} (ha : 2 ≤ a) (hac : a < c)
+    (happ : |(eps c : ℝ) - eps a| ≤ ((3 : ℝ) ^ c) ^ (-ε)) :
+    kernelClass k a c < k ∧ kernelPoint a c ≠ 0 ∧
+      (∀ i, |∑ j, quadVal 0 (kernelForms i j) * (kernelPoint a c j : ℝ)| ≤
+        1 * (⨆ j, |(kernelPoint a c j : ℝ)|) ^ kernelExp ε k (kernelClass k a c) i) ∧
+      ∀ l ∈ ({⟨2, Nat.prime_two⟩, ⟨3, Nat.prime_three⟩} : Finset Nat.Primes), ∀ i,
+        ((padicNorm (l : ℕ) (kernelPoint a c i : ℚ) : ℚ) : ℝ) ≤
+          (⨆ j, |(kernelPoint a c j : ℝ)|) ^ kernelPadic k (kernelClass k a c) l i := by
+  set lam := logb 3 2 with hlam
+  have hlam0 : 0 < lam := logb_three_two_pos
+  have hlam1 : lam ≤ 2 / 3 := logb_three_two_le
+  have hkpos : (0 : ℝ) < k := by exact_mod_cast hk
+  set s := c - a with hs
+  set ℓ := kernelClass k a c with hℓdef
+  have hcpos : 0 < c := by omega
+  have hℓk : ℓ < k := by
+    rw [hℓdef, kernelClass, Nat.div_lt_iff_lt_mul hcpos]
+    exact Nat.mul_lt_mul_of_pos_left (by omega) (by omega)
+  have hℓ1 : (ℓ : ℝ) * c ≤ k * s := by exact_mod_cast Nat.div_mul_le_self (k * s) c
+  have hℓ2 : (k : ℝ) * s < (ℓ + 1) * c := by
+    have := Nat.lt_mul_div_succ (k * s) hcpos
+    have : (k * s : ℝ) < c * (ℓ + 1) := by exact_mod_cast this
+    linarith
+  have hsa : (s : ℝ) + a = c := by rw [hs]; exact_mod_cast Nat.sub_add_cancel hac.le
+  set x := kernelPoint a c with hx
+  have hX := iSup_abs_kernelPoint ha hac
+  have hx0 : x ≠ 0 := fun h ↦ by
+    have := congrFun h 0
+    simp [x, kernelPoint] at this
+  refine ⟨hℓk, hx0, ?_⟩
+  -- everything as a power of `3`
+  have hpow : ∀ y : ℝ, ((3 : ℝ) ^ c) ^ y = (3 : ℝ) ^ (c * y) := fun y ↦ by
+    rw [← rpow_natCast, ← rpow_mul (by norm_num)]
+  have h3 : ∀ n : ℕ, (3 : ℝ) ^ n = (3 : ℝ) ^ (n : ℝ) := fun n ↦ (rpow_natCast 3 n).symm
+  have hle : ∀ y z : ℝ, y ≤ z → (3 : ℝ) ^ y ≤ (3 : ℝ) ^ z := fun y z h ↦
+    rpow_le_rpow_of_exponent_le (by norm_num) h
+  have hZ := kernelPoint_two_bounds ha hac
+  have hinf : ∀ i, |∑ j, quadVal 0 (kernelForms i j) * x j| ≤
+      1 * (⨆ j, |(x j : ℝ)|) ^ kernelExp ε k ℓ i := by
+    rw [hX]
+    intro i
+    fin_cases i
+    · change |∑ j, quadVal 0 (kernelForms 0 j) * (x j : ℝ)| ≤ 1 * ((3 : ℝ) ^ c) ^ (lam - ε)
+      have hN : ∑ j, quadVal 0 (kernelForms 0 j) * (x j : ℝ) = kernelNum a c := by
+        simp [kernelForms, quadVal, x, kernelPoint, kernelNum, Fin.sum_univ_three]
+        ring
+      rw [hN, kernelNum_eq_real hac.le, abs_mul, abs_of_pos (by positivity), one_mul]
+      calc (2 : ℝ) ^ c * |(eps c : ℝ) - eps a| ≤ 2 ^ c * ((3 : ℝ) ^ c) ^ (-ε) :=
+            mul_le_mul_of_nonneg_left happ (by positivity)
+        _ = ((3 : ℝ) ^ c) ^ (lam - ε) := by
+            rw [hpow, hpow, two_pow_eq_three_rpow, ← rpow_add (by norm_num)]
+            congr 1
+            ring
+    · change |∑ j, quadVal 0 (kernelForms 1 j) * (x j : ℝ)| ≤
+        1 * ((3 : ℝ) ^ c) ^ (1 - (1 - lam) * ℓ / k)
+      have h1 : ∑ j, quadVal 0 (kernelForms 1 j) * (x j : ℝ) = (2 : ℝ) ^ s * 3 ^ a := by
+        simp [kernelForms, quadVal, x, kernelPoint, Fin.sum_univ_three, hs]
+      rw [h1, abs_of_pos (by positivity), one_mul, two_pow_eq_three_rpow, h3,
+        ← rpow_add (by norm_num), hpow]
+      refine hle _ _ ?_
+      have hcl : (c : ℝ) * ℓ / k ≤ s := by rw [div_le_iff₀ hkpos]; linarith
+      have h1l : 0 ≤ 1 - lam := by linarith
+      calc lam * s + a = c - (1 - lam) * s := by linarith
+        _ ≤ c - (1 - lam) * (c * ℓ / k) := by nlinarith
+        _ = c * (1 - (1 - lam) * ℓ / k) := by ring
+    · change |∑ j, quadVal 0 (kernelForms 2 j) * (x j : ℝ)| ≤ 1 * ((3 : ℝ) ^ c) ^ (1 : ℝ)
+      have h2 : ∑ j, quadVal 0 (kernelForms 2 j) * (x j : ℝ) = ((2 ^ c * (m c - m a) : ℤ) : ℝ) := by
+        simp [kernelForms, quadVal, x, kernelPoint, Fin.sum_univ_three]
+      rw [h2, one_mul, rpow_one, abs_of_pos (by exact_mod_cast hZ.1)]
+      exact_mod_cast hZ.2.le
+  have hpad : ∀ l ∈ ({⟨2, Nat.prime_two⟩, ⟨3, Nat.prime_three⟩} : Finset Nat.Primes), ∀ i,
+      ((padicNorm (l : ℕ) (x i : ℚ) : ℚ) : ℝ) ≤ (⨆ j, |(x j : ℝ)|) ^ kernelPadic k ℓ l i := by
+    rw [hX]
+    intro l hl i
+    rcases mem_insert.mp hl with rfl | hl
+    · have := Fact.mk Nat.prime_two
+      rw [kernelPadic_two]
+      fin_cases i
+      · change ((padicNorm 2 (x 0 : ℚ) : ℚ) : ℝ) ≤ ((3 : ℝ) ^ c) ^ (0 : ℝ)
+        rw [rpow_zero]
+        exact padicNorm_intCast_le_one 2 _
+      · change ((padicNorm 2 (x 1 : ℚ) : ℚ) : ℝ) ≤ ((3 : ℝ) ^ c) ^ (-(lam * ℓ / k))
+        calc ((padicNorm 2 (x 1 : ℚ) : ℚ) : ℝ) ≤ (1 / 2 : ℝ) ^ s :=
+              padicNorm_intCast_le_of_dvd (by
+                change ((2 : ℕ) : ℤ) ^ s ∣ 2 ^ s * 3 ^ a
+                exact_mod_cast dvd_mul_right _ _)
+          _ = (3 : ℝ) ^ (-(lam * s)) := by
+              rw [one_div_pow, one_div, two_pow_eq_three_rpow, ← rpow_neg (by norm_num)]
+          _ ≤ (3 : ℝ) ^ (c * (-(lam * ℓ / k))) := hle _ _ (by
+              have hcl : (c : ℝ) * ℓ / k ≤ s := by rw [div_le_iff₀ hkpos]; linarith
+              have : (c : ℝ) * (lam * ℓ / k) = lam * (c * ℓ / k) := by ring
+              nlinarith)
+          _ = ((3 : ℝ) ^ c) ^ (-(lam * ℓ / k)) := (hpow _).symm
+      · change ((padicNorm 2 (x 2 : ℚ) : ℚ) : ℝ) ≤ ((3 : ℝ) ^ c) ^ (-lam)
+        calc ((padicNorm 2 (x 2 : ℚ) : ℚ) : ℝ) ≤ (1 / 2 : ℝ) ^ c :=
+              padicNorm_intCast_le_of_dvd (by
+                change ((2 : ℕ) : ℤ) ^ c ∣ 2 ^ c * (m c - m a)
+                exact_mod_cast dvd_mul_right _ _)
+          _ = ((3 : ℝ) ^ c) ^ (-lam) := by
+              rw [one_div_pow, one_div, two_pow_eq_three_rpow, ← rpow_neg (by norm_num),
+                hpow]
+              congr 1
+              ring
+    · obtain rfl := Finset.mem_singleton.mp hl
+      have := Fact.mk Nat.prime_three
+      rw [kernelPadic_three]
+      fin_cases i
+      · change ((padicNorm 3 (x 0 : ℚ) : ℚ) : ℝ) ≤ ((3 : ℝ) ^ c) ^ (-1 : ℝ)
+        calc ((padicNorm 3 (x 0 : ℚ) : ℚ) : ℝ) ≤ (1 / 3 : ℝ) ^ c :=
+              padicNorm_intCast_le_of_dvd (by
+                change ((3 : ℕ) : ℤ) ^ c ∣ 3 ^ c
+                exact_mod_cast dvd_refl _)
+          _ = ((3 : ℝ) ^ c) ^ (-1 : ℝ) := by
+              rw [rpow_neg_one, one_div_pow, one_div]
+      · change ((padicNorm 3 (x 1 : ℚ) : ℚ) : ℝ) ≤
+          ((3 : ℝ) ^ c) ^ (-(1 - ((ℓ : ℝ) + 1) / k))
+        calc ((padicNorm 3 (x 1 : ℚ) : ℚ) : ℝ) ≤ (1 / 3 : ℝ) ^ a :=
+              padicNorm_intCast_le_of_dvd (by
+                change ((3 : ℕ) : ℤ) ^ a ∣ 2 ^ s * 3 ^ a
+                exact_mod_cast dvd_mul_left _ _)
+          _ = (3 : ℝ) ^ (-(a : ℝ)) := by
+              rw [one_div_pow, one_div, h3, ← rpow_neg (by norm_num)]
+          _ ≤ (3 : ℝ) ^ (c * (-(1 - ((ℓ : ℝ) + 1) / k))) := hle _ _ (by
+              have : (s : ℝ) ≤ c * (((ℓ : ℝ) + 1) / k) := by
+                rw [mul_div_assoc', le_div_iff₀ hkpos]
+                linarith
+              linarith)
+          _ = ((3 : ℝ) ^ c) ^ (-(1 - ((ℓ : ℝ) + 1) / k)) := (hpow _).symm
+      · change ((padicNorm 3 (x 2 : ℚ) : ℚ) : ℝ) ≤ ((3 : ℝ) ^ c) ^ (0 : ℝ)
+        rw [rpow_zero]
+        exact padicNorm_intCast_le_one 3 _
+  exact ⟨hinf, hpad⟩
+
 /-- **The three-variable step** (Bugeaud–Evertse 2008, (7.3)–(7.11), for the kernel points, with
 Evertse–Ferretti's count), with `K = 96 · 10²⁴`: for `0 < ε ≤ 1` the kernel points of the pairs
 `2 ≤ a < c` with `|ε_c - ε_a| ≤ (3^c)^{-ε}` and `K ε⁻¹ ≤ c log 3` lie in at most
@@ -314,14 +530,10 @@ theorem exists_planes_of_violators_explicit {ε : ℝ} (hε : 0 < ε) (hε1 : ε
       ∀ a c : ℕ, 2 ≤ a → a < c → |(eps c : ℝ) - eps a| ≤ ((3 : ℝ) ^ c) ^ (-ε) →
         96 * 10 ^ 24 * ε⁻¹ ≤ c * log 3 → ∃ U ∈ T, (fun i ↦ (kernelPoint a c i : ℚ)) ∈ U := by
   classical
-  set S : Finset Nat.Primes := {⟨2, Nat.prime_two⟩, ⟨3, Nat.prime_three⟩} with hS
-  have h23 : (⟨2, Nat.prime_two⟩ : Nat.Primes) ≠ ⟨3, Nat.prime_three⟩ := by decide
-  have hBE : SubspaceBoundWith 0 S 3 3 (10 ^ 24) := subspaceBoundWith_two_three_three
+  have hBE : SubspaceBoundWith 0 {⟨2, Nat.prime_two⟩, ⟨3, Nat.prime_three⟩} 3 3 (10 ^ 24) :=
+    subspaceBoundWith_two_three_three
   set K₀ : ℝ := 10 ^ 24 with hK₀def
   have hK₀ : 0 < K₀ := by positivity
-  set lam := logb 3 2 with hlam
-  have hlam0 : 0 < lam := logb_three_two_pos
-  have hlam1 : lam ≤ 2 / 3 := logb_three_two_le
   -- the classes and the weight `δ = ε - 1/k`
   set k : ℕ := ⌊2 / ε⌋₊ + 1 with hk
   have hk2 : 2 / ε < k := by rw [hk]; push_cast; exact Nat.lt_floor_add_one _
@@ -344,47 +556,10 @@ theorem exists_planes_of_violators_explicit {ε : ℝ} (hε : 0 < ε) (hε1 : ε
   have hδinv : δ⁻¹ ≤ 2 * ε⁻¹ := by
     calc δ⁻¹ ≤ (ε / 2)⁻¹ := inv_anti₀ (by positivity) hδ0
       _ = 2 * ε⁻¹ := by rw [inv_div, div_eq_mul_inv]
-  -- the forms, the exponents
-  set P : Fin 3 → Fin 3 → Fin 3 → ℤ :=
-    ![![![1, 0, 0], ![-1, 0, 0], ![-1, 0, 0]], ![0, ![1, 0, 0], 0], ![0, 0, ![1, 0, 0]]] with hP
-  have hPB : ∀ i j m, |(P i j m : ℝ)| ≤ 1 := by
-    intro i j m; fin_cases i <;> fin_cases j <;> fin_cases m <;> simp [P]
-  have hdet : (1 : ℝ) ≤ |(Matrix.of fun i j ↦ quadVal 0 (P i j)).det| := by
-    simp [Matrix.det_fin_three, quadVal, P]
-  set e : ℕ → Fin 3 → ℝ := fun ℓ ↦ ![lam - ε, 1 - (1 - lam) * ℓ / k, 1] with he
-  set f : ℕ → Nat.Primes → Fin 3 → ℝ := fun ℓ l ↦
-    if (l : ℕ) = 2 then ![0, -(lam * ℓ / k), -lam] else ![-1, -(1 - (ℓ + 1) / k), 0] with hf
-  have hf2 : ∀ ℓ : ℕ, f ℓ ⟨2, Nat.prime_two⟩ = (![0, -(lam * ℓ / k), -lam] : Fin 3 → ℝ) :=
-    fun _ ↦ rfl
-  have hf3 : ∀ ℓ : ℕ, f ℓ ⟨3, Nat.prime_three⟩ =
-      (![-1, -(1 - ((ℓ : ℝ) + 1) / k), 0] : Fin 3 → ℝ) := fun _ ↦ rfl
-  have hclass := fun ℓ (hℓ : ℓ < k) ↦ hBE P 1 le_rfl hPB 1 one_pos le_rfl hdet 1 le_rfl (e ℓ)
-    (f ℓ) δ hδpos hδ1
-    (fun i ↦ by
-      have : 0 ≤ (1 - lam) * ℓ / k := div_nonneg (mul_nonneg (by linarith) ℓ.cast_nonneg)
-        hkpos.le
-      fin_cases i <;> simp [e] <;> linarith)
-    ⟨2, by simp [e]⟩
-    ⟨0, by simp [e]; linarith⟩
-    (fun l hl i ↦ by
-      have hℓk : ((ℓ : ℝ) + 1) / k ≤ 1 := by rw [div_le_one hkpos]; exact_mod_cast hℓ
-      have hℓ0 : 0 ≤ lam * ℓ / k := by positivity
-      rcases mem_insert.mp hl with rfl | hl
-      · rw [hf2]; fin_cases i <;> simp <;> linarith
-      · obtain rfl := Finset.mem_singleton.mp hl
-        rw [hf3]; fin_cases i <;> simp; linarith)
-    (fun l hl ↦ by
-      rcases mem_insert.mp hl with rfl | hl
-      · exact ⟨0, by rw [hf2]; simp⟩
-      · obtain rfl := Finset.mem_singleton.mp hl
-        exact ⟨2, by rw [hf3]; simp⟩)
-    (by
-      rw [hS, sum_pair (ι := Nat.Primes) h23, hf2, hf3]
-      simp only [e, Fin.sum_univ_three, Matrix.cons_val_zero, Matrix.cons_val_one,
-        Matrix.cons_val_two, Matrix.head_cons, Matrix.tail_cons, hδ]
-      field_simp
-      ring_nf
-      linarith)
+  have hclass := fun ℓ (hℓ : ℓ < k) ↦ by
+    obtain ⟨h1, h2, h3, h4, h5, h6⟩ := kernel_class_hyps hε hk2 hℓ
+    exact hBE kernelForms 1 le_rfl abs_kernelForms_le 1 one_pos le_rfl one_le_abs_det_kernelForms
+      1 le_rfl (kernelExp ε k ℓ) (kernelPadic k ℓ) δ hδpos hδ1 h1 h2 h3 h4 h5 h6
   choose! T hTcard hTtop hTmem using hclass
   refine ⟨(range k).biUnion T, ?_, ?_, ?_⟩
   · -- the count
@@ -414,134 +589,18 @@ theorem exists_planes_of_violators_explicit {ε : ℝ} (hε : 0 < ε) (hε1 : ε
     obtain ⟨ℓ, hℓ, hUℓ⟩ := mem_biUnion.mp hU
     exact hTtop ℓ (mem_range.mp hℓ) U hUℓ
   · intro a c ha hac happ hthr
-    -- the class of the gap `s`
-    set s := c - a with hs
-    set ℓ := k * s / c with hℓdef
-    have hcpos : 0 < c := by omega
-    have hℓk : ℓ < k := by
-      rw [hℓdef, Nat.div_lt_iff_lt_mul hcpos]
-      exact Nat.mul_lt_mul_of_pos_left (by omega) (by omega)
-    have hℓ1 : (ℓ : ℝ) * c ≤ k * s := by exact_mod_cast Nat.div_mul_le_self (k * s) c
-    have hℓ2 : (k : ℝ) * s < (ℓ + 1) * c := by
-      have := Nat.lt_mul_div_succ (k * s) hcpos
-      have : (k * s : ℝ) < c * (ℓ + 1) := by exact_mod_cast this
-      linarith
-    have hsa : (s : ℝ) + a = c := by rw [hs]; exact_mod_cast Nat.sub_add_cancel hac.le
-    set x := kernelPoint a c with hx
-    have hX := iSup_abs_kernelPoint ha hac
-    have hx0 : x ≠ 0 := fun h ↦ by
-      have := congrFun h 0
-      simp [x, kernelPoint] at this
-    -- everything as a power of `3`
-    have hpow : ∀ y : ℝ, ((3 : ℝ) ^ c) ^ y = (3 : ℝ) ^ (c * y) := fun y ↦ by
-      rw [← rpow_natCast, ← rpow_mul (by norm_num)]
-    have h3 : ∀ n : ℕ, (3 : ℝ) ^ n = (3 : ℝ) ^ (n : ℝ) := fun n ↦ (rpow_natCast 3 n).symm
-    have hle : ∀ y z : ℝ, y ≤ z → (3 : ℝ) ^ y ≤ (3 : ℝ) ^ z := fun y z h ↦
-      rpow_le_rpow_of_exponent_le (by norm_num) h
-    have hZ := kernelPoint_two_bounds ha hac
-    have hinf : ∀ i, |∑ j, quadVal 0 (P i j) * x j| ≤ 1 * (⨆ k, |(x k : ℝ)|) ^ e ℓ i := by
-      rw [hX]
-      intro i
-      fin_cases i
-      · change |∑ j, quadVal 0 (P 0 j) * (x j : ℝ)| ≤ 1 * ((3 : ℝ) ^ c) ^ (lam - ε)
-        have hN : ∑ j, quadVal 0 (P 0 j) * (x j : ℝ) = kernelNum a c := by
-          simp [P, quadVal, x, kernelPoint, kernelNum, Fin.sum_univ_three]
-          ring
-        rw [hN, kernelNum_eq_real hac.le, abs_mul, abs_of_pos (by positivity), one_mul]
-        calc (2 : ℝ) ^ c * |(eps c : ℝ) - eps a| ≤ 2 ^ c * ((3 : ℝ) ^ c) ^ (-ε) :=
-              mul_le_mul_of_nonneg_left happ (by positivity)
-          _ = ((3 : ℝ) ^ c) ^ (lam - ε) := by
-              rw [hpow, hpow, two_pow_eq_three_rpow, ← rpow_add (by norm_num)]
-              congr 1
-              ring
-      · change |∑ j, quadVal 0 (P 1 j) * (x j : ℝ)| ≤
-          1 * ((3 : ℝ) ^ c) ^ (1 - (1 - lam) * ℓ / k)
-        have h1 : ∑ j, quadVal 0 (P 1 j) * (x j : ℝ) = (2 : ℝ) ^ s * 3 ^ a := by
-          simp [P, quadVal, x, kernelPoint, Fin.sum_univ_three, hs]
-        rw [h1, abs_of_pos (by positivity), one_mul, two_pow_eq_three_rpow, h3,
-          ← rpow_add (by norm_num), hpow]
-        refine hle _ _ ?_
-        have hcl : (c : ℝ) * ℓ / k ≤ s := by rw [div_le_iff₀ hkpos]; linarith
-        have h1l : 0 ≤ 1 - lam := by linarith
-        calc lam * s + a = c - (1 - lam) * s := by linarith
-          _ ≤ c - (1 - lam) * (c * ℓ / k) := by nlinarith
-          _ = c * (1 - (1 - lam) * ℓ / k) := by ring
-      · change |∑ j, quadVal 0 (P 2 j) * (x j : ℝ)| ≤ 1 * ((3 : ℝ) ^ c) ^ (1 : ℝ)
-        have h2 : ∑ j, quadVal 0 (P 2 j) * (x j : ℝ) = ((2 ^ c * (m c - m a) : ℤ) : ℝ) := by
-          simp [P, quadVal, x, kernelPoint, Fin.sum_univ_three]
-        rw [h2, one_mul, rpow_one, abs_of_pos (by exact_mod_cast hZ.1)]
-        exact_mod_cast hZ.2.le
-    have hpad : ∀ l ∈ S, ∀ i, ((padicNorm (l : ℕ) (x i : ℚ) : ℚ) : ℝ) ≤
-        (⨆ k, |(x k : ℝ)|) ^ f ℓ l i := by
-      rw [hX]
-      intro l hl i
-      rcases mem_insert.mp hl with rfl | hl
-      · have := Fact.mk Nat.prime_two
-        rw [hf2]
-        fin_cases i
-        · change ((padicNorm 2 (x 0 : ℚ) : ℚ) : ℝ) ≤ ((3 : ℝ) ^ c) ^ (0 : ℝ)
-          rw [rpow_zero]
-          exact padicNorm_intCast_le_one 2 _
-        · change ((padicNorm 2 (x 1 : ℚ) : ℚ) : ℝ) ≤ ((3 : ℝ) ^ c) ^ (-(lam * ℓ / k))
-          calc ((padicNorm 2 (x 1 : ℚ) : ℚ) : ℝ) ≤ (1 / 2 : ℝ) ^ s :=
-                padicNorm_intCast_le_of_dvd (by
-                  change ((2 : ℕ) : ℤ) ^ s ∣ 2 ^ s * 3 ^ a
-                  exact_mod_cast dvd_mul_right _ _)
-            _ = (3 : ℝ) ^ (-(lam * s)) := by
-                rw [one_div_pow, one_div, two_pow_eq_three_rpow, ← rpow_neg (by norm_num)]
-            _ ≤ (3 : ℝ) ^ (c * (-(lam * ℓ / k))) := hle _ _ (by
-                have hcl : (c : ℝ) * ℓ / k ≤ s := by rw [div_le_iff₀ hkpos]; linarith
-                have : (c : ℝ) * (lam * ℓ / k) = lam * (c * ℓ / k) := by ring
-                nlinarith)
-            _ = ((3 : ℝ) ^ c) ^ (-(lam * ℓ / k)) := (hpow _).symm
-        · change ((padicNorm 2 (x 2 : ℚ) : ℚ) : ℝ) ≤ ((3 : ℝ) ^ c) ^ (-lam)
-          calc ((padicNorm 2 (x 2 : ℚ) : ℚ) : ℝ) ≤ (1 / 2 : ℝ) ^ c :=
-                padicNorm_intCast_le_of_dvd (by
-                  change ((2 : ℕ) : ℤ) ^ c ∣ 2 ^ c * (m c - m a)
-                  exact_mod_cast dvd_mul_right _ _)
-            _ = ((3 : ℝ) ^ c) ^ (-lam) := by
-                rw [one_div_pow, one_div, two_pow_eq_three_rpow, ← rpow_neg (by norm_num),
-                  hpow]
-                congr 1
-                ring
-      · obtain rfl := Finset.mem_singleton.mp hl
-        have := Fact.mk Nat.prime_three
-        rw [hf3]
-        fin_cases i
-        · change ((padicNorm 3 (x 0 : ℚ) : ℚ) : ℝ) ≤ ((3 : ℝ) ^ c) ^ (-1 : ℝ)
-          calc ((padicNorm 3 (x 0 : ℚ) : ℚ) : ℝ) ≤ (1 / 3 : ℝ) ^ c :=
-                padicNorm_intCast_le_of_dvd (by
-                  change ((3 : ℕ) : ℤ) ^ c ∣ 3 ^ c
-                  exact_mod_cast dvd_refl _)
-            _ = ((3 : ℝ) ^ c) ^ (-1 : ℝ) := by
-                rw [rpow_neg_one, one_div_pow, one_div]
-        · change ((padicNorm 3 (x 1 : ℚ) : ℚ) : ℝ) ≤
-            ((3 : ℝ) ^ c) ^ (-(1 - ((ℓ : ℝ) + 1) / k))
-          calc ((padicNorm 3 (x 1 : ℚ) : ℚ) : ℝ) ≤ (1 / 3 : ℝ) ^ a :=
-                padicNorm_intCast_le_of_dvd (by
-                  change ((3 : ℕ) : ℤ) ^ a ∣ 2 ^ s * 3 ^ a
-                  exact_mod_cast dvd_mul_left _ _)
-            _ = (3 : ℝ) ^ (-(a : ℝ)) := by
-                rw [one_div_pow, one_div, h3, ← rpow_neg (by norm_num)]
-            _ ≤ (3 : ℝ) ^ (c * (-(1 - ((ℓ : ℝ) + 1) / k))) := hle _ _ (by
-                have : (s : ℝ) ≤ c * (((ℓ : ℝ) + 1) / k) := by
-                  rw [mul_div_assoc', le_div_iff₀ hkpos]
-                  linarith
-                linarith)
-            _ = ((3 : ℝ) ^ c) ^ (-(1 - ((ℓ : ℝ) + 1) / k)) := (hpow _).symm
-        · change ((padicNorm 3 (x 2 : ℚ) : ℚ) : ℝ) ≤ ((3 : ℝ) ^ c) ^ (0 : ℝ)
-          rw [rpow_zero]
-          exact padicNorm_intCast_le_one 3 _
-    have hthr' : K₀ * δ⁻¹ * (1 + log 1 + log 1 + log (1 : ℝ)⁻¹) ≤ log (⨆ k, |(x k : ℝ)|) := by
-      rw [hX, log_pow]
+    obtain ⟨hℓk, hx0, hinf, hpad⟩ := kernel_class_mem (by exact_mod_cast hkpos) ha hac happ
+    have hthr' : K₀ * δ⁻¹ * (1 + log 1 + log 1 + log (1 : ℝ)⁻¹) ≤
+        log (⨆ k, |(kernelPoint a c k : ℝ)|) := by
+      rw [iSup_abs_kernelPoint ha hac, log_pow]
       simp only [log_one, inv_one, add_zero, mul_one]
       calc K₀ * δ⁻¹ ≤ K₀ * (2 * ε⁻¹) := by gcongr
         _ ≤ 96 * K₀ * ε⁻¹ := by
             have : 0 ≤ K₀ * ε⁻¹ := by positivity
             linarith
         _ ≤ c * log 3 := hthr
-    obtain ⟨U, hU, hmem⟩ := hTmem ℓ hℓk x hx0 hinf hpad hthr'
-    exact ⟨U, mem_biUnion.mpr ⟨ℓ, mem_range.mpr hℓk, hU⟩, hmem⟩
+    obtain ⟨U, hU, hmem⟩ := hTmem _ hℓk _ hx0 hinf hpad hthr'
+    exact ⟨U, mem_biUnion.mpr ⟨_, mem_range.mpr hℓk, hU⟩, hmem⟩
 
 /-- **The three-variable step** (Bugeaud–Evertse 2008, (7.3)–(7.11), for the kernel points, with
 Evertse–Ferretti's count). There is `K > 0` such that for `0 < ε ≤ 1` the kernel points of the

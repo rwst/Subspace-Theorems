@@ -6,9 +6,11 @@ number of factors of length `n` of `a₁ a₂ …` exceeds `C n (log n)^δ` for 
 
 | statement | `δ` | Subspace count used |
 |---|---|---|
+| `Nat.frequently_lt_encard_factors_of_lt_third` | `0 ≤ δ < 1/3` | Evertse–Ferretti 2013 in interval form (`Real.subspaceInterval_of_isAlgebraic`, proved) |
 | `Nat.frequently_lt_encard_factors_of_lt_quarter` | `0 ≤ δ < 1/4` | Evertse–Ferretti 2013 (`Real.subspaceBound_three`, proved) |
 | `Nat.frequently_lt_encard_factors_of_lt_ninth` | `0 ≤ δ < 1/9` | the shape of Evertse–Schlickewei 2002, `δ^{-(n+4)}` at `n = 4` (`SubspaceBound.mono`) |
 | `Nat.frequently_lt_encard_factors` | `(b+1) δ < 1` | any `Real.SubspaceBound α b` |
+| `Nat.frequently_lt_encard_factors_of_cfCount` | `(b+1) δ < 1` | any count `Real.CFCount α b` of the points |
 
 ES02 itself is not formalized. Its exponent 8 is weaker than EF13's 3, so the `1/9` statement
 follows from the proved EF13 count.
@@ -23,11 +25,13 @@ follows from the proved EF13 count.
 | `Forms.lean` | the forms of the subspace applications; `det = ±z_j² Λ`; cross product |
 | `Hyperplanes.lean` | the 3-variable applications on `z^⊥` and on `T₀ = {X₂ = X₃}` |
 | `Subspaces.lean` | a proper subspace holds `O(log 1/ε)` points off `T₀` |
-| `Count.lean` | `card_le_of_cfPoints`: `#points ≤ K ε^{-(b+1)} (1 + log ε⁻¹)³` |
+| `Count.lean` | `card_le_of_cfPoints`: `#points ≤ K ε^{-(b+1)} (1 + log ε⁻¹)³`; the shape `Real.CFCount α b` |
+| `SubspaceInterval.lean` | `Real.SubspaceInterval`: the interval form, one subspace and `K δ⁻² (1 + log δ⁻¹)` intervals of `log |x|` |
+| `CountThird.lean` | steps (i) and (iv) in interval form; `card_le_of_cfPoints_third`: `#points ≤ K ε⁻³ (1 + log ε⁻¹)²`, i.e. `Real.CFCount α 2` |
 | `CFPoints.lean` | the continued-fraction points `spadeVec` are `CFPoint`s |
 | `Complexity.lean` | `exists_config`: from `p(ℓ) ≤ p`, a repetition that cannot slide left |
 | `Asymptotics.lean` | the lengths `ℓ_k = E^{k+1}(k+1)^{2(k+1)}` and the final growth estimates |
-| `Delta.lean` | the contradiction; the 1/4 and 1/9 instances |
+| `Delta.lean` | the contradiction; the 1/3, 1/4 and 1/9 instances |
 
 ## The proof
 

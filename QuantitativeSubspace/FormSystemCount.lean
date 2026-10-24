@@ -56,6 +56,9 @@ lie in that many subspaces plus Layer 9.3's count plus one interval of Layer 9.4
 ## Main results
 
 * `NumberField.exists_finset_submodule_of_efSystemThreshold_le`: the large solutions.
+* `NumberField.exists_forall_mem_interval_of_efSystemThreshold_le`: the large solutions lie in
+  one subspace or in `intervalCount n R' δ'` intervals `[s, ω₀ s)` of `log H(x)`, the count
+  before the gap principle, for solutions that are sparse in height.
 * `NumberField.exists_finset_submodule_of_isNormalizedSystem_ef`: all solutions.
 * `NumberField.efLargeCount_le`, `NumberField.efLargeCount_le_shape`,
   `NumberField.efLargeCount_le_ef`: the closed forms.
@@ -172,29 +175,39 @@ noncomputable def efSystemThreshold (S : Finset (HeightOneSpectrum (𝓞 K)))
 /-! ### The large solutions -/
 
 open scoped Classical in
-/-- **The quantitative Subspace Theorem for the large solutions of a system, at Evertse–Ferretti
-strength** (Q4.3). Under the normalization (2.4), with forms over a Galois extension `E / K`, the
-solutions `x` with `log H(x) ≥ efSystemThreshold` lie in at most `efLargeCount n [E : K] R δ`
-proper subspaces of `Kⁿ`, a number that depends on `n`, `δ`, `[E : K]` and the number `R` of
-distinct forms only. It is `NumberField.exists_finset_submodule_of_forall_interval` with Q4.2's
-interval result (EF13 Theorem 3.3), taken at `R [E : K]` forms over `E`. -/
-theorem exists_finset_submodule_of_efSystemThreshold_le [IsGalois K E]
+/-- **EF13's interval result for the conjugated forms of a system** (Q4.2's
+`NumberField.exists_forall_mem_interval_approxDomain_ef` over `E`), in the shape the assembly of
+Q0.3 takes: every system of exponents over `E` of weight `-[E : K] δ / 2`, with largest exponents
+of weight at most `[E : K] (1 + δ / 2n)`, has its domains at the levels `log Q ≥ efSystemThreshold`
+in one proper subspace of `Eⁿ`, or `log Q` in one of `intervalCount n R' δ'` intervals
+`[s, ω₀ s)`, with `R' = R [E : K] + n`, `δ' = efSystemDelta n δ` and `ω₀ = cutRatio R' δ'`. -/
+theorem forall_interval_approxDomain_of_isNormalizedSystem_ef [IsGalois K E]
     (S : Finset (HeightOneSpectrum (𝓞 K))) (w : AbsoluteValue K ℝ → AbsoluteValue E ℝ)
     (hwInf : ∀ v : InfinitePlace K, (w v.1).LiesOver v.1)
     (hwFin : ∀ v ∈ S, (w (FinitePlace.mk v).1).LiesOver (FinitePlace.mk v).1)
     {L : AbsoluteValue K ℝ → ι → Dual E (ι → E)} {C : InfinitePlace K ⊕ S → ℝ}
     {c : InfinitePlace K ⊕ S → ι → ℝ} {H : ℝ} {D R : ℕ} {δ : ℝ}
     (hN : IsNormalizedSystem S w L C c H D R δ) :
-    ∃ T : Finset (Submodule K (ι → K)),
-      (#T : ℝ) ≤ efLargeCount (Fintype.card ι) (finrank K E) R δ ∧
-      (∀ U ∈ T, U ≠ ⊤) ∧
-      ∀ x ∈ systemSet S w L C c,
-        efSystemThreshold E S w L R H δ ≤ Real.log (mulHeightAff x) → ∃ U ∈ T, x ∈ U := by
+    ∀ c' : AbsoluteValue E ℝ → ι → ℝ,
+      approxWeight (systemPlacesOver E S) c' ≤ -systemEps (finrank K E) δ →
+      approxAbsWeight (systemPlacesOver E S) c' ≤ systemAbsBound (finrank K E) (Fintype.card ι) →
+      approxWeight (systemPlacesOver E S) c' = -(finrank K E * δ / 2) →
+      approxSupWeight (systemPlacesOver E S) c' ≤
+        finrank K E * (1 + δ / (2 * Fintype.card ι)) →
+      ∃ T : Finset (Submodule E (ι → E)), #T ≤ 1 ∧ (∀ W ∈ T, W ≠ ⊤) ∧
+        ∃ 𝒯 : Finset ℝ, #𝒯 ≤ FormSystem.intervalCount (Fintype.card ι)
+            (R * finrank K E + Fintype.card ι) (efSystemDelta (Fintype.card ι) δ) ∧
+          (∀ s ∈ 𝒯, efSystemThreshold E S w L R H δ ≤ s) ∧
+          ∀ Q : ℝ, 1 < Q → efSystemThreshold E S w L R H δ ≤ Real.log Q →
+            (∃ W ∈ T, approxDomain (systemPlacesOver E S)
+              (conjSystem univ (S.image FinitePlace.mk) w L) c' Q ⊆ W) ∨
+              ∃ s ∈ 𝒯, s ≤ Real.log Q ∧ Real.log Q <
+                FormSystem.cutRatio (R * finrank K E + Fintype.card ι)
+                  (efSystemDelta (Fintype.card ι) δ) * s := by
   set n := Fintype.card ι with hn
   have hn2 : 2 ≤ n := hN.two_le_card
   have : Nontrivial ι := Fintype.one_lt_card_iff_nontrivial.1 (by omega)
   have hδ := hN.delta_pos
-  have hδ1 := hN.delta_le_one
   set e := finrank K E with he
   have he0 : 0 < e := finrank_pos
   set Sfin' := systemPlacesOver E S with hSfin'
@@ -215,25 +228,81 @@ theorem exists_finset_submodule_of_efSystemThreshold_le [IsGalois K E]
     hN.linearIndependent (.inr ⟨p, hp⟩)
   set X₀ := efSystemThreshold E S w L R H δ with hX₀
   have hδ' : domainDelta n ε A = efSystemDelta n δ := domainDelta_efEps (by omega) he0 hδ
+  intro c' _ _ hwe hsup
+  have hc : approxWeight Sfin' c' ≤ -ε := by rw [hwe, hε, efEps]
+  have hspread : approxSupWeight Sfin' c' - approxWeight Sfin' c' / n ≤ 2 * A := by
+    rw [hwe, hA, efSpread]
+    have : (e : ℝ) * (1 + δ / (2 * n)) - -(e * δ / 2) / n = e * (1 + δ / n) := by
+      field_simp
+      ring
+    linarith
+  have h := exists_forall_mem_interval_approxDomain_ef (K := E) (Sfin := Sfin') (L := L')
+    (linearIndependent_conjSystem_infinitePlace hwInf hLI)
+    (fun V hV ↦ linearIndependent_conjSystem_systemPlacesOver hwFin hLF hV) hε0 hc hεA
+    hspread hsE (X₀ := X₀) (le_max_left _ _)
+  rwa [hδ'] at h
+
+open scoped Classical in
+/-- **The quantitative Subspace Theorem for the large solutions of a system, at Evertse–Ferretti
+strength** (Q4.3). Under the normalization (2.4), with forms over a Galois extension `E / K`, the
+solutions `x` with `log H(x) ≥ efSystemThreshold` lie in at most `efLargeCount n [E : K] R δ`
+proper subspaces of `Kⁿ`, a number that depends on `n`, `δ`, `[E : K]` and the number `R` of
+distinct forms only. It is `NumberField.exists_finset_submodule_of_forall_interval` with Q4.2's
+interval result (EF13 Theorem 3.3), taken at `R [E : K]` forms over `E`. -/
+theorem exists_finset_submodule_of_efSystemThreshold_le [IsGalois K E]
+    (S : Finset (HeightOneSpectrum (𝓞 K))) (w : AbsoluteValue K ℝ → AbsoluteValue E ℝ)
+    (hwInf : ∀ v : InfinitePlace K, (w v.1).LiesOver v.1)
+    (hwFin : ∀ v ∈ S, (w (FinitePlace.mk v).1).LiesOver (FinitePlace.mk v).1)
+    {L : AbsoluteValue K ℝ → ι → Dual E (ι → E)} {C : InfinitePlace K ⊕ S → ℝ}
+    {c : InfinitePlace K ⊕ S → ι → ℝ} {H : ℝ} {D R : ℕ} {δ : ℝ}
+    (hN : IsNormalizedSystem S w L C c H D R δ) :
+    ∃ T : Finset (Submodule K (ι → K)),
+      (#T : ℝ) ≤ efLargeCount (Fintype.card ι) (finrank K E) R δ ∧
+      (∀ U ∈ T, U ≠ ⊤) ∧
+      ∀ x ∈ systemSet S w L C c,
+        efSystemThreshold E S w L R H δ ≤ Real.log (mulHeightAff x) → ∃ U ∈ T, x ∈ U := by
+  have hn2 : 2 ≤ Fintype.card ι := hN.two_le_card
+  have hδ := hN.delta_pos
   obtain ⟨T, hTcard, hTtop, hT⟩ := exists_finset_submodule_of_forall_interval S w hwInf hwFin hN
-    (X₀ := X₀) (ρ := FormSystem.cutRatio (R * e + n) (efSystemDelta n δ)) (NS := 1)
-    (NI := FormSystem.intervalCount n (R * e + n) (efSystemDelta n δ))
+    (X₀ := efSystemThreshold E S w L R H δ)
+    (ρ := FormSystem.cutRatio (R * finrank K E + Fintype.card ι)
+      (efSystemDelta (Fintype.card ι) δ)) (NS := 1)
+    (NI := FormSystem.intervalCount (Fintype.card ι) (R * finrank K E + Fintype.card ι)
+      (efSystemDelta (Fintype.card ι) δ))
     ((le_max_right _ _).trans (le_max_right _ _)) ((le_max_left _ _).trans (le_max_right _ _))
     (FormSystem.one_lt_cutRatio (by omega) (efSystemDelta_pos hδ)
-      (efSystemDelta_le_one n hδ)).le fun c' _ _ hwe hsup ↦ by
-      have hc : approxWeight Sfin' c' ≤ -ε := by rw [hwe, hε, efEps]
-      have hspread : approxSupWeight Sfin' c' - approxWeight Sfin' c' / n ≤ 2 * A := by
-        rw [hwe, hA, efSpread]
-        have : (e : ℝ) * (1 + δ / (2 * n)) - -(e * δ / 2) / n = e * (1 + δ / n) := by
-          field_simp
-          ring
-        linarith
-      have h := exists_forall_mem_interval_approxDomain_ef (K := E) (Sfin := Sfin') (L := L')
-        (linearIndependent_conjSystem_infinitePlace hwInf hLI)
-        (fun V hV ↦ linearIndependent_conjSystem_systemPlacesOver hwFin hLF hV) hε0 hc hεA
-        hspread hsE (X₀ := X₀) (le_max_left _ _)
-      rwa [hδ'] at h
+      (efSystemDelta_le_one _ hδ)).le
+    (forall_interval_approxDomain_of_isNormalizedSystem_ef S w hwInf hwFin hN)
   exact ⟨T, hTcard.trans_eq (by rw [efLargeCount, Nat.cast_one]), hTtop, hT⟩
+
+open scoped Classical in
+/-- **The large solutions of a system lie in one subspace or in few height intervals, at
+Evertse–Ferretti strength.** Under the normalization (2.4), with forms over a Galois extension
+`E / K`, there are a proper subspace of `Kⁿ` (at most one) and at most
+`intervalCount n R' δ'` reals `s ≥ X₀ = efSystemThreshold` such that every solution `x` with
+`log H(x) ≥ X₀` lies in the subspace or has `s ≤ log H(x) < ω₀ s` for one of them; here
+`R' = R [E : K] + n`, `δ' = efSystemDelta n δ` and `ω₀ = cutRatio R' δ'`. It is the count of
+`NumberField.exists_finset_submodule_of_efSystemThreshold_le` before the gap principle: a caller
+whose solutions are sparse in height counts the intervals itself, and saves the factor
+`log ω₀ / log (1 + δ / 2n) ≍ δ⁻¹ log δ⁻¹` of Layer 9.4. -/
+theorem exists_forall_mem_interval_of_efSystemThreshold_le [IsGalois K E]
+    (S : Finset (HeightOneSpectrum (𝓞 K))) (w : AbsoluteValue K ℝ → AbsoluteValue E ℝ)
+    (hwInf : ∀ v : InfinitePlace K, (w v.1).LiesOver v.1)
+    (hwFin : ∀ v ∈ S, (w (FinitePlace.mk v).1).LiesOver (FinitePlace.mk v).1)
+    {L : AbsoluteValue K ℝ → ι → Dual E (ι → E)} {C : InfinitePlace K ⊕ S → ℝ}
+    {c : InfinitePlace K ⊕ S → ι → ℝ} {H : ℝ} {D R : ℕ} {δ : ℝ}
+    (hN : IsNormalizedSystem S w L C c H D R δ) :
+    ∃ T : Finset (Submodule K (ι → K)), #T ≤ 1 ∧ (∀ U ∈ T, U ≠ ⊤) ∧
+      ∃ 𝒯 : Finset ℝ, #𝒯 ≤ FormSystem.intervalCount (Fintype.card ι)
+          (R * finrank K E + Fintype.card ι) (efSystemDelta (Fintype.card ι) δ) ∧
+        (∀ s ∈ 𝒯, efSystemThreshold E S w L R H δ ≤ s) ∧
+        ∀ x ∈ systemSet S w L C c, efSystemThreshold E S w L R H δ ≤ Real.log (mulHeightAff x) →
+          (∃ U ∈ T, x ∈ U) ∨ ∃ s ∈ 𝒯, s ≤ Real.log (mulHeightAff x) ∧
+            Real.log (mulHeightAff x) < FormSystem.cutRatio (R * finrank K E + Fintype.card ι)
+              (efSystemDelta (Fintype.card ι) δ) * s :=
+  exists_forall_mem_interval_systemSet S w hwInf hwFin hN
+    ((le_max_right _ _).trans (le_max_right _ _)) ((le_max_left _ _).trans (le_max_right _ _))
+    (forall_interval_approxDomain_of_isNormalizedSystem_ef S w hwInf hwFin hN)
 
 /-! ### All solutions -/
 

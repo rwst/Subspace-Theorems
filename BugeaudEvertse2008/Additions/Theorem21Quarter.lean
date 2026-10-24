@@ -35,7 +35,8 @@ Lemma 6.1 gives the points `x_n = (b^{t_n}, b^{r_n}, p_n)`, and `ε = (log t_{2N
 Hence `N ≤ (K₂ K₃ + K₄) ε⁻⁴ (1 + log ε⁻¹)³`, which is `< N` for large `N` since `4 v < 1`. The
 exponent is `4 = 1 + 3` (classes, planes per class): a plane costs a logarithm instead of BE08's
 second Subspace count `ε⁻³`. The split of the gap is the one of the `(3/2)^n` steering word
-(`Stephan2026a/QuantitativeTheorem.lean`).
+(`Stephan2026a/QuantitativeTheorem.lean`). The interval form of the quantitative Subspace Theorem
+gives `η < 1/3` (`BugeaudEvertse2008/Additions/Theorem21Third.lean`).
 
 ## Main results
 
