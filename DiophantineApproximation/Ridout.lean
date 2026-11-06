@@ -8,11 +8,12 @@ module
 public import DiophantineApproximation.RationalPlaces
 public import DiophantineApproximation.RothInfinity
 public import DiophantineApproximation.RothRational
+public import Mathlib.NumberTheory.Padics.PadicNumbers
 
 /-!
-# Ridout's theorem and the `p`-adic form of Roth's theorem
+# Ridout's theorem and the `p`-adic forms of Roth's theorem
 
-The two forms of Roth's theorem over `ℚ` that carry finite places. **Ridout's theorem**
+The three forms of Roth's theorem over `ℚ` that carry finite places. **Ridout's theorem**
 (Ridout 1958) says that for a real algebraic `ξ`, finite sets `S₁`, `S₂` of primes and `ε > 0`
 only finitely many `p / q` in lowest terms satisfy
 
@@ -22,9 +23,11 @@ only finitely many `p / q` in lowest terms satisfy
 
 the **`p`-adic form** (Bombieri–Gubler 6.2.6) says that for `α` in a number field `F`, an
 absolute value `w` of `F` over `padicNorm p` and `ε > 0`, only finitely many rational integers
-`n` satisfy `w (n - α) ≤ |n| ^ (-1 - ε)`.
+`n` satisfy `w (n - α) ≤ |n| ^ (-1 - ε)`; and **Roth's theorem with a `p`-adic target**
+(Ridout 1958, Mahler's `p`-adic case) says that for an algebraic `ξ ∈ ℚ_p` and `ε > 0` only
+finitely many `p / q` in lowest terms satisfy `‖ξ - p / q‖_p ≤ max |p| q ^ (-2 - ε)`.
 
-Both are Layer 3.3's `OnePoint` form of Roth's theorem for a choice of data, read through Layer
+All three are Layer 3.3's `OnePoint` form of Roth's theorem for a choice of data, read through Layer
 3.3's dictionary between the finite places of `ℚ` and the `p`-adic absolute values.
 
 ## Main results
@@ -33,6 +36,7 @@ Both are Layer 3.3's `OnePoint` form of Roth's theorem for a choice of data, rea
   `OnePoint F` at the infinite place and at each prime of a finite set. Every classical form is
   an instance of this one.
 * `Rat.finite_setOf_ridout`: Ridout's theorem.
+* `Rat.finite_setOf_norm_sub_ratCast_le`: Roth's theorem with a target in `ℚ_p`.
 * `Rat.finite_setOf_apply_intCast_sub_le`: the `p`-adic form.
 
 ## Implementation notes
@@ -53,6 +57,14 @@ Layer 3.3 where the solution set is split.
 ⚠ **The exponent is `-2 - ε` against the naive height, not `-2 - ε` against the denominator.**
 Over `ℚ` the multiplicative height of `p / q` in lowest terms is `max |p| q`, and that is what
 `Rat.mulHeight₁_eq_max` puts into the statement; no constant is left over.
+
+⚠ **The `ℚ_p` target is the roadmap's convention read backwards.** The roadmap states no
+completion `K_v`: a `K`-algebraic element of `K_v` is an element of a number field `F` with an
+absolute value over `v`. `Rat.finite_setOf_norm_sub_ratCast_le` takes `ξ : ℚ_[p]` instead, as
+`Rat.finite_setOf_ridout` takes `ξ : ℝ`, because that is the shape applications quote (a `2`-adic
+integer defined by its digits). The proof restores the convention at once: `F = ℚ⟮ξ⟯ ⊆ ℚ_p`, with
+the norm of `ℚ_p` restricted to it, which lies over `padicNorm p` by `Padic.eq_padicNorm`. The
+infinite place carries the target `∞`, whose factor is at most `1` and is discarded.
 
 ## References
 
@@ -311,7 +323,59 @@ theorem finite_setOf_ridout {ξ : ℝ} (halg : IsAlgebraic ℚ ξ) (S₁ S₂ : 
           * ∏ l ∈ S₂, ((padicNorm (l : ℕ) β.den : ℚ) : ℝ) := by ring
     _ ≤ (max β.num.natAbs β.den : ℝ) ^ (-2 - ε) := hβ
 
+/-- **Roth's theorem with a `p`-adic target** (Ridout 1958). For an algebraic `ξ ∈ ℚ_p` and
+`ε > 0`, only finitely many rationals `β = p / q` in lowest terms satisfy
+
+```text
+‖ξ - p / q‖_p ≤ max |p| q ^ (-2 - ε).
+```
+
+This is `Rat.finite_setOf_onePointApprox_mul_prod_le` over `F = ℚ⟮ξ⟯ ⊆ ℚ_p`, with the target `ξ`
+at `p`, measured by the norm of `ℚ_p`, and the target `∞` at the infinite place. -/
+theorem finite_setOf_norm_sub_ratCast_le (p : Nat.Primes) {ξ : ℚ_[(p : ℕ)]}
+    (halg : IsAlgebraic ℚ ξ) {ε : ℝ} (hε : 0 < ε) :
+    {β : ℚ | ‖ξ - (β : ℚ_[(p : ℕ)])‖ ≤ (max β.num.natAbs β.den : ℝ) ^ (-2 - ε)}.Finite := by
+  classical
+  have hint : IsIntegral ℚ ξ := halg.isIntegral
+  have hfd : FiniteDimensional ℚ ℚ⟮ξ⟯ := adjoin.finiteDimensional hint
+  have hnf : NumberField ℚ⟮ξ⟯ := {}
+  -- the norm of `ℚ_p`, restricted to `ℚ⟮ξ⟯`
+  set w : AbsoluteValue ℚ⟮ξ⟯ ℝ := (NormedField.toAbsoluteValue ℚ_[(p : ℕ)]).comp
+    (algebraMap ℚ⟮ξ⟯ ℚ_[(p : ℕ)]).injective with hwdef
+  have hwapply : ∀ x : ℚ⟮ξ⟯, w x = ‖algebraMap ℚ⟮ξ⟯ ℚ_[(p : ℕ)] x‖ := fun x ↦ rfl
+  have hw : w.LiesOver (AbsoluteValue.padic (p : ℕ)) := by
+    refine ⟨AbsoluteValue.ext fun q ↦ ?_⟩
+    rw [AbsoluteValue.under_def]
+    simp only [AbsoluteValue.comp_apply]
+    rw [hwapply, ← IsScalarTower.algebraMap_apply ℚ ℚ⟮ξ⟯ ℚ_[(p : ℕ)],
+      AbsoluteValue.padic_eq_padicNorm, eq_ratCast, Padic.eq_padicNorm]
+  obtain ⟨winf, hwinf⟩ := NumberField.exists_liesOver_infinitePlace (K := ℚ) (F := ℚ⟮ξ⟯)
+    Rat.infinitePlace
+  set a : ℚ⟮ξ⟯ := ⟨ξ, mem_adjoin_simple_self ℚ ξ⟩ with hadef
+  have ha : (algebraMap ℚ⟮ξ⟯ ℚ_[(p : ℕ)]) a = ξ := rfl
+  have hX := finite_setOf_onePointApprox_mul_prod_le (F := ℚ⟮ξ⟯) {p} (fun _ ↦ w)
+    (fun l hl ↦ by rwa [Finset.mem_singleton.mp hl]) winf.1 hwinf (∞ : OnePoint ℚ⟮ξ⟯)
+    (fun _ ↦ (a : OnePoint ℚ⟮ξ⟯)) (κ := 2 + ε) (by linarith)
+  refine hX.subset fun β hβ ↦ ?_
+  rw [Set.mem_ofPred_eq] at hβ ⊢
+  rw [Finset.prod_singleton, AbsoluteValue.onePointApprox_coe]
+  have hval : w (algebraMap ℚ ℚ⟮ξ⟯ β - a) = ‖ξ - (β : ℚ_[(p : ℕ)])‖ := by
+    rw [hwapply, map_sub, ha, ← IsScalarTower.algebraMap_apply ℚ ℚ⟮ξ⟯ ℚ_[(p : ℕ)], eq_ratCast,
+      norm_sub_rev]
+  calc winf.1.onePointApprox ∞ (algebraMap ℚ ℚ⟮ξ⟯ β) * min 1 (w (algebraMap ℚ ℚ⟮ξ⟯ β - a))
+      ≤ 1 * min 1 (w (algebraMap ℚ ℚ⟮ξ⟯ β - a)) :=
+        mul_le_mul_of_nonneg_right (onePointApprox_le_one _ _ _) (le_min zero_le_one (w.nonneg _))
+    _ ≤ ‖ξ - (β : ℚ_[(p : ℕ)])‖ := by rw [one_mul, ← hval]; exact min_le_right _ _
+    _ ≤ (max β.num.natAbs β.den : ℝ) ^ (-(2 + ε)) := by rw [neg_add']; exact hβ
+
 /-! ### Acceptance criteria -/
+
+/-- **Conformance: the transcendence criterion applications quote.** A `p`-adic number with
+infinitely many rational approximations of exponent `2 + ε` is transcendental. -/
+example (p : Nat.Primes) {ξ : ℚ_[(p : ℕ)]} {ε : ℝ} (hε : 0 < ε)
+    (h : {β : ℚ | ‖ξ - (β : ℚ_[(p : ℕ)])‖ ≤ (max β.num.natAbs β.den : ℝ) ^ (-2 - ε)}.Infinite) :
+    Transcendental ℚ ξ :=
+  fun halg ↦ h (finite_setOf_norm_sub_ratCast_le p halg hε)
 
 /-- **Conformance: Roth's theorem is Ridout's with no primes.** -/
 example {ξ : ℝ} (halg : IsAlgebraic ℚ ξ) {ε : ℝ} (hε : 0 < ε) :

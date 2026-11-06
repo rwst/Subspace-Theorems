@@ -130,7 +130,9 @@ number field; `…/RothRational.lean` is Roth's theorem over `ℚ` at the real p
 the irrationality exponent; and `…/Ridout.lean` is the `ℚ`-workhorse — one target at the infinite
 place and one at each prime of a finite set — with Ridout's theorem and the `p`-adic form as its
 two instances. The two classical theorems share a file because they share that workhorse, and the
-workhorse is what a fifth form would quote.
+workhorse is what a fifth form would quote. It has quoted one: Roth's theorem with a target
+`ξ ∈ ℚ_p` (`Rat.finite_setOf_norm_sub_ratCast_le`), the transcendence criterion for `p`-adic
+numbers given by their digits.
 ⚠ **3.4 took three, and the seam is the one the layer's own sentence predicted**:
 `…/ProjectiveTarget.lean` is the local dictionary — the zero of `a X₀ + b X₁` as a point of
 `OnePoint F`, the comparison between the value of the form and the approximation factor at that
@@ -390,7 +392,8 @@ successive minimum used below is consumed from there by milestone number and non
   coefficient shapes at once — and **the forms the applications quote, also landed**: the
   statement with targets in `OnePoint F`, so that the point at infinity is a target;
   **Roth's original theorem**, as the value `2` of the irrationality exponent of every real
-  algebraic irrational; **Ridout's theorem**; and the **`p`-adic form**. And **Roth's theorem on
+  algebraic irrational; **Ridout's theorem**; the **`p`-adic form**; and the form with a
+  **target in `ℚ_p`**. And **Roth's theorem on
   the projective line — the Subspace Theorem in two variables — also landed**, in both
   directions: the finiteness of the exceptional set of lines for two linearly independent forms
   at each place of `S`, and the recovery of Roth's theorem from it for the forms `X₀` and
